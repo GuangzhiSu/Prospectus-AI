@@ -1,8 +1,6 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,32 +8,53 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# Next.js (apps/web)
+apps/web/.next/
+apps/web/out/
+apps/web/build/
 
-# next.js
-/.next/
-/out/
+# Runtime / generated (apps/web)
+apps/web/uploads/
+apps/web/rag/
+apps/web/rag_raw/
+apps/web/.progress.json
 
-# production
-/build
+# Legacy runtime at root (if app was run from root before reorg)
+.next/
+uploads/
+rag/
+rag_raw/
+.progress.json
 
-# misc
+# Python (services/local-llm)
+.venv/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.Python
+services/local-llm/.venv/
+services/local-llm/chroma/
+services/local-llm/rag_raw/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# IDE / OS
 .DS_Store
 *.pem
+*.tsbuildinfo
+next-env.d.ts
 
-# debug
+# Logs / debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
+# Vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Temp / lock files
+~$*
