@@ -1,0 +1,34 @@
+{
+  "A": {
+    "name": "Business & Strategy",
+    "requirements": "Describe the company's business overview, products/services, business model, competitive strengths, and growth strategies. Use factual data from the provided context. Include key metrics (revenue, market position, store counts, etc.) where available."
+  },
+  "B": {
+    "name": "Industry & Market",
+    "requirements": "Describe the industry overview, market size, growth trends, competitive landscape, and market performance. Use data from the provided context. Cite figures and comparisons where available."
+  },
+  "C": {
+    "name": "Risk Factors",
+    "requirements": "List and explain material risks: industry, business, operational, financial, regulatory, and investment-specific risks. Each risk should have a clear heading and explanatory paragraph. Tone: cautionary and factual."
+  },
+  "D": {
+    "name": "Financial Performance & Condition",
+    "requirements": "Describe financial performance: revenue, expenses, profitability, balance sheet, cash flow, liquidity. Include key ratios and trends. Use figures from the provided context. Analytical and objective tone."
+  },
+  "E": {
+    "name": "Use of Proceeds & Capital Structure",
+    "requirements": "Describe share capital structure, use of proceeds, allocation of funds. Include ownership structure, holdings, equity arrangements. Use data from the provided context."
+  },
+  "F": {
+    "name": "Management, Governance & Incentives",
+    "requirements": "Describe directors, senior management, board composition, governance. Include biographical profiles and key responsibilities. Factual and positive tone."
+  },
+  "G": {
+    "name": "Legal, Regulatory & Compliance",
+    "requirements": "Describe key regulations governing the business, compliance status, licenses, regulatory overview. Neutral and informative tone."
+  },
+  "H": {
+    "name": "Offering Mechanics & Share Structure",
+    "requirements": "Describe offering structure, share mechanics, allocation, listing arrangements. Include timetable and procedural details if available."
+  }
+}

@@ -26,6 +26,12 @@ rag/
 rag_raw/
 .progress.json
 
+# Agent1 output (generated RAG chunks)
+agent1_output/
+
+# Agent2 output (generated prospectus sections)
+agent2_output/
+
 # Python (services/local-llm)
 .venv/
 **/__pycache__/

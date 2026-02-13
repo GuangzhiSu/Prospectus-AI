@@ -1,0 +1,11 @@
+# Prospectus pipeline: agent1 + agent2 + llm_qwen (Qwen via Hugging Face)
+# Python 3.10+
+
+# Agent1: Excel → RAG chunks
+pandas>=2.0
+openpyxl>=3.1
+
+# Agent2 + llm_qwen: Qwen (Hugging Face)
+transformers>=4.45.0
+torch>=2.0.0
+accelerate>=0.30.0

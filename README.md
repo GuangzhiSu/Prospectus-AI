@@ -106,6 +106,47 @@ Create `apps/web/.env.local` and set the variables you need.
 
 These paths are in `.gitignore`.
 
+## Agent1: Excel → RAG-ready materials
+
+Processes all Excel files in `data/` into RAG-ready chunks, classified by prospectus section (A–H). Uses Qwen (Hugging Face) for optional LLM-based classification.
+
+```bash
+pip install -r requirements.txt
+python agent1.py
+# Optional: use Qwen for section classification (instead of filename heuristic)
+python agent1.py --classify-with-llm --model Qwen/Qwen2.5-3B-Instruct
+```
+
+Output: `agent1_output/rag_chunks.jsonl` and `agent1_output/by_section/section_*.jsonl` for agent2.
+
+## Agent2: RAG → prospectus sections (section-by-section)
+
+Uses agent1 output for RAG and Qwen (Hugging Face) to generate prospectus sections one by one.
+
+```bash
+pip install -r requirements.txt
+python agent2.py --section A
+python agent2.py --section A B D
+python agent2.py --section all
+# Smaller/faster model
+python agent2.py --section A --model Qwen/Qwen2.5-3B-Instruct
+```
+
+Output: `agent2_output/section_*.md` and `agent2_output/all_sections.md`.
+
+Both agents use **Qwen via Hugging Face** (Qwen2.5 for text; Qwen2-VL available for multimodal in `llm_qwen.py`).
+
+## Run full pipeline (one command)
+
+```bash
+./run_full_pipeline.sh                    # agent1 → agent2 (all sections)
+./run_full_pipeline.sh A B D              # Only sections A, B, D
+./run_full_pipeline.sh --classify-with-llm   # Use Qwen for agent1 classification
+./run_full_pipeline.sh --model Qwen/Qwen2.5-3B-Instruct   # Smaller/faster model
+```
+
+Prerequisites: Excel files in `data/`. The script installs deps, runs agent1, then agent2.
+
 ## Other files at repo root
 
 - `Guidelines for Writing Prospectus Sections.docx` — reference for section requirements (optional; you can move it to `docs/`).
