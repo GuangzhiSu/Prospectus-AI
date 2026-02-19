@@ -2,14 +2,18 @@
 """
 Agent1: Process Excel files in data/ → RAG-ready materials by prospectus section.
 
-Uses Qwen (Hugging Face) for optional LLM-based section classification.
+Assumes upstream provides complete tables and data. Agent1 only:
+- Extracts content from each Excel sheet
+- Generates a content summary per table (for RAG retrieval)
+- Classifies by filename heuristic (A–H)
+- Outputs rag_chunks.jsonl for agent2 RAG
 
 Input:  All Excel files in data/
 Output: agent1_output/rag_chunks.jsonl (and by_section/*.jsonl) for agent2 RAG.
 
 Usage:
   python agent1.py
-  python agent1.py --classify-with-llm --model Qwen/Qwen2.5-3B-Instruct
+  python agent1.py --model Qwen/Qwen2.5-3B-Instruct
 """
 
 from __future__ import annotations
@@ -84,6 +88,32 @@ def chunk_text(text: str, max_chars: int = 1200, overlap: int = 200) -> list[str
     return chunks
 
 
+def summarize_table_with_qwen(
+    text_sample: str,
+    filename: str,
+    sheet_name: str,
+    model_name: str = DEFAULT_MODEL,
+) -> str:
+    """Use Qwen to produce a short content summary of the table (for RAG)."""
+    prompt = f"""Summarize this table/sheet in 2–4 sentences (English). Capture key metrics, structure, and data scope. Be factual and concise.
+
+File: {filename}
+Sheet: {sheet_name}
+
+Table excerpt (first 2500 chars):
+---
+{text_sample[:2500]}
+---
+
+SUMMARY:"""
+    try:
+        from llm_qwen import run_qwen_text
+        out = run_qwen_text(prompt, model_name=model_name, max_new_tokens=256)
+        return out.strip() or f"Table: {filename} / {sheet_name}"
+    except Exception:
+        return f"Table: {filename} / {sheet_name}"
+
+
 def classify_file(filename: str) -> str:
     """Map filename to section ID (A–H)."""
     stem = Path(filename).stem.lower()
@@ -91,32 +121,6 @@ def classify_file(filename: str) -> str:
         if key in stem:
             return section_id
     return "D"  # default: financial
-
-
-def classify_with_qwen(text_sample: str, model_name: str = DEFAULT_MODEL) -> str:
-    """Use Qwen to classify document into section A–H."""
-    section_list = "\n".join(f"- {s[0]}: {s[1]}" for s in SECTIONS)
-    prompt = f"""Classify this financial document excerpt into exactly one prospectus section. Reply with ONLY the section letter (A, B, C, D, E, F, G, or H).
-
-Sections:
-{section_list}
-
-Document excerpt (first 1500 chars):
----
-{text_sample[:1500]}
----
-
-Reply with only one letter:"""
-    try:
-        from llm_qwen import run_qwen_text
-        out = run_qwen_text(prompt, model_name=model_name, max_new_tokens=16)
-        # Extract section letter
-        for c in out.upper():
-            if c in "ABCDEFGH":
-                return c
-    except Exception:
-        pass
-    return "D"  # fallback
 
 
 def extract_text_from_excel(path: Path) -> str:
@@ -134,12 +138,22 @@ def extract_text_from_excel(path: Path) -> str:
         if text.strip():
             parts.append(f"[Sheet: {sheet}]\n{text}")
     return "\n\n".join(parts)
-    # Alternative: read as string to preserve table structure
-    # for sheet in xl.sheet_names:
-    #     df = pd.read_excel(xl, sheet_name=sheet, header=None, dtype=str)
-    #     text = df.to_string(index=False, header=False)
-    #     parts.append(text)
-    # return "\n\n".join(parts)
+
+
+def extract_per_sheet(path: Path) -> list[tuple[str, str]]:
+    """Extract text per sheet. Returns [(sheet_name, text), ...]."""
+    try:
+        import pandas as pd
+    except ImportError:
+        raise ImportError("agent1 requires pandas and openpyxl")
+    xl = pd.ExcelFile(path, engine="openpyxl")
+    result: list[tuple[str, str]] = []
+    for sheet in xl.sheet_names:
+        df = pd.read_excel(xl, sheet_name=sheet, header=None, dtype=str)
+        text = df.to_string(index=False, header=False, na_rep="")
+        if text.strip():
+            result.append((sheet, f"[Sheet: {sheet}]\n{text}"))
+    return result
 
 
 def run_agent1(
@@ -147,9 +161,9 @@ def run_agent1(
     output_dir: str | Path = "agent1_output",
     max_chars: int = 1200,
     overlap: int = 200,
-    classify_with_llm: bool = False,
     model_name: str = DEFAULT_MODEL,
 ) -> None:
+    """Run agent1: per-table summarization, output RAG chunks for agent2."""
     data_path = Path(data_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -161,32 +175,40 @@ def run_agent1(
 
     all_chunks: list[dict[str, Any]] = []
     by_section: dict[str, list[dict[str, Any]]] = {s[0]: [] for s in SECTIONS}
+    sheet_summaries: dict[tuple[str, str], str] = {}  # (filename, sheet_name) -> summary
 
     for f in files:
-        text = extract_text_from_excel(f)
-        if not text.strip():
+        sheets = extract_per_sheet(f)
+        if not sheets:
             continue
-
-        if classify_with_llm:
-            section_id = classify_with_qwen(text, model_name=model_name)
-            print(f"  [Qwen] {f.name} -> Section {section_id}")
-        else:
-            section_id = classify_file(f.name)
+        section_id = classify_file(f.name)
         section_name = next((n for sid, n in SECTIONS if sid == section_id), "Unknown")
 
-        chunks = chunk_text(text, max_chars=max_chars, overlap=overlap)
-        for i, chunk in enumerate(chunks):
-            chunk_id = hashlib.md5(f"{f.name}:{i}:{chunk[:50]}".encode()).hexdigest()[:12]
-            rec = {
-                "chunk_id": chunk_id,
-                "section_id": section_id,
-                "section": section_name,
-                "source_file": f.name,
-                "chunk_index": i,
-                "text": chunk,
-            }
-            all_chunks.append(rec)
-            by_section[section_id].append(rec)
+        for sheet_name, sheet_text in sheets:
+            print(f"  [Qwen] {f.name} / {sheet_name} -> summarising...")
+            summary = summarize_table_with_qwen(
+                sheet_text, f.name, sheet_name, model_name=model_name
+            )
+            sheet_summaries[(f.name, sheet_name)] = summary
+
+            chunks = chunk_text(sheet_text, max_chars=max_chars, overlap=overlap)
+            for i, chunk in enumerate(chunks):
+                chunk_id = hashlib.md5(
+                    f"{f.name}:{sheet_name}:{i}:{chunk[:50]}".encode()
+                ).hexdigest()[:12]
+                rec = {
+                    "chunk_id": chunk_id,
+                    "section_id": section_id,
+                    "section": section_name,
+                    "source_file": f.name,
+                    "sheet_name": sheet_name,
+                    "chunk_index": i,
+                    "text": f"{summary}\n\n[Data]\n{chunk}",
+                    "sheet_summary": summary,
+                }
+                all_chunks.append(rec)
+                by_section[section_id].append(rec)
+        print(f"  [Qwen] {f.name} -> Section {section_id} ({len(sheets)} sheets)")
 
     # Write main JSONL
     main_path = output_path / "rag_chunks.jsonl"
@@ -210,6 +232,9 @@ def run_agent1(
         "sections": [{"id": s[0], "name": s[1], "chunk_count": len(by_section[s[0]])} for s in SECTIONS],
         "total_chunks": len(all_chunks),
         "source_files": list({c["source_file"] for c in all_chunks}),
+        "sheet_summaries": {
+            f"{k[0]}:{k[1]}": v for k, v in sheet_summaries.items()
+        },
     }
     with open(output_path / "manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
@@ -243,11 +268,6 @@ def main() -> None:
         help="Overlap between chunks"
     )
     parser.add_argument(
-        "--classify-with-llm",
-        action="store_true",
-        help="Use Qwen (Hugging Face) for section classification instead of filename heuristic"
-    )
-    parser.add_argument(
         "--model",
         default=DEFAULT_MODEL,
         help="Qwen model (default: Qwen/Qwen2.5-7B-Instruct). Use Qwen/Qwen2.5-3B-Instruct for smaller/faster."
@@ -259,7 +279,6 @@ def main() -> None:
         output_dir=args.output_dir,
         max_chars=args.max_chars,
         overlap=args.overlap,
-        classify_with_llm=args.classify_with_llm,
         model_name=args.model,
     )
 

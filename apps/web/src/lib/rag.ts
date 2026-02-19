@@ -4,6 +4,7 @@ import crypto from "crypto";
 import OpenAI from "openai";
 import { createRequire } from "module";
 import mammoth from "mammoth";
+import * as XLSX from "xlsx";
 
 export type RagChunk = {
   id: string;
@@ -260,6 +261,23 @@ async function extractTextFromBuffer(
     const result = await mammoth.extractRawText({ buffer });
     return result.value || "";
   }
+  if (
+    mime === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+    lower.endsWith(".xlsx")
+  ) {
+    const workbook = XLSX.read(buffer, { type: "buffer" });
+    const parts: string[] = [];
+    for (const sheetName of workbook.SheetNames) {
+      const sheet = workbook.Sheets[sheetName];
+      if (sheet) {
+        const csv = XLSX.utils.sheet_to_csv(sheet);
+        if (csv.trim()) {
+          parts.push(`[Sheet: ${sheetName}]\n${csv}`);
+        }
+      }
+    }
+    return parts.join("\n\n");
+  }
   return "";
 }
 
@@ -365,7 +383,7 @@ function cleanDraftOutput(text: string) {
     if (
       lower.startsWith("sources:") ||
       lower.startsWith("source:") ||
-      line.startsWith("来源：")
+      line.startsWith("Source:")
     ) {
       return false;
     }
@@ -408,15 +426,15 @@ export async function retrieveTopChunks(question: string, topK = 6) {
 
 export async function answerWithRag(question: string, topChunks: RagChunk[]) {
   if (topChunks.length === 0) {
-    return "目前没有可检索的文档内容，请先上传 PDF/DOCX 并发送问题。";
+    return "No document content available for retrieval. Upload PDF/DOCX first and ask a question.";
   }
 
   const context = buildContext(topChunks);
 
   const answer = await completeChat({
     system:
-      "你是文档问答助手。只能使用提供的上下文回答，若上下文不足以回答问题，请明确说明无法从文档中找到答案，不要编造。",
-    user: `问题：${question}\n\n上下文：\n${context}`,
+      "You are a document Q&A assistant. Use only the provided context to answer. If the context is insufficient, clearly state that the answer cannot be found in the documents. Do not fabricate.",
+    user: `Question: ${question}\n\nContext:\n${context}`,
     temperature: 0.2,
   });
 
@@ -424,20 +442,20 @@ export async function answerWithRag(question: string, topChunks: RagChunk[]) {
     new Set(topChunks.map((c) => c.docName))
   ).slice(0, 6);
 
-  if (!answer) return "模型未返回有效回答。";
+  if (!answer) return "Model did not return a valid answer.";
   const sourcesBlock = sources.length
-    ? `\n\n来源：\n${sources.map((s) => `- ${s}`).join("\n")}`
+    ? `\n\nSources:\n${sources.map((s) => `- ${s}`).join("\n")}`
     : "";
   return `${answer}${sourcesBlock}`;
 }
 
 export async function answerWithoutRag(question: string) {
   const answer = await completeChat({
-    system: "你是通用助手，请使用用户的语言简洁回答。",
+    system: "You are a general assistant. Answer concisely in the user's language.",
     user: question,
     temperature: 0.7,
   });
-  return answer || "模型未返回有效回答。";
+  return answer || "Model did not return a valid answer.";
 }
 
 export async function generateSectionDraft(

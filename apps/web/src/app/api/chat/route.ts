@@ -21,10 +21,11 @@ type Message = {
   attachments?: { name: string; size: number; type: string }[];
 };
 
-const ALLOWED_EXT = [".pdf", ".docx"];
+const ALLOWED_EXT = [".pdf", ".docx", ".xlsx"];
 const ALLOWED_MIME = new Set([
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ]);
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25MB
@@ -38,7 +39,8 @@ function isAllowedFile(name: string, type: string) {
 }
 
 function sanitizeFilename(name: string) {
-  return name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+  // Preserve path from folder upload (e.g. "folder/sub/file.pdf" -> "folder_sub_file.pdf")
+  return name.replace(/\//g, "__").replace(/[^a-zA-Z0-9.\-_]/g, "_");
 }
 
 function makeStoredName(originalName: string) {
@@ -46,11 +48,31 @@ function makeStoredName(originalName: string) {
   return `${Date.now()}_${crypto.randomUUID()}__${safe}`;
 }
 
+function getMimeFromFilename(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".docx"))
+    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  if (lower.endsWith(".xlsx"))
+    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  return "application/octet-stream";
+}
+
+function originalNameFromStored(storedName: string): string {
+  const parts = storedName.split("__");
+  return parts.length >= 2 ? parts.slice(1).join("__") : storedName;
+}
+
 export async function POST(req: Request) {
   try {
     const form = await req.formData();
     const messagesRaw = form.get("messages");
     const files = form.getAll("files") as File[];
+    const useSavedRaw = form.get("useSavedFiles");
+    const useSavedFiles: string[] =
+      useSavedRaw && typeof useSavedRaw === "string"
+        ? (JSON.parse(useSavedRaw) as string[])
+        : [];
 
     const messages: Message[] = messagesRaw ? JSON.parse(String(messagesRaw)) : [];
 
@@ -78,7 +100,7 @@ export async function POST(req: Request) {
       const type = f.type || "";
       if (!isAllowedFile(f.name, type)) {
         return new NextResponse(
-          `File type not allowed: ${f.name}. Only PDF/DOCX are allowed.`,
+          `File type not allowed: ${f.name}. Only PDF/DOCX/Excel are allowed.`,
           { status: 400 }
         );
       }
@@ -106,8 +128,47 @@ export async function POST(req: Request) {
           });
         } catch (err: any) {
           indexErrors.push(
-            `${f.name}: ${err?.message ? String(err.message) : "索引失败"}`
+            `${f.name}: ${err?.message ? String(err.message) : "Index failed"}`
           );
+        }
+      }
+    }
+
+    // Use saved files from uploads/ when no new files uploaded
+    if (files.length === 0 && useSavedFiles.length > 0) {
+      for (const storedName of useSavedFiles) {
+        const fullPath = path.join(uploadDir, storedName);
+        try {
+          const body = await fs.readFile(fullPath);
+          const originalName = originalNameFromStored(storedName);
+          const mime = getMimeFromFilename(originalName);
+          if (!isAllowedFile(originalName, mime)) continue;
+
+          const st = await fs.stat(fullPath);
+          stored_files.push({
+            storedName,
+            originalName,
+            size: st.size,
+            type: mime,
+          });
+          storedPaths.push(fullPath);
+
+          if (provider !== "local") {
+            try {
+              await indexDocumentFromBuffer({
+                buffer: body,
+                storedName,
+                originalName,
+                mime,
+              });
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : "Index failed";
+              indexErrors.push(`${originalName}: ${msg}`);
+            }
+          }
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "read failed";
+          indexErrors.push(`${storedName}: ${msg}`);
         }
       }
     }
@@ -137,11 +198,11 @@ export async function POST(req: Request) {
     let assistant_message = "";
     if (!trimmedAsk || trimmedAsk === "(uploaded files)") {
       assistant_message =
-        `✅ 已保存 ${stored_files.length} 个文件，并尝试建立索引。` +
+        `✅ Saved ${stored_files.length} file(s) and attempted to index.` +
         (stored_files.length
           ? `\n- ${stored_files.map((x) => x.originalName).join("\n- ")}`
-          : "\n（未上传文件）") +
-        "\n\n请在输入框里提出具体问题。";
+          : "\n(No files uploaded)") +
+        "\n\nAsk specific questions in the input box.";
     } else {
       const requirementsPath = path.join(
         process.cwd(),
@@ -160,7 +221,7 @@ export async function POST(req: Request) {
         const allChunks = await loadAllChunks();
         if (allChunks.length === 0) {
           assistant_message =
-            "当前没有可用的文档索引，请先上传 PDF/DOCX 再生成草稿。";
+            "No document index available. Upload PDF/DOCX/Excel files first, then click Generate to create a draft.";
         } else {
           const progressPath = path.join(process.cwd(), ".progress.json");
           await fs.writeFile(
@@ -208,7 +269,7 @@ export async function POST(req: Request) {
 
           if (indexErrors.length) {
             assistant_message +=
-              `\n\n⚠️ 有部分文件未能建立索引：\n- ${indexErrors.join("\n- ")}`;
+              `\n\n⚠️ Some files could not be indexed:\n- ${indexErrors.join("\n- ")}`;
           }
 
           return NextResponse.json({
@@ -258,7 +319,7 @@ export async function POST(req: Request) {
 
         if (indexErrors.length) {
           assistant_message +=
-            `\n\n⚠️ 有部分文件未能建立索引：\n- ${indexErrors.join("\n- ")}`;
+            `\n\n⚠️ Some files could not be indexed:\n- ${indexErrors.join("\n- ")}`;
         }
 
         return NextResponse.json({
@@ -271,7 +332,7 @@ export async function POST(req: Request) {
 
     if (indexErrors.length) {
       assistant_message +=
-        `\n\n⚠️ 有部分文件未能建立索引：\n- ${indexErrors.join("\n- ")}`;
+        `\n\n⚠️ Some files could not be indexed:\n- ${indexErrors.join("\n- ")}`;
     }
 
     return NextResponse.json({

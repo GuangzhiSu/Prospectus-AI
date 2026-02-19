@@ -2,25 +2,20 @@
 # Run full prospectus pipeline: agent1 (Excel → RAG) → agent2 (RAG → sections)
 # Usage:
 #   ./run_full_pipeline.sh              # Default: all sections
-#   ./run_full_pipeline.sh A B D        # Specific sections only
-#   ./run_full_pipeline.sh --classify-with-llm   # Use Qwen for agent1 classification
+#   ./run_full_pipeline.sh Summary Definitions   # Specific sections only
+#   ./run_full_pipeline.sh --model Qwen/Qwen2.5-3B-Instruct
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Parse args: sections (A B D...) or --classify-with-llm, --model
-CLASSIFY_WITH_LLM=""
+# Parse args: sections or --model
 MODEL=""
 SECTIONS="all"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --classify-with-llm)
-      CLASSIFY_WITH_LLM="--classify-with-llm"
-      shift
-      ;;
     --model)
       MODEL="$2"
       shift 2
@@ -51,11 +46,10 @@ echo "[OK] Dependencies installed"
 
 # 3. Run agent1
 echo ""
-echo "Step 2: Running agent1 (Excel → RAG chunks)..."
+echo "Step 2: Running agent1 (Excel → per-table summarization → RAG chunks)..."
 AGENT1_OPTS=""
-[[ -n "$CLASSIFY_WITH_LLM" ]] && AGENT1_OPTS="$CLASSIFY_WITH_LLM"
 [[ -n "$MODEL" ]] && AGENT1_OPTS="$AGENT1_OPTS --model $MODEL"
-python agent1.py $AGENT1_OPTS
+python agent1.py $AGENT1_OPTS || { echo "Agent1 failed. Fix and re-run."; exit 1; }
 echo "[OK] agent1 done -> agent1_output/"
 
 # 4. Run agent2

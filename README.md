@@ -108,13 +108,16 @@ These paths are in `.gitignore`.
 
 ## Agent1: Excel → RAG-ready materials
 
-Processes all Excel files in `data/` into RAG-ready chunks, classified by prospectus section (A–H). Uses Qwen (Hugging Face) for optional LLM-based classification.
+Assumes upstream provides complete tables. Agent1 only:
+- Extracts content from each Excel sheet
+- Generates a content summary per table (via Qwen)
+- Classifies by filename heuristic (A–H)
+- Outputs RAG chunks for agent2
 
 ```bash
 pip install -r requirements.txt
 python agent1.py
-# Optional: use Qwen for section classification (instead of filename heuristic)
-python agent1.py --classify-with-llm --model Qwen/Qwen2.5-3B-Instruct
+python agent1.py --model Qwen/Qwen2.5-3B-Instruct   # Smaller/faster
 ```
 
 Output: `agent1_output/rag_chunks.jsonl` and `agent1_output/by_section/section_*.jsonl` for agent2.
@@ -125,23 +128,28 @@ Uses agent1 output for RAG and Qwen (Hugging Face) to generate prospectus sectio
 
 ```bash
 pip install -r requirements.txt
-python agent2.py --section A
-python agent2.py --section A B D
+python agent2.py --section Summary
+python agent2.py --section Summary Definitions Glossary
 python agent2.py --section all
-# Smaller/faster model
-python agent2.py --section A --model Qwen/Qwen2.5-3B-Instruct
+python agent2.py --section Summary --model Qwen/Qwen2.5-3B-Instruct
 ```
 
 Output: `agent2_output/section_*.md` and `agent2_output/all_sections.md`.
 
 Both agents use **Qwen via Hugging Face** (Qwen2.5 for text; Qwen2-VL available for multimodal in `llm_qwen.py`).
 
+### GPU configuration
+
+- **Specify GPU IDs** (multi-GPU): Set `AGENT1_CUDA_DEVICES=2,3,4` in `apps/web/.env.local` to use GPUs 2, 3, 4 only.
+- **Or use** `CUDA_VISIBLE_DEVICES=2,3,4` (same effect).
+- **Out of memory / compatibility**: Set `AGENT1_USE_CPU=1` to force CPU.
+- **Default model**: Web uses `Qwen/Qwen2.5-3B-Instruct` (~6GB VRAM).
+
 ## Run full pipeline (one command)
 
 ```bash
 ./run_full_pipeline.sh                    # agent1 → agent2 (all sections)
-./run_full_pipeline.sh A B D              # Only sections A, B, D
-./run_full_pipeline.sh --classify-with-llm   # Use Qwen for agent1 classification
+./run_full_pipeline.sh Summary Definitions   # Only specific sections
 ./run_full_pipeline.sh --model Qwen/Qwen2.5-3B-Instruct   # Smaller/faster model
 ```
 

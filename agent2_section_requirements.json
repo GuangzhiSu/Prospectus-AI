@@ -1,34 +1,102 @@
 {
-  "A": {
-    "name": "Business & Strategy",
-    "requirements": "Describe the company's business overview, products/services, business model, competitive strengths, and growth strategies. Use factual data from the provided context. Include key metrics (revenue, market position, store counts, etc.) where available."
+  "ExpectedTimetable": {
+    "name": "Expected Timetable",
+    "requirements": "Role: Present the key dates and milestones for the IPO process.\n\nFormat: Table or timeline format showing: expected date of prospectus; last date for lodging applications; expected date of allotment; expected date of trading commencement; other material dates (e.g. publication of results).\n\nContent: All dates relevant to the offering and listing. Use ONLY data from the provided context. If dates are not in the documents, state '[Information not provided in the documents]'."
   },
-  "B": {
-    "name": "Industry & Market",
-    "requirements": "Describe the industry overview, market size, growth trends, competitive landscape, and market performance. Use data from the provided context. Cite figures and comparisons where available."
+  "Contents": {
+    "name": "Contents",
+    "requirements": "Role: Table of contents listing all sections of the prospectus with page numbers or section references.\n\nFormat: Hierarchical list matching the prospectus structure. Main sections with sub-sections where applicable.\n\nContent: Generate based on the standard prospectus sections (Expected Timetable, Summary, Definitions, etc.). Page numbers may be placeholders if not available. Use ONLY data from the provided context."
   },
-  "C": {
+  "Summary": {
+    "name": "Summary",
+    "requirements": "Output in English only. HKEX prospectus format.\n\nRole: Provide a high-level overview of the company and the offering, condensing critical information for a quick read.\n\nStructure: Narrative touching all essential points: brief introduction to company's business and industry, key financial figures, major strengths, strategies, significant risks, basic offering details. Begin with a statement of purpose (e.g. 'This summary aims to give you an overview of the information contained in this prospectus... You should read the entire document before making any investment decision').\n\nContent: Company's core business model and market position in a few sentences; revenue/profit trends or important financial metrics; distinctive aspects (unique selling point, competitive advantage); summarized financial information in table form for track record period (income statements, balance sheets, cash flows); brief material risk factors with cross-reference to Risk Factors section; recent developments if applicable.\n\nTone: Balanced, factual, no marketing hype. Concise but sufficient for solid understanding. Acts as an informative executive summary."
+  },
+  "Definitions": {
+    "name": "Definitions",
+    "requirements": "Role: Comprehensive glossary of defined terms used throughout the prospectus.\n\nFormat: Alphabetical list of terms, each followed by a clear definition. Dictionary-style: term (in quotation marks or bold) on the left, meaning on the right.\n\nContent: Company name and subsidiaries; technical abbreviations; names of significant entities; key people (full name and title); company entities; regulatory authorities; industry terms; financial/legal abbreviations; any jargon or short-form appearing in the document.\n\nAccuracy: Each definition must be accurate and succinct. Every significant term that could be unfamiliar or have specific meaning in context must be included. Use exact phrasing from the prospectus for consistency and legal precision.\n\nStyle: List format, not narrative. No narrative sentences."
+  },
+  "Glossary": {
+    "name": "Glossary of Technical Terms",
+    "requirements": "Role: Industry- or technical-specific terminology that a general investor might not know (distinct from Definitions which covers legal/entity terms).\n\nFormat: Alphabetized list of technical terms or acronyms, each with a brief explanation in plain language.\n\nContent: Jargon, scientific or product terms, industry-specific concepts related to the company's business. Examples: technical standards (tech company), medical terms (biotech), product category names.\n\nGranularity: Enough for basic understanding – concise clarification, not a full essay. Ensure consistency with how terms are used in Business or Industry sections."
+  },
+  "ForwardLooking": {
+    "name": "Forward-Looking Statements",
+    "requirements": "Output in English only. HKEX prospectus format.\n\nRole: Cautionary disclaimer explaining that certain statements are predictive or based on future expectations.\n\nDrafting: Formal, legal language. Make clear that statements about future plans, prospects, or performance are not guarantees. State that forward-looking statements are based on assumptions and current information, which may prove inaccurate.\n\nContent: Enumerate kinds of statements that qualify (future growth, market demand, expansion plans, financial projections); warn that actual results could differ materially due to known or unknown risks; caution investors not to place undue reliance; mention statements speak only as of prospectus date; company undertakes no obligation to update unless required by law.\n\nStructure: Identify forward-looking statements; highlight risk factors that could cause outcomes to differ; qualify statements by these cautionary notes. Mirror standard safe-harbor disclaimers."
+  },
+  "RiskFactors": {
     "name": "Risk Factors",
-    "requirements": "List and explain material risks: industry, business, operational, financial, regulatory, and investment-specific risks. Each risk should have a clear heading and explanatory paragraph. Tone: cautionary and factual."
+    "requirements": "Role: Detailed discussion of all significant risks associated with the company's business and the investment. Frank and thorough tone.\n\nStructure: Series of sub-sections or bullet points – descriptive sub-headings with explanatory paragraphs for each major risk.\n\nCoverage: Industry-related risks; business and operational risks; financial and market risks; regulatory and legal risks; investment-specific risks (offering structure, share price volatility).\n\nPer-risk content: Heading stating the risk crisply; one or more paragraphs explaining why it is a risk and how it could adversely affect the company or investors; context/cause; potential negative outcome; sometimes mitigating factors.\n\nOrganization: Group by type – business/industry, then financial, then regulatory, then shares/offering.\n\nGranularity: High. Full disclosure. Sufficient detail and specific examples or figures. Do not downplay any risk. Compliance requires all material risks clearly disclosed."
   },
-  "D": {
-    "name": "Financial Performance & Condition",
-    "requirements": "Describe financial performance: revenue, expenses, profitability, balance sheet, cash flow, liquidity. Include key ratios and trends. Use figures from the provided context. Analytical and objective tone."
+  "Waivers": {
+    "name": "Waivers from Strict Compliance with Listing Rules (Waivers and Exemptions)",
+    "requirements": "Role: Disclose any special dispensations the company obtained from the stock exchange or regulators regarding listing requirements.\n\nStructure: Enumerate each waiver by the specific rule waived. Sub-sections with headings (e.g. 'Management Presence in Hong Kong').\n\nPer-waiver content: Brief description of the requirement waived; justification for seeking the waiver; confirmation that the exchange/regulator granted it; any conditions attached; reference to exact Listing Rule numbers and titles.\n\nGranularity: Cite rule number and title; describe extent of non-compliance; describe mitigation or alternative steps. Ensure transparency – without waivers the company would not meet criteria; with them, listing is permitted. Include any waivers sought but not granted if applicable."
   },
-  "E": {
-    "name": "Use of Proceeds & Capital Structure",
-    "requirements": "Describe share capital structure, use of proceeds, allocation of funds. Include ownership structure, holdings, equity arrangements. Use data from the provided context."
+  "InfoProspectus": {
+    "name": "Information about this Prospectus and the Global Offering",
+    "requirements": "Output in English only. HKEX prospectus format.\n\nRole: Important notices on how to interpret the document and details about the offering process.\n\nFormat: Series of informational points or short paragraphs.\n\nContent: Distribution and reliance – prospectus is the only authorized source; no one authorized to provide different information; investors should not rely on other sources; prospectus does not constitute an offer where not permitted; caution on cross-border distribution; offering arrangements (share delivery, trading); listing on HKEX, CCASS; Hong Kong Public Offering vs international tranche; currency and exchange rate assumptions for conversions; legal registration (Companies Registry); document availability (website); directors' responsibility for contents.\n\nTone: Formal and explanatory. Moderate granularity – clear but not overly detailed."
   },
-  "F": {
-    "name": "Management, Governance & Incentives",
-    "requirements": "Describe directors, senior management, board composition, governance. Include biographical profiles and key responsibilities. Factual and positive tone."
+  "DirectorsParties": {
+    "name": "Directors and Parties Involved in the Global Offering",
+    "requirements": "Role: Directory of key individuals and firms involved in the IPO.\n\nFormat: Directory of names and roles. Two parts: Company's directors and senior management; professional advisors/parties.\n\nDirectors: Names and titles; table with Name, Address, Nationality for each director.\n\nTransaction parties: Joint Sponsors, Global Coordinators, Bookrunners, Lead Managers (investment banks); legal advisors (HK counsel, international counsel, PRC counsel); auditors/reporting accountants; valuers; other experts; compliance adviser; receiving bankers; share registrars.\n\nPer-entry: Name of firm or person; role or capacity; addresses where applicable.\n\nStyle: Straightforward listing, table or indentation. No narrative. Every significant party must be named exactly as in official records. Accuracy in spelling and professional qualifications."
   },
-  "G": {
-    "name": "Legal, Regulatory & Compliance",
-    "requirements": "Describe key regulations governing the business, compliance status, licenses, regulatory overview. Neutral and informative tone."
+  "CorporateInfo": {
+    "name": "Corporate Information",
+    "requirements": "Role: Basic corporate details about the company.\n\nContent: Registered office address; principal place of business; company registration number; jurisdiction of incorporation; date of incorporation; website; contact information; share registrar; compliance adviser.\n\nFormat: Structured list or table. Use ONLY data from the provided context. If information is not in the documents, state '[Information not provided in the documents]'."
   },
-  "H": {
-    "name": "Offering Mechanics & Share Structure",
-    "requirements": "Describe offering structure, share mechanics, allocation, listing arrangements. Include timetable and procedural details if available."
+  "Regulation": {
+    "name": "Regulation (Regulatory Overview)",
+    "requirements": "Role: Overview of the regulatory environment applicable to the company's business.\n\nContent: Key regulations governing the industry; regulatory bodies and their roles; licensing requirements; compliance obligations; recent regulatory changes or developments; how regulation affects the business.\n\nStructure: Narrative with sub-headings by regulatory area. Use ONLY data from the provided context."
+  },
+  "IndustryOverview": {
+    "name": "Industry Overview",
+    "requirements": "Role: Describe the industry in which the company operates.\n\nContent: Market size and growth; key trends; competitive landscape; industry structure; barriers to entry; key success factors; outlook.\n\nStructure: Narrative with sub-headings. Use ONLY data from the provided context. Do not invent market figures or statistics."
+  },
+  "HistoryReorg": {
+    "name": "History, Reorganization, and Corporate Structure",
+    "requirements": "Role: Describe the company's history, any reorganizations, and current corporate structure.\n\nContent: Company formation and key milestones; pre-IPO restructuring or reorganization; group structure (holding company, subsidiaries, joint ventures); corporate chart or description of entities; rationale for structure.\n\nStructure: Chronological for history; diagram or list for structure. Use ONLY data from the provided context."
+  },
+  "Business": {
+    "name": "Business",
+    "requirements": "Role: Comprehensive description of the company's business operations.\n\nContent: Products and services; business model; revenue streams; key customers and suppliers; operations and facilities; R&D; intellectual property; competition; strategy; key operational metrics.\n\nStructure: Narrative with clear sub-headings. Use ONLY data from the provided context. Do not invent facts, figures, or business details."
+  },
+  "ContractualArrangements": {
+    "name": "Contractual Arrangements (Variable Interest Entities)",
+    "requirements": "Role: Disclose contractual arrangements with variable interest entities (VIEs) if applicable, typically for companies with PRC operating entities.\n\nContent: Description of VIE structure; contractual arrangements (equity pledge, exclusive option, power of attorney, etc.); risks of VIE structure; regulatory considerations; financial impact.\n\nNote: Include this section only if the company has VIE arrangements. If no VIE structure in the documents, state '[Not applicable – no VIE structure disclosed in the documents]'."
+  },
+  "ControllingShareholders": {
+    "name": "Relationship with Our Controlling Shareholders",
+    "requirements": "Role: Disclose the relationship between the company and its controlling shareholders, and independence considerations.\n\nContent: Identity of controlling shareholders; nature of relationship; potential conflicts of interest; measures to ensure independence; transactions with controlling shareholders; governance arrangements.\n\nStructure: Narrative with sub-headings. Use ONLY data from the provided context."
+  },
+  "ConnectedTransactions": {
+    "name": "Connected Transactions",
+    "requirements": "Role: Disclose connected transactions (transactions with related parties) as required by listing rules.\n\nContent: Definition of connected persons; policy on connected transactions; historical connected transactions (amounts, terms, approval process); ongoing or recurring transactions; procedures for approval of future transactions.\n\nFormat: Table for historical transactions; narrative for policy and procedures. Use ONLY data from the provided context."
+  },
+  "DirectorsSeniorMgmt": {
+    "name": "Directors and Senior Management",
+    "requirements": "Role: Detailed information on directors and senior management.\n\nContent: For each director and senior manager: name, age, role, biography, qualifications, experience, other directorships; remuneration; service contracts; interests in shares.\n\nFormat: Individual profiles or table. Use ONLY data from the provided context. Do not invent biographical details."
+  },
+  "SubstantialShareholders": {
+    "name": "Substantial Shareholders",
+    "requirements": "Role: Disclose substantial shareholders (typically 5% or more) and their interests.\n\nContent: List of substantial shareholders; number and percentage of shares held; nature of interest (beneficial, non-beneficial); changes in interests during track record period.\n\nFormat: Table with columns for name, shares, percentage, nature of interest. Use ONLY data from the provided context."
+  },
+  "ShareCapital": {
+    "name": "Share Capital",
+    "requirements": "Role: Describe the company's share capital structure.\n\nContent: Authorized share capital; issued share capital; share classes; rights attaching to shares; history of share capital changes; options and warrants; capitalization table.\n\nFormat: Narrative with tables where appropriate. Use ONLY data from the provided context."
+  },
+  "FinancialInfo": {
+    "name": "Financial Information",
+    "requirements": "Role: Present financial information and management discussion and analysis (MD&A).\n\nContent: Historical financial statements (income statement, balance sheet, cash flow); key financial metrics; MD&A discussing performance, trends, liquidity, capital resources; segment information; accounting policies.\n\nStructure: Follow standard financial statement presentation. Use ONLY data from the provided context. Do not invent financial figures."
+  },
+  "UseOfProceeds": {
+    "name": "Future Plans and Use of Proceeds",
+    "requirements": "Role: Describe how the company intends to use the net proceeds from the offering.\n\nContent: Total proceeds; allocation by use (e.g. expansion, R&D, working capital, debt repayment); rationale for allocation; timeline; flexibility if offering size varies.\n\nFormat: Table showing allocation; narrative explaining each use. Use ONLY data from the provided context."
+  },
+  "Underwriting": {
+    "name": "Underwriting",
+    "requirements": "Role: Disclose underwriting and distribution arrangements.\n\nContent: Underwriters and their roles; underwriting agreement terms; fees and commissions; over-allotment option (greenshoe); stabilization; lock-up arrangements.\n\nFormat: Narrative with key terms. Use ONLY data from the provided context."
+  },
+  "GlobalOfferingStructure": {
+    "name": "Structure of the Global Offering",
+    "requirements": "Role: Describe the structure of the global offering.\n\nContent: Hong Kong public offering vs international offering; offer size for each tranche; allocation policy; clawback mechanism; minimum subscription; offer price determination; listing arrangements.\n\nFormat: Narrative with sub-headings. Use ONLY data from the provided context."
   }
 }

@@ -15,31 +15,60 @@ DEFAULT_TEXT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 DEFAULT_VL_MODEL = "Qwen/Qwen2-VL-2B-Instruct"
 
 
-def run_qwen_text(
-    prompt: str,
+def _get_device() -> str:
+    import os
+    import torch
+    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+        return "cpu"
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
+def _load_qwen_model(
     model_name: str = DEFAULT_TEXT_MODEL,
-    max_new_tokens: int = 2048,
     device: str | None = None,
-) -> str:
-    """Run Qwen2.5 (text-only) via Hugging Face transformers."""
+) -> tuple[Any, Any]:
+    """Load model and tokenizer once for reuse. Returns (model, tokenizer)."""
     try:
         from transformers import AutoModelForCausalLM, AutoTokenizer
         import torch
+        import os
     except ImportError:
         raise ImportError(
             "Qwen text model requires: pip install transformers torch accelerate"
         )
-
     if device is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-
+        device = _get_device()
+    use_8bit = os.environ.get("AGENT1_USE_8BIT") == "1"
+    use_4bit = os.environ.get("AGENT1_USE_4BIT") == "1"
+    load_kwargs: dict = {
+        "trust_remote_code": True,
+        "torch_dtype": torch.bfloat16 if device == "cuda" else torch.float32,
+    }
+    if device == "cuda" and (use_8bit or use_4bit):
+        try:
+            load_kwargs["device_map"] = "auto"
+            if use_4bit:
+                load_kwargs["load_in_4bit"] = True
+            else:
+                load_kwargs["load_in_8bit"] = True
+        except Exception:
+            pass
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        trust_remote_code=True,
-        torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
-    ).to(device)
+    model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
+    if "device_map" not in load_kwargs:
+        model = model.to(device)
+    return model, tokenizer
 
+
+def run_qwen_with_model(
+    model: Any,
+    tokenizer: Any,
+    prompt: str,
+    max_new_tokens: int = 2048,
+) -> str:
+    """Generate using pre-loaded model and tokenizer."""
+    import torch
+    max_length = 8192 if next(model.parameters()).is_cuda else 32768
     messages = [{"role": "user", "content": prompt}]
     text = tokenizer.apply_chat_template(
         messages,
@@ -50,9 +79,9 @@ def run_qwen_text(
         text,
         return_tensors="pt",
         truncation=True,
-        max_length=32768,
-    ).to(device)
-
+        max_length=max_length,
+    )
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
     pad_id = tokenizer.pad_token_id or tokenizer.eos_token_id
     with torch.no_grad():
         out = model.generate(
@@ -61,12 +90,22 @@ def run_qwen_text(
             do_sample=False,
             pad_token_id=pad_id,
         )
-
     response = tokenizer.decode(
         out[0][inputs["input_ids"].shape[1] :],
         skip_special_tokens=True,
     )
     return response.strip()
+
+
+def run_qwen_text(
+    prompt: str,
+    model_name: str = DEFAULT_TEXT_MODEL,
+    max_new_tokens: int = 2048,
+    device: str | None = None,
+) -> str:
+    """Run Qwen2.5 (text-only) via Hugging Face transformers."""
+    model, tokenizer = _load_qwen_model(model_name, device)
+    return run_qwen_with_model(model, tokenizer, prompt, max_new_tokens)
 
 
 def run_qwen_vl(
