@@ -151,13 +151,17 @@ def load_section_requirements(requirements_path: Path) -> dict[str, dict]:
 
 
 HKEX_FORMAT_INSTRUCTION = """
-CRITICAL FORMAT REQUIREMENTS (HKEX Listing Rules compliance):
+CRITICAL FORMAT REQUIREMENTS (HKEX sponsor-counsel working draft mode):
 - Output in ENGLISH ONLY. No Chinese or other languages.
-- Follow HKEX (Hong Kong Stock Exchange) prospectus structure and style per HKEX Listing Rules Appendix 1 requirements.
-- Use formal, professional language suitable for a formal listing document.
-- Structure: clear headings (e.g. bold or numbered), sub-headings where appropriate; tables for numerical data; lists for definitions.
-- Tone: factual, balanced, no marketing hype. Directors' responsibility statements and disclaimers where applicable.
-- Format: ready for use as a formal prospectus section; no placeholders like "[to be completed]" except where data is genuinely missing – use "[Information not provided in the documents]" in that case.
+- Draft in sponsor-counsel working draft mode for an HKEX listing document. This is not a fully complete clean final filing copy.
+- Follow HKEX prospectus structure and tone, but preserve section scaffolding where the available source materials are incomplete.
+- Use formal, factual, balanced, non-promotional language suitable for a prospectus.
+- You may use the section requirements and standard HKEX chapter structure as scaffolding for headings, placeholders, and note blocks.
+- All company-specific facts, figures, dates, rankings, waivers, legal conclusions, and status statements must come only from the provided context.
+- For any required point not supported by the context, keep the relevant heading and state [Information not provided in the documents].
+- You may use only these annotation tags when helpful: [[AI:VERIFY|...]], [[AI:CITE|source=...; scope=...; date=...; metric=...]], [[AI:XREF|to=...]], [[AI:LPD|refresh=...]].
+- Avoid promotional, absolute, or unqualified forward-looking language.
+- Do not invent facts, dates, approvals, rankings, profitability timelines, or regulatory conclusions.
 """
 
 
@@ -172,10 +176,10 @@ def build_prompt(
     mod_note = ""
     if modification_instructions and modification_instructions.strip():
         mod_note = f"\n\nUser modification request (incorporate these changes):\n{modification_instructions.strip()}\n"
-    return f"""You are drafting a prospectus section for a Hong Kong Stock Exchange (HKEX) listing. You must produce output that is usable as a formal prospectus section.
+    return f"""You are drafting a prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode. Your task is to produce a conservative, verification-aware working draft that includes prospectus-ready prose where supported and structured placeholders or AI tags where support is missing.
 {HKEX_FORMAT_INSTRUCTION}
 
-CRITICAL: Use ONLY data from the provided context (user-uploaded documents). Do NOT invent, fabricate, or hallucinate any facts, figures, names, or details. If information is not in the context, state "[Information not provided in the documents]" – never make it up.
+CRITICAL: Use ONLY data from the provided context for company-specific facts. Do NOT invent, fabricate, or hallucinate any facts, figures, names, dates, rankings, approvals, waivers, legal conclusions, or management intentions. If information is not in the context, state "[Information not provided in the documents]" - never make it up.
 
 Section: {section_name}
 
@@ -188,12 +192,14 @@ Context from user-uploaded company documents (ONLY source of data):
 ---
 {mod_note}
 Instructions:
-1. Extract and use ONLY information that appears in the context above.
-2. Write ENTIRELY in English. Formal, factual tone.
-3. If the context lacks required information, explicitly state "[Information not provided in the documents]" – do not invent.
-4. Output in prose/paragraphs; use tables or lists where the data suits (e.g. financial data in tables, definitions as lists).
-5. Follow HKEX prospectus conventions: numbered paragraphs where appropriate, clear section structure.
-6. Do not include meta-commentary. Write the section content directly, ready for inclusion in the prospectus.
+1. Use the section requirements and HKEX conventions to build the section structure and sub-headings.
+2. Use ONLY the provided context for company-specific facts, figures, names, dates, and status statements.
+3. If a required item is unsupported, keep the relevant heading, write "[Information not provided in the documents]", and add the most useful AI tag(s) if appropriate.
+4. Write ENTIRELY in English. Use formal, factual, balanced prose. Tables or lists are allowed where appropriate.
+5. You may include short working-draft note blocks or end-notes when needed, but only within the section itself and only using neutral drafting language plus the allowed AI tags.
+6. For rankings, market data, share, CAGR, or third-party study statements, include [[AI:CITE|source=...; scope=...; date=...; metric=...]] unless the required source metadata already appears in the context.
+7. Do not use promotional, absolute, or unqualified forward-looking language. Do not create explicit or implicit profit forecasts, margin forecasts, valuation conclusions, or certainty of commercial success.
+8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags.
 
 Section content (English only):"""
 
@@ -222,17 +228,17 @@ def generate_section(
     model: Any = None,
     tokenizer: Any = None,
 ) -> str:
-    """Generate one section. Returns section text or placeholder if no chunks."""
+    """Generate one section. Returns a sponsor-counsel working draft."""
     section_name = next((n for sid, n in SECTIONS if sid == section_id), section_id)
     reqs = requirements_map.get(section_id, {})
     requirements = reqs.get("requirements", f"Write the {section_name} section.")
 
     section_chunks = get_chunks_for_section(chunks, section_id, max_context_chars)
-
-    if not section_chunks:
-        return f"[Section {section_id}: {section_name}]\n\nNo RAG chunks available for this section. Manual draft required."
-
-    context = build_context(section_chunks)
+    context = (
+        build_context(section_chunks)
+        if section_chunks
+        else "[No section-specific source material was routed to this section. Produce only a structured working draft skeleton, placeholders, and AI verification notes based on the section requirements.]"
+    )
     prompt = build_prompt(
         section_id, section_name, requirements, context, modification_instructions
     )
