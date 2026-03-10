@@ -5,7 +5,8 @@
 pandas>=2.0
 openpyxl>=3.1
 
-# Agent2 + llm_qwen: Qwen (Hugging Face)
+# Agent2 + LangGraph + llm_qwen: orchestration + Qwen (Hugging Face)
+langgraph
 transformers>=4.45.0
 torch>=2.0.0
 accelerate>=0.30.0

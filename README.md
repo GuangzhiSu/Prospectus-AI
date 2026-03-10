@@ -45,9 +45,10 @@ Prospectus-AI/
 │   └── local-llm/                      # Optional FastAPI + Chroma service for legacy route
 ├── data/                               # Input Excel files for the main workflow
 ├── agent1.py                           # Excel extraction, summarization, heuristic routing
-├── agent2.py                           # Section drafting from Agent1 output
+├── agent2.py                           # LangGraph runner for section drafting
 ├── llm_qwen.py                         # Shared Qwen model loader / inference helpers
 ├── agent2_section_requirements.json    # Section-by-section working draft instructions
+├── prospectus_graph/                   # LangGraph state, retriever, verifier, and graph modules
 ├── run_full_pipeline.sh                # agent1 -> agent2 convenience script
 ├── docs/
 ├── README.md
@@ -212,16 +213,27 @@ Outputs:
 
 ## Agent2
 
-`Agent2` consumes `Agent1` output and drafts prospectus sections one by one using `agent2_section_requirements.json`.
+`Agent2` consumes `Agent1` output and runs a fixed LangGraph pipeline using `agent2_section_requirements.json`.
+
+Current node sequence:
+
+- `Retriever`
+- `Section Writer`
+- `Verifier`
+- `Assembler`
+
+Planner is intentionally omitted because section requirements are already encoded in configuration.
 
 Current behavior:
 
+- retrieves evidence through a pluggable retriever interface (currently backed by `agent1_output/rag_chunks.jsonl`)
 - drafts in sponsor-counsel working draft mode
 - writes prospectus-ready prose where evidence exists
 - preserves required section structure where evidence is incomplete
 - inserts `[Information not provided in the documents]` for unsupported company-specific content
 - may insert `[[AI:VERIFY|...]]`, `[[AI:CITE|...]]`, `[[AI:XREF|...]]`, and `[[AI:LPD|...]]`
 - avoids promotional language, unqualified forward-looking statements, and explicit or implicit profit forecasts
+- appends verification notes when the verifier detects unresolved issues
 
 Example usage:
 
