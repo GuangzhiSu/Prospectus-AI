@@ -36,16 +36,17 @@ def _lookup_section_name(section_id: str) -> str:
 
 HKEX_FORMAT_INSTRUCTION = """
 CRITICAL FORMAT REQUIREMENTS (HKEX sponsor-counsel working draft mode):
+
+Primary objective: Optimise for (1) compliance language, (2) disclosure defensibility, (3) verifiability under sponsor due-diligence standards. Preserve defensibility over elegance when they conflict. Do not convert possibility into certainty; do not smooth away legal or factual caveats.
+
 - Output in ENGLISH ONLY. No Chinese or other languages.
 - Draft in sponsor-counsel working draft mode for an HKEX listing document. This is not a fully complete clean final filing copy.
-- Follow HKEX prospectus structure and tone, but preserve section scaffolding where the available source materials are incomplete.
-- Use formal, factual, balanced, non-promotional language suitable for a prospectus.
-- You may use the section requirements and standard HKEX chapter structure as scaffolding for headings, placeholders, and note blocks.
-- All company-specific facts, figures, dates, rankings, waivers, legal conclusions, and status statements must come only from the provided context.
+- Use formal, factual, balanced, non-promotional language. Treat uncontrolled language as a major defect.
+- All company-specific facts, figures, dates, rankings, waivers, legal conclusions, and status statements must come only from the provided context. Do not invent sources, thresholds, definitions, or evidence.
 - For any required point not supported by the context, keep the relevant heading and state [Information not provided in the documents].
-- You may use only these annotation tags when helpful: [[AI:VERIFY|...]], [[AI:CITE|source=...; scope=...; date=...; metric=...]], [[AI:XREF|to=...]], [[AI:LPD|refresh=...]].
-- Avoid promotional, absolute, or unqualified forward-looking language.
-- Do not invent facts, dates, approvals, rankings, profitability timelines, or regulatory conclusions.
+- Use only these annotation tags when helpful: [[AI:LOCKED|...]] (text that must not be changed without counsel sign-off), [[AI:VERIFY|...]], [[AI:CITE|source=...; scope=...; date=...; metric=...]], [[AI:XREF|to=...]], [[AI:LPD|refresh=...]].
+- Avoid promotional, absolute, or unqualified forward-looking language. Avoid explicit or implicit profit forecasts unless a formal profit-forecast workflow applies. Require cross-reference discipline and evidence hooks for claims needing verification.
+- Regime-sensitive: If the issuer has WVR, Chapter 18C / Specialist Technology, Pre-Commercial status, internet information services or personal data processing, or VIE/contractual arrangements, follow the section requirements for tailored disclosure logic.
 """
 
 
@@ -63,10 +64,13 @@ def build_prompt(
             "\n\nUser modification request (incorporate these changes):\n"
             f"{modification_instructions.strip()}\n"
         )
-    return f"""You are drafting a prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode. Your task is to produce a conservative, verification-aware working draft that includes prospectus-ready prose where supported and structured placeholders or AI tags where support is missing.
+    return f"""Role: You are drafting one prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode.
+
+Objective: Produce a conservative, verification-aware working draft: prospectus-ready prose where evidence exists, structured placeholders and AI tags where support is missing. Headings, contents entries, and cross-references must match exactly across the document.
+
 {HKEX_FORMAT_INSTRUCTION}
 
-CRITICAL: Use ONLY data from the provided context for company-specific facts. Do NOT invent, fabricate, or hallucinate any facts, figures, names, dates, rankings, approvals, waivers, legal conclusions, or management intentions. If information is not in the context, state "[Information not provided in the documents]" - never make it up.
+CRITICAL: Use ONLY data from the provided context for company-specific facts. Do NOT invent, fabricate, or hallucinate any facts, figures, names, dates, rankings, approvals, waivers, legal conclusions, or management intentions. If information is not in the context, state "[Information not provided in the documents]" and add [[AI:VERIFY|...]] where human review is needed.
 
 Section: {section_name}
 
@@ -86,7 +90,7 @@ Instructions:
 5. You may include short working-draft note blocks or end-notes when needed, but only within the section itself and only using neutral drafting language plus the allowed AI tags.
 6. For rankings, market data, share, CAGR, or third-party study statements, include [[AI:CITE|source=...; scope=...; date=...; metric=...]] unless the required source metadata already appears in the context.
 7. Do not use promotional, absolute, or unqualified forward-looking language. Do not create explicit or implicit profit forecasts, margin forecasts, valuation conclusions, or certainty of commercial success.
-8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags.
+8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags. Any materiality or legal sufficiency judgment must be escalated to sponsor-counsel review.
 
 Section content (English only):"""
 

@@ -95,7 +95,9 @@ def summarize_table_with_qwen(
     model_name: str = DEFAULT_MODEL,
 ) -> str:
     """Use Qwen to produce a short content summary of the table (for RAG)."""
-    prompt = f"""Summarize this table/sheet in 2–4 sentences (English). Capture key metrics, structure, and data scope. Be factual and concise.
+    prompt = f"""Summarize this Excel table/sheet in 2–4 sentences in English for use in HKEX prospectus drafting. Be factual, neutral, and verifiable.
+
+Objective: Produce a RAG-ready summary that helps a section-writer find relevant evidence. Emphasise: (1) key metrics, dates, or figures; (2) table structure and what rows/columns represent; (3) data scope and time period if evident. If the sheet contains definitions, lists, timelines, or financial data, say so explicitly. Do not interpret, infer, or add information not present in the excerpt.
 
 File: {filename}
 Sheet: {sheet_name}
