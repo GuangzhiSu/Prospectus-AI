@@ -3,7 +3,7 @@
 Agent2: Generate prospectus sections from Agent1 output through a fixed
 LangGraph pipeline:
 
-    Retriever -> Section Writer -> Verifier -> Assembler
+    Retriever -> Section Writer Agent -> Verifier Agent -> Revision Agent -> Assembler
 
 Planner is intentionally omitted because section requirements are already
 encoded in `agent2_section_requirements.json`.
@@ -27,7 +27,13 @@ from prospectus_graph.retrievers import (
     SectionAwareRAGRetriever,
 )
 from prospectus_graph.state import SectionDraftState
-from prospectus_graph.verifier import append_verification_notes, verify_section_draft
+from prospectus_graph.verifier import (
+    append_verification_notes,
+    merge_verification_issues,
+    parse_verifier_agent_output,
+    should_request_revision,
+    verify_section_draft,
+)
 
 
 def _lookup_section_name(section_id: str) -> str:
@@ -95,6 +101,140 @@ Instructions:
 Section content (English only):"""
 
 
+def _format_issue_list_for_prompt(items: list[str] | list[dict[str, Any]]) -> str:
+    lines: list[str] = []
+    for item in items:
+        if isinstance(item, str):
+            if item.strip():
+                lines.append(f"- {item.strip()}")
+            continue
+        if isinstance(item, dict):
+            severity = str(item.get("severity", "medium")).strip()
+            code = str(item.get("code", "issue")).strip()
+            message = str(item.get("message", "")).strip()
+            lines.append(f"- [{severity}] {code}: {message}")
+    return "\n".join(lines) if lines else "- None."
+
+
+def build_verifier_prompt(
+    *,
+    section_name: str,
+    requirements: str,
+    retrieval_context: str,
+    draft_text: str,
+    mechanical_issues: list[dict[str, Any]],
+    revision_count: int,
+) -> str:
+    mechanical_block = _format_issue_list_for_prompt(mechanical_issues)
+    return f"""Role: You are the Verifier Agent in a sponsor-counsel drafting workflow for an HKEX prospectus.
+
+Objective: Review the current section draft against (1) the retrieved evidence, (2) the section requirements, and (3) sponsor-counsel controls. You are not the writer. Do not rewrite the section. Decide whether revision is required.
+
+Section: {section_name}
+Current revision pass: {revision_count}
+
+Section requirements:
+{requirements}
+
+Retrieved evidence:
+---
+{retrieval_context}
+---
+
+Current section draft:
+---
+{draft_text}
+---
+
+Mechanical checks already detected:
+{mechanical_block}
+
+Review focus:
+1. Unsupported facts, figures, rankings, legal conclusions, approvals, waivers, or dates.
+2. Missing required section structure or missing sub-headings.
+3. Promotional or uncontrolled language.
+4. Unqualified forward-looking wording outside the proper cautionary context.
+5. Explicit or implicit profit-forecast wording.
+6. Missing [[AI:CITE|...]], [[AI:VERIFY|...]], or [[AI:XREF|...]] where needed.
+7. Any material mismatch between the evidence and the draft.
+
+Return JSON only, with this exact schema:
+{{
+  "pass": true,
+  "summary": "short reviewer summary",
+  "issues": [
+    {{"severity": "blocker|high|medium|low", "code": "short_code", "message": "specific issue"}}
+  ],
+  "revision_instructions": [
+    "specific action for the revision agent"
+  ]
+}}
+
+Rules:
+- If there are blocker or high-severity issues, set "pass" to false.
+- If the draft is broadly acceptable but still needs sponsor follow-up notes, you may set "pass" to true and use low or medium issues.
+- Do not invent evidence. Do not output prose outside the JSON object.
+"""
+
+
+def build_revision_prompt(
+    *,
+    section_name: str,
+    requirements: str,
+    retrieval_context: str,
+    current_draft: str,
+    verifier_summary: str,
+    verification_issues: list[dict[str, Any]],
+    revision_instructions: list[str],
+    modification_instructions: str | None = None,
+) -> str:
+    issues_block = _format_issue_list_for_prompt(verification_issues)
+    revision_block = _format_issue_list_for_prompt(revision_instructions)
+    mod_note = ""
+    if modification_instructions and modification_instructions.strip():
+        mod_note = (
+            "\nAdditional user modification request to preserve while revising:\n"
+            f"- {modification_instructions.strip()}\n"
+        )
+    return f"""Role: You are the Revision Agent in a sponsor-counsel drafting workflow for an HKEX prospectus.
+
+Objective: Revise the section draft in response to reviewer feedback, while relying only on the retrieved evidence and preserving the working-draft style.
+
+Section: {section_name}
+
+Section requirements:
+{requirements}
+
+Retrieved evidence:
+---
+{retrieval_context}
+---
+
+Current section draft:
+---
+{current_draft}
+---
+
+Verifier summary:
+{verifier_summary or "[No verifier summary provided.]"}
+
+Verifier issues:
+{issues_block}
+
+Required revision actions:
+{revision_block}
+{mod_note}
+Instructions:
+1. Fix the reviewer issues where the evidence allows.
+2. Preserve valid supported content; do not rewrite the section from scratch unless necessary.
+3. Keep required headings and sub-headings. If support is missing, retain the heading and use [Information not provided in the documents].
+4. Add or preserve [[AI:VERIFY|...]], [[AI:CITE|...]], [[AI:XREF|...]], and [[AI:LPD|...]] when appropriate.
+5. Do not invent new facts, dates, rankings, approvals, waivers, or legal conclusions.
+6. Do not add chatty commentary. Output only the revised section draft.
+
+Revised section (English only):"""
+
+
 def generate_with_llm(
     prompt: str,
     model_name: str = DEFAULT_MODEL,
@@ -131,7 +271,7 @@ class RetrieverNode:
         }
 
 
-class SectionWriterNode:
+class SectionWriterAgent:
     def __init__(
         self,
         *,
@@ -157,25 +297,127 @@ class SectionWriterNode:
             model=self.model,
             tokenizer=self.tokenizer,
         )
-        return {"draft_text": draft_text}
+        return {
+            "draft_text": draft_text,
+            "initial_draft_text": state.get("initial_draft_text") or draft_text,
+        }
 
 
-class VerifierNode:
+class VerifierAgent:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        model: Any = None,
+        tokenizer: Any = None,
+    ):
+        self.model_name = model_name
+        self.model = model
+        self.tokenizer = tokenizer
+
     def __call__(self, state: SectionDraftState) -> dict:
-        issues, passed = verify_section_draft(
+        mechanical_issues, _ = verify_section_draft(
             section_id=state["section_id"],
             draft_text=state.get("draft_text", ""),
             retrieval_context=state.get("retrieval_context", ""),
         )
+
+        verifier_prompt = build_verifier_prompt(
+            section_name=state["section_name"],
+            requirements=state["requirements"],
+            retrieval_context=state.get("retrieval_context", ""),
+            draft_text=state.get("draft_text", ""),
+            mechanical_issues=mechanical_issues,
+            revision_count=state.get("revision_count", 0),
+        )
+        verifier_raw_output = generate_with_llm(
+            verifier_prompt,
+            model_name=self.model_name,
+            model=self.model,
+            tokenizer=self.tokenizer,
+        )
+        agent_pass, verifier_summary, agent_issues, revision_instructions = (
+            parse_verifier_agent_output(verifier_raw_output)
+        )
+        issues = merge_verification_issues(mechanical_issues, agent_issues)
+        only_parse_failure = (
+            not mechanical_issues
+            and len(agent_issues) == 1
+            and agent_issues[0]["code"] == "verifier_output_unparseable"
+        )
+        should_revise = should_request_revision(
+            issues=issues,
+            agent_pass=agent_pass,
+            revision_count=state.get("revision_count", 0),
+            max_revision_loops=state.get("max_revision_loops", 0),
+        )
+        if only_parse_failure:
+            should_revise = False
+        passed = (
+            not any(issue["severity"] in {"blocker", "high"} for issue in issues)
+            and agent_pass is not False
+            and not should_revise
+        )
+
+        if should_revise and not revision_instructions:
+            revision_instructions = [
+                issue["message"]
+                for issue in issues
+                if issue["severity"] in {"blocker", "high", "medium"}
+            ][:8]
+
         verified_text = append_verification_notes(
             state.get("draft_text", ""),
             issues,
             passed=passed,
+            summary=verifier_summary,
+            revision_instructions=revision_instructions,
         )
         return {
+            "mechanical_verification_issues": mechanical_issues,
             "verification_issues": issues,
             "verifier_passed": passed,
+            "verifier_summary": verifier_summary,
+            "verifier_raw_output": verifier_raw_output,
+            "revision_instructions": revision_instructions,
+            "should_revise": should_revise,
             "verified_text": verified_text,
+        }
+
+
+class RevisionAgent:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        model: Any = None,
+        tokenizer: Any = None,
+    ):
+        self.model_name = model_name
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def __call__(self, state: SectionDraftState) -> dict:
+        prompt = build_revision_prompt(
+            section_name=state["section_name"],
+            requirements=state["requirements"],
+            retrieval_context=state.get("retrieval_context", ""),
+            current_draft=state.get("draft_text", ""),
+            verifier_summary=state.get("verifier_summary", ""),
+            verification_issues=state.get("verification_issues", []),
+            revision_instructions=state.get("revision_instructions", []),
+            modification_instructions=state.get("modification_instructions"),
+        )
+        revised_text = generate_with_llm(
+            prompt,
+            model_name=self.model_name,
+            model=self.model,
+            tokenizer=self.tokenizer,
+        )
+        return {
+            "draft_text": revised_text,
+            "revision_count": state.get("revision_count", 0) + 1,
+            "should_revise": False,
         }
 
 
@@ -294,6 +536,7 @@ def _build_section_state(
     output_dir: str | Path,
     max_context_chars: int,
     model_name: str,
+    max_revision_loops: int,
     modification_instructions: str | None = None,
 ) -> SectionDraftState:
     section_name = _lookup_section_name(section_id)
@@ -307,6 +550,10 @@ def _build_section_state(
         "output_dir": str(output_dir),
         "model_name": model_name,
         "max_context_chars": max_context_chars,
+        "revision_count": 0,
+        "max_revision_loops": max_revision_loops,
+        "should_revise": False,
+        "revision_instructions": [],
         "modification_instructions": modification_instructions,
     }
 
@@ -317,7 +564,6 @@ def _run_section_graph(
     retriever: SectionAwareRAGRetriever,
     output_dir: str | Path,
     model_name: str,
-    modification_instructions: str | None = None,
     combine_immediately: bool,
     only_sections_up_to: str | None,
     model: Any = None,
@@ -325,12 +571,21 @@ def _run_section_graph(
 ) -> SectionDraftState:
     graph = build_section_graph(
         retriever_node=RetrieverNode(retriever),
-        section_writer_node=SectionWriterNode(
+        section_writer_agent=SectionWriterAgent(
             model_name=model_name,
             model=model,
             tokenizer=tokenizer,
         ),
-        verifier_node=VerifierNode(),
+        verifier_agent=VerifierAgent(
+            model_name=model_name,
+            model=model,
+            tokenizer=tokenizer,
+        ),
+        revision_agent=RevisionAgent(
+            model_name=model_name,
+            model=model,
+            tokenizer=tokenizer,
+        ),
         assembler_node=AssemblerNode(
             output_dir=output_dir,
             combine_immediately=combine_immediately,
@@ -346,6 +601,7 @@ def run_agent2_single(
     output_dir: str | Path = "agent2_output",
     modification_instructions: str | None = None,
     max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
+    max_revision_loops: int = 1,
     model_name: str = DEFAULT_MODEL,
 ) -> str:
     """Generate a single section through the LangGraph pipeline."""
@@ -364,6 +620,7 @@ def run_agent2_single(
         output_dir=out_path,
         max_context_chars=max_context_chars,
         model_name=model_name,
+        max_revision_loops=max_revision_loops,
         modification_instructions=modification_instructions,
     )
 
@@ -372,7 +629,6 @@ def run_agent2_single(
         retriever=retriever,
         output_dir=out_path,
         model_name=model_name,
-        modification_instructions=modification_instructions,
         combine_immediately=True,
         only_sections_up_to=None if modification_instructions else section_id,
     )
@@ -384,6 +640,7 @@ def run_agent2(
     output_dir: str | Path = "agent2_output",
     sections: list[str] | None = None,
     max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
+    max_revision_loops: int = 1,
     model_name: str = DEFAULT_MODEL,
 ) -> dict[str, str]:
     """
@@ -420,6 +677,7 @@ def run_agent2(
             output_dir=out_path,
             max_context_chars=max_context_chars,
             model_name=model_name,
+            max_revision_loops=max_revision_loops,
         )
         result = _run_section_graph(
             section_state=state,
@@ -469,6 +727,12 @@ def main() -> None:
         help="Hugging Face model name",
     )
     parser.add_argument(
+        "--max-revisions",
+        type=int,
+        default=1,
+        help="Maximum number of revision-agent passes per section",
+    )
+    parser.add_argument(
         "--modification-file",
         default="",
         help="Path to file containing modification instructions (for single-section regenerate)",
@@ -492,6 +756,7 @@ def main() -> None:
             output_dir=args.output_dir,
             modification_instructions=modification,
             max_context_chars=args.max_context,
+            max_revision_loops=args.max_revisions,
             model_name=args.model,
         )
         print(text[:200] + "..." if len(text) > 200 else text)
@@ -502,6 +767,7 @@ def main() -> None:
             output_dir=args.output_dir,
             modification_instructions=None,
             max_context_chars=args.max_context,
+            max_revision_loops=args.max_revisions,
             model_name=args.model,
         )
         print(text[:200] + "..." if len(text) > 200 else text)
@@ -511,6 +777,7 @@ def main() -> None:
             output_dir=args.output_dir,
             sections=sections,
             max_context_chars=args.max_context,
+            max_revision_loops=args.max_revisions,
             model_name=args.model,
         )
 

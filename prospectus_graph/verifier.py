@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import re
+from typing import Any
 
 from prospectus_graph.state import VerificationIssue
 
@@ -42,19 +44,27 @@ NUMERIC_TOKEN_RE = re.compile(
     r"(?:(?:HK\$|US\$|RMB|\$)\s?)?\d[\d,]*(?:\.\d+)?%?"
 )
 
+SEVERITY_ORDER = {"blocker": 4, "high": 3, "medium": 2, "low": 1}
+VALID_SEVERITIES = set(SEVERITY_ORDER)
+
 
 def _normalize_number(token: str) -> str:
     return token.replace(",", "").replace(" ", "").lower()
 
 
 def _collect_supported_numbers(context: str) -> set[str]:
-    numbers = {_normalize_number(token) for token in NUMERIC_TOKEN_RE.findall(context or "")}
-    # Ignore very short standalone digits because they are often list markers.
+    numbers = {
+        _normalize_number(token)
+        for token in NUMERIC_TOKEN_RE.findall(context or "")
+    }
     return {value for value in numbers if len(value) >= 2}
 
 
 def _collect_draft_numbers(text: str) -> set[str]:
-    numbers = {_normalize_number(token) for token in NUMERIC_TOKEN_RE.findall(text or "")}
+    numbers = {
+        _normalize_number(token)
+        for token in NUMERIC_TOKEN_RE.findall(text or "")
+    }
     return {
         value
         for value in numbers
@@ -68,6 +78,7 @@ def verify_section_draft(
     draft_text: str,
     retrieval_context: str,
 ) -> tuple[list[VerificationIssue], bool]:
+    """Run deterministic checks before the verifier agent reviews the draft."""
     issues: list[VerificationIssue] = []
     lower_text = (draft_text or "").lower()
 
@@ -107,11 +118,13 @@ def verify_section_draft(
             {
                 "severity": "high",
                 "code": "empty_draft",
-                "message": "The writer node returned an empty draft.",
+                "message": "The writer agent returned an empty draft.",
             }
         )
 
-    needs_citation = any(re.search(pattern, lower_text) for pattern, _ in MARKET_CLAIM_PATTERNS)
+    needs_citation = any(
+        re.search(pattern, lower_text) for pattern, _ in MARKET_CLAIM_PATTERNS
+    )
     if needs_citation and "[[ai:cite|" not in lower_text:
         issues.append(
             {
@@ -127,7 +140,7 @@ def verify_section_draft(
         number
         for number in draft_numbers
         if number not in supported_numbers
-        and not re.fullmatch(r"\d{4}", number)  # common year references
+        and not re.fullmatch(r"\d{4}", number)
     )
     if unsupported_numbers:
         preview = ", ".join(unsupported_numbers[:8])
@@ -135,21 +148,174 @@ def verify_section_draft(
             {
                 "severity": "medium",
                 "code": "unsupported_numbers",
-                "message": f"Numeric values found in the draft but not clearly located in retrieved evidence: {preview}.",
+                "message": (
+                    "Numeric values found in the draft but not clearly located in "
+                    f"retrieved evidence: {preview}."
+                ),
             }
         )
 
-    if "[information not provided in the documents]" in lower_text and "[[ai:verify|" not in lower_text:
+    if (
+        "[information not provided in the documents]" in lower_text
+        and "[[ai:verify|" not in lower_text
+    ):
         issues.append(
             {
                 "severity": "low",
                 "code": "missing_verify_tags_for_gaps",
-                "message": "Missing-information placeholders are present but no [[AI:VERIFY|...]] guidance tag was added.",
+                "message": (
+                    "Missing-information placeholders are present but no "
+                    "[[AI:VERIFY|...]] guidance tag was added."
+                ),
             }
         )
 
-    passed = not any(issue["severity"] == "high" for issue in issues)
+    passed = not any(
+        issue["severity"] in {"blocker", "high"} for issue in issues
+    )
     return issues, passed
+
+
+def extract_json_payload(raw_output: str) -> dict[str, Any] | None:
+    """
+    Extract a JSON object from an LLM verifier response.
+
+    The verifier agent is asked to return JSON only, but this helper tolerates
+    fenced blocks or extra prose around the payload.
+    """
+    text = (raw_output or "").strip()
+    if not text:
+        return None
+
+    candidates = [text]
+    fenced_match = re.search(r"```(?:json)?\s*(\{.*\})\s*```", text, re.S)
+    if fenced_match:
+        candidates.insert(0, fenced_match.group(1))
+
+    first_brace = text.find("{")
+    last_brace = text.rfind("}")
+    if first_brace != -1 and last_brace != -1 and last_brace > first_brace:
+        candidates.append(text[first_brace : last_brace + 1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
+def parse_verifier_agent_output(
+    raw_output: str,
+) -> tuple[bool | None, str, list[VerificationIssue], list[str]]:
+    """
+    Parse the verifier-agent response.
+
+    Expected shape:
+    {
+      "pass": true|false,
+      "summary": "...",
+      "issues": [{"severity": "...", "code": "...", "message": "..."}],
+      "revision_instructions": ["...", "..."]
+    }
+    """
+    payload = extract_json_payload(raw_output)
+    if payload is None:
+        return (
+            None,
+            "Verifier agent did not return parseable JSON.",
+            [
+                {
+                    "severity": "high",
+                    "code": "verifier_output_unparseable",
+                    "message": "Verifier agent response could not be parsed into the required JSON format.",
+                }
+            ],
+            [
+                "Re-review the draft and restate verification issues in the required structured format."
+            ],
+        )
+
+    agent_pass = payload.get("pass")
+    if not isinstance(agent_pass, bool):
+        agent_pass = None
+
+    summary = payload.get("summary")
+    if not isinstance(summary, str) or not summary.strip():
+        summary = "Verifier agent did not provide a summary."
+
+    issues_payload = payload.get("issues", [])
+    parsed_issues: list[VerificationIssue] = []
+    if isinstance(issues_payload, list):
+        for idx, item in enumerate(issues_payload):
+            if not isinstance(item, dict):
+                continue
+            severity = str(item.get("severity", "medium")).lower().strip()
+            if severity not in VALID_SEVERITIES:
+                severity = "medium"
+            code = str(item.get("code", f"verifier_issue_{idx + 1}")).strip() or f"verifier_issue_{idx + 1}"
+            message = str(item.get("message", "")).strip() or "Verifier agent raised an issue without message."
+            parsed_issues.append(
+                {
+                    "severity": severity,
+                    "code": code,
+                    "message": message,
+                }
+            )
+
+    revision_payload = payload.get("revision_instructions", [])
+    revision_instructions: list[str] = []
+    if isinstance(revision_payload, list):
+        for item in revision_payload:
+            if isinstance(item, str) and item.strip():
+                revision_instructions.append(item.strip())
+    elif isinstance(revision_payload, str) and revision_payload.strip():
+        revision_instructions.append(revision_payload.strip())
+
+    return agent_pass, summary, parsed_issues, revision_instructions
+
+
+def merge_verification_issues(
+    *issue_lists: list[VerificationIssue],
+) -> list[VerificationIssue]:
+    merged: list[VerificationIssue] = []
+    seen: set[tuple[str, str]] = set()
+    for issue_list in issue_lists:
+        for issue in issue_list:
+            key = (issue["code"], issue["message"])
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(issue)
+    merged.sort(
+        key=lambda issue: (
+            -SEVERITY_ORDER.get(issue["severity"], 0),
+            issue["code"],
+        )
+    )
+    return merged
+
+
+def should_request_revision(
+    *,
+    issues: list[VerificationIssue],
+    agent_pass: bool | None,
+    revision_count: int,
+    max_revision_loops: int,
+) -> bool:
+    if revision_count >= max_revision_loops:
+        return False
+
+    if agent_pass is False:
+        return True
+
+    for issue in issues:
+        if issue["severity"] in {"blocker", "high"}:
+            return True
+
+    return False
 
 
 def append_verification_notes(
@@ -157,8 +323,11 @@ def append_verification_notes(
     issues: list[VerificationIssue],
     *,
     passed: bool,
+    summary: str = "",
+    revision_instructions: list[str] | None = None,
 ) -> str:
-    if not issues:
+    revision_instructions = revision_instructions or []
+    if not issues and not summary.strip():
         return draft_text.strip()
 
     status = "passed" if passed else "requires follow-up"
@@ -167,10 +336,18 @@ def append_verification_notes(
         "### Verification Notes",
         "",
         f"Verification status: {status}.",
-        "",
     ]
-    for issue in issues:
-        notes.append(
-            f"- [{issue['severity']}] {issue['code']}: {issue['message']}"
-        )
+    if summary.strip():
+        notes.extend(["", f"Verifier summary: {summary.strip()}"])
+    if issues:
+        notes.append("")
+        for issue in issues:
+            notes.append(
+                f"- [{issue['severity']}] {issue['code']}: {issue['message']}"
+            )
+    if revision_instructions:
+        notes.extend(["", "Suggested revision actions:"])
+        for item in revision_instructions:
+            notes.append(f"- {item}")
+
     return draft_text.strip() + "\n" + "\n".join(notes).rstrip() + "\n"

@@ -35,6 +35,14 @@ class SectionDraftState(TypedDict, total=False):
     retrieval_context: str
     retrieval_notes: list[str]
     draft_text: str
+    initial_draft_text: str
+    revision_count: int
+    max_revision_loops: int
+    should_revise: bool
+    revision_instructions: list[str]
+    verifier_summary: str
+    verifier_raw_output: str
+    mechanical_verification_issues: list[VerificationIssue]
     verification_issues: list[VerificationIssue]
     verifier_passed: bool
     verified_text: str
