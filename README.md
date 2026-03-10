@@ -218,8 +218,9 @@ Outputs:
 Current node sequence:
 
 - `Retriever`
-- `Section Writer`
-- `Verifier`
+- `Section Writer Agent`
+- `Verifier Agent`
+- `Revision Agent`
 - `Assembler`
 
 Planner is intentionally omitted because section requirements are already encoded in configuration.
@@ -227,13 +228,15 @@ Planner is intentionally omitted because section requirements are already encode
 Current behavior:
 
 - retrieves evidence through a pluggable retriever interface (currently backed by `agent1_output/rag_chunks.jsonl`)
-- drafts in sponsor-counsel working draft mode
+- drafts through a dedicated writer agent in sponsor-counsel working draft mode
 - writes prospectus-ready prose where evidence exists
 - preserves required section structure where evidence is incomplete
 - inserts `[Information not provided in the documents]` for unsupported company-specific content
 - may insert `[[AI:VERIFY|...]]`, `[[AI:CITE|...]]`, `[[AI:XREF|...]]`, and `[[AI:LPD|...]]`
+- reviews each section through a dedicated verifier agent plus deterministic rule checks
+- sends failed sections through a revision agent loop before assembly
 - avoids promotional language, unqualified forward-looking statements, and explicit or implicit profit forecasts
-- appends verification notes when the verifier detects unresolved issues
+- appends verification notes when unresolved issues remain
 
 Example usage:
 
