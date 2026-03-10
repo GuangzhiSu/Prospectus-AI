@@ -1,153 +1,37 @@
 #!/usr/bin/env python3
 """
-Agent2: Use agent1 RAG output to generate prospectus sections one by one.
+Agent2: Generate prospectus sections from Agent1 output through a fixed
+LangGraph pipeline:
 
-Input:  agent1_output/rag_chunks.jsonl (or by_section/*.jsonl)
-Output: Generated section text per call (or agent2_output/all_sections.md)
+    Retriever -> Section Writer -> Verifier -> Assembler
 
-Usage:
-  python agent2.py --section A          # Generate section A only
-  python agent2.py --section all         # Generate all sections (A–H)
-  python agent2.py --section A B D      # Generate sections A, B, D
-  python agent2.py --model Qwen/Qwen2.5-3B-Instruct  # Smaller/faster model
-
-Both agents use Qwen (Hugging Face): Qwen2.5 for text, Qwen2-VL for multimodal.
+Planner is intentionally omitted because section requirements are already
+encoded in `agent2_section_requirements.json`.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 from typing import Any
 
-# -----------------------------------------------------------------------------
-# Section taxonomy (prospectus structure; agent1 chunks A–H are mapped to these)
-# 1) Front matter  2) Risk & compliance  3) Parties & corporate  4) Industry & business
-# 5) Governance & related parties  6) Capital & financials  7) Offering mechanics
-# -----------------------------------------------------------------------------
-SECTIONS = [
-    # 1) Front matter
-    ("ExpectedTimetable", "Expected Timetable"),
-    ("Contents", "Contents"),
-    ("Summary", "Summary"),
-    ("Definitions", "Definitions"),
-    ("Glossary", "Glossary of Technical Terms"),
-    ("ForwardLooking", "Forward-Looking Statements"),
-    # 2) Risk & compliance
-    ("RiskFactors", "Risk Factors"),
-    ("Waivers", "Waivers from Strict Compliance with Listing Rules (Waivers and Exemptions)"),
-    ("InfoProspectus", "Information about this Prospectus and the Global Offering"),
-    # 3) Parties & corporate info
-    ("DirectorsParties", "Directors and Parties Involved in the Global Offering"),
-    ("CorporateInfo", "Corporate Information"),
-    # 4) Industry & business
-    ("Regulation", "Regulation (Regulatory Overview)"),
-    ("IndustryOverview", "Industry Overview"),
-    ("HistoryReorg", "History, Reorganization, and Corporate Structure"),
-    ("Business", "Business"),
-    ("ContractualArrangements", "Contractual Arrangements (Variable Interest Entities)"),
-    # 5) Governance & related parties
-    ("ControllingShareholders", "Relationship with Our Controlling Shareholders"),
-    ("ConnectedTransactions", "Connected Transactions"),
-    ("DirectorsSeniorMgmt", "Directors and Senior Management"),
-    ("SubstantialShareholders", "Substantial Shareholders"),
-    # 6) Capital & financials
-    ("ShareCapital", "Share Capital"),
-    ("FinancialInfo", "Financial Information"),
-    # 7) Offering mechanics
-    ("UseOfProceeds", "Future Plans and Use of Proceeds"),
-    ("Underwriting", "Underwriting"),
-    ("GlobalOfferingStructure", "Structure of the Global Offering"),
-]
-
-# Map agent2 section_id -> agent1 section_ids (A=Business, B=Industry, C=Risk, D=Financial, E=Capital, F=Management, G=Legal, H=Offering)
-SECTION_TO_AGENT1_IDS: dict[str, list[str]] = {
-    "ExpectedTimetable": ["H", "E"],
-    "Contents": ["A", "B", "C", "D", "E", "F", "G", "H"],
-    "Summary": ["A", "B", "D", "E", "F"],
-    "Definitions": ["A", "B", "C", "D", "E", "F", "G", "H"],
-    "Glossary": ["A", "B"],
-    "ForwardLooking": ["A", "B", "C", "D"],
-    "RiskFactors": ["C"],
-    "Waivers": ["G"],
-    "InfoProspectus": ["H", "E"],
-    "DirectorsParties": ["F", "H"],
-    "CorporateInfo": ["A", "F", "G"],
-    "Regulation": ["B", "G"],
-    "IndustryOverview": ["B"],
-    "HistoryReorg": ["A", "F"],
-    "Business": ["A", "B"],
-    "ContractualArrangements": ["A", "G"],
-    "ControllingShareholders": ["F"],
-    "ConnectedTransactions": ["F", "G"],
-    "DirectorsSeniorMgmt": ["F"],
-    "SubstantialShareholders": ["F", "E"],
-    "ShareCapital": ["E"],
-    "FinancialInfo": ["D"],
-    "UseOfProceeds": ["E"],
-    "Underwriting": ["H"],
-    "GlobalOfferingStructure": ["H", "E"],
-}
-
-DEFAULT_MAX_CONTEXT_CHARS = 15000
-# Qwen models via Hugging Face: Qwen2.5 (text) or Qwen2-VL (multimodal)
-DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+from prospectus_graph.config import (
+    DEFAULT_MAX_CONTEXT_CHARS,
+    DEFAULT_MODEL,
+    SECTIONS,
+    load_section_requirements,
+)
+from prospectus_graph.graph import build_section_graph
+from prospectus_graph.retrievers import (
+    Agent1JsonlKnowledgeBase,
+    SectionAwareRAGRetriever,
+)
+from prospectus_graph.state import SectionDraftState
+from prospectus_graph.verifier import append_verification_notes, verify_section_draft
 
 
-def load_rag_chunks(rag_dir: Path) -> list[dict[str, Any]]:
-    """Load all chunks from agent1 output."""
-    main_path = rag_dir / "rag_chunks.jsonl"
-    if not main_path.exists():
-        raise FileNotFoundError(f"Run agent1 first. Expected: {main_path}")
-
-    chunks = []
-    with open(main_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                chunks.append(json.loads(line))
-    return chunks
-
-
-def get_chunks_for_section(
-    chunks: list[dict[str, Any]] | None,
-    section_id: str,
-    max_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
-) -> list[dict[str, Any]]:
-    """Get chunks relevant to this agent2 section (mapped from agent1 section_ids)."""
-    if not chunks:
-        return []
-    agent1_ids = SECTION_TO_AGENT1_IDS.get(section_id, ["A", "B", "C", "D", "E", "F", "G", "H"])
-    filtered = [c for c in chunks if c.get("section_id") in agent1_ids]
-    # Truncate context if too long
-    total = 0
-    result = []
-    for c in filtered:
-        text = c.get("text", "")
-        if total + len(text) > max_chars:
-            break
-        result.append(c)
-        total += len(text)
-    return result
-
-
-def build_context(chunks: list[dict[str, Any]]) -> str:
-    """Build RAG context string from chunks."""
-    parts = []
-    for i, c in enumerate(chunks):
-        src = c.get("source_file", "unknown")
-        text = c.get("text", "")
-        parts.append(f"[{i + 1}] (Source: {src})\n{text}")
-    return "\n\n".join(parts)
-
-
-def load_section_requirements(requirements_path: Path) -> dict[str, dict]:
-    """Load section requirements from JSON."""
-    if not requirements_path.exists():
-        return {}
-    with open(requirements_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def _lookup_section_name(section_id: str) -> str:
+    return next((name for sid, name in SECTIONS if sid == section_id), section_id)
 
 
 HKEX_FORMAT_INSTRUCTION = """
@@ -172,10 +56,13 @@ def build_prompt(
     context: str,
     modification_instructions: str | None = None,
 ) -> str:
-    """Build LLM prompt for section generation."""
+    """Build the section-writer prompt."""
     mod_note = ""
     if modification_instructions and modification_instructions.strip():
-        mod_note = f"\n\nUser modification request (incorporate these changes):\n{modification_instructions.strip()}\n"
+        mod_note = (
+            "\n\nUser modification request (incorporate these changes):\n"
+            f"{modification_instructions.strip()}\n"
+        )
     return f"""You are drafting a prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode. Your task is to produce a conservative, verification-aware working draft that includes prospectus-ready prose where supported and structured placeholders or AI tags where support is missing.
 {HKEX_FORMAT_INSTRUCTION}
 
@@ -210,81 +97,122 @@ def generate_with_llm(
     model: Any = None,
     tokenizer: Any = None,
 ) -> str:
-    """Call Qwen via Hugging Face (llm_qwen) to generate section text.
-    If model and tokenizer are provided, reuse them (no reload)."""
-    from llm_qwen import run_qwen_text, _load_qwen_model, run_qwen_with_model
+    """Call Qwen via Hugging Face (llm_qwen) to generate section text."""
+    from llm_qwen import run_qwen_text, run_qwen_with_model
+
     if model is not None and tokenizer is not None:
         return run_qwen_with_model(model, tokenizer, prompt, max_new_tokens=2048)
     return run_qwen_text(prompt, model_name=model_name, max_new_tokens=2048)
 
 
-def generate_section(
-    section_id: str,
-    chunks: list[dict[str, Any]],
-    requirements_map: dict[str, dict],
-    max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
-    model_name: str = DEFAULT_MODEL,
-    modification_instructions: str | None = None,
-    model: Any = None,
-    tokenizer: Any = None,
-) -> str:
-    """Generate one section. Returns a sponsor-counsel working draft."""
-    section_name = next((n for sid, n in SECTIONS if sid == section_id), section_id)
-    reqs = requirements_map.get(section_id, {})
-    requirements = reqs.get("requirements", f"Write the {section_name} section.")
+class RetrieverNode:
+    def __init__(self, retriever: SectionAwareRAGRetriever):
+        self.retriever = retriever
 
-    section_chunks = get_chunks_for_section(chunks, section_id, max_context_chars)
-    context = (
-        build_context(section_chunks)
-        if section_chunks
-        else "[No section-specific source material was routed to this section. Produce only a structured working draft skeleton, placeholders, and AI verification notes based on the section requirements.]"
-    )
-    prompt = build_prompt(
-        section_id, section_name, requirements, context, modification_instructions
-    )
-    return generate_with_llm(
-        prompt, model_name=model_name, model=model, tokenizer=tokenizer
-    )
+    def __call__(self, state: SectionDraftState) -> dict:
+        result = self.retriever.retrieve(
+            section_id=state["section_id"],
+            section_name=state["section_name"],
+            requirements=state["requirements"],
+            max_context_chars=state["max_context_chars"],
+        )
+        context = result.context or (
+            "[No supporting evidence was retrieved for this section. "
+            "Produce a structured working draft skeleton with placeholders and AI verification notes only.]"
+        )
+        return {
+            "retrieved_chunks": result.chunks,
+            "retrieval_context": context,
+            "retrieval_notes": result.notes,
+        }
 
 
-def run_agent2_single(
-    section_id: str,
-    rag_dir: str | Path = "agent1_output",
-    output_dir: str | Path = "agent2_output",
-    modification_instructions: str | None = None,
-    max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
-    model_name: str = DEFAULT_MODEL,
-) -> str:
-    """Generate a single section. Returns the text. Writes to output_dir."""
-    rag_path = Path(rag_dir)
-    out_path = Path(output_dir)
-    out_path.mkdir(parents=True, exist_ok=True)
+class SectionWriterNode:
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        model: Any = None,
+        tokenizer: Any = None,
+    ):
+        self.model_name = model_name
+        self.model = model
+        self.tokenizer = tokenizer
 
-    chunks = load_rag_chunks(rag_path)
-    requirements_path = Path(__file__).parent / "agent2_section_requirements.json"
-    requirements_map = load_section_requirements(requirements_path)
+    def __call__(self, state: SectionDraftState) -> dict:
+        prompt = build_prompt(
+            state["section_id"],
+            state["section_name"],
+            state["requirements"],
+            state["retrieval_context"],
+            state.get("modification_instructions"),
+        )
+        draft_text = generate_with_llm(
+            prompt,
+            model_name=self.model_name,
+            model=self.model,
+            tokenizer=self.tokenizer,
+        )
+        return {"draft_text": draft_text}
 
-    text = generate_section(
-        section_id,
-        chunks,
-        requirements_map,
-        max_context_chars=max_context_chars,
-        model_name=model_name,
-        modification_instructions=modification_instructions,
-    )
-    section_name = next((n for sid, n in SECTIONS if sid == section_id), section_id)
-    safe_name = section_name.replace(" ", "_").replace("&", "and")
-    out_file = out_path / f"section_{section_id}_{safe_name}.md"
-    with open(out_file, "w", encoding="utf-8") as f:
-        f.write(f"# Section {section_id}: {section_name}\n\n")
-        f.write(text)
-    print(f"Saved: {out_file}")
-    # When modifying, include all existing sections; when generating in order, only up to this one
-    only_up_to = None if modification_instructions else section_id
-    _append_to_all_sections(
-        out_path, section_id, section_name, text, only_sections_up_to=only_up_to
-    )
-    return text
+
+class VerifierNode:
+    def __call__(self, state: SectionDraftState) -> dict:
+        issues, passed = verify_section_draft(
+            section_id=state["section_id"],
+            draft_text=state.get("draft_text", ""),
+            retrieval_context=state.get("retrieval_context", ""),
+        )
+        verified_text = append_verification_notes(
+            state.get("draft_text", ""),
+            issues,
+            passed=passed,
+        )
+        return {
+            "verification_issues": issues,
+            "verifier_passed": passed,
+            "verified_text": verified_text,
+        }
+
+
+class AssemblerNode:
+    def __init__(
+        self,
+        *,
+        output_dir: str | Path,
+        combine_immediately: bool,
+        only_sections_up_to: str | None = None,
+    ):
+        self.output_dir = Path(output_dir)
+        self.combine_immediately = combine_immediately
+        self.only_sections_up_to = only_sections_up_to
+
+    def __call__(self, state: SectionDraftState) -> dict:
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        section_id = state["section_id"]
+        section_name = state["section_name"]
+        text = state.get("verified_text") or state.get("draft_text", "")
+        safe_name = section_name.replace(" ", "_").replace("&", "and")
+        out_file = self.output_dir / f"section_{section_id}_{safe_name}.md"
+
+        with open(out_file, "w", encoding="utf-8") as f:
+            f.write(f"# Section {section_id}: {section_name}\n\n")
+            f.write(text)
+        print(f"Saved: {out_file}")
+
+        result = {"output_file": str(out_file)}
+        if self.combine_immediately:
+            _append_to_all_sections(
+                self.output_dir,
+                section_id,
+                section_name,
+                text,
+                only_sections_up_to=self.only_sections_up_to,
+            )
+            result["combined_output_file"] = str(
+                self.output_dir / "all_sections.md"
+            )
+        return result
 
 
 def _append_to_all_sections(
@@ -295,27 +223,25 @@ def _append_to_all_sections(
     *,
     only_sections_up_to: str | None = None,
 ) -> None:
-    """Update all_sections.md with this section (merge with other section files).
-    When only_sections_up_to is set (single-section mode), only include sections
-    from the start up to that section, so we don't merge old content from previous runs.
-    """
+    """Update all_sections.md with this section (merge with other section files)."""
     combined_path = out_path / "all_sections.md"
-    section_ids_ordered = [s[0] for s in SECTIONS]
+    section_ids_ordered = [sid for sid, _ in SECTIONS]
     max_index = len(section_ids_ordered)
     if only_sections_up_to and only_sections_up_to in section_ids_ordered:
         max_index = section_ids_ordered.index(only_sections_up_to) + 1
     allowed_ids = set(section_ids_ordered[:max_index])
 
     existing: dict[str, str] = {}
-    for f in out_path.glob("section_*.md"):
-        name = f.stem
+    for path in out_path.glob("section_*.md"):
+        name = path.stem
         for sid, sname in SECTIONS:
             if sid not in allowed_ids:
                 continue
             safe = sname.replace(" ", "_").replace("&", "and")
             if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
-                existing[sid] = f.read_text(encoding="utf-8").split("\n\n", 1)[-1].strip()
+                existing[sid] = path.read_text(encoding="utf-8").split("\n\n", 1)[-1].strip()
                 break
+
     existing[section_id] = text
     with open(combined_path, "w", encoding="utf-8") as f:
         f.write("# Prospectus Draft (Generated by Agent2)\n\n")
@@ -331,16 +257,16 @@ def _rebuild_all_sections(out_path: Path) -> None:
     """Rebuild all_sections.md from all section_*.md files in SECTIONS order."""
     combined_path = out_path / "all_sections.md"
     existing: dict[str, str] = {}
-    for f in out_path.glob("section_*.md"):
-        name = f.stem
+    for path in out_path.glob("section_*.md"):
+        name = path.stem
         for sid, sname in SECTIONS:
             safe = sname.replace(" ", "_").replace("&", "and")
             if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
-                content = f.read_text(encoding="utf-8")
-                # Strip header line
+                content = path.read_text(encoding="utf-8")
                 parts = content.split("\n\n", 1)
                 existing[sid] = parts[-1].strip() if len(parts) > 1 else content.strip()
                 break
+
     with open(combined_path, "w", encoding="utf-8") as f:
         f.write("# Prospectus Draft (Generated by Agent2)\n\n")
         for sid, sname in SECTIONS:
@@ -351,6 +277,104 @@ def _rebuild_all_sections(out_path: Path) -> None:
     print(f"Updated: {combined_path}")
 
 
+def _build_requirements_map() -> dict[str, dict]:
+    requirements_path = Path(__file__).parent / "agent2_section_requirements.json"
+    return load_section_requirements(requirements_path)
+
+
+def _build_section_state(
+    *,
+    section_id: str,
+    requirements_map: dict[str, dict],
+    rag_dir: str | Path,
+    output_dir: str | Path,
+    max_context_chars: int,
+    model_name: str,
+    modification_instructions: str | None = None,
+) -> SectionDraftState:
+    section_name = _lookup_section_name(section_id)
+    reqs = requirements_map.get(section_id, {})
+    requirements = reqs.get("requirements", f"Write the {section_name} section.")
+    return {
+        "section_id": section_id,
+        "section_name": section_name,
+        "requirements": requirements,
+        "rag_dir": str(rag_dir),
+        "output_dir": str(output_dir),
+        "model_name": model_name,
+        "max_context_chars": max_context_chars,
+        "modification_instructions": modification_instructions,
+    }
+
+
+def _run_section_graph(
+    *,
+    section_state: SectionDraftState,
+    retriever: SectionAwareRAGRetriever,
+    output_dir: str | Path,
+    model_name: str,
+    modification_instructions: str | None = None,
+    combine_immediately: bool,
+    only_sections_up_to: str | None,
+    model: Any = None,
+    tokenizer: Any = None,
+) -> SectionDraftState:
+    graph = build_section_graph(
+        retriever_node=RetrieverNode(retriever),
+        section_writer_node=SectionWriterNode(
+            model_name=model_name,
+            model=model,
+            tokenizer=tokenizer,
+        ),
+        verifier_node=VerifierNode(),
+        assembler_node=AssemblerNode(
+            output_dir=output_dir,
+            combine_immediately=combine_immediately,
+            only_sections_up_to=only_sections_up_to,
+        ),
+    )
+    return graph.invoke(section_state)
+
+
+def run_agent2_single(
+    section_id: str,
+    rag_dir: str | Path = "agent1_output",
+    output_dir: str | Path = "agent2_output",
+    modification_instructions: str | None = None,
+    max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
+    model_name: str = DEFAULT_MODEL,
+) -> str:
+    """Generate a single section through the LangGraph pipeline."""
+    rag_path = Path(rag_dir)
+    out_path = Path(output_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    kb = Agent1JsonlKnowledgeBase(rag_path)
+    retriever = SectionAwareRAGRetriever([kb])
+    requirements_map = _build_requirements_map()
+
+    state = _build_section_state(
+        section_id=section_id,
+        requirements_map=requirements_map,
+        rag_dir=rag_path,
+        output_dir=out_path,
+        max_context_chars=max_context_chars,
+        model_name=model_name,
+        modification_instructions=modification_instructions,
+    )
+
+    result = _run_section_graph(
+        section_state=state,
+        retriever=retriever,
+        output_dir=out_path,
+        model_name=model_name,
+        modification_instructions=modification_instructions,
+        combine_immediately=True,
+        only_sections_up_to=None if modification_instructions else section_id,
+    )
+    return result.get("verified_text") or result.get("draft_text", "")
+
+
 def run_agent2(
     rag_dir: str | Path = "agent1_output",
     output_dir: str | Path = "agent2_output",
@@ -359,28 +383,16 @@ def run_agent2(
     model_name: str = DEFAULT_MODEL,
 ) -> dict[str, str]:
     """
-    Run agent2: generate prospectus sections.
-
-    Args:
-        rag_dir: Directory containing agent1 output (rag_chunks.jsonl).
-        output_dir: Output directory for generated sections.
-        sections: List of section IDs (e.g. ["A","B","D"]) or None for all.
-        max_context_chars: Max chars of RAG context per section.
-        model_name: Hugging Face model name.
-
-    Returns:
-        Dict mapping section_id -> generated text.
+    Run agent2: generate prospectus sections through the LangGraph pipeline.
     """
     rag_path = Path(rag_dir)
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    chunks = load_rag_chunks(rag_path)
-    requirements_path = Path(__file__).parent / "agent2_section_requirements.json"
-    requirements_map = load_section_requirements(requirements_path)
+    requirements_map = _build_requirements_map()
 
     if sections is None:
-        sections = [s[0] for s in SECTIONS]
+        sections = [sid for sid, _ in SECTIONS]
 
     valid_sections = [sid for sid in sections if sid in [s[0] for s in SECTIONS]]
     use_cached_model = len(valid_sections) > 1
@@ -388,72 +400,74 @@ def run_agent2(
     model, tokenizer = None, None
     if use_cached_model:
         from llm_qwen import _load_qwen_model
+
         model, tokenizer = _load_qwen_model(model_name)
         print("Model loaded once; reusing for all sections.")
 
+    kb = Agent1JsonlKnowledgeBase(rag_path)
+    retriever = SectionAwareRAGRetriever([kb])
+
     results: dict[str, str] = {}
     for section_id in valid_sections:
-        text = generate_section(
-            section_id,
-            chunks,
-            requirements_map,
+        state = _build_section_state(
+            section_id=section_id,
+            requirements_map=requirements_map,
+            rag_dir=rag_path,
+            output_dir=out_path,
             max_context_chars=max_context_chars,
             model_name=model_name,
+        )
+        result = _run_section_graph(
+            section_state=state,
+            retriever=retriever,
+            output_dir=out_path,
+            model_name=model_name,
+            combine_immediately=False,
+            only_sections_up_to=None,
             model=model,
             tokenizer=tokenizer,
         )
-        results[section_id] = text
+        results[section_id] = result.get("verified_text") or result.get("draft_text", "")
 
-        # Write per-section file
-        section_name = next((n for sid, n in SECTIONS if sid == section_id), section_id)
-        safe_name = section_name.replace(" ", "_").replace("&", "and")
-        out_file = out_path / f"section_{section_id}_{safe_name}.md"
-        with open(out_file, "w", encoding="utf-8") as f:
-            f.write(f"# Section {section_id}: {section_name}\n\n")
-            f.write(text)
-        print(f"Saved: {out_file}")
-
-    # Rebuild all_sections.md from all section_*.md files (merge with existing)
     _rebuild_all_sections(out_path)
-
     return results
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Agent2: Generate prospectus sections from agent1 RAG output"
+        description="Agent2: Generate prospectus sections from Agent1 output through a LangGraph pipeline"
     )
     parser.add_argument(
         "--section",
         nargs="+",
         default=["all"],
-        help="Section ID(s): ExpectedTimetable Contents Summary Definitions Glossary ForwardLooking RiskFactors Waivers InfoProspectus DirectorsParties CorporateInfo Regulation IndustryOverview HistoryReorg Business ContractualArrangements ControllingShareholders ConnectedTransactions DirectorsSeniorMgmt SubstantialShareholders ShareCapital FinancialInfo UseOfProceeds Underwriting GlobalOfferingStructure, or 'all' for all"
+        help="Section ID(s): ExpectedTimetable Contents Summary Definitions Glossary ForwardLooking RiskFactors Waivers InfoProspectus DirectorsParties CorporateInfo Regulation IndustryOverview HistoryReorg Business ContractualArrangements ControllingShareholders ConnectedTransactions DirectorsSeniorMgmt SubstantialShareholders ShareCapital FinancialInfo UseOfProceeds Underwriting GlobalOfferingStructure, or 'all' for all",
     )
     parser.add_argument(
         "--rag-dir",
         default="agent1_output",
-        help="Directory containing agent1 output"
+        help="Directory containing Agent1 output",
     )
     parser.add_argument(
         "--output-dir",
         default="agent2_output",
-        help="Output directory for generated sections"
+        help="Output directory for generated sections",
     )
     parser.add_argument(
         "--max-context",
         type=int,
         default=DEFAULT_MAX_CONTEXT_CHARS,
-        help="Max chars of RAG context per section"
+        help="Max chars of retrieved evidence per section",
     )
     parser.add_argument(
         "--model",
         default=DEFAULT_MODEL,
-        help="Hugging Face model name"
+        help="Hugging Face model name",
     )
     parser.add_argument(
         "--modification-file",
         default="",
-        help="Path to file containing modification instructions (for single-section regenerate)"
+        help="Path to file containing modification instructions (for single-section regenerate)",
     )
     args = parser.parse_args()
 
