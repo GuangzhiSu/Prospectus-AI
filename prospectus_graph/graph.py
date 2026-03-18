@@ -16,12 +16,13 @@ def build_section_graph(
     verifier_agent: NodeFn,
     revision_agent: NodeFn,
     assembler_node: NodeFn,
+    planner_node: NodeFn | None = None,
 ):
     """
-    Build the fixed LangGraph used for section drafting.
+    Build the LangGraph for section drafting.
 
-    Planner is intentionally omitted because the repository already maintains
-    per-section drafting requirements in configuration.
+    Flow: Retriever → [Planner] → Section Writer → Verifier → Revision/Assembler
+    If planner_node is provided, it runs between retriever and section_writer.
     """
 
     graph = StateGraph(SectionDraftState)
@@ -32,7 +33,12 @@ def build_section_graph(
     graph.add_node("assembler", assembler_node)
 
     graph.add_edge(START, "retriever")
-    graph.add_edge("retriever", "section_writer")
+    if planner_node is not None:
+        graph.add_node("planner", planner_node)
+        graph.add_edge("retriever", "planner")
+        graph.add_edge("planner", "section_writer")
+    else:
+        graph.add_edge("retriever", "section_writer")
     graph.add_edge("section_writer", "verifier")
     graph.add_conditional_edges(
         "verifier",

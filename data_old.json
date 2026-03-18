@@ -1,0 +1,1083 @@
+{
+    "company_information": {
+        "company_name": {
+            "value_example": "UBTECH ROBOTICS CORP LTD",
+            "data_type": "string",
+            "description": "Registered company name in English",
+            "evidence_from_prospectus": "The cover and important information pages display the company name as UBTECH ROBOTICS CORP LTD."
+        },
+        "company_chinese_name": {
+            "value_example": "深圳市優必選科技股份有限公司",
+            "data_type": "string",
+            "description": "Registered company name in Chinese",
+            "evidence_from_prospectus": "The cover and important information pages disclose the Chinese name."
+        },
+        "stock_code": {
+            "value_example": "9880",
+            "data_type": "string",
+            "description": "Stock code",
+            "evidence_from_prospectus": "The cover and the Global Offering and Listing section disclose the stock code 9880."
+        },
+        "legal_structure": {
+            "value_example": "joint stock company incorporated in the People's Republic of China with limited liability",
+            "data_type": "string",
+            "description": "Company legal entity type",
+            "evidence_from_prospectus": "The cover states the company is a joint stock company incorporated in China."
+        },
+        "headquarters_location": {
+            "value_example": "Shenzhen, PRC",
+            "data_type": "string",
+            "description": "Headquarters location",
+            "evidence_from_prospectus": "Summary and Highlights describes the company as based in the PRC and the name specifies Shenzhen."
+        },
+        "incorporation_jurisdiction": {
+            "value_example": "PRC",
+            "data_type": "string",
+            "description": "Jurisdiction of incorporation",
+            "evidence_from_prospectus": "The cover states incorporated in the People's Republic of China."
+        },
+        "company_history_milestones": {
+            "value_example": [
+                { "year": 2016, "event": "launched consumer-level robots and other hardware devices" },
+                { "year": 2017, "event": "launched education smart robotic and general service smart robotic products and services" },
+                { "year": 2020, "event": "launched logistics smart robotic products and services" },
+                { "year": 2022, "event": "launched wellness and elderly care smart robotic products and services" }
+            ],
+            "data_type": "array<object>",
+            "description": "Key timeline of company/product development milestones",
+            "evidence_from_prospectus": "The milestone table in Summary and Highlights lists these points in time."
+        },
+        "branch_offices_count": {
+            "value_example": 2,
+            "data_type": "number",
+            "description": "Number of company branch offices",
+            "evidence_from_prospectus": "Notes in History, Development and Corporate Structure state there are branch offices in Beijing and Baoan."
+        },
+        "branch_offices": {
+            "value_example": ["Beijing branch", "Baoan branch"],
+            "data_type": "array<string>",
+            "description": "Names of company branch offices",
+            "evidence_from_prospectus": "Notes in History, Development and Corporate Structure list two branch offices."
+        },
+        "subsidiary_structure_snapshot": {
+            "value_example": [
+                { "name": "UBTECH (Shenzhen) Technology Co., Ltd.", "ownership_pct": 100.0 },
+                { "name": "UBTECH (Hebei) Technology Co., Ltd.", "ownership_pct": 100.0 },
+                { "name": "UBTECH (Hubei) Technology Co., Ltd.", "ownership_pct": 100.0 },
+                { "name": "Guizhou UBTECH Technology Co., Ltd.", "ownership_pct": 100.0 },
+                { "name": "Shanghai UBJ", "ownership_pct": 87.53 },
+                { "name": "Chaozhou UBTECH Education Technology Co., Ltd.", "ownership_pct": 51.0 },
+                { "name": "UBKang (Qingdao) Technology Co., Ltd.", "ownership_pct": 80.0 },
+                { "name": "Wuxi Uqi", "ownership_pct": 36.22 }
+            ],
+            "data_type": "array<object>",
+            "description": "Snapshot of principal subsidiaries and ownership ratios at the prospectus disclosure date",
+            "evidence_from_prospectus": "The structure chart in History, Development and Corporate Structure lists principal subsidiaries and respective equity ownership."
+        },
+        "operating_facilities_count": {
+            "value_example": 7,
+            "data_type": "number",
+            "description": "Number of operating production facilities",
+            "evidence_from_prospectus": "Summary and Highlights disclose that as of the Latest Practicable Date, there are seven production facilities in operation."
+        },
+        "strategic_positioning": {
+            "value_example": "smart service robotic products and services provider",
+            "data_type": "string",
+            "description": "Company strategic positioning",
+            "evidence_from_prospectus": "The Business Overview positions the company as a provider of smart service robotic products and services."
+        }
+    },
+
+    "products_and_technology": {
+        "product_segments": {
+            "value_example": [
+                "education smart robotic products and services",
+                "logistics smart robotic products and services",
+                "other sector-tailored smart robotic products and services",
+                "consumer-level robots and other hardware devices"
+            ],
+            "data_type": "array<string>",
+            "description": "Core product/service segments",
+            "evidence_from_prospectus": "Summary and Highlights clearly divide business into four segments."
+        },
+        "education_product_list": {
+            "value_example": ["Yanshee", "Alpha Mini (education)", "uKit", "Jimu series (education)", "uCode", "uPython"],
+            "data_type": "array<string>",
+            "description": "List of educational robot products and software",
+            "evidence_from_prospectus": "The education segment lists robots, software, and support services."
+        },
+        "logistics_product_list": {
+            "value_example": ["AGVs", "AMRs", "Wali Series", "WMS", "MES"],
+            "data_type": "array<string>",
+            "description": "List of logistics robots and supporting software",
+            "evidence_from_prospectus": "The logistics segment lists AGV, AMR, WMS, and MES."
+        },
+        "other_sector_product_list": {
+            "value_example": ["Cruzr series", "Walker series", "ADIBOT series"],
+            "data_type": "array<string>",
+            "description": "Other industry tailored robot product list",
+            "evidence_from_prospectus": "Other industry segment lists Cruzr, Walker, ADIBOT."
+        },
+        "consumer_product_list": {
+            "value_example": ["AiRROBO vacuum cleaner", "AiRROBO cat litter box", "Alpha Mini (non-education)"],
+            "data_type": "array<string>",
+            "description": "List of consumer-grade robots and smart hardware",
+            "evidence_from_prospectus": "The consumer segment lists these main products."
+        },
+        "technology_architecture": {
+            "value_example": [
+                "robotic motion planning and control technology",
+                "servo actuators",
+                "computer vision",
+                "voice interaction",
+                "SLAM and autonomous technology",
+                "visual servo operation and human-robot interaction",
+                "ROSA"
+            ],
+            "data_type": "array<string>",
+            "description": "Technology architecture and core technology modules",
+            "evidence_from_prospectus": "The R&D technological capabilities section breaks down the tech stack into robotics tech, AI tech, integration tech, and the ROSA framework."
+        },
+        "technology_platform": {
+            "value_example": "Robot Operating System Application Framework (ROSA)",
+            "data_type": "string",
+            "description": "Underlying robotics application framework",
+            "evidence_from_prospectus": "Summary and Highlights reveal that ROSA is a proprietary robotics application framework."
+        },
+        "ai_capabilities": {
+            "value_example": ["computer vision", "voice interaction", "facial recognition", "mapping", "temperature measurement"],
+            "data_type": "array<string>",
+            "description": "AI capabilities and perception functions",
+            "evidence_from_prospectus": "Business Overview and tech sections note products have mapping, temperature measurement, facial recognition, computer vision, and voice interaction capabilities."
+        },
+        "core_patent_count_total": {
+            "value_example": 1800,
+            "data_type": "number",
+            "description": "Total registered robotics and AI-related patents",
+            "evidence_from_prospectus": "As of June 30, 2023, the company had more than 1,800 registered robotic and AI-related patents."
+        },
+        "overseas_patent_count": {
+            "value_example": 380,
+            "data_type": "number",
+            "description": "Number of overseas patents",
+            "evidence_from_prospectus": "Of those, more than 380 are overseas patents."
+        },
+        "rd_team_size": {
+            "value_example": 700,
+            "data_type": "number",
+            "description": "Number of R&D team members",
+            "evidence_from_prospectus": "As of June 30, 2023, the in-house R&D team comprised over 700 employees."
+        },
+        "rd_team_start_year": {
+            "value_example": 2012,
+            "data_type": "number",
+            "description": "Year R&D team was established",
+            "evidence_from_prospectus": "R&D team established since 2012."
+        },
+        "product_types_launched_count": {
+            "value_example": 50,
+            "data_type": "number",
+            "description": "Number of product types launched",
+            "evidence_from_prospectus": "Over the Track Record Period, launched more than 50 types of products."
+        },
+        "robotic_units_sold_cumulative": {
+            "value_example": 760000,
+            "data_type": "number",
+            "description": "Cumulative sales volume of robotic products",
+            "evidence_from_prospectus": "Track Record Period sales exceeded 760,000 units of robotic products."
+        },
+        "rd_focus_area": {
+            "value_example": "core technologies utilized in humanoid robots",
+            "data_type": "string",
+            "description": "Key R&D focus area",
+            "evidence_from_prospectus": "The company discloses its R&D focus is on core technologies for humanoid robots."
+        },
+        "technology_awards": {
+            "value_example": {
+                "national_level_awards": 2,
+                "provincial_level_awards": 4,
+                "international_level_awards": 1
+            },
+            "data_type": "object",
+            "description": "Number of technology and patent awards",
+            "evidence_from_prospectus": "Disclosed awards: two national-level awards, four provincial-level awards, and one international-level award."
+        }
+    },
+
+    "business_operations": {
+        "revenue_model": {
+            "value_example": [
+                "sale of education smart robotic products and services",
+                "sale of logistics smart robotic products and services",
+                "sale of other sector-tailored smart robotic products and services",
+                "sale of consumer-level robots and other hardware devices"
+            ],
+            "data_type": "array<string>",
+            "description": "Revenue model",
+            "evidence_from_prospectus": "Summary and Highlights directly states revenue is primarily from sales of the above four categories of products and services."
+        },
+        "pricing_model_examples": {
+            "value_example": {
+                "education_hardware_asp_fy2020_rmb_per_unit": 3150,
+                "education_hardware_asp_fy2021_rmb_per_unit": 3740,
+                "education_hardware_asp_fy2022_rmb_per_unit": 4702,
+                "consumer_robots_asp_6m2023_rmb_per_unit": 658,
+                "general_service_asp_fy2021_rmb_per_unit": 135385
+            },
+            "data_type": "object",
+            "description": "Examples of key product line pricing fields (by unit/project)",
+            "evidence_from_prospectus": "Segment tables disclose ASP for multiple product lines; logistics is expressed as average revenue per project."
+        },
+        "sales_model": {
+            "value_example": ["direct sales", "self-operated online stores", "distributors"],
+            "data_type": "array<string>",
+            "description": "Sales model",
+            "evidence_from_prospectus": "Summary and Highlights state revenue derives from direct sales, self-operated online stores, and distributors."
+        },
+        "direct_sales_and_online_store_revenue_ratio_min": {
+            "value_example": 0.8,
+            "data_type": "number",
+            "description": "Minimum revenue share from direct sales and self-operated online stores",
+            "evidence_from_prospectus": "During the Track Record Period, these channels contributed at least 80% of total revenue."
+        },
+        "distribution_channels": {
+            "value_example": ["government educational bureaus", "enterprise customers", "online stores", "distributors"],
+            "data_type": "array<string>",
+            "description": "Channel structure",
+            "evidence_from_prospectus": "Description of clients and sales network covers government educational bureaus, enterprise customers, online stores, and distributors."
+        },
+        "geographic_sales_regions": {
+            "value_example": ["PRC", "United States", "Japan", "other overseas countries"],
+            "data_type": "array<string>",
+            "description": "Main sales regions",
+            "evidence_from_prospectus": "Summary and Highlights disclose that most revenue is from the PRC, others mainly from the US and Japan, etc."
+        },
+        "prc_revenue_ratio": {
+            "value_example": {
+                "FY2020": 0.922,
+                "FY2021": 0.922,
+                "FY2022": 0.87,
+                "6M2023": 0.733
+            },
+            "data_type": "object",
+            "description": "Revenue share from the PRC",
+            "evidence_from_prospectus": "Summary and Highlights show PRC revenue share is 92.2%, 92.2%, 87.0%, and 73.3%, respectively."
+        },
+        "countries_served_count": {
+            "value_example": 50,
+            "data_type": "number",
+            "description": "Number of countries covered",
+            "evidence_from_prospectus": "Company serves China and over 50 other countries."
+        },
+        "production_model": {
+            "value_example": ["in-house production facilities", "contract manufacturers"],
+            "data_type": "array<string>",
+            "description": "Production model",
+            "evidence_from_prospectus": "Disclosed as using both in-house factories and contract manufacturers for some products."
+        },
+        "contract_manufactured_products": {
+            "value_example": ["humanoid Alpha Mini", "smart robotic appliances"],
+            "data_type": "array<string>",
+            "description": "List of outsourced production products",
+            "evidence_from_prospectus": "Production and suppliers section specifies main outsourced products."
+        },
+        "supplier_types": {
+            "value_example": ["raw material providers", "hardware providers", "teaching support service subcontractors", "contract manufacturing service providers"],
+            "data_type": "array<string>",
+            "description": "Supplier categories",
+            "evidence_from_prospectus": "Suppliers are categorized as raw material/hardware suppliers and service subcontractors."
+        }
+    },
+
+    "customers": {
+        "customer_segments": {
+            "value_example": ["government educational bureaus", "enterprise customers", "distributors", "consumers"],
+            "data_type": "array<string>",
+            "description": "Customer segmentation",
+            "evidence_from_prospectus": "Customer base described as including educational bureaus, enterprises, distributors, consumers."
+        },
+        "enterprise_group_customers_count": {
+            "value_example": 900,
+            "data_type": "number",
+            "description": "Number of enterprise group customers",
+            "evidence_from_prospectus": "During the Track Record Period, served over 900 enterprise-level group customers."
+        },
+        "top5_customer_revenue": {
+            "value_example": {
+                "FY2020": 492600000,
+                "FY2021": 426700000,
+                "FY2022": 720900000,
+                "6M2023": 116300000
+            },
+            "data_type": "object",
+            "description": "Revenue contribution from top five customers",
+            "evidence_from_prospectus": "Summary and Highlights disclose top five customer sales figures."
+        },
+        "top5_customer_revenue_percentage": {
+            "value_example": {
+                "FY2020": 0.665,
+                "FY2021": 0.522,
+                "FY2022": 0.715,
+                "6M2023": 0.445
+            },
+            "data_type": "object",
+            "description": "Revenue share from top five customers",
+            "evidence_from_prospectus": "Summary and Highlights show top five customers accounted for 66.5%, 52.2%, 71.5%, 44.5% of revenue."
+        },
+        "largest_customer_revenue": {
+            "value_example": {
+                "FY2020": 279700000,
+                "FY2021": 175000000,
+                "FY2022": 276600000,
+                "6M2023": 71400000
+            },
+            "data_type": "object",
+            "description": "Revenue contribution from largest customer",
+            "evidence_from_prospectus": "Summary and Highlights disclose largest customer sales."
+        },
+        "largest_customer_revenue_percentage": {
+            "value_example": {
+                "FY2020": 0.378,
+                "FY2021": 0.214,
+                "FY2022": 0.274,
+                "6M2023": 0.274
+            },
+            "data_type": "object",
+            "description": "Revenue share from largest customer",
+            "evidence_from_prospectus": "Summary and Highlights show largest customer share: 37.8%, 21.4%, 27.4%, 27.4%."
+        },
+        "customer_industry_distribution": {
+            "value_example": ["education", "logistics/manufacturing", "schools", "hospitals", "airports", "train stations", "shopping malls", "banks", "electrical substations"],
+            "data_type": "array<string>",
+            "description": "Customer industry/scenario distribution",
+            "evidence_from_prospectus": "Industry and scenario breakdown is listed in business segment descriptions."
+        },
+        "customer_order_example_nonrecurring": {
+            "value_example": {
+                "customer_region": "Shaoyang",
+                "order_amount_rmb": 66800000,
+                "units": 12010
+            },
+            "data_type": "object",
+            "description": "Large project order example (to support MD&A revenue fluctuation explanation)",
+            "evidence_from_prospectus": "The revenue decline in 6M2023 is partly due to a non-recurring RMB66.8m, 12,010-unit education product order from Shaoyang not repeating in 6M2023."
+        }
+    },
+
+    "market": {
+        "target_market_size": {
+            "value_example": {
+                "global_2022_usd": 23500000000,
+                "global_2028_usd": 62800000000,
+                "prc_2022_rmb": 51600000000,
+                "prc_2028_rmb": 183200000000
+            },
+            "data_type": "object",
+            "description": "Target market size",
+            "evidence_from_prospectus": "Frost & Sullivan forecast global and PRC smart service robotics market sizes as above."
+        },
+        "market_growth_rate": {
+            "value_example": {
+                "global_cagr_2022_2028": 0.178,
+                "prc_cagr_2022_2028": 0.235
+            },
+            "data_type": "object",
+            "description": "Market growth rate",
+            "evidence_from_prospectus": "Summary and Highlights report global CAGR 17.8%, PRC CAGR 23.5%."
+        },
+        "industry_trends": {
+            "value_example": [
+                "low penetration of smart service robotics in recent years",
+                "rising demand for new energy vehicles",
+                "transformation of manufacturing industry in China",
+                "increasing labor cost",
+                "government policy support",
+                "evolving technologies and changing product trends"
+            ],
+            "data_type": "array<string>",
+            "description": "Industry trend datapoints",
+            "evidence_from_prospectus": "These trends appear in market opportunity, logistics segment background and risk factors sections."
+        }
+    },
+
+    "competition": {
+        "market_position": {
+            "value_example": {
+                "china_smart_service_robotics_rank_2022": 3,
+                "china_smart_service_robotics_market_share_2022": 0.028,
+                "china_education_robotics_rank_2022": 1,
+                "china_education_robotics_market_share_2022": 0.225
+            },
+            "data_type": "object",
+            "description": "Market position and ranking",
+            "evidence_from_prospectus": "Frost & Sullivan ranks company 3rd in 2022 China smart service robotics by revenue (2.8% share); 1st in education robotics by revenue (22.5% share)."
+        },
+        "competitive_advantages": {
+            "value_example": [
+                "established provider in the PRC",
+                "self-developed full-stack technologies",
+                "successful commercialization across multiple scenarios",
+                "China-based with overseas presence and partnerships",
+                "experienced management team"
+            ],
+            "data_type": "array<string>",
+            "description": "Key competitive advantages",
+            "evidence_from_prospectus": "OUR COMPETITIVE STRENGTHS lists these advantages."
+        },
+        "pricing_pressure_indicator": {
+            "value_example": true,
+            "data_type": "boolean",
+            "description": "Whether there is pricing pressure from similar products",
+            "evidence_from_prospectus": "Financial Information notes consumer hardware faces downward pricing pressure due to many similar/comparable products in the market."
+        }
+    },
+
+    "financials": {
+        "revenue_by_period": {
+            "value_example": {
+                "FY2020": 740226000,
+                "FY2021": 817230000,
+                "FY2022": 1008272000,
+                "6M2022": 283523000,
+                "6M2023": 261139000
+            },
+            "data_type": "object",
+            "description": "Revenue by period",
+            "evidence_from_prospectus": "Summary and Highlights and Business Sustainability tables disclose revenue amounts."
+        },
+        "net_loss_by_period": {
+            "value_example": {
+                "FY2020": 707000000,
+                "FY2021": 917500000,
+                "FY2022": 987400000,
+                "6M2022": 515200000,
+                "6M2023": 547900000
+            },
+            "data_type": "object",
+            "description": "Net loss by period",
+            "evidence_from_prospectus": "Summary and Highlights and Business Sustainability disclose net loss."
+        },
+        "gross_margin_by_period": {
+            "value_example": {
+                "FY2020": 0.447,
+                "FY2021": 0.313,
+                "FY2022": 0.292,
+                "6M2022": 0.137,
+                "6M2023": 0.202
+            },
+            "data_type": "object",
+            "description": "Gross margin by period",
+            "evidence_from_prospectus": "Business Sustainability and Measures to Achieve Profitability table disclose gross margin."
+        },
+        "net_margin_by_period": {
+            "value_example": {
+                "FY2020": -0.955,
+                "FY2021": -1.123,
+                "FY2022": -0.979,
+                "6M2022": -1.817,
+                "6M2023": -2.098
+            },
+            "data_type": "object",
+            "description": "Net margin by period",
+            "evidence_from_prospectus": "Business Sustainability table shows net margin."
+        },
+        "rd_expenses_by_period": {
+            "value_example": {
+                "FY2020": 428800000,
+                "FY2021": 517100000,
+                "FY2022": 428300000,
+                "6M2023": 224300000
+            },
+            "data_type": "object",
+            "description": "R&D expenses",
+            "evidence_from_prospectus": "Summary and Highlights R&D technologies section discloses R&D spend."
+        },
+        "rd_expense_as_percentage_of_revenue": {
+            "value_example": {
+                "FY2020": 0.579,
+                "FY2021": 0.633,
+                "FY2022": 0.425,
+                "6M2023": 0.859
+            },
+            "data_type": "object",
+            "description": "R&D expense ratio",
+            "evidence_from_prospectus": "Summary and Highlights disclose R&D expense as a proportion of revenue."
+        },
+        "selling_marketing_expenses_by_period": {
+            "value_example": {
+                "FY2020": 313298000,
+                "FY2021": 357607000,
+                "FY2022": 361023000,
+                "6M2022": 171563000,
+                "6M2023": 189848000
+            },
+            "data_type": "object",
+            "description": "Selling and marketing expenses",
+            "evidence_from_prospectus": "Financial Information discloses selling and marketing expenses."
+        },
+        "selling_marketing_expense_ratio": {
+            "value_example": {
+                "FY2020": 0.423,
+                "FY2021": 0.438,
+                "FY2022": 0.358,
+                "6M2022": 0.605,
+                "6M2023": 0.727
+            },
+            "data_type": "object",
+            "description": "Selling and marketing expense ratio",
+            "evidence_from_prospectus": "Financial Information shows selling expenses as a proportion of revenue."
+        },
+        "general_administrative_expenses_by_period": {
+            "value_example": {
+                "FY2020": 212061000,
+                "FY2021": 325899000,
+                "FY2022": 398083000,
+                "6M2022": 162461000,
+                "6M2023": 177550000
+            },
+            "data_type": "object",
+            "description": "General and administrative expenses",
+            "evidence_from_prospectus": "Financial Information G&A expenses table shows total amounts."
+        },
+        "net_cash_used_in_operating_activities": {
+            "value_example": {
+                "FY2020": 602600000,
+                "FY2021": 680700000,
+                "FY2022": 543500000,
+                "6M2023": 526500000
+            },
+            "data_type": "object",
+            "description": "Net cash outflow from operating activities",
+            "evidence_from_prospectus": "Financial Information operating activities section discloses."
+        },
+        "inventories_balance": {
+            "value_example": {
+                "2020-12-31": 412800000,
+                "2021-12-31": 426100000,
+                "2022-12-31": 332700000,
+                "2023-06-30": 416500000
+            },
+            "data_type": "object",
+            "description": "Inventory balance",
+            "evidence_from_prospectus": "Risk Factors disclose end-of-period inventories."
+        },
+        "inventory_write_down": {
+            "value_example": {
+                "FY2020": 12600000,
+                "FY2021": 1200000,
+                "FY2022": 70600000,
+                "6M2023": 2000000
+            },
+            "data_type": "object",
+            "description": "Inventory write-down/impairment amount",
+            "evidence_from_prospectus": "Risk Factors disclose inventory impairment for each period."
+        },
+        "contract_liabilities_balance": {
+            "value_example": {
+                "2020-12-31": 91100000,
+                "2021-12-31": 144200000,
+                "2022-12-31": 84500000,
+                "2023-06-30": 127100000
+            },
+            "data_type": "object",
+            "description": "Contract liabilities balance",
+            "evidence_from_prospectus": "Risk Factors disclose contract liabilities."
+        },
+        "net_current_liabilities_2021": {
+            "value_example": 83300000,
+            "data_type": "number",
+            "description": "Net current liabilities at 2021 year-end",
+            "evidence_from_prospectus": "Risk Factors disclose net current liabilities as of December 31, 2021 as RMB83.3 million."
+        },
+        "net_current_assets_2020": {
+            "value_example": 281900000,
+            "data_type": "number",
+            "description": "Net current assets at 2020 year-end",
+            "evidence_from_prospectus": "Risk Factors disclose net current assets as of December 31, 2020 as RMB281.9 million."
+        }
+    },
+
+    "operating_metrics": {
+        "revenue_by_segment": {
+            "value_example": {
+                "FY2020": {
+                    "education": 612249000,
+                    "logistics": 12690000,
+                    "other_sector_tailored": 38598000,
+                    "consumer": 62016000
+                },
+                "FY2021": {
+                    "education": 461843000,
+                    "logistics": 190786000,
+                    "other_sector_tailored": 90245000,
+                    "consumer": 67795000
+                },
+                "FY2022": {
+                    "education": 516688000,
+                    "logistics": 263437000,
+                    "other_sector_tailored": 82418000,
+                    "consumer": 132448000
+                },
+                "6M2023": {
+                    "education": 75668000,
+                    "logistics": 76801000,
+                    "other_sector_tailored": 22246000,
+                    "consumer": 85028000
+                }
+            },
+            "data_type": "object",
+            "description": "Revenue by business segment",
+            "evidence_from_prospectus": "Summary and Highlights table of segment revenue."
+        },
+        "revenue_mix_by_segment_percentage": {
+            "value_example": {
+                "FY2020": { "education": 0.827, "logistics": 0.017, "other_sector_tailored": 0.052, "consumer": 0.084 },
+                "FY2021": { "education": 0.565, "logistics": 0.233, "other_sector_tailored": 0.11, "consumer": 0.083 },
+                "FY2022": { "education": 0.512, "logistics": 0.261, "other_sector_tailored": 0.082, "consumer": 0.131 },
+                "6M2023": { "education": 0.29, "logistics": 0.294, "other_sector_tailored": 0.085, "consumer": 0.326 }
+            },
+            "data_type": "object",
+            "description": "Revenue percent mix by segment",
+            "evidence_from_prospectus": "Summary and Highlights segment revenue mix table."
+        },
+        "education_hardware_software_sales_volume": {
+            "value_example": {
+                "FY2020_k_units": 128,
+                "FY2021_k_units": 68,
+                "FY2022_k_units": 60,
+                "6M2022_k_units": 22,
+                "6M2023_k_units": 13
+            },
+            "data_type": "object",
+            "description": "Sales volume of core education hardware/software products",
+            "evidence_from_prospectus": "Segment tables disclose sales of education hardware products and services, and software."
+        },
+        "education_hardware_software_asp": {
+            "value_example": {
+                "FY2020": 3150,
+                "FY2021": 3740,
+                "FY2022": 4702,
+                "6M2022": 4646,
+                "6M2023": 1312
+            },
+            "data_type": "object",
+            "description": "Average selling price (RMB/unit) of education hardware/software",
+            "evidence_from_prospectus": "Segment tables disclose ASP."
+        },
+        "consumer_robot_sales_volume": {
+            "value_example": {
+                "FY2020_k_units": 63,
+                "FY2021_k_units": 99,
+                "FY2022_k_units": 206,
+                "6M2022_k_units": 72,
+                "6M2023_k_units": 126
+            },
+            "data_type": "object",
+            "description": "Sales volume of consumer-level robots",
+            "evidence_from_prospectus": "Segment tables disclose sales of consumer-level robots and other hardware."
+        },
+        "consumer_robot_asp": {
+            "value_example": {
+                "FY2020": 940,
+                "FY2021": 664,
+                "FY2022": 639,
+                "6M2022": 639,
+                "6M2023": 658
+            },
+            "data_type": "object",
+            "description": "Average selling price (RMB/unit) of consumer-level robots",
+            "evidence_from_prospectus": "Segment tables disclose consumer-level robot ASP."
+        },
+        "logistics_revenue_generating_projects": {
+            "value_example": {
+                "6M2022": 9,
+                "6M2023": 24
+            },
+            "data_type": "object",
+            "description": "Number of logistics projects generating revenue",
+            "evidence_from_prospectus": "Summary and Highlights explain that number of logistics projects increased from 9 to 24 in 6M2023."
+        },
+        "enterprise_level_revenue_share": {
+            "value_example": {
+                "FY2020": 0.896,
+                "FY2021": 0.909,
+                "FY2022": 0.855,
+                "6M2022": 0.806,
+                "6M2023": 0.669
+            },
+            "data_type": "object",
+            "description": "Enterprise-level smart service robotic products and services revenue share",
+            "evidence_from_prospectus": "Segment tables show the share of revenue from enterprise-level smart service robotics."
+        },
+        "education_plus_logistics_revenue_share": {
+            "value_example": {
+                "FY2020": 0.844,
+                "FY2021": 0.798,
+                "FY2022": 0.773,
+                "6M2023": 0.584
+            },
+            "data_type": "object",
+            "description": "Combined revenue share from education and logistics segments",
+            "evidence_from_prospectus": "Summary and Highlights disclose main revenue sources as education and logistics, with proportions as above."
+        },
+        "walker_revenue_share": {
+            "value_example": {
+                "FY2020": 0.001,
+                "FY2021": 0.011,
+                "FY2022": 0.048,
+                "6M2023": 0.009
+            },
+            "data_type": "object",
+            "description": "Walker series revenue share",
+            "evidence_from_prospectus": "Summary and Highlights disclose Walker series and accessories revenue shares of 0.1%, 1.1%, 4.8%, 0.9% respectively."
+        },
+        "non_standard_metrics_not_disclosed": {
+            "value_example": ["MAU", "DAU", "ARR", "ARPU", "CAC", "LTV", "subscription renewal rate"],
+            "data_type": "array<string>",
+            "description": "Common SaaS/internet operating metrics (not disclosed in this summary; if narrative is needed for these, company must supply them)",
+            "evidence_from_prospectus": "Disclosed operating metrics mainly include segment revenue, sales, ASP, project count, customer count, customer concentration; common SaaS metrics like MAU/DAU/ARR/CAC/LTV are not seen."
+        }
+    },
+
+    "risk_related_data": {
+        "customer_concentration_percentage": {
+            "value_example": {
+                "top5_fy2022": 0.715,
+                "largest_fy2020": 0.378
+            },
+            "data_type": "object",
+            "description": "Input for customer concentration risk",
+            "evidence_from_prospectus": "Top 5 and largest customer revenue shares are disclosed."
+        },
+        "supplier_dependency": {
+            "value_example": {
+                "top5_supplier_purchases_rmb": {
+                    "FY2020": 144300000,
+                    "FY2021": 195000000,
+                    "FY2022": 188200000,
+                    "6M2023": 105800000
+                },
+                "top5_supplier_cost_of_sales_ratio": {
+                    "FY2020": 0.352,
+                    "FY2021": 0.347,
+                    "FY2022": 0.263,
+                    "6M2023": 0.507
+                },
+                "largest_supplier_purchases_rmb": {
+                    "FY2020": 73900000,
+                    "FY2021": 93700000,
+                    "FY2022": 60500000,
+                    "6M2023": 44800000
+                },
+                "largest_supplier_cost_of_sales_ratio": {
+                    "FY2020": 0.18,
+                    "FY2021": 0.167,
+                    "FY2022": 0.085,
+                    "6M2023": 0.215
+                }
+            },
+            "data_type": "object",
+            "description": "Input for supplier dependency risk",
+            "evidence_from_prospectus": "Summary and Highlights disclose purchase amounts and cost ratios for top five and largest suppliers."
+        },
+        "inventory_risk_inputs": {
+            "value_example": {
+                "inventory_balance_2023_06_30": 416500000,
+                "inventory_write_down_fy2022": 70600000
+            },
+            "data_type": "object",
+            "description": "Inputs for inventory backlog and write-down risk",
+            "evidence_from_prospectus": "Risk Factors disclose inventory balances and write-downs."
+        },
+        "contract_liability_risk_inputs": {
+            "value_example": {
+                "contract_liabilities_2023_06_30": 127100000
+            },
+            "data_type": "object",
+            "description": "Input for contract liability/advance payment risk",
+            "evidence_from_prospectus": "Risk Factors explain contract liabilities represent advances and disclose balance."
+        },
+        "liquidity_risk_inputs": {
+            "value_example": {
+                "net_current_liabilities_2021_12_31": 83300000,
+                "cash_and_cash_equivalents_decrease_2021_rmb": 348700000,
+                "trade_payables_increase_2021_rmb": 170100000,
+                "other_payables_accruals_increase_2021_rmb": 97800000,
+                "current_borrowings_increase_2021_rmb": 75700000
+            },
+            "data_type": "object",
+            "description": "Inputs for liquidity risk",
+            "evidence_from_prospectus": "Risk Factors give a data breakdown for the formation of net current liabilities."
+        },
+        "technology_dependency": {
+            "value_example": {
+                "rd_expense_ratio_6M2023": 0.859,
+                "full_stack_technology": true,
+                "humanoid_robot_focus": true
+            },
+            "data_type": "object",
+            "description": "Input for technology and R&D dependency risk",
+            "evidence_from_prospectus": "Company is highly dependent on sustained R&D and full-stack technologies, with a high R&D expense ratio."
+        },
+        "single_product_or_segment_dependency": {
+            "value_example": {
+                "education_revenue_share_fy2020": 0.827,
+                "education_revenue_share_6m2023": 0.29
+            },
+            "data_type": "object",
+            "description": "Input for single product/segment dependency risk",
+            "evidence_from_prospectus": "Education business accounts for a high proportion of revenue during multiple periods."
+        },
+        "regulatory_sanctions_control_input": {
+            "value_example": {
+                "internal_control_consultant_reviewed_export_control_compliance": true,
+                "customer_supplier_background_search_policy": true
+            },
+            "data_type": "object",
+            "description": "Inputs for sanctions, export controls, customer/supplier due diligence related risks",
+            "evidence_from_prospectus": "Business section discloses that an internal control consultant reviewed export control compliance and customer/supplier background search policy."
+        }
+    },
+
+    "management": {
+        "board_members": {
+            "value_example": "not fully extracted from provided excerpts; source section exists",
+            "data_type": "array<object>",
+            "description": "List of board members, positions, terms, independent director identity, etc. (should be provided per person in real project)",
+            "evidence_from_prospectus": "Table of contents shows a Directors, Supervisors and Senior Management section exists, but current summary did not extract names."
+        },
+        "executive_team": {
+            "value_example": "not fully extracted from provided excerpts; source section exists",
+            "data_type": "array<object>",
+            "description": "List of executives, background, age, date joined, duty scope",
+            "evidence_from_prospectus": "Table of contents shows a Directors, Supervisors and Senior Management section exists."
+        },
+        "founder_group_indicator": {
+            "value_example": true,
+            "data_type": "boolean",
+            "description": "Whether there is a founder/controller-led control structure",
+            "evidence_from_prospectus": "Notes in History, Development and Corporate Structure show controlling shareholders include Mr. Zhou Jian and others."
+        },
+        "management_strength_narrative_input": {
+            "value_example": "experienced management team supported by dedicated industry professionals",
+            "data_type": "string",
+            "description": "Input for describing management team quality",
+            "evidence_from_prospectus": "Explicitly stated in OUR COMPETITIVE STRENGTHS."
+        }
+    },
+
+    "shareholders": {
+        "controlling_shareholders": {
+            "value_example": [
+                "Mr. Zhou Jian",
+                "Shenzhen Sanciyuan",
+                "Mr. Xia Zuoquan",
+                "Mr. Xia Yongjun",
+                "Ms. Wang Lin",
+                "Shenzhen Evolution",
+                "Mr. Xiong Youjun",
+                "Shenzhen Zhineng Youxuan",
+                "Mr. Zhao Guoqun"
+            ],
+            "data_type": "array<string>",
+            "description": "List of controlling shareholders",
+            "evidence_from_prospectus": "Notes in History, Development and Corporate Structure list the controlling shareholders."
+        },
+        "shareholding_platform_details": {
+            "value_example": {
+                "Shenzhen_Sanciyuan": {
+                    "Mr_Zhou_Jian": 0.73961,
+                    "Mr_Xiong_Youjun": 0.04395,
+                    "Ms_Wang_Lin": 0.04642,
+                    "Mr_Deng_Peng": 0.17002
+                },
+                "Shenzhen_Zhineng_Youxuan": {
+                    "Qianhai_Honghao": 0.08431,
+                    "Shenzhen_Sunda": 0.08270,
+                    "Golden_Kapok": 0.62474,
+                    "Qianhai_Guangji": 0.20825
+                }
+            },
+            "data_type": "object",
+            "description": "Look-through partnership share/ownership ratio for holding platforms",
+            "evidence_from_prospectus": "Notes in History, Development and Corporate Structure disclose partnership shareholding details for the two main platforms."
+        },
+        "incentive_shareholding_platform_exists": {
+            "value_example": true,
+            "data_type": "boolean",
+            "description": "Whether there is an incentive shareholding platform",
+            "evidence_from_prospectus": "Notes state that Shenzhen Evolution is an incentive shareholding platform."
+        },
+        "global_offering_new_shareholders_percentage": {
+            "value_example": 0.027,
+            "data_type": "number",
+            "description": "Percentage of new public shareholders after global offering",
+            "evidence_from_prospectus": "Structure chart shows shareholders participating in the Global Offering account for about 2.7%."
+        },
+        "cornerstone_investor_name": {
+            "value_example": "E-Town International Holding (Hong Kong) Co. Limited",
+            "data_type": "string",
+            "description": "Cornerstone investor name",
+            "evidence_from_prospectus": "Cornerstone Investor section disclosure."
+        },
+        "cornerstone_investment_amount_rmb": {
+            "value_example": 500000000,
+            "data_type": "number",
+            "description": "Cornerstone investor subscription amount (RMB)",
+            "evidence_from_prospectus": "Cornerstone Placing table discloses RMB500,000,000."
+        },
+        "cornerstone_investment_amount_hkd_equivalent": {
+            "value_example": 544850000,
+            "data_type": "number",
+            "description": "Cornerstone investor HKD equivalent amount",
+            "evidence_from_prospectus": "Cornerstone Placing table discloses HK$544,850,000."
+        },
+        "cornerstone_shares_at_low_mid_high_price": {
+            "value_example": {
+                "at_hkd_86": 6335450,
+                "at_hkd_101": 5394550,
+                "at_hkd_116": 4696950
+            },
+            "data_type": "object",
+            "description": "Number of cornerstone shares allocated at low/mid/high issue prices",
+            "evidence_from_prospectus": "Cornerstone Placing table discloses cornerstone shares for low/mid/high price assumptions."
+        },
+        "cornerstone_funding_source": {
+            "value_example": "internal resources",
+            "data_type": "string",
+            "description": "Source of funds for cornerstone investment",
+            "evidence_from_prospectus": "Cornerstone Investor section explains subscription would be financed by its internal resources."
+        }
+    },
+
+    "offering_information": {
+        "security_type": {
+            "value_example": "H Shares",
+            "data_type": "string",
+            "description": "Type of securities offered",
+            "evidence_from_prospectus": "The cover and Global Offering and Listing sections disclose the issue of H Shares."
+        },
+        "offering_shares": {
+            "value_example": 11282000,
+            "data_type": "number",
+            "description": "Total number of shares offered globally",
+            "evidence_from_prospectus": "The cover discloses initially 11,282,000 Offer Shares."
+        },
+        "hong_kong_offer_shares": {
+            "value_example": 1128200,
+            "data_type": "number",
+            "description": "Number of Hong Kong public offer shares",
+            "evidence_from_prospectus": "The cover discloses 1,128,200 Hong Kong Offer Shares."
+        },
+        "international_placing_shares": {
+            "value_example": 10153800,
+            "data_type": "number",
+            "description": "Number of international placing shares",
+            "evidence_from_prospectus": "The cover discloses 10,153,800 International Placing Shares."
+        },
+        "over_allotment_option_shares": {
+            "value_example": 1692300,
+            "data_type": "number",
+            "description": "Number of shares under over-allotment option",
+            "evidence_from_prospectus": "Global Offering and Listing section discloses up to 1,692,300 additional H Shares."
+        },
+        "over_allotment_option_percentage": {
+            "value_example": 0.15,
+            "data_type": "number",
+            "description": "Percentage of initial offering subject to over-allotment option",
+            "evidence_from_prospectus": "Global Offering and Listing section discloses 15%."
+        },
+        "offering_price_range_hkd": {
+            "value_example": {
+                "low": 86.0,
+                "high": 116.0
+            },
+            "data_type": "object",
+            "description": "Offering price range (HKD)",
+            "evidence_from_prospectus": "The cover and Global Offering and Listing sections disclose HK$86.0 to HK$116.0."
+        },
+        "nominal_value_per_share_rmb": {
+            "value_example": 1.0,
+            "data_type": "number",
+            "description": "Nominal value per share (RMB)",
+            "evidence_from_prospectus": "The cover discloses Nominal value RMB1.00 per H Share."
+        },
+        "listing_exchange": {
+            "value_example": "Main Board of The Stock Exchange of Hong Kong Limited",
+            "data_type": "string",
+            "description": "Listing exchange",
+            "evidence_from_prospectus": "Global Offering and Listing section discloses intention to list on HKEX Main Board."
+        },
+        "expected_listing_date": {
+            "value_example": "2023-12-29",
+            "data_type": "string",
+            "description": "Expected listing date",
+            "evidence_from_prospectus": "Expected Timetable and Global Offering and Listing both disclose expected commencement of trading on 2023-12-29."
+        },
+        "board_lot_size": {
+            "value_example": 50,
+            "data_type": "number",
+            "description": "Number of shares per board lot",
+            "evidence_from_prospectus": "Global Offering and Listing section discloses Board lot: 50 H Shares."
+        },
+        "public_offer_application_amount_per_board_lot_max_hkd": {
+            "value_example": 5858.50,
+            "data_type": "number",
+            "description": "Maximum per-lot public offer application amount (HKD) at highest price",
+            "evidence_from_prospectus": "How to Apply / Structure and Conditions show at HK$116: 50 shares per lot require HK$5,858.50."
+        },
+        "fee_rates": {
+            "value_example": {
+                "brokerage": 0.01,
+                "sfc_transaction_levy": 0.000027,
+                "afrc_transaction_levy": 0.0000015,
+                "stock_exchange_trading_fee": 0.0000565
+            },
+            "data_type": "object",
+            "description": "Fee rates relating to the public offering",
+            "evidence_from_prospectus": "Cover and Structure and Conditions disclose the various fee rates."
+        },
+        "lockup_period_controlling_shareholders_months": {
+            "value_example": 12,
+            "data_type": "number",
+            "description": "Lock-up period for controlling shareholders (months)",
+            "evidence_from_prospectus": "Global Offering and Listing section discloses 12 months."
+        },
+        "reallocation_thresholds_hk_public_offer": {
+            "value_example": {
+                "reallocated_to_30_percent_offer_shares": 3384600,
+                "reallocated_to_40_percent_offer_shares": 4512800,
+                "reallocated_to_50_percent_offer_shares": 5641000,
+                "undersubscription_reallocation_to_20_percent_offer_shares": 2256400
+            },
+            "data_type": "object",
+            "description": "Key reallocation mechanism threshold data",
+            "evidence_from_prospectus": "Structure and Conditions of the Global Offering list shares for public offer post reallocation."
+        },
+        "implied_gross_funds_raise_range_hkd": {
+            "value_example": {
+                "low_end_before_overallotment": 970252000,
+                "high_end_before_overallotment": 1308712000
+            },
+            "data_type": "object",
+            "description": "Estimated max/min gross funds raised at price range before expenses/over-allotment",
+            "evidence_from_prospectus": "Calculated directly by 11,282,000 shares × HK$86.0/HK$116.0, with inputs from the cover's share count and price range."
+        },
+        "use_of_proceeds": {
+            "value_example": "source section exists but detailed allocation percentages were not extracted from the provided snippets; in a real IPO data package this should be a table with bucket_name, allocated_amount, allocated_percentage, and intended_use",
+            "data_type": "array<object>",
+            "description": "Details of intended use of proceeds",
+            "evidence_from_prospectus": "Table of contents shows 'Future Plans and Use of Proceeds' section exists, current snippets do not detail allocations."
+        },
+        "underwriters": {
+            "value_example": [
+                "Guotai Junan Securities (Hong Kong) Limited",
+                "CITIC Securities",
+                "other overall coordinators / joint global coordinators / joint bookrunners / joint lead managers"
+            ],
+            "data_type": "array<string>",
+            "description": "Underwriters and global coordinators",
+            "evidence_from_prospectus": "The cover and Cornerstone Investor section mention Guotai Junan Securities (Hong Kong) Limited, CITIC Securities, and other underwriting roles."
+        }
+    }
+}

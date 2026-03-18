@@ -16,10 +16,20 @@ class EvidenceChunk(TypedDict, total=False):
     metadata: dict[str, Any]
 
 
-class VerificationIssue(TypedDict):
+class VerificationIssue(TypedDict, total=False):
     severity: str
     code: str
     message: str
+    category: str  # DATA_MISSING | WRITING_ERROR
+
+
+class RetrievedFact(TypedDict, total=False):
+    field: str
+    period: str | None
+    metric: str
+    value: Any
+    unit: str | None
+    metadata: dict[str, Any]
 
 
 class SectionDraftState(TypedDict, total=False):
@@ -34,6 +44,13 @@ class SectionDraftState(TypedDict, total=False):
     retrieved_chunks: list[EvidenceChunk]
     retrieval_context: str
     retrieval_notes: list[str]
+    # Hybrid retrieval output
+    text_evidence: list[EvidenceChunk]
+    retrieved_facts: list[RetrievedFact]
+    formatted_facts: str
+    # Section Planner output
+    planner_outline: str
+    planner_fact_mapping: dict[str, list[str]]  # subsection -> fact_ids or field paths
     draft_text: str
     initial_draft_text: str
     revision_count: int

@@ -10,3 +10,9 @@ langgraph
 transformers>=4.45.0
 torch>=2.0.0
 accelerate>=0.30.0
+
+# Hybrid retriever: semantic search over text chunks
+sentence-transformers>=2.2.0
+
+# Export to Word
+python-docx>=1.0

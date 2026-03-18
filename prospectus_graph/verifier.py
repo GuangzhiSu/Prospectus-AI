@@ -89,6 +89,7 @@ def verify_section_draft(
                     "severity": "medium",
                     "code": code,
                     "message": "Promotional wording detected; consider neutral sponsor-counsel phrasing.",
+                    "category": "WRITING_ERROR",
                 }
             )
 
@@ -100,6 +101,7 @@ def verify_section_draft(
                         "severity": "medium",
                         "code": code,
                         "message": "Potentially unqualified forward-looking wording detected outside the Forward-Looking Statements section.",
+                        "category": "WRITING_ERROR",
                     }
                 )
 
@@ -110,6 +112,7 @@ def verify_section_draft(
                     "severity": "high",
                     "code": code,
                     "message": "Potential explicit or implicit profit-forecast wording detected.",
+                    "category": "WRITING_ERROR",
                 }
             )
 
@@ -119,6 +122,7 @@ def verify_section_draft(
                 "severity": "high",
                 "code": "empty_draft",
                 "message": "The writer agent returned an empty draft.",
+                "category": "WRITING_ERROR",
             }
         )
 
@@ -131,6 +135,7 @@ def verify_section_draft(
                 "severity": "high",
                 "code": "missing_ai_cite",
                 "message": "Market statistic, ranking, or leadership wording appears without an [[AI:CITE|...]] tag.",
+                "category": "WRITING_ERROR",
             }
         )
 
@@ -152,6 +157,7 @@ def verify_section_draft(
                     "Numeric values found in the draft but not clearly located in "
                     f"retrieved evidence: {preview}."
                 ),
+                "category": "WRITING_ERROR",
             }
         )
 
@@ -167,6 +173,7 @@ def verify_section_draft(
                     "Missing-information placeholders are present but no "
                     "[[AI:VERIFY|...]] guidance tag was added."
                 ),
+                "category": "WRITING_ERROR",
             }
         )
 
@@ -231,6 +238,7 @@ def parse_verifier_agent_output(
                     "severity": "high",
                     "code": "verifier_output_unparseable",
                     "message": "Verifier agent response could not be parsed into the required JSON format.",
+                    "category": "WRITING_ERROR",
                 }
             ],
             [
@@ -246,6 +254,7 @@ def parse_verifier_agent_output(
     if not isinstance(summary, str) or not summary.strip():
         summary = "Verifier agent did not provide a summary."
 
+    VALID_CATEGORIES = {"DATA_MISSING", "WRITING_ERROR"}
     issues_payload = payload.get("issues", [])
     parsed_issues: list[VerificationIssue] = []
     if isinstance(issues_payload, list):
@@ -257,11 +266,15 @@ def parse_verifier_agent_output(
                 severity = "medium"
             code = str(item.get("code", f"verifier_issue_{idx + 1}")).strip() or f"verifier_issue_{idx + 1}"
             message = str(item.get("message", "")).strip() or "Verifier agent raised an issue without message."
+            category = str(item.get("category", "WRITING_ERROR")).strip().upper()
+            if category not in VALID_CATEGORIES:
+                category = "WRITING_ERROR"
             parsed_issues.append(
                 {
                     "severity": severity,
                     "code": code,
                     "message": message,
+                    "category": category,
                 }
             )
 
@@ -305,13 +318,20 @@ def should_request_revision(
     revision_count: int,
     max_revision_loops: int,
 ) -> bool:
+    """
+    Request revision only for WRITING_ERROR issues. DATA_MISSING issues indicate
+    source data gaps - the Writer cannot fix them, so we do not revise.
+    """
     if revision_count >= max_revision_loops:
         return False
 
-    if agent_pass is False:
-        return True
+    # Only WRITING_ERROR issues can trigger revision; DATA_MISSING = data gap, not Writer fault
+    revision_worthy = [
+        i for i in issues
+        if i.get("category", "WRITING_ERROR") == "WRITING_ERROR"
+    ]
 
-    for issue in issues:
+    for issue in revision_worthy:
         if issue["severity"] in {"blocker", "high"}:
             return True
 
@@ -342,8 +362,10 @@ def append_verification_notes(
     if issues:
         notes.append("")
         for issue in issues:
+            cat = issue.get("category", "")
+            suffix = f" [{cat}]" if cat else ""
             notes.append(
-                f"- [{issue['severity']}] {issue['code']}: {issue['message']}"
+                f"- [{issue['severity']}]{suffix} {issue['code']}: {issue['message']}"
             )
     if revision_instructions:
         notes.extend(["", "Suggested revision actions:"])

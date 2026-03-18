@@ -25,12 +25,11 @@ export async function POST(req: Request) {
     }
 
     const files = await fs.readdir(dataDir);
-    const xlsxCount = files.filter((f) =>
-      f.toLowerCase().endsWith(".xlsx")
-    ).length;
-    if (xlsxCount === 0) {
+    const hasXlsx = files.some((f) => f.toLowerCase().endsWith(".xlsx"));
+    const hasJson = files.some((f) => f.toLowerCase().endsWith(".json"));
+    if (!hasXlsx && !hasJson) {
       return NextResponse.json(
-        { error: "No .xlsx files in data/. Upload Excel files first." },
+        { error: "No .xlsx or .json files in data/. Upload files first." },
         { status: 400 }
       );
     }

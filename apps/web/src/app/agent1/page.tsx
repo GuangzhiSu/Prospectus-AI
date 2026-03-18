@@ -6,8 +6,10 @@ import Link from "next/link";
 type DataFile = { name: string; size: number; lastModified: string };
 
 type Manifest = {
-  sections?: Array<{ id: string; name: string; chunk_count: number }>;
+  sections?: Array<{ id: string; name: string; chunk_count: number; fact_count?: number }>;
   total_chunks?: number;
+  text_chunk_count?: number;
+  fact_count?: number;
   source_files?: string[];
   missing_information_requests?: Array<{
     section: string;
@@ -214,6 +216,21 @@ export default function Agent1Page() {
     setGenerating(true);
     setError(null);
     setDraftMd(null);
+    const pollMs = 2000;
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/agent2/draft");
+        if (res.ok) {
+          const data = (await res.json()) as { markdown?: string };
+          const md = data.markdown ?? "";
+          if (md && !md.includes("(Your generated prospectus will appear here.)")) {
+            setDraftMd(md);
+          }
+        }
+      } catch {
+        /* ignore poll errors */
+      }
+    }, pollMs);
     try {
       const res = await fetch("/api/agent2/run", { method: "POST" });
       const data = (await res.json()) as { ok?: boolean; error?: string };
@@ -228,6 +245,7 @@ export default function Agent1Page() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
     } finally {
+      clearInterval(pollInterval);
       setGenerating(false);
     }
   }
@@ -376,6 +394,7 @@ export default function Agent1Page() {
                           id: string;
                           name: string;
                           chunk_count: number;
+                          fact_count?: number;
                         }) => (
                           <div
                             key={s.id}
@@ -389,6 +408,9 @@ export default function Agent1Page() {
                             </div>
                             <div className="text-xs text-neutral-600 mt-1">
                               {s.chunk_count} chunks
+                              {typeof s.fact_count === "number" && s.fact_count > 0 && (
+                                <span className="text-neutral-500">, {s.fact_count} facts</span>
+                              )}
                             </div>
                           </div>
                         )
@@ -411,10 +433,13 @@ export default function Agent1Page() {
                         )}
                       </div>
                     )}
-                    {"total_chunks" in manifest &&
-                      typeof manifest.total_chunks === "number" && (
+                    {("total_chunks" in manifest || "text_chunk_count" in manifest) && (
                         <p className="text-xs text-neutral-500 mt-2">
-                          {manifest.total_chunks} chunks total
+                          {typeof manifest.text_chunk_count === "number" && typeof manifest.fact_count === "number"
+                            ? `${manifest.text_chunk_count} text chunks, ${manifest.fact_count} facts total`
+                            : typeof manifest.total_chunks === "number"
+                              ? `${manifest.total_chunks} chunks total${typeof manifest.fact_count === "number" && manifest.fact_count > 0 ? `, ${manifest.fact_count} facts` : ""}`
+                              : null}
                         </p>
                       )}
                   </div>

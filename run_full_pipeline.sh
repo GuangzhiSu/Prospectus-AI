@@ -32,11 +32,11 @@ echo "Prospectus Pipeline: agent1 → agent2"
 echo "=========================================="
 
 # 1. Check data
-if [[ ! -d "data" ]] || [[ -z "$(ls -A data/*.xlsx 2>/dev/null)" ]]; then
-  echo "Error: No .xlsx files in data/. Put Excel files there first."
+if [[ ! -d "data" ]] || [[ -z "$(ls -A data/*.xlsx 2>/dev/null)" ]] && [[ -z "$(ls -A data/*.json 2>/dev/null)" ]]; then
+  echo "Error: No .xlsx or .json files in data/. Put Excel or JSON files there first."
   exit 1
 fi
-echo "[OK] Found Excel files in data/"
+echo "[OK] Found data files in data/"
 
 # 2. Install deps
 echo ""
@@ -46,7 +46,7 @@ echo "[OK] Dependencies installed"
 
 # 3. Run agent1
 echo ""
-echo "Step 2: Running agent1 (Excel → per-table summarization → RAG chunks)..."
+echo "Step 2: Running agent1 (Excel + JSON → RAG chunks)..."
 AGENT1_OPTS=""
 [[ -n "$MODEL" ]] && AGENT1_OPTS="$AGENT1_OPTS --model $MODEL"
 python agent1.py $AGENT1_OPTS || { echo "Agent1 failed. Fix and re-run."; exit 1; }

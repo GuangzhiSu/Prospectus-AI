@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Agent2: Generate prospectus sections from Agent1 output through a fixed
-LangGraph pipeline:
+Agent2: Generate prospectus sections from Agent1 output through a LangGraph pipeline.
 
-    Retriever -> Section Writer Agent -> Verifier Agent -> Revision Agent -> Assembler
+Legacy (rag_chunks only):
+    Retriever -> Section Writer -> Verifier -> Revision -> Assembler
 
-Planner is intentionally omitted because section requirements are already
-encoded in `agent2_section_requirements.json`.
+Hybrid (text_chunks + fact_store):
+    Retriever (semantic + fact filtering) -> Section Planner -> Section Writer -> Verifier -> Revision -> Assembler
 """
 
 from __future__ import annotations
@@ -22,8 +22,9 @@ from prospectus_graph.config import (
     load_section_requirements,
 )
 from prospectus_graph.graph import build_section_graph
+from prospectus_graph.timetable_template import render_timetable_template
 from prospectus_graph.retrievers import (
-    Agent1JsonlKnowledgeBase,
+    HybridRetriever,
     SectionAwareRAGRetriever,
 )
 from prospectus_graph.state import SectionDraftState
@@ -56,12 +57,76 @@ Primary objective: Optimise for (1) compliance language, (2) disclosure defensib
 """
 
 
+def _add_fact_ids_to_formatted(facts_block: str) -> str:
+    """Prepend fact_1, fact_2, ... to each non-header line for planner mapping."""
+    if not facts_block or not facts_block.strip():
+        return "[No structured facts available]"
+    lines = []
+    idx = 0
+    for line in facts_block.split("\n"):
+        s = line.strip()
+        if not s:
+            lines.append(line)
+            continue
+        if s.endswith("FACTS"):  # header line
+            lines.append(line)
+            continue
+        idx += 1
+        lines.append(f"fact_{idx}: {line}")
+    return "\n".join(lines)
+
+
+def build_planner_prompt(
+    *,
+    section_name: str,
+    requirements: str,
+    formatted_facts: str,
+    text_summary: str,
+) -> str:
+    """Build prompt for Section Planner: structured outline + fact-to-subsection mapping."""
+    numbered_facts = _add_fact_ids_to_formatted(formatted_facts)
+    return f"""Role: You are the Section Planner for an HKEX prospectus drafting workflow.
+
+Objective: Produce a structured outline for the "{section_name}" section and assign available facts to the most appropriate subsections.
+
+Section requirements:
+{requirements}
+
+Available structured facts (reference by fact_N in fact_mapping):
+---
+{numbered_facts}
+---
+
+Brief summary of narrative evidence (for structure guidance):
+---
+{text_summary[:2000] if text_summary else "[No narrative summary]"}
+---
+
+Output JSON only, with this exact schema:
+{{
+  "outline": "1 FirstSubsection\\n2 SecondSubsection\\n3 ThirdSubsection\\n...",
+  "fact_mapping": {{
+    "FirstSubsection": ["fact_1", "fact_2"],
+    "SecondSubsection": [],
+    ...
+  }}
+}}
+
+Rules:
+- outline: Numbered list of subsection titles, one per line. Match HKEX and section requirements.
+- fact_mapping: For each subsection, list fact IDs (e.g. fact_1, fact_2) that belong there.
+- If a fact fits multiple subsections, assign it to the single best fit.
+- Subsection names in fact_mapping must exactly match the outline titles (after the number).
+"""
+
+
 def build_prompt(
     section_id: str,
     section_name: str,
     requirements: str,
     context: str,
     modification_instructions: str | None = None,
+    planner_outline: str | None = None,
 ) -> str:
     """Build the section-writer prompt."""
     mod_note = ""
@@ -70,6 +135,15 @@ def build_prompt(
             "\n\nUser modification request (incorporate these changes):\n"
             f"{modification_instructions.strip()}\n"
         )
+    planner_block = ""
+    if planner_outline and planner_outline.strip():
+        planner_block = f"""
+
+Planned structure (follow this outline):
+---
+{planner_outline.strip()}
+---
+"""
     return f"""Role: You are drafting one prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode.
 
 Objective: Produce a conservative, verification-aware working draft: prospectus-ready prose where evidence exists, structured placeholders and AI tags where support is missing. Headings, contents entries, and cross-references must match exactly across the document.
@@ -82,6 +156,7 @@ Section: {section_name}
 
 Requirements:
 {requirements}
+{planner_block}
 
 Context from user-uploaded company documents (ONLY source of data):
 ---
@@ -97,6 +172,7 @@ Instructions:
 6. For rankings, market data, share, CAGR, or third-party study statements, include [[AI:CITE|source=...; scope=...; date=...; metric=...]] unless the required source metadata already appears in the context.
 7. Do not use promotional, absolute, or unqualified forward-looking language. Do not create explicit or implicit profit forecasts, margin forecasts, valuation conclusions, or certainty of commercial success.
 8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags. Any materiality or legal sufficiency judgment must be escalated to sponsor-counsel review.
+9. LIST CONTROL: If a product list, item catalog, or enumerated list contains more than 10 items, SUMMARIZE by category instead of enumerating every item. Example: "The company's product portfolio includes education robots (e.g. Yanshee, Alpha Mini), logistics robots (AGVs, AMRs), and consumer products such as AiRROBO robotic appliances." Do NOT repeat the same product or item name multiple times. Do NOT loop or enumerate endlessly.
 
 Section content (English only):"""
 
@@ -163,15 +239,23 @@ Return JSON only, with this exact schema:
   "pass": true,
   "summary": "short reviewer summary",
   "issues": [
-    {{"severity": "blocker|high|medium|low", "code": "short_code", "message": "specific issue"}}
+    {{"severity": "blocker|high|medium|low", "code": "short_code", "message": "specific issue", "category": "DATA_MISSING|WRITING_ERROR"}}
   ],
   "revision_instructions": [
-    "specific action for the revision agent"
+    "specific action for the revision agent (only for WRITING_ERROR issues)"
   ]
 }}
 
+CRITICAL - Issue categories (use exactly):
+- DATA_MISSING: The required information is NOT in the source documents. The Writer correctly used [Information not provided] or a placeholder. The Writer cannot fix this; do NOT request revision.
+- WRITING_ERROR: The Writer made an error (invented facts, wrong structure, promotional language, unsupported claims, missing AI tags where evidence exists but was not cited). Revision can fix this.
+
+Examples of DATA_MISSING: missing application dates (timetable not in data), missing CCASS details (not in documents), missing allotment info (not provided).
+Examples of WRITING_ERROR: invented numbers, promotional tone, unsupported market claim without [[AI:CITE]], wrong heading structure.
+
 Rules:
-- If there are blocker or high-severity issues, set "pass" to false.
+- If there are blocker or high-severity WRITING_ERROR issues, set "pass" to false.
+- DATA_MISSING issues must NOT trigger revision - they are documented gaps, not Writer faults.
 - If the draft is broadly acceptable but still needs sponsor follow-up notes, you may set "pass" to true and use low or medium issues.
 - Do not invent evidence. Do not output prose outside the JSON object.
 """
@@ -249,17 +333,48 @@ def generate_with_llm(
     return run_qwen_text(prompt, model_name=model_name, max_new_tokens=2048)
 
 
+def _supports_hybrid_retrieval(rag_dir: str | Path) -> bool:
+    """True if text_chunks.jsonl or fact_store.jsonl exist."""
+    path = Path(rag_dir)
+    return (path / "text_chunks.jsonl").exists() or (path / "fact_store.jsonl").exists()
+
+
+def _create_retriever(rag_dir: str | Path):
+    """Create HybridRetriever if supported, else SectionAwareRAGRetriever."""
+    if _supports_hybrid_retrieval(rag_dir):
+        return HybridRetriever(rag_dir)
+    kb = Agent1JsonlKnowledgeBase(rag_dir)
+    return SectionAwareRAGRetriever([kb])
+
+
 class RetrieverNode:
-    def __init__(self, retriever: SectionAwareRAGRetriever):
+    """Unified node: uses HybridRetriever or SectionAwareRAGRetriever based on retriever type."""
+
+    def __init__(self, retriever: SectionAwareRAGRetriever | HybridRetriever):
         self.retriever = retriever
 
     def __call__(self, state: SectionDraftState) -> dict:
+        from prospectus_graph.retrievers import HybridRetrievalResult, build_context
+
         result = self.retriever.retrieve(
             section_id=state["section_id"],
             section_name=state["section_name"],
             requirements=state["requirements"],
             max_context_chars=state["max_context_chars"],
         )
+        if isinstance(result, HybridRetrievalResult):
+            context = result.retrieval_context or (
+                "[No supporting evidence was retrieved for this section. "
+                "Produce a structured working draft skeleton with placeholders and AI verification notes only.]"
+            )
+            return {
+                "retrieved_chunks": result.text_evidence,
+                "text_evidence": result.text_evidence,
+                "retrieved_facts": result.facts,
+                "formatted_facts": result.formatted_facts,
+                "retrieval_context": context,
+                "retrieval_notes": result.notes,
+            }
         context = result.context or (
             "[No supporting evidence was retrieved for this section. "
             "Produce a structured working draft skeleton with placeholders and AI verification notes only.]"
@@ -268,6 +383,66 @@ class RetrieverNode:
             "retrieved_chunks": result.chunks,
             "retrieval_context": context,
             "retrieval_notes": result.notes,
+        }
+
+
+def _parse_planner_output(raw: str) -> tuple[str, dict[str, list[str]]]:
+    """Extract outline and fact_mapping from planner JSON. Returns ("", {}) on parse failure."""
+    import json
+    import re
+    raw = (raw or "").strip()
+    # Try to extract JSON block
+    m = re.search(r"\{[\s\S]*\}", raw)
+    if m:
+        raw = m.group(0)
+    try:
+        data = json.loads(raw)
+        outline = str(data.get("outline", "")).strip()
+        mapping = data.get("fact_mapping")
+        if isinstance(mapping, dict):
+            return outline, {k: [str(x) for x in v] if isinstance(v, list) else [] for k, v in mapping.items()}
+        return outline, {}
+    except json.JSONDecodeError:
+        return "", {}
+
+
+class SectionPlannerAgent:
+    """Produces structured outline and fact-to-subsection mapping."""
+
+    def __init__(
+        self,
+        *,
+        model_name: str,
+        model: Any = None,
+        tokenizer: Any = None,
+    ):
+        self.model_name = model_name
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def __call__(self, state: SectionDraftState) -> dict:
+        text_summary = ""
+        if state.get("text_evidence"):
+            parts = [ch.get("text", "")[:400] for ch in state["text_evidence"][:5]]
+            text_summary = "\n".join(parts)
+        elif state.get("retrieval_context"):
+            text_summary = state["retrieval_context"][:3000]
+        prompt = build_planner_prompt(
+            section_name=state["section_name"],
+            requirements=state["requirements"],
+            formatted_facts=state.get("formatted_facts", ""),
+            text_summary=text_summary,
+        )
+        raw = generate_with_llm(
+            prompt,
+            model_name=self.model_name,
+            model=self.model,
+            tokenizer=self.tokenizer,
+        )
+        outline, fact_mapping = _parse_planner_output(raw)
+        return {
+            "planner_outline": outline,
+            "planner_fact_mapping": fact_mapping,
         }
 
 
@@ -290,6 +465,7 @@ class SectionWriterAgent:
             state["requirements"],
             state["retrieval_context"],
             state.get("modification_instructions"),
+            state.get("planner_outline"),
         )
         draft_text = generate_with_llm(
             prompt,
@@ -363,7 +539,8 @@ class VerifierAgent:
             revision_instructions = [
                 issue["message"]
                 for issue in issues
-                if issue["severity"] in {"blocker", "high", "medium"}
+                if issue.get("category", "WRITING_ERROR") == "WRITING_ERROR"
+                and issue["severity"] in {"blocker", "high", "medium"}
             ][:8]
 
         verified_text = append_verification_notes(
@@ -398,13 +575,19 @@ class RevisionAgent:
         self.tokenizer = tokenizer
 
     def __call__(self, state: SectionDraftState) -> dict:
+        # Only pass WRITING_ERROR issues to Revision Agent; DATA_MISSING cannot be fixed
+        all_issues = state.get("verification_issues", [])
+        revision_issues = [
+            i for i in all_issues
+            if i.get("category", "WRITING_ERROR") == "WRITING_ERROR"
+        ]
         prompt = build_revision_prompt(
             section_name=state["section_name"],
             requirements=state["requirements"],
             retrieval_context=state.get("retrieval_context", ""),
             current_draft=state.get("draft_text", ""),
             verifier_summary=state.get("verifier_summary", ""),
-            verification_issues=state.get("verification_issues", []),
+            verification_issues=revision_issues,
             revision_instructions=state.get("revision_instructions", []),
             modification_instructions=state.get("modification_instructions"),
         )
@@ -461,6 +644,34 @@ class AssemblerNode:
         return result
 
 
+def _load_existing_sections(out_path: Path) -> dict[str, str]:
+    """Load section_id -> body from section_*.md files."""
+    existing: dict[str, str] = {}
+    for path in out_path.glob("section_*.md"):
+        name = path.stem
+        for sid, sname in SECTIONS:
+            safe = sname.replace(" ", "_").replace("&", "and")
+            if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
+                content = path.read_text(encoding="utf-8")
+                parts = content.split("\n\n", 1)
+                existing[sid] = parts[-1].strip() if len(parts) > 1 else content.strip()
+                break
+    return existing
+
+
+def _generate_contents_body(existing: dict[str, str]) -> str:
+    """
+    Auto-generate Contents section from actual chapters. No LLM.
+    Lists sections in SECTIONS order that exist in the document (including Contents itself).
+    """
+    sections_in_doc = set(existing.keys()) | {"Contents"}
+    lines = []
+    for sid, sname in SECTIONS:
+        if sid in sections_in_doc:
+            lines.append(f"{len(lines) + 1}. {sname}")
+    return "\n".join(lines) if lines else "[No sections generated yet.]"
+
+
 def _append_to_all_sections(
     out_path: Path,
     section_id: str,
@@ -492,15 +703,22 @@ def _append_to_all_sections(
     with open(combined_path, "w", encoding="utf-8") as f:
         f.write("# Prospectus Draft (Generated by Agent2)\n\n")
         for sid, sname in SECTIONS:
-            if sid in existing and sid in allowed_ids:
+            if sid not in allowed_ids:
+                continue
+            if sid == "Contents":
+                f.write(f"## {sname}\n\n")
+                f.write(_generate_contents_body(existing))
+            elif sid in existing:
                 f.write(f"## {sname}\n\n")
                 f.write(existing[sid])
-                f.write("\n\n")
+            else:
+                continue
+            f.write("\n\n")
     print(f"Updated: {combined_path}")
 
 
 def _rebuild_all_sections(out_path: Path) -> None:
-    """Rebuild all_sections.md from all section_*.md files in SECTIONS order."""
+    """Rebuild all_sections.md from all section_*.md files in SECTIONS order. Contents auto-generated."""
     combined_path = out_path / "all_sections.md"
     existing: dict[str, str] = {}
     for path in out_path.glob("section_*.md"):
@@ -516,10 +734,15 @@ def _rebuild_all_sections(out_path: Path) -> None:
     with open(combined_path, "w", encoding="utf-8") as f:
         f.write("# Prospectus Draft (Generated by Agent2)\n\n")
         for sid, sname in SECTIONS:
-            if sid in existing:
+            if sid == "Contents":
+                f.write(f"## Section {sid}: {sname}\n\n")
+                f.write(_generate_contents_body(existing))
+            elif sid in existing:
                 f.write(f"## Section {sid}: {sname}\n\n")
                 f.write(existing[sid])
-                f.write("\n\n")
+            else:
+                continue
+            f.write("\n\n")
     print(f"Updated: {combined_path}")
 
 
@@ -558,10 +781,35 @@ def _build_section_state(
     }
 
 
+def _render_expected_timetable(
+    rag_dir: str | Path,
+    output_dir: str | Path,
+    *,
+    data_dir: str | Path | None = None,
+) -> str:
+    """
+    Expected Timetable: template render only. No LLM.
+    Returns section body text.
+    """
+    rag_path = Path(rag_dir)
+    out_path = Path(output_dir)
+    if data_dir is None:
+        data_dir = rag_path.parent / "data"
+    text = render_timetable_template(rag_path, data_dir=data_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+    safe_name = "Expected_Timetable"
+    out_file = out_path / f"section_ExpectedTimetable_{safe_name}.md"
+    with open(out_file, "w", encoding="utf-8") as f:
+        f.write("# Section ExpectedTimetable: Expected Timetable\n\n")
+        f.write(text)
+    print(f"Saved (template): {out_file}")
+    return text
+
+
 def _run_section_graph(
     *,
     section_state: SectionDraftState,
-    retriever: SectionAwareRAGRetriever,
+    retriever: SectionAwareRAGRetriever | HybridRetriever,
     output_dir: str | Path,
     model_name: str,
     combine_immediately: bool,
@@ -569,6 +817,7 @@ def _run_section_graph(
     model: Any = None,
     tokenizer: Any = None,
 ) -> SectionDraftState:
+    use_planner = _supports_hybrid_retrieval(section_state.get("rag_dir", ""))
     graph = build_section_graph(
         retriever_node=RetrieverNode(retriever),
         section_writer_agent=SectionWriterAgent(
@@ -591,6 +840,11 @@ def _run_section_graph(
             combine_immediately=combine_immediately,
             only_sections_up_to=only_sections_up_to,
         ),
+        planner_node=SectionPlannerAgent(
+            model_name=model_name,
+            model=model,
+            tokenizer=tokenizer,
+        ) if use_planner else None,
     )
     return graph.invoke(section_state)
 
@@ -604,13 +858,28 @@ def run_agent2_single(
     max_revision_loops: int = 1,
     model_name: str = DEFAULT_MODEL,
 ) -> str:
-    """Generate a single section through the LangGraph pipeline."""
+    """Generate a single section. ExpectedTimetable uses template; others use LLM pipeline."""
     rag_path = Path(rag_dir)
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    kb = Agent1JsonlKnowledgeBase(rag_path)
-    retriever = SectionAwareRAGRetriever([kb])
+    if section_id == "ExpectedTimetable":
+        text = _render_expected_timetable(rag_path, out_path)
+        _append_to_all_sections(
+            out_path,
+            "ExpectedTimetable",
+            "Expected Timetable",
+            text,
+            only_sections_up_to=None if modification_instructions else section_id,
+        )
+        return text
+
+    if section_id == "Contents":
+        existing = _load_existing_sections(out_path)
+        _rebuild_all_sections(out_path)
+        return _generate_contents_body(existing)
+
+    retriever = _create_retriever(rag_path)
     requirements_map = _build_requirements_map()
 
     state = _build_section_state(
@@ -665,33 +934,40 @@ def run_agent2(
         model, tokenizer = _load_qwen_model(model_name)
         print("Model loaded once; reusing for all sections.")
 
-    kb = Agent1JsonlKnowledgeBase(rag_path)
-    retriever = SectionAwareRAGRetriever([kb])
+    retriever = _create_retriever(rag_path)
 
     results: dict[str, str] = {}
     for section_id in valid_sections:
-        state = _build_section_state(
-            section_id=section_id,
-            requirements_map=requirements_map,
-            rag_dir=rag_path,
-            output_dir=out_path,
-            max_context_chars=max_context_chars,
-            model_name=model_name,
-            max_revision_loops=max_revision_loops,
-        )
-        result = _run_section_graph(
-            section_state=state,
-            retriever=retriever,
-            output_dir=out_path,
-            model_name=model_name,
-            combine_immediately=False,
-            only_sections_up_to=None,
-            model=model,
-            tokenizer=tokenizer,
-        )
-        results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+        if section_id == "ExpectedTimetable":
+            text = _render_expected_timetable(rag_path, out_path)
+            results[section_id] = text
+        elif section_id == "Contents":
+            _rebuild_all_sections(out_path)
+            results[section_id] = _generate_contents_body(_load_existing_sections(out_path))
+        else:
+            state = _build_section_state(
+                section_id=section_id,
+                requirements_map=requirements_map,
+                rag_dir=rag_path,
+                output_dir=out_path,
+                max_context_chars=max_context_chars,
+                model_name=model_name,
+                max_revision_loops=max_revision_loops,
+            )
+            result = _run_section_graph(
+                section_state=state,
+                retriever=retriever,
+                output_dir=out_path,
+                model_name=model_name,
+                combine_immediately=False,
+                only_sections_up_to=None,
+                model=model,
+                tokenizer=tokenizer,
+            )
+            results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+        # Rebuild all_sections.md after each section so UI can show incremental progress
+        _rebuild_all_sections(out_path)
 
-    _rebuild_all_sections(out_path)
     return results
 
 

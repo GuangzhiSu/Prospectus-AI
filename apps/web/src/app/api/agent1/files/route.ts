@@ -1,10 +1,17 @@
-// GET /api/agent1/files - List Excel files in data/
+// GET /api/agent1/files - List Excel and JSON files in data/
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import { getProspectusRoot } from "@/lib/prospectus-root";
 
 export const runtime = "nodejs";
+
+const DATA_EXT = [".xlsx", ".json"];
+
+function isDataFile(name: string) {
+  const lower = name.toLowerCase();
+  return DATA_EXT.some((ext) => lower.endsWith(ext));
+}
 
 export async function GET() {
   try {
@@ -19,7 +26,7 @@ export async function GET() {
     const names = await fs.readdir(dataDir);
     const items = await Promise.all(
       names
-        .filter((n) => n.toLowerCase().endsWith(".xlsx"))
+        .filter((n) => isDataFile(n))
         .map(async (n) => {
           const full = path.join(dataDir, n);
           const st = await fs.stat(full);

@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 """
-Agent1: Process Excel files in data/ → RAG-ready materials by prospectus section.
+Agent1: Process Excel and JSON files → dual retrieval stores.
 
-Assumes upstream provides complete tables and data. Agent1 only:
-- Extracts content from each Excel sheet
-- Generates a content summary per table (for RAG retrieval)
-- Classifies by filename heuristic (A–H)
-- Outputs rag_chunks.jsonl for agent2 RAG
+Output:
+  agent1_output/
+    text_chunks.jsonl   - Narrative content (Excel, industry descriptions, long text)
+    fact_store.jsonl    - Structured facts (metrics, periods, values)
+    manifest.json
 
-Input:  All Excel files in data/
-Output: agent1_output/rag_chunks.jsonl (and by_section/*.jsonl) for agent2 RAG.
-
-Usage:
-  python agent1.py
-  python agent1.py --model Qwen/Qwen2.5-3B-Instruct
+Text store: chunk_size 500–700, overlap 100. For RAG over narrative.
+Fact store: flattened field.period.metric → value, unit, metadata.
 """
 
 from __future__ import annotations
@@ -25,12 +21,12 @@ import re
 from pathlib import Path
 from typing import Any
 
-# Qwen model (Hugging Face)
 DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
-# -----------------------------------------------------------------------------
-# Section taxonomy (prospectus structure for agent2)
-# -----------------------------------------------------------------------------
+# Text store chunk params (narrative generation)
+TEXT_CHUNK_SIZE = 600  # 500–700 range
+TEXT_CHUNK_OVERLAP = 100
+
 SECTIONS = [
     ("A", "Business & Strategy"),
     ("B", "Industry & Market"),
@@ -42,37 +38,196 @@ SECTIONS = [
     ("H", "Offering Mechanics & Share Structure"),
 ]
 
-# File-to-section mapping (heuristic based on filename)
 FILE_TO_SECTION: dict[str, str] = {
-    "company-introduction": "A",
-    "business-data": "A",
-    "market-performance-comparison": "B",
-    "comprehensive-comparison": "B",
-    "balance-sheet": "D",
-    "financial-ratios-comparison": "D",
-    "financial-data-comparison": "D",
-    "cash-flow": "D",
-    "growth-capability": "D",
-    "operating-capability": "D",
-    "profit-forecast-comparison": "D",
-    "share-capital-structure": "E",
-    "holdings-or-equity": "E",
-    "mainland-fund-holdings": "E",
+    "company-introduction": "A", "business-data": "A", "market-performance-comparison": "B",
+    "comprehensive-comparison": "B", "balance-sheet": "D", "financial-ratios-comparison": "D",
+    "financial-data-comparison": "D", "cash-flow": "D", "growth-capability": "D",
+    "operating-capability": "D", "profit-forecast-comparison": "D",
+    "share-capital-structure": "E", "holdings-or-equity": "E", "mainland-fund-holdings": "E",
     "board-and-executives": "F",
 }
 
+JSON_CATEGORY_TO_SECTION: dict[str, str] = {
+    "company_profile": "A", "corporate_structure": "A", "business": "A",
+    "products_and_technology": "A", "customers": "A", "market": "B", "competition": "B",
+    "financials": "D", "operating_metrics": "D", "risk_related_data": "C",
+    "management": "F", "shareholders": "E", "ipo_offering": "H",
+    # legacy keys
+    "company_information": "A", "business_operations": "A", "offering_information": "H",
+}
 
-def normalize_text(s: str) -> str:
-    return re.sub(r"\s+", " ", (s or "").strip())
+
+def _infer_unit(key: str) -> str | None:
+    key_lower = key.lower()
+    if "_rmb" in key_lower or "rmb" in key_lower: return "RMB"
+    if "_hkd" in key_lower or "hkd" in key_lower: return "HKD"
+    if "_usd" in key_lower or "usd" in key_lower: return "USD"
+    if "_pct" in key_lower or "_ratio" in key_lower or "pct" in key_lower: return "%"
+    if "margin" in key_lower and "gross" in key_lower or "net_margin" in key_lower: return "%"
+    return None
 
 
-def chunk_text(text: str, max_chars: int = 1200, overlap: int = 200) -> list[str]:
+def _extract_facts(
+    prefix: str,
+    value: Any,
+    facts: list[dict[str, Any]],
+    source_file: str,
+) -> None:
+    """Recursively extract structured facts from JSON value."""
+    if value is None:
+        return
+    if isinstance(value, (str, int, float, bool)):
+        unit = _infer_unit(prefix.split(".")[-1]) if "." in prefix else None
+        facts.append({
+            "field": prefix,
+            "period": None,
+            "metric": prefix.split(".")[-1] if "." in prefix else prefix,
+            "value": value,
+            "unit": unit,
+            "metadata": {"source_file": source_file},
+        })
+        return
+    if isinstance(value, list):
+        for i, item in enumerate(value):
+            if isinstance(item, dict):
+                period = item.get("period") or item.get("date")
+                for k, v in item.items():
+                    if k in ("period", "date", "period_reference"):
+                        continue
+                    if isinstance(v, (str, int, float, bool)) and v is not None:
+                        unit = _infer_unit(k)
+                        fact: dict[str, Any] = {
+                            "field": prefix,
+                            "period": period,
+                            "metric": k,
+                            "value": v,
+                            "unit": unit,
+                            "metadata": {"source_file": source_file},
+                        }
+                        facts.append(fact)
+                    elif isinstance(v, (dict, list)):
+                        _extract_facts(f"{prefix}.{k}", v, facts, source_file)
+            elif isinstance(item, (str, int, float, bool)):
+                facts.append({
+                    "field": prefix,
+                    "period": None,
+                    "metric": "item",
+                    "value": item,
+                    "unit": None,
+                    "metadata": {"source_file": source_file, "index": i},
+                })
+        return
+    if isinstance(value, dict):
+        # Check for range-style (low, high, currency)
+        if "low" in value and "high" in value:
+            facts.append({
+                "field": prefix,
+                "period": None,
+                "metric": "price_range",
+                "value": value.get("low"),
+                "unit": value.get("currency", "HKD"),
+                "metadata": {"high": value.get("high"), "source_file": source_file},
+            })
+            if value.get("high") != value.get("low"):
+                facts.append({
+                    "field": prefix,
+                    "period": None,
+                    "metric": "price_range_high",
+                    "value": value.get("high"),
+                    "unit": value.get("currency", "HKD"),
+                    "metadata": {"source_file": source_file},
+                })
+            return
+        for k, v in value.items():
+            if isinstance(v, (str, int, float, bool)):
+                unit = _infer_unit(k)
+                facts.append({
+                    "field": f"{prefix}.{k}",
+                    "period": None,
+                    "metric": k,
+                    "value": v,
+                    "unit": unit,
+                    "metadata": {"source_file": source_file},
+                })
+            else:
+                _extract_facts(f"{prefix}.{k}", v, facts, source_file)
+
+
+def extract_facts_from_json(path: Path) -> list[dict[str, Any]]:
+    """Extract fact entries from structured IPO JSON."""
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return []
+    facts: list[dict[str, Any]] = []
+    source = path.name
+    for category, fields in data.items():
+        if not isinstance(fields, dict):
+            continue
+        section = JSON_CATEGORY_TO_SECTION.get(category, "A")
+        for field_name, value in fields.items():
+            if value is None:
+                continue
+            full_field = f"{category}.{field_name}"
+            start_len = len(facts)
+            _extract_facts(full_field, value, facts, source)
+            for f in facts[start_len:]:
+                f.setdefault("metadata", {})["section_hint"] = section
+    return facts
+
+
+def _is_narrative_field(category: str, field_name: str, value: Any) -> bool:
+    """Fields suitable for text store: arrays of strings, long text."""
+    if isinstance(value, str) and len(value) > 200:
+        return True
+    if isinstance(value, list) and value and isinstance(value[0], str):
+        # industry_trends, competitive_advantages, etc.
+        return True
+    return False
+
+
+def _narrative_to_text(prefix: str, value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list) and value and isinstance(value[0], str):
+        return "\n".join(f"- {v}" for v in value)
+    return ""
+
+
+def extract_text_from_json(path: Path) -> list[dict[str, Any]]:
+    """Extract narrative text chunks from JSON (industry descriptions, long text)."""
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return []
+    texts: list[dict[str, Any]] = []
+    source = path.name
+    for category, fields in data.items():
+        if not isinstance(fields, dict):
+            continue
+        section = JSON_CATEGORY_TO_SECTION.get(category, "A")
+        for field_name, value in fields.items():
+            if not _is_narrative_field(category, field_name, value):
+                continue
+            text = _narrative_to_text(f"{category}.{field_name}", value)
+            if not text.strip():
+                continue
+            texts.append({
+                "text": text,
+                "source_file": source,
+                "section_hint": section,
+                "topic": f"{category}.{field_name}",
+                "importance": "medium",
+            })
+    return texts
+
+
+def chunk_text(text: str, max_chars: int = 600, overlap: int = 100) -> list[str]:
     cleaned = re.sub(r"\r", "\n", text).strip()
     cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
     if not cleaned:
         return []
-
     chunks: list[str] = []
     i = 0
     while i < len(cleaned):
@@ -94,56 +249,26 @@ def summarize_table_with_qwen(
     sheet_name: str,
     model_name: str = DEFAULT_MODEL,
 ) -> str:
-    """Use Qwen to produce a short content summary of the table (for RAG)."""
-    prompt = f"""Summarize this Excel table/sheet in 2–4 sentences in English for use in HKEX prospectus drafting. Be factual, neutral, and verifiable.
-
-Objective: Produce a RAG-ready summary that helps a section-writer find relevant evidence. Emphasise: (1) key metrics, dates, or figures; (2) table structure and what rows/columns represent; (3) data scope and time period if evident. If the sheet contains definitions, lists, timelines, or financial data, say so explicitly. Do not interpret, infer, or add information not present in the excerpt.
-
-File: {filename}
-Sheet: {sheet_name}
-
-Table excerpt (first 2500 chars):
----
-{text_sample[:2500]}
----
-
-SUMMARY:"""
     try:
         from llm_qwen import run_qwen_text
-        out = run_qwen_text(prompt, model_name=model_name, max_new_tokens=256)
+        out = run_qwen_text(
+            f"Summarize this Excel table in 2-4 sentences for HKEX prospectus drafting. Be factual.\n\nFile: {filename}\nSheet: {sheet_name}\n\nExcerpt:\n{text_sample[:2500]}\n\nSUMMARY:",
+            model_name=model_name, max_new_tokens=256
+        )
         return out.strip() or f"Table: {filename} / {sheet_name}"
     except Exception:
         return f"Table: {filename} / {sheet_name}"
 
 
 def classify_file(filename: str) -> str:
-    """Map filename to section ID (A–H)."""
     stem = Path(filename).stem.lower()
     for key, section_id in FILE_TO_SECTION.items():
         if key in stem:
             return section_id
-    return "D"  # default: financial
-
-
-def extract_text_from_excel(path: Path) -> str:
-    """Extract text from Excel (all sheets). Preserves table layout via to_string()."""
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("agent1 requires pandas and openpyxl: pip install pandas openpyxl")
-
-    parts: list[str] = []
-    xl = pd.ExcelFile(path, engine="openpyxl")
-    for sheet in xl.sheet_names:
-        df = pd.read_excel(xl, sheet_name=sheet, header=None, dtype=str)
-        text = df.to_string(index=False, header=False, na_rep="")
-        if text.strip():
-            parts.append(f"[Sheet: {sheet}]\n{text}")
-    return "\n\n".join(parts)
+    return "D"
 
 
 def extract_per_sheet(path: Path) -> list[tuple[str, str]]:
-    """Extract text per sheet. Returns [(sheet_name, text), ...]."""
     try:
         import pandas as pd
     except ImportError:
@@ -161,82 +286,175 @@ def extract_per_sheet(path: Path) -> list[tuple[str, str]]:
 def run_agent1(
     data_dir: str | Path = "data",
     output_dir: str | Path = "agent1_output",
-    max_chars: int = 1200,
-    overlap: int = 200,
+    text_chunk_size: int = TEXT_CHUNK_SIZE,
+    text_chunk_overlap: int = TEXT_CHUNK_OVERLAP,
     model_name: str = DEFAULT_MODEL,
 ) -> None:
-    """Run agent1: per-table summarization, output RAG chunks for agent2."""
     data_path = Path(data_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     (output_path / "by_section").mkdir(exist_ok=True)
 
-    files = sorted(data_path.glob("*.xlsx"))
-    if not files:
-        raise FileNotFoundError(f"No .xlsx files in {data_path}")
+    excel_files = sorted(data_path.glob("*.xlsx"))
+    json_files = sorted(data_path.glob("*.json"))
+    if not excel_files and not json_files:
+        raise FileNotFoundError(
+            f"No .xlsx or .json files in {data_path}. Put files there first."
+        )
 
-    all_chunks: list[dict[str, Any]] = []
+    text_chunks: list[dict[str, Any]] = []
+    fact_store: list[dict[str, Any]] = []
+    sheet_summaries: dict[tuple[str, str], str] = {}
     by_section: dict[str, list[dict[str, Any]]] = {s[0]: [] for s in SECTIONS}
-    sheet_summaries: dict[tuple[str, str], str] = {}  # (filename, sheet_name) -> summary
 
-    for f in files:
+    # --- Excel → text store ---
+    for f in excel_files:
         sheets = extract_per_sheet(f)
         if not sheets:
             continue
         section_id = classify_file(f.name)
         section_name = next((n for sid, n in SECTIONS if sid == section_id), "Unknown")
-
         for sheet_name, sheet_text in sheets:
             print(f"  [Qwen] {f.name} / {sheet_name} -> summarising...")
-            summary = summarize_table_with_qwen(
-                sheet_text, f.name, sheet_name, model_name=model_name
-            )
+            summary = summarize_table_with_qwen(sheet_text, f.name, sheet_name, model_name=model_name)
             sheet_summaries[(f.name, sheet_name)] = summary
-
-            chunks = chunk_text(sheet_text, max_chars=max_chars, overlap=overlap)
+            chunks = chunk_text(sheet_text, max_chars=text_chunk_size, overlap=text_chunk_overlap)
             for i, chunk in enumerate(chunks):
-                chunk_id = hashlib.md5(
-                    f"{f.name}:{sheet_name}:{i}:{chunk[:50]}".encode()
-                ).hexdigest()[:12]
+                chunk_id = hashlib.md5(f"{f.name}:{sheet_name}:{i}:{chunk[:50]}".encode()).hexdigest()[:12]
                 rec = {
-                    "chunk_id": chunk_id,
-                    "section_id": section_id,
-                    "section": section_name,
-                    "source_file": f.name,
-                    "sheet_name": sheet_name,
-                    "chunk_index": i,
                     "text": f"{summary}\n\n[Data]\n{chunk}",
-                    "sheet_summary": summary,
+                    "source_file": f.name,
+                    "section_hint": section_id,
+                    "topic": sheet_name,
+                    "importance": "high",
+                    "chunk_id": chunk_id,
+                    "source_type": "excel_sheet",
+                    "sheet_name": sheet_name,
                 }
-                all_chunks.append(rec)
+                text_chunks.append(rec)
                 by_section[section_id].append(rec)
         print(f"  [Qwen] {f.name} -> Section {section_id} ({len(sheets)} sheets)")
 
-    # Write main JSONL
+    # --- JSON → fact store + narrative text ---
+    for f in json_files:
+        print(f"  [JSON] {f.name} -> extracting...")
+        facts = extract_facts_from_json(f)
+        for i, fact in enumerate(facts):
+            fact["fact_id"] = hashlib.md5(
+                f"{f.name}:{fact.get('field','')}:{i}:{str(fact.get('value',''))}".encode()
+            ).hexdigest()[:12]
+            fact_store.append(fact)
+        narrative = extract_text_from_json(f)
+        for item in narrative:
+            chunk_list = chunk_text(
+                item["text"],
+                max_chars=text_chunk_size,
+                overlap=text_chunk_overlap,
+            )
+            for j, chunk in enumerate(chunk_list):
+                chunk_id = hashlib.md5(f"{f.name}:{item['topic']}:{j}".encode()).hexdigest()[:12]
+                rec = {
+                    "text": chunk,
+                    "source_file": item["source_file"],
+                    "section_hint": item["section_hint"],
+                    "topic": item["topic"],
+                    "importance": item["importance"],
+                    "chunk_id": chunk_id,
+                    "source_type": "json_narrative",
+                }
+                text_chunks.append(rec)
+                by_section[item["section_hint"]].append(rec)
+        print(f"  [JSON] {f.name} -> {len(facts)} facts, {len(narrative)} narrative blocks")
+
+    # --- Write text_chunks.jsonl ---
+    text_path = output_path / "text_chunks.jsonl"
+    with open(text_path, "w", encoding="utf-8") as out:
+        for rec in text_chunks:
+            out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    print(f"Wrote {len(text_chunks)} text chunks to {text_path}")
+
+    # --- Write fact_store.jsonl ---
+    fact_path = output_path / "fact_store.jsonl"
+    with open(fact_path, "w", encoding="utf-8") as out:
+        for rec in fact_store:
+            out.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    print(f"Wrote {len(fact_store)} facts to {fact_path}")
+
+    # --- Backward compatibility: rag_chunks.jsonl (merged view for old retriever) ---
+    rag_chunks: list[dict[str, Any]] = []
+    for i, rec in enumerate(text_chunks):
+        rag_chunks.append({
+            "chunk_id": rec.get("chunk_id", str(i)),
+            "section_id": rec.get("section_hint", "A"),
+            "section": next((n for sid, n in SECTIONS if sid == rec.get("section_hint", "A")), "Unknown"),
+            "source_file": rec.get("source_file", ""),
+            "sheet_name": rec.get("topic", rec.get("sheet_name", "")),
+            "chunk_index": i,
+            "text": rec["text"],
+            "sheet_summary": rec.get("topic", "")[:100],
+            "source_type": rec.get("source_type", "text_chunk"),
+        })
+    # Append fact summaries as text-like chunks for context (so section writer sees facts)
+    facts_by_section: dict[str, list[dict]] = {}
+    for fact in fact_store:
+        sh = fact.get("metadata", {}).get("section_hint", "A")
+        facts_by_section.setdefault(sh, []).append(fact)
+    for section_id, facts in facts_by_section.items():
+        block = "\n".join(
+            f"{f['field']}: {f['metric']}={f['value']}" + (f" ({f['period']})" if f.get("period") else "")
+            for f in facts[:50]  # limit to avoid huge context
+        )
+        if block:
+            rag_chunks.append({
+                "chunk_id": hashlib.md5(f"facts_{section_id}".encode()).hexdigest()[:12],
+                "section_id": section_id,
+                "section": next((n for sid, n in SECTIONS if sid == section_id), "Unknown"),
+                "source_file": "fact_store",
+                "sheet_name": f"facts_{section_id}",
+                "chunk_index": len(rag_chunks),
+                "text": f"[Structured Facts - {section_id}]\n{block}",
+                "sheet_summary": f"Facts for section {section_id}",
+                "source_type": "fact_store",
+            })
     main_path = output_path / "rag_chunks.jsonl"
     with open(main_path, "w", encoding="utf-8") as out:
-        for rec in all_chunks:
+        for rec in rag_chunks:
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print(f"Wrote {len(all_chunks)} chunks to {main_path}")
+    print(f"Wrote {len(rag_chunks)} combined chunks (backward compat) to {main_path}")
 
-    # Write per-section JSONL
+    # --- Write by_section (for section preview API) ---
     for section_id, section_name in SECTIONS:
         recs = by_section[section_id]
         if recs:
-            path = output_path / "by_section" / f"section_{section_id}.jsonl"
-            with open(path, "w", encoding="utf-8") as out:
-                for rec in recs:
-                    out.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            print(f"  Section {section_id} ({section_name}): {len(recs)} chunks -> {path}")
+            spath = output_path / "by_section" / f"section_{section_id}.jsonl"
+            with open(spath, "w", encoding="utf-8") as out:
+                for r in recs:
+                    # API expects source_file, sheet_name, sheet_summary
+                    api_rec = {
+                        "source_file": r.get("source_file", ""),
+                        "sheet_name": r.get("sheet_name", r.get("topic", "")),
+                        "sheet_summary": r.get("topic", r.get("sheet_name", ""))[:150],
+                        "text": r.get("text", "")[:500],
+                    }
+                    out.write(json.dumps(api_rec, ensure_ascii=False) + "\n")
+            print(f"  Section {section_id}: {len(recs)} items -> {spath}")
 
-    # Write manifest for agent2
+    # --- Write manifest ---
     manifest = {
-        "sections": [{"id": s[0], "name": s[1], "chunk_count": len(by_section[s[0]])} for s in SECTIONS],
-        "total_chunks": len(all_chunks),
-        "source_files": list({c["source_file"] for c in all_chunks}),
-        "sheet_summaries": {
-            f"{k[0]}:{k[1]}": v for k, v in sheet_summaries.items()
-        },
+        "text_chunk_count": len(text_chunks),
+        "fact_count": len(fact_store),
+        "total_chunks": len(rag_chunks),  # backward compat for frontend
+        "sections": [
+            {
+                "id": s[0],
+                "name": s[1],
+                "chunk_count": len(by_section[s[0]]),
+                "fact_count": len(facts_by_section.get(s[0], [])),
+            }
+            for s in SECTIONS
+        ],
+        "source_files": list({c.get("source_file", "") for c in text_chunks}),
+        "sheet_summaries": {f"{k[0]}:{k[1]}": v for k, v in sheet_summaries.items()},
     }
     with open(output_path / "manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
@@ -244,43 +462,18 @@ def run_agent1(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Agent1: Excel → RAG-ready chunks by prospectus section"
-    )
-    parser.add_argument(
-        "--data-dir",
-        default="data",
-        help="Directory containing .xlsx files"
-    )
-    parser.add_argument(
-        "--output-dir",
-        default="agent1_output",
-        help="Output directory for RAG chunks"
-    )
-    parser.add_argument(
-        "--max-chars",
-        type=int,
-        default=1200,
-        help="Max chars per chunk"
-    )
-    parser.add_argument(
-        "--overlap",
-        type=int,
-        default=200,
-        help="Overlap between chunks"
-    )
-    parser.add_argument(
-        "--model",
-        default=DEFAULT_MODEL,
-        help="Qwen model (default: Qwen/Qwen2.5-7B-Instruct). Use Qwen/Qwen2.5-3B-Instruct for smaller/faster."
-    )
+    parser = argparse.ArgumentParser(description="Agent1: Excel + JSON → text_chunks + fact_store")
+    parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--output-dir", default="agent1_output")
+    parser.add_argument("--text-chunk-size", type=int, default=TEXT_CHUNK_SIZE)
+    parser.add_argument("--text-chunk-overlap", type=int, default=TEXT_CHUNK_OVERLAP)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     args = parser.parse_args()
-
     run_agent1(
         data_dir=args.data_dir,
         output_dir=args.output_dir,
-        max_chars=args.max_chars,
-        overlap=args.overlap,
+        text_chunk_size=args.text_chunk_size,
+        text_chunk_overlap=args.text_chunk_overlap,
         model_name=args.model,
     )
 

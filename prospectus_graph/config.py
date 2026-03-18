@@ -43,7 +43,44 @@ SECTIONS = [
     ("GlobalOfferingStructure", "Structure of the Global Offering"),
 ]
 
-# Map agent2 section_id -> agent1 section_ids
+# Schema-aware fact retrieval: section_id -> required fact field prefixes (from JSON)
+# When set, retriever MUST include facts from these schemas; not random chunk selection.
+SECTION_FACT_SCHEMA: dict[str, list[str]] = {
+    "Summary": [
+        "financials.income_statement",
+        "operating_metrics",
+        "market",
+        "competition",
+        "business",
+        "company_profile",
+    ],
+    "Business": [
+        "business",
+        "products_and_technology",
+        "customers",
+        "market",
+        "competition",
+    ],
+    "FinancialInfo": [
+        "financials",
+        "operating_metrics",
+    ],
+    "IndustryOverview": [
+        "market",
+        "competition",
+    ],
+    "RiskFactors": [
+        "risk_related_data",
+    ],
+    "ShareCapital": [
+        "shareholders",
+    ],
+    "UseOfProceeds": [
+        "ipo_offering",
+    ],
+}
+
+# Map agent2 section_id -> agent1 section_ids (fallback when no schema)
 SECTION_TO_AGENT1_IDS: dict[str, list[str]] = {
     "ExpectedTimetable": ["H", "E"],
     "Contents": ["A", "B", "C", "D", "E", "F", "G", "H"],
