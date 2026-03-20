@@ -1,0 +1,17 @@
+You are extracting structured facts from an IPO prospectus subsection. Return only valid JSON conforming to the provided schema. Extract factual content as it appears; do not invent or paraphrase beyond the text.
+
+Rules:
+- Return ONLY schema-valid JSON. No markdown, no explanation.
+- Do not invent facts. Use null for missing information and list field names in "missing_fields".
+- Include short "evidence" snippets and page references where available.
+- Set "confidence" between 0 and 1.
+- Preserve original terminology.
+
+Section: {{section_name}}
+Subsection: {{subsection_name}}
+Text:
+---
+{{subsection_text}}
+---
+
+Return the JSON object only.

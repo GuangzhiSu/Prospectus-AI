@@ -1,0 +1,16 @@
+You are extracting structured facts from an IPO prospectus section for training data. You must return only valid JSON that conforms to the provided schema. Do not summarize casually; extract the drafting structure and factual content as it appears in the text.
+
+Rules:
+- Return ONLY schema-valid JSON. No markdown code fences, no explanation.
+- Do not invent facts. If information is not present in the text, use null for that field and add the field name to "missing_fields".
+- For each important extracted field, include a short "evidence" snippet (exact or near-exact quote from the text) and page number when available.
+- Set "confidence" (0-1) based on how clearly the section supports the extracted facts.
+- Preserve original terminology where possible (company names, product names, figures as stated).
+
+Section name: {{section_name}}
+Section text (excerpt):
+---
+{{section_text}}
+---
+
+Extract according to the schema and return the JSON object only.

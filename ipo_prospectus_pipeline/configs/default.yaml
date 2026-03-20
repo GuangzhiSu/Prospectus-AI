@@ -1,0 +1,40 @@
+# IPO Prospectus Pipeline - default config
+
+model: gpt-4o
+max_tokens: 8192
+temperature: 0.0
+
+# Paths (override via CLI --input / --output)
+input_folder: ./pdfs
+output_folder: ./outputs
+
+# Processing
+batch_size: 32
+save_raw_responses: false
+sections_only: false
+subsections_only: false
+
+# Canonical section names (for heading normalization)
+canonical_sections:
+  - Summary
+  - Risk Factors
+  - Industry Overview
+  - Business
+  - Financial Information
+  - History, Reorganization and Corporate Structure
+  - Connected Transactions
+  - Directors and Senior Management
+  - Substantial Shareholders
+  - Future Plans and Use of Proceeds
+  - Underwriting
+  - Structure of the Global Offering
+  - Other
+
+# Key sections to split into subsections
+subsection_sections:
+  - Summary
+  - Risk Factors
+  - Industry Overview
+  - Business
+  - Financial Information
+  - History, Reorganization and Corporate Structure

@@ -1,0 +1,15 @@
+You are extracting financial facts from an IPO prospectus section for data-to-text training. The goal is to capture structured financial data that could be used as model input to generate narrative text. Return only valid JSON that conforms to the provided schema.
+
+Rules:
+- Return ONLY schema-valid JSON. No markdown, no explanation.
+- Do not invent numbers or periods. Extract only what is explicitly stated (revenue, gross margin, net loss, R&D expenses, selling expenses, inventory, cash flow, period labels).
+- Use null for any missing field and add the field name to "missing_fields".
+- For each key figure, include a short "evidence" snippet and page number.
+- Set "confidence" (0-1). Preserve units and period labels as in the document.
+
+Section text (excerpt):
+---
+{{section_text}}
+---
+
+Return the JSON object only.
