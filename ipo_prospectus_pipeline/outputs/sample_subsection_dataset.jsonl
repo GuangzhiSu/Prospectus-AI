@@ -1,0 +1,2 @@
+{"document_id": "sample_doc", "section_name": "Business", "subsection_name": "Products and Services", "input": {"structured_facts": {"company_positioning": "Leading provider", "product_segments": ["A", "B"]}}, "output_text": "We offer the following products and services...", "source_pages": [12, 13]}
+{"document_id": "sample_doc", "section_name": "Business", "subsection_name": "Markets", "input": {"structured_facts": {}}, "output_text": "We operate in the following markets...", "source_pages": [14]}

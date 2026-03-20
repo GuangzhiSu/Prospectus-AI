@@ -1,0 +1,15 @@
+You are extracting risk factors from an IPO prospectus for data-to-text training. Identify distinct risk categories (e.g. customer concentration, supplier dependency, liquidity risk, inventory risk, regulatory risk, technology dependency) and a short description for each. Return only valid JSON conforming to the provided schema.
+
+Rules:
+- Return ONLY schema-valid JSON. No markdown, no explanation.
+- Do not invent risks. Extract only risks explicitly stated in the text.
+- Each risk in "risks" must have "risk_category", "description", and optionally "evidence_snippet" and "page".
+- List any expected but missing risk categories in "missing_fields".
+- Set "confidence" (0-1). Preserve legal/regulatory terminology.
+
+Section text (excerpt):
+---
+{{section_text}}
+---
+
+Return the JSON object only.
