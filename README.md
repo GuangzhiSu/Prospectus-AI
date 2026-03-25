@@ -6,10 +6,11 @@ Repository for generating HKEX prospectus working drafts from structured source 
 
 The repo currently contains two document-generation paths:
 
-1. **Main workflow in active use**: `Excel -> Agent1 -> Agent2`
-   - Upload `.xlsx` files in the web UI
-   - `Agent1` extracts and summarizes Excel sheets and groups them into A-H evidence buckets
+1. **Main workflow in active use**: `Excel/JSON -> Agent1 -> Agent2 -> Export`
+   - Upload `.xlsx` or `.json` files in the web UI
+   - `Agent1` extracts and summarizes sheets/data into dual retrieval stores (text chunks + fact store), and groups them into A-H evidence buckets
    - `Agent2` drafts section-by-section sponsor-counsel working drafts using `agent2_section_requirements.json`
+   - Export combined draft to Word (.docx) via the web UI
 2. **Legacy / optional workflow retained in the repo**: `PDF/DOCX/XLSX -> /api/chat -> rag.ts`
    - This older route still exists for experimentation and local-LLM testing
    - It is not the current homepage's primary workflow
@@ -26,15 +27,17 @@ This makes the output more suitable as a sponsor-counsel working draft than as a
 ## Repository structure
 
 ```text
-Prospectus-AI/
+prospectus-ui/
 ├── apps/
 │   └── web/                            # Next.js app (frontend + API routes)
 │       ├── src/
 │       │   ├── app/
-│       │   │   ├── api/                # agent1/agent2 APIs + legacy chat/files/progress APIs
-│       │   │   ├── agent1/page.tsx
+│       │   │   ├── api/                # agent1 (run, upload, files, clear-data, results, section/[id])
+│       │   │   │                       # agent2 (run, export/docx, status, clear, draft)
+│       │   │   │                       # reset, legacy chat/files/progress
+│       │   │   ├── agent1/page.tsx     # Standalone Agent1 UI
 │       │   │   ├── layout.tsx
-│       │   │   └── page.tsx            # Main Excel -> Agent1 -> Agent2 UI
+│       │   │   └── page.tsx            # Main Excel -> Agent1 -> Agent2 -> Export UI
 │       │   └── lib/
 │       │       ├── prospectus-root.ts
 │       │       └── rag.ts              # Legacy / optional RAG route
@@ -43,12 +46,12 @@ Prospectus-AI/
 │       └── ...
 ├── services/
 │   └── local-llm/                      # Optional FastAPI + Chroma service for legacy route
-├── data/                               # Input Excel files for the main workflow
-├── agent1.py                           # Excel extraction, summarization, heuristic routing
+├── data/                               # Input Excel (.xlsx) or JSON (.json) for main workflow
+├── agent1.py                           # Excel/JSON extraction → text_chunks + fact_store
 ├── agent2.py                           # LangGraph runner for section drafting
 ├── llm_qwen.py                         # Shared Qwen model loader / inference helpers
 ├── agent2_section_requirements.json    # Section-by-section working draft instructions
-├── prospectus_graph/                   # LangGraph state, retriever, verifier, and graph modules
+├── prospectus_graph/                   # LangGraph state, retriever, verifier, graph, timetable_template
 ├── run_full_pipeline.sh                # agent1 -> agent2 convenience script
 ├── docs/
 ├── README.md
@@ -64,7 +67,7 @@ See `docs/STRUCTURE.md` for additional repository notes, but read it with care b
 - **Python** 3.10+ for `agent1.py`, `agent2.py`, and model inference
 - Enough disk space and network access for the first Hugging Face model download
 
-For the **main Excel workflow**, you do **not** need `OPENAI_API_KEY` or `HF_API_KEY`.
+For the **main workflow** (Excel/JSON → Agent1 → Agent2), you do **not** need `OPENAI_API_KEY` or `HF_API_KEY`.
 
 For the **legacy / optional document-RAG workflow**, you may still need:
 
@@ -79,24 +82,24 @@ For the **legacy / optional document-RAG workflow**, you may still need:
 1. Create a Python virtual environment at the repo root and install Python dependencies:
 
 ```bash
-cd /path/to/Prospectus-AI
+cd /path/to/prospectus-ui
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-1. Install web dependencies:
+2. Install web dependencies:
 
 ```bash
-cd /path/to/Prospectus-AI/apps/web
+cd /path/to/prospectus-ui/apps/web
 npm install
 ```
 
-1. Create `apps/web/.env.local` with the minimum settings needed by the web API:
+3. Create `apps/web/.env.local` with the minimum settings needed by the web API:
 
 ```bash
-PROSPECTUS_ROOT=/path/to/Prospectus-AI
-AGENT1_PYTHON=/path/to/Prospectus-AI/.venv/bin/python
+PROSPECTUS_ROOT=/path/to/prospectus-ui
+AGENT1_PYTHON=/path/to/prospectus-ui/.venv/bin/python
 AGENT1_MODEL=Qwen/Qwen2.5-3B-Instruct
 AGENT1_USE_CPU=1
 ```
@@ -108,31 +111,32 @@ Notes:
 - `AGENT1_MODEL` sets the default Qwen model used by the web flow
 - `AGENT1_USE_CPU=1` is the safest default when CUDA is unavailable
 
-1. Start the web app from the repo root:
+4. Start the web app from the repo root:
 
 ```bash
-cd /path/to/Prospectus-AI
+cd /path/to/prospectus-ui
 npm run dev
 ```
 
-1. Open [http://localhost:3000](http://localhost:3000) and use the main page:
+5. Open [http://localhost:3000](http://localhost:3000) and use the main page:
 
-- upload `.xlsx` files
+- upload `.xlsx` or `.json` files
 - click **Run Agent1**
-- then generate sections with **Generate all sections** or **Generate next section**
+- generate sections with **Generate all sections** or **Generate next section**
+- use **Export** to download the combined draft as Word (.docx)
 
-1. Review the outputs:
+6. Review the outputs:
 
-- `agent1_output/` for summarized and grouped evidence
+- `agent1_output/` for summarized and grouped evidence (`text_chunks.jsonl`, `fact_store.jsonl`, `manifest.json`)
 - `agent2_output/section_*.md` for section drafts
 - `agent2_output/all_sections.md` for the combined draft
 
 ### Run the full pipeline from the command line
 
-Prerequisite: place your input `.xlsx` files in `data/`.
+Prerequisite: place your input `.xlsx` or `.json` files in `data/`.
 
 ```bash
-cd /path/to/Prospectus-AI
+cd /path/to/prospectus-ui
 source .venv/bin/activate
 ./run_full_pipeline.sh
 ```
@@ -176,9 +180,9 @@ Examples:
 
 ### Main workflow
 
-- `data/` - source Excel files
-- `agent1_output/` - `rag_chunks.jsonl`, section JSONL files, and `manifest.json`
-- `agent2_output/` - section markdown files and combined markdown draft
+- `data/` - source Excel (`.xlsx`) or JSON (`.json`) files
+- `agent1_output/` - `text_chunks.jsonl` (narrative), `fact_store.jsonl` (structured facts), `rag_chunks.jsonl` (backward-compat merged view), `by_section/section_*.jsonl`, and `manifest.json`
+- `agent2_output/` - section markdown files (`section_*.md`) and combined draft (`all_sections.md`)
 
 ### Legacy / optional RAG workflow
 
@@ -190,12 +194,13 @@ These paths are ignored by git where appropriate.
 
 ## Agent1
 
-`Agent1` is an Excel pre-processing step for the main workflow. It:
+`Agent1` is an Excel and JSON pre-processing step for the main workflow. It:
 
-- extracts text from each Excel sheet
+- extracts text from each Excel sheet and structured data from JSON files
 - generates a short English summary per sheet via Qwen
-- classifies files into A-H buckets using filename heuristics
-- emits JSONL evidence for `Agent2`
+- emits dual retrieval stores: **text_chunks.jsonl** (narrative content for RAG) and **fact_store.jsonl** (structured facts: metrics, periods, values)
+- classifies content into A–H buckets using filename/category heuristics
+- writes `rag_chunks.jsonl` for backward compatibility with the legacy retriever
 
 Example usage:
 
@@ -207,27 +212,24 @@ python agent1.py --model Qwen/Qwen2.5-3B-Instruct
 
 Outputs:
 
-- `agent1_output/rag_chunks.jsonl`
+- `agent1_output/text_chunks.jsonl` - narrative chunks
+- `agent1_output/fact_store.jsonl` - structured facts
+- `agent1_output/rag_chunks.jsonl` - merged view (backward compat)
 - `agent1_output/by_section/section_*.jsonl`
-- `agent1_output/manifest.json`
+- `agent1_output/manifest.json` - includes `text_chunk_count`, `fact_count`, `missing_information_requests`, `data_quality_flags`
 
 ## Agent2
 
-`Agent2` consumes `Agent1` output and runs a fixed LangGraph pipeline using `agent2_section_requirements.json`.
+`Agent2` consumes `Agent1` output and runs a LangGraph pipeline using `agent2_section_requirements.json`. It supports two retrieval modes:
 
-Current node sequence:
+- **Legacy** (when only `rag_chunks.jsonl` exists): Retriever → Section Writer → Verifier → Revision → Assembler
+- **Hybrid** (when `text_chunks.jsonl` and/or `fact_store.jsonl` exist): Retriever (semantic + fact filtering) → **Section Planner** → Section Writer → Verifier → Revision → Assembler
 
-- `Retriever`
-- `Section Writer Agent`
-- `Verifier Agent`
-- `Revision Agent`
-- `Assembler`
-
-Planner is intentionally omitted because section requirements are already encoded in configuration.
+The **Section Planner** (Hybrid mode only) prepares an evidence outline before drafting. The **Expected Timetable** section can be rendered from `fact_store` data via `prospectus_graph/timetable_template.py`.
 
 Current behavior:
 
-- retrieves evidence through a pluggable retriever interface (currently backed by `agent1_output/rag_chunks.jsonl`)
+- retrieves evidence through a pluggable retriever (HybridRetriever over `text_chunks` + `fact_store`, or SectionAwareRAGRetriever over `rag_chunks.jsonl`)
 - drafts through a dedicated writer agent in sponsor-counsel working draft mode
 - writes prospectus-ready prose where evidence exists
 - preserves required section structure where evidence is incomplete

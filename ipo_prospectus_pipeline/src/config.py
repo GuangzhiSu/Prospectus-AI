@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -10,7 +11,11 @@ from pydantic import BaseModel, Field
 
 
 class PipelineConfig(BaseModel):
+    # openai | qwen_local (local Hugging Face Qwen)
+    llm_provider: str = "openai"
     model: str = "gpt-4o"
+    # Used when llm_provider is qwen_local; falls back to env QWEN_MODEL
+    qwen_model: str | None = None
     max_tokens: int = 8192
     temperature: float = 0.0
     input_folder: str = "./pdfs"
@@ -41,6 +46,10 @@ def load_config(config_path: str | Path | None = None, overrides: dict[str, Any]
             with open(path) as f:
                 cfg_dict = yaml.safe_load(f) or {}
     overrides = overrides or {}
+    # Env override for provider (bash scripts can export IPO_LLM_PROVIDER=qwen_local)
+    env_provider = os.environ.get("IPO_LLM_PROVIDER")
+    if env_provider and "llm_provider" not in overrides:
+        cfg_dict["llm_provider"] = env_provider.strip()
     for k, v in overrides.items():
         if v is not None and k in PipelineConfig.model_fields:
             cfg_dict[k] = v
