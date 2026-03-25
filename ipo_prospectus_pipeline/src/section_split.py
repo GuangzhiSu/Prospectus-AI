@@ -7,8 +7,9 @@ from pathlib import Path
 
 import structlog
 
+from .client_factory import create_pipeline_llm_client
 from .config import PipelineConfig
-from .openai_client import OpenAIClient
+from .llm_protocol import PipelineLLMClient
 from .pdf_extract import ExtractedDocument
 from .prompts import load_prompt
 from .schemas import DocumentSections, SectionRecord, HeadingNormalizationOutput
@@ -25,7 +26,7 @@ def _get_heading_schema() -> dict:
     return {"name": "heading_normalization", "strict": True, "schema": s}
 
 
-def normalize_heading_with_llm(raw_heading: str, canonical_list: list[str], client: OpenAIClient) -> str:
+def normalize_heading_with_llm(raw_heading: str, canonical_list: list[str], client: PipelineLLMClient) -> str:
     """Call LLM to map raw heading to canonical section name."""
     prompt = load_prompt(
         "heading_normalization",
@@ -56,7 +57,7 @@ def normalize_heading_with_llm(raw_heading: str, canonical_list: list[str], clie
 def split_document_into_sections(
     doc: ExtractedDocument,
     config: PipelineConfig,
-    client: OpenAIClient | None = None,
+    client: PipelineLLMClient | None = None,
 ) -> DocumentSections:
     """
     Deterministic split using heading candidates and page text; LLM normalizes each heading to canonical name.
@@ -66,11 +67,7 @@ def split_document_into_sections(
 
     canonical = list(config.canonical_sections)
     if client is None:
-        client = OpenAIClient(
-            model=config.model,
-            max_tokens=config.max_tokens,
-            temperature=config.temperature,
-        )
+        client = create_pipeline_llm_client(config)
 
     # Build (page, heading_text, level) for level-1 headings only (main sections)
     breakpoints: list[tuple[int, str]] = []  # (page_1_index, raw_heading)
@@ -130,11 +127,9 @@ def run_section_splitting(
 ) -> list[Path]:
     """Load extracted JSON per doc, run section split, save to sections_dir. Returns list of written paths."""
     sections_dir.mkdir(parents=True, exist_ok=True)
-    client = OpenAIClient(
-        model=config.model,
-        max_tokens=config.max_tokens,
-        temperature=config.temperature,
-        save_raw_dir=str(sections_dir / "raw_responses") if config.save_raw_responses else None,
+    client = create_pipeline_llm_client(
+        config,
+        save_raw_dir=sections_dir / "raw_responses",
     )
     written: list[Path] = []
     for path in sorted(extracted_dir.glob("*.json")):

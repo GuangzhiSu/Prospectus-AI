@@ -59,6 +59,12 @@ def main() -> None:
         default=None,
         help="Run only this stage (default: all)",
     )
+    parser.add_argument(
+        "--llm-provider",
+        choices=("openai", "qwen_local"),
+        default=None,
+        help="LLM backend: openai (API) or qwen_local (Hugging Face). Overrides config / IPO_LLM_PROVIDER.",
+    )
     args = parser.parse_args()
 
     overrides = {}
@@ -66,6 +72,8 @@ def main() -> None:
         overrides["input_folder"] = args.input
     if args.output is not None:
         overrides["output_folder"] = args.output
+    if args.llm_provider is not None:
+        overrides["llm_provider"] = args.llm_provider
 
     config = load_config(config_path=args.config, overrides=overrides)
     input_dir = Path(config.input_folder)

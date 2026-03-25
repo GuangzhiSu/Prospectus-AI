@@ -14,7 +14,7 @@ from .extraction import (
     extract_financial_narrative,
     extract_risk_narrative,
 )
-from .openai_client import OpenAIClient
+from .client_factory import create_pipeline_llm_client
 from .schemas import (
     SectionDatasetRow,
     SubsectionDatasetRow,
@@ -107,11 +107,9 @@ def run_build_datasets(
     subsection_path = output_dir / "subsection_dataset.jsonl"
     data_to_text_path = output_dir / "data_to_text_dataset.jsonl"
 
-    client = OpenAIClient(
-        model=config.model,
-        max_tokens=config.max_tokens,
-        temperature=config.temperature,
-        save_raw_dir=str(output_dir / "raw_responses") if config.save_raw_responses else None,
+    client = create_pipeline_llm_client(
+        config,
+        save_raw_dir=output_dir / "raw_responses",
     )
 
     section_rows: list[SectionDatasetRow] = []

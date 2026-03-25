@@ -1,22 +1,21 @@
-# IPO Prospectus Pipeline - default config
+# Local Qwen via Hugging Face transformers (no OpenAI API key).
+# Install: pip install -r requirements.txt -r requirements-qwen.txt
+#
+# Default: https://huggingface.co/Qwen/Qwen3.5-27B — override with QWEN_MODEL or qwen_model.
 
-# LLM: openai (API) | qwen_local (Hugging Face on GPU/CPU)
-llm_provider: openai
-model: gpt-4o
+llm_provider: qwen_local
+qwen_model: Qwen/Qwen3.5-27B
 max_tokens: 8192
 temperature: 0.0
 
-# Paths (override via CLI --input / --output)
 input_folder: ./pdfs
-output_folder: ./outputs
+output_folder: ./outputs_qwen
 
-# Processing
 batch_size: 32
 save_raw_responses: false
 sections_only: false
 subsections_only: false
 
-# Canonical section names (for heading normalization)
 canonical_sections:
   - Summary
   - Risk Factors
@@ -32,7 +31,6 @@ canonical_sections:
   - Structure of the Global Offering
   - Other
 
-# Key sections to split into subsections
 subsection_sections:
   - Summary
   - Risk Factors

@@ -1,15 +1,14 @@
-"""Structured extraction via OpenAI: section/subsection facts with JSON schema."""
+"""Structured extraction via OpenAI API or local Qwen: section/subsection facts with JSON schema."""
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 from typing import Any
 
 import structlog
 
+from .client_factory import create_pipeline_llm_client
 from .config import PipelineConfig
-from .openai_client import OpenAIClient
+from .llm_protocol import PipelineLLMClient
 from .prompts import load_prompt
 from .schemas import (
     BusinessExtraction,
@@ -49,7 +48,7 @@ def extract_section_structured(
     section_name: str,
     section_text: str,
     config: PipelineConfig,
-    client: OpenAIClient | None = None,
+    client: PipelineLLMClient | None = None,
     save_id: str | None = None,
 ) -> dict[str, Any] | None:
     """
@@ -68,11 +67,7 @@ def extract_section_structured(
     response_format = _openai_schema_from_pydantic(schema)
 
     if client is None:
-        client = OpenAIClient(
-            model=config.model,
-            max_tokens=config.max_tokens,
-            temperature=config.temperature,
-        )
+        client = create_pipeline_llm_client(config)
     try:
         resp = client.create_response(
             messages,
@@ -86,7 +81,7 @@ def extract_section_structured(
     return resp.get("parsed")
 
 
-def extract_financial_narrative(section_text: str, config: PipelineConfig, client: OpenAIClient | None = None) -> dict[str, Any] | None:
+def extract_financial_narrative(section_text: str, config: PipelineConfig, client: PipelineLLMClient | None = None) -> dict[str, Any] | None:
     """Extract financial facts for data-to-text (financial_narrative)."""
     text = section_text[:MAX_CHARS] + ("\n\n[... truncated ...]" if len(section_text) > MAX_CHARS else "")
     prompt = load_prompt("financial_narrative_extraction", section_text=text)
@@ -94,7 +89,7 @@ def extract_financial_narrative(section_text: str, config: PipelineConfig, clien
     schema = get_json_schema_for_extraction(FinancialExtraction)
     response_format = _openai_schema_from_pydantic(schema)
     if client is None:
-        client = OpenAIClient(model=config.model, max_tokens=config.max_tokens, temperature=config.temperature)
+        client = create_pipeline_llm_client(config)
     try:
         resp = client.create_response(messages, response_format=response_format, response_format_type="json_schema")
         return resp.get("parsed")
@@ -103,7 +98,7 @@ def extract_financial_narrative(section_text: str, config: PipelineConfig, clien
         return None
 
 
-def extract_risk_narrative(section_text: str, config: PipelineConfig, client: OpenAIClient | None = None) -> dict[str, Any] | None:
+def extract_risk_narrative(section_text: str, config: PipelineConfig, client: PipelineLLMClient | None = None) -> dict[str, Any] | None:
     """Extract risk factors for data-to-text (risk_narrative)."""
     text = section_text[:MAX_CHARS] + ("\n\n[... truncated ...]" if len(section_text) > MAX_CHARS else "")
     prompt = load_prompt("risk_factor_extraction", section_text=text)
@@ -111,7 +106,7 @@ def extract_risk_narrative(section_text: str, config: PipelineConfig, client: Op
     schema = get_json_schema_for_extraction(RiskFactorsExtraction)
     response_format = _openai_schema_from_pydantic(schema)
     if client is None:
-        client = OpenAIClient(model=config.model, max_tokens=config.max_tokens, temperature=config.temperature)
+        client = create_pipeline_llm_client(config)
     try:
         resp = client.create_response(messages, response_format=response_format, response_format_type="json_schema")
         return resp.get("parsed")

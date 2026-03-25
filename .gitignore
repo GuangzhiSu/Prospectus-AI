@@ -32,6 +32,32 @@ agent1_output/
 # Agent2 output (generated prospectus sections)
 agent2_output/
 
+# IPO prospectus pipeline — run outputs (large extracted/sections JSON, JSONL, raw dumps).
+# We do not use a repo-wide *.json rule; that would untrack package.json, tsconfig.json,
+# agent2_section_requirements.json, apps/web/*.json, etc.
+ipo_prospectus_pipeline/outputs/
+ipo_prospectus_pipeline/outputs_*/
+
+# HKEX prospectus PDF corpus (large binaries; licensing / redistribution — keep local)
+hkex_prospectus/
+
+# Agent1 input data (often large or issuer-specific; keep README tracked)
+/data/*.json
+/data/*.xlsx
+/data/*.csv
+
+# Root-level Word documents (reference packs, often large or internal-only)
+/*.docx
+
+# ML / export weights if ever stored in-repo (Hugging Face–style artifacts)
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+
 # Python (services/local-llm)
 .venv/
 **/__pycache__/

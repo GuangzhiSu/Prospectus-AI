@@ -1,6 +1,6 @@
 # IPO Prospectus Pipeline
 
-Production-style pipeline that converts IPO prospectus PDFs into three levels of structured training datasets using the OpenAI API.
+Production-style pipeline that converts IPO prospectus PDFs into three levels of structured training datasets using either the **OpenAI API** or a **local Qwen** model (Hugging Face `transformers`).
 
 ## Outputs
 
@@ -11,7 +11,8 @@ Production-style pipeline that converts IPO prospectus PDFs into three levels of
 ## Requirements
 
 - Python 3.11+
-- OpenAI API key (set `OPENAI_API_KEY` in environment or `.env`)
+- **OpenAI path**: `OPENAI_API_KEY` (environment or `.env`)
+- **Qwen path**: GPU recommended; install `pip install -r requirements-qwen.txt` (adds `transformers`, `torch`, `accelerate`)
 
 ## Setup
 
@@ -20,9 +21,34 @@ cd ipo_prospectus_pipeline
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+# Optional: local Qwen
+pip install -r requirements-qwen.txt
 cp .env.example .env
-# Edit .env and set OPENAI_API_KEY
+# Edit .env and set OPENAI_API_KEY when using OpenAI
 ```
+
+## OpenAI vs local Qwen
+
+- **OpenAI** — `llm_provider: openai` in `configs/default.yaml` (default). Native JSON schema / structured output.
+- **Local Qwen** — `llm_provider: qwen_local` in `configs/qwen_local.yaml`. Same prompts and JSONL outputs; the model is instructed to emit JSON matching the schema (no OpenAI API key).
+
+**Switch with the shell wrapper** (from `ipo_prospectus_pipeline/`):
+
+```bash
+./run_pipeline.sh openai --input ./pdfs --output ./outputs
+./run_pipeline.sh qwen --input ./pdfs --output ./outputs_qwen
+```
+
+The `qwen` profile sets `QWEN_MODEL` (default [`Qwen/Qwen3.5-27B`](https://huggingface.co/Qwen/Qwen3.5-27B)). To use another checkpoint, set `QWEN_MODEL` before running:
+
+```bash
+export QWEN_MODEL="Qwen/Qwen3.5-27B-Instruct"  # example if you prefer an Instruct-tuned variant
+./run_pipeline.sh qwen --input ./pdfs --output ./outputs_qwen
+```
+
+CPU-only (slow): `export QWEN_USE_CPU=1`. Quantization: `QWEN_USE_4BIT=1` or `QWEN_USE_8BIT=1` (CUDA).
+
+Alternatively: `export IPO_LLM_PROVIDER=qwen_local` and `python -m src.main --config configs/qwen_local.yaml ...`, or `--llm-provider qwen_local` with any config.
 
 ## Usage
 
@@ -78,6 +104,9 @@ ipo_prospectus_pipeline/
 │   ├── section_split.py
 │   ├── subsection_split.py
 │   ├── openai_client.py
+│   ├── qwen_local_client.py
+│   ├── client_factory.py
+│   ├── llm_protocol.py
 │   ├── extraction.py  # Structured extraction with JSON schema
 │   ├── datasets.py    # Build section / subsection / data-to-text JSONL
 │   └── schemas.py     # Pydantic models and JSON schemas
