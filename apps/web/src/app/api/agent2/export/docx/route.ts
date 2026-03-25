@@ -12,6 +12,7 @@ import {
   HeadingLevel,
 } from "docx";
 import { getProspectusRoot } from "@/lib/prospectus-root";
+import { stripVerificationNotes } from "@/lib/draft-cleaning";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -129,6 +130,8 @@ export async function GET() {
         { status: 404 }
       );
     }
+
+    content = stripVerificationNotes(content);
 
     const children: Paragraph[] = [];
 
