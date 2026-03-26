@@ -9,6 +9,8 @@ Supports:
 from __future__ import annotations
 
 from typing import Any
+import os
+import socket
 
 # Default models
 DEFAULT_TEXT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
@@ -40,6 +42,11 @@ def _load_qwen_model(
         device = _get_device()
     use_8bit = os.environ.get("AGENT1_USE_8BIT") == "1"
     use_4bit = os.environ.get("AGENT1_USE_4BIT") == "1"
+    local_only = (
+        os.environ.get("TRANSFORMERS_OFFLINE") == "1"
+        or os.environ.get("HF_LOCAL_ONLY") == "1"
+    )
+    model_is_local_path = os.path.exists(model_name)
     load_kwargs: dict = {
         "trust_remote_code": True,
         "torch_dtype": torch.bfloat16 if device == "cuda" else torch.float32,
@@ -53,8 +60,45 @@ def _load_qwen_model(
                 load_kwargs["load_in_8bit"] = True
         except Exception:
             pass
-    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, **load_kwargs)
+    def _friendly_load_error(e: Exception) -> RuntimeError:
+        # Keep UI clean: return a short, actionable message.
+        # Web API will display the message; avoid dumping full stack traces to users.
+        msg = str(e)
+        networkish = (
+            isinstance(e, socket.gaierror)
+            or "nodename nor servname provided" in msg
+            or "Name or service not known" in msg
+            or "Temporary failure in name resolution" in msg
+            or "huggingface.co" in msg
+            or "hf_hub_download" in msg
+        )
+        if local_only and not model_is_local_path:
+            return RuntimeError(
+                "USER_FRIENDLY: Model files are not available locally.\n"
+                "Please connect to the internet once to download the model, or set AGENT1_MODEL to a local model folder."
+            )
+        if networkish and not model_is_local_path:
+            return RuntimeError(
+                "USER_FRIENDLY: Unable to download the AI model (network/DNS issue).\n"
+                "Please ensure this machine can access Hugging Face, or set AGENT1_MODEL to a local model folder. "
+                "If you are behind a proxy or use a mirror, configure HTTPS_PROXY/HTTP_PROXY or HF_ENDPOINT."
+            )
+        return RuntimeError(
+            "USER_FRIENDLY: Failed to load the AI model.\n"
+            "Please check your model setting (AGENT1_MODEL) and try again."
+        )
+
+    try:
+        tok_kwargs = {"trust_remote_code": True}
+        if local_only and not model_is_local_path:
+            tok_kwargs["local_files_only"] = True
+        tokenizer = AutoTokenizer.from_pretrained(model_name, **tok_kwargs)
+        m_kwargs = dict(load_kwargs)
+        if local_only and not model_is_local_path:
+            m_kwargs["local_files_only"] = True
+        model = AutoModelForCausalLM.from_pretrained(model_name, **m_kwargs)
+    except Exception as e:
+        raise _friendly_load_error(e)
     if "device_map" not in load_kwargs:
         model = model.to(device)
     return model, tokenizer
