@@ -1,0 +1,12 @@
+# Next.js app lives in apps/web — set this file at repo root so Netlify builds the right package.
+# In Netlify: Site settings → Build & deploy → Base directory can stay empty if using [build.base] below.
+
+[build]
+  base = "apps/web"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
