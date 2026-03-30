@@ -176,14 +176,15 @@ export async function GET() {
 
     const buffer = await Packer.toBuffer(doc);
     const filename = `prospectus-draft-${new Date().toISOString().slice(0, 10)}.docx`;
+    const body = new Uint8Array(buffer);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(body, {
       status: 200,
       headers: {
         "Content-Type":
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "Content-Disposition": `attachment; filename="${filename}"`,
-        "Content-Length": String(buffer.length),
+        "Content-Length": String(body.byteLength),
       },
     });
   } catch (err: unknown) {
