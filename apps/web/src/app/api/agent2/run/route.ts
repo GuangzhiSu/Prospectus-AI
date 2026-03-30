@@ -7,7 +7,8 @@ import { spawn } from "child_process";
 import { getProspectusRoot } from "@/lib/prospectus-root";
 
 export const runtime = "nodejs";
-export const maxDuration = 1800; // 30 min for batch (all remaining sections)
+/** Vercel Hobby: max 300s. Pro allows higher; local dev has no this cap. */
+export const maxDuration = 300;
 
 const SECTION_ORDER = [
   "ExpectedTimetable",
