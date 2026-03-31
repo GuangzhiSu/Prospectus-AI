@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 type DataFile = { name: string; size: number; lastModified: string };
@@ -60,10 +60,7 @@ export default function Agent1Page() {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [draftMd, setDraftMd] = useState<string | null>(null);
-  const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
-  const [sectionPreview, setSectionPreview] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const hoverLeaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchFiles = useCallback(async () => {
     try {
@@ -119,47 +116,6 @@ export default function Agent1Page() {
       fetchDraft();
     }
   }, [results, draftMd, generating, fetchDraft]);
-
-  async function handleSectionHover(sectionId: string) {
-    if (hoverLeaveRef.current) {
-      clearTimeout(hoverLeaveRef.current);
-      hoverLeaveRef.current = null;
-    }
-    setHoveredSectionId(sectionId);
-    try {
-      const res = await fetch(`/api/agent1/section/${encodeURIComponent(sectionId)}`);
-      if (!res.ok) {
-        setSectionPreview(null);
-        return;
-      }
-      const data = (await res.json()) as { summaries?: string[] };
-      const text = Array.isArray(data.summaries)
-        ? data.summaries.join("\n\n")
-        : null;
-      setSectionPreview(text);
-    } catch {
-      setSectionPreview(null);
-    }
-  }
-
-  function handleSectionLeave() {
-    hoverLeaveRef.current = setTimeout(() => {
-      setHoveredSectionId(null);
-      setSectionPreview(null);
-      hoverLeaveRef.current = null;
-    }, 150);
-  }
-
-  function handleTooltipEnter() {
-    if (hoverLeaveRef.current) {
-      clearTimeout(hoverLeaveRef.current);
-      hoverLeaveRef.current = null;
-    }
-  }
-
-  function handleTooltipLeave() {
-    handleSectionLeave();
-  }
 
   async function handleUpload(filesToUpload: FileList | File[]) {
     const arr = Array.from(filesToUpload).filter((f) => f.size > 0);
@@ -268,10 +224,10 @@ export default function Agent1Page() {
               ← Back to Prospectus
             </Link>
             <h1 className="text-2xl font-semibold mt-1">
-              Agent 1: Intake & Classification
+              Data intake
             </h1>
             <p className="text-sm text-neutral-500 mt-1">
-              Upload Excel files → per-table summarization → RAG for Agent2
+              Upload workbooks and prepare them for prospectus drafting on the home page
             </p>
           </div>
         </header>
@@ -284,7 +240,7 @@ export default function Agent1Page() {
 
         {/* Upload */}
         <section className="mb-8 rounded-xl border bg-white p-6">
-          <h2 className="text-sm font-semibold mb-4">1. Excel files (data/)</h2>
+          <h2 className="text-sm font-semibold mb-4">1. Upload files</h2>
           <div className="flex gap-4 items-start">
             <input
               ref={fileInputRef}
@@ -336,22 +292,22 @@ export default function Agent1Page() {
 
         {/* Run */}
         <section className="mb-8 rounded-xl border bg-white p-6">
-          <h2 className="text-sm font-semibold mb-4">2. Run Agent1</h2>
+          <h2 className="text-sm font-semibold mb-4">2. Prepare data</h2>
           <p className="text-sm text-neutral-600 mb-4">
-            Generate content summaries for each table for Agent2 RAG. Takes a few minutes.
+            Reads your tables and builds material for each prospectus chapter. May take a few minutes.
           </p>
           <button
             onClick={handleRun}
             disabled={running || files.length === 0}
             className="rounded-xl bg-neutral-900 text-white px-6 py-2.5 text-sm hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {running ? "Running…" : "Run Agent1"}
+            {running ? "Working…" : "Prepare data"}
           </button>
         </section>
 
         {/* Results */}
         <section className="rounded-xl border bg-white p-6">
-          <h2 className="text-sm font-semibold mb-4">3. Agent1 Results</h2>
+          <h2 className="text-sm font-semibold mb-4">3. Chapter coverage</h2>
           <button
             onClick={fetchResults}
             className="text-xs rounded border px-2 py-1 hover:bg-neutral-50 mb-4"
@@ -361,14 +317,14 @@ export default function Agent1Page() {
 
           {!manifest ? (
             <div className="rounded-lg border border-dashed p-6 text-sm text-neutral-500">
-              No results yet. Run Agent1 first.
+              No results yet. Complete step 2 first.
             </div>
           ) : (
             <div className="space-y-6">
               {manifest && (
                 <div className="rounded-xl border border-green-200 bg-green-50 p-6">
                   <p className="text-sm text-green-800 mb-4">
-                    Table summaries generated. Click "Generate" to start the prospectus.
+                    Your data is ready. Open the home page to draft sections, or generate here.
                   </p>
                   <button
                     onClick={handleGenerateDirectly}
@@ -380,76 +336,17 @@ export default function Agent1Page() {
                 </div>
               )}
 
-              {/* Sections summary */}
-              {manifest.sections &&
-                Array.isArray(manifest.sections) &&
-                manifest.sections.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-semibold text-neutral-600 mb-2">
-                      Section overview
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                      {manifest.sections.map(
-                        (s: {
-                          id: string;
-                          name: string;
-                          chunk_count: number;
-                          fact_count?: number;
-                        }) => (
-                          <div
-                            key={s.id}
-                            className="rounded-lg border p-3 text-sm cursor-pointer transition-colors hover:border-neutral-400 hover:bg-neutral-50"
-                            onMouseEnter={() => handleSectionHover(s.id)}
-                            onMouseLeave={handleSectionLeave}
-                          >
-                            <div className="font-medium">{s.id}</div>
-                            <div className="text-xs text-neutral-500 truncate">
-                              {s.name}
-                            </div>
-                            <div className="text-xs text-neutral-600 mt-1">
-                              {s.chunk_count} chunks
-                              {typeof s.fact_count === "number" && s.fact_count > 0 && (
-                                <span className="text-neutral-500">, {s.fact_count} facts</span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                    {hoveredSectionId && (
-                      <div
-                        className="fixed z-50 max-w-md rounded-lg border border-neutral-200 bg-white p-4 shadow-lg text-sm text-neutral-700 whitespace-pre-wrap"
-                        style={{ left: 24, top: 120 }}
-                        onMouseEnter={handleTooltipEnter}
-                        onMouseLeave={handleTooltipLeave}
-                      >
-                        <div className="font-semibold text-neutral-800 mb-2">
-                          Section {hoveredSectionId}
-                        </div>
-                        {sectionPreview ? (
-                          <div className="max-h-64 overflow-y-auto">{sectionPreview}</div>
-                        ) : (
-                          <div className="text-neutral-500">Loading…</div>
-                        )}
-                      </div>
-                    )}
-                    {("total_chunks" in manifest || "text_chunk_count" in manifest) && (
-                        <p className="text-xs text-neutral-500 mt-2">
-                          {typeof manifest.text_chunk_count === "number" && typeof manifest.fact_count === "number"
-                            ? `${manifest.text_chunk_count} text chunks, ${manifest.fact_count} facts total`
-                            : typeof manifest.total_chunks === "number"
-                              ? `${manifest.total_chunks} chunks total${typeof manifest.fact_count === "number" && manifest.fact_count > 0 ? `, ${manifest.fact_count} facts` : ""}`
-                              : null}
-                        </p>
-                      )}
-                  </div>
-                )}
+              {Array.isArray(manifest.sections) && manifest.sections.length > 0 && (
+                <p className="text-sm text-neutral-600">
+                  Your material is ready for the main drafting workspace.
+                </p>
+              )}
 
               {/* Data quality flags */}
               {qualityFlags.length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-neutral-600 mb-2">
-                    Data quality flags
+                    Data quality
                   </h3>
                   <ul className="space-y-2">
                     {qualityFlags.map((f, i) => (

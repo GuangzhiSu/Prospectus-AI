@@ -7,6 +7,12 @@ Legacy (rag_chunks only):
 
 Hybrid (text_chunks + fact_store):
     Retriever (semantic + fact filtering) -> Section Planner -> Section Writer -> Verifier -> Revision -> Assembler
+
+Issuer metadata: edit issuer_metadata.json (or pass --issuer-metadata). Conditional warnings and
+locked regulatory snippets are injected from prospectus_graph/locked_snippets.json.
+
+After a run, the output bundle writes draft_clean.md, validation_report.md, evidence_register.jsonl,
+and coverage_matrix.md under --output-dir (unless --no-output-bundle).
 """
 
 from __future__ import annotations
@@ -37,6 +43,44 @@ from prospectus_graph.verifier import (
 )
 
 
+def _issuer_metadata_default_path() -> Path:
+    return Path(__file__).resolve().parent / "issuer_metadata.json"
+
+
+def _read_section_generation_rules_excerpt() -> str:
+    p = Path(__file__).resolve().parent / "prospectus_graph" / "section_generation_rules.md"
+    if not p.exists():
+        return ""
+    return p.read_text(encoding="utf-8")[:8000]
+
+
+def _augment_requirements(
+    section_id: str,
+    base_requirements: str,
+    issuer_metadata_path: Path | None,
+) -> str:
+    from prospectus_graph.issuer_metadata import (
+        conditional_section_emphasis,
+        format_metadata_for_prompt,
+        load_issuer_metadata,
+    )
+    from prospectus_graph.locked_snippets import format_locked_snippets_for_section
+
+    meta = load_issuer_metadata(issuer_metadata_path)
+    parts: list[str] = [
+        format_metadata_for_prompt(meta),
+        conditional_section_emphasis(meta),
+    ]
+    locked = format_locked_snippets_for_section(section_id, meta)
+    if locked:
+        parts.append(locked)
+    ex = _read_section_generation_rules_excerpt()
+    if ex.strip():
+        parts.append("SECTION GENERATION RULES (apply before drafting narrative):\n" + ex)
+    parts.append("---\nSECTION-SPECIFIC REQUIREMENTS:\n" + base_requirements)
+    return "\n\n".join(parts)
+
+
 def _lookup_section_name(section_id: str) -> str:
     return next((name for sid, name in SECTIONS if sid == section_id), section_id)
 
@@ -50,10 +94,19 @@ Primary objective: Optimise for (1) compliance language, (2) disclosure defensib
 - Draft in sponsor-counsel working draft mode for an HKEX listing document. This is not a fully complete clean final filing copy.
 - Use formal, factual, balanced, non-promotional language. Treat uncontrolled language as a major defect.
 - All company-specific facts, figures, dates, rankings, waivers, legal conclusions, and status statements must come only from the provided context. Do not invent sources, thresholds, definitions, or evidence.
-- For any required point not supported by the context, keep the relevant heading and state [Information not provided in the documents].
-- Use only these annotation tags when helpful: [[AI:LOCKED|...]] (text that must not be changed without counsel sign-off), [[AI:VERIFY|...]], [[AI:CITE|source=...; scope=...; date=...; metric=...]], [[AI:XREF|to=...]], [[AI:LPD|refresh=...]].
+- EVIDENCE REGISTRY / ATOMIC CLAIMS: Every numeric or material factual claim should be traceable. Prefer structured placeholders over fluent invented narrative when support is missing.
+- If a claim has NO support in context, output exactly **DATA_MISSING** or **COUNSEL_INPUT_REQUIRED** (as appropriate) for that element — do NOT write a polished paragraph that implies facts exist.
+- Mandatory regulatory / disclaimer text (Rule 11.20-style responsibility, WVR, 18C, Pre-Commercial, reliance-only, website-not-part, territorial restrictions) must appear inside [[AI:LOCKED|reason=mandatory_rule_text|...]] using counsel-approved placeholder blocks where provided; do NOT paraphrase locked snippets.
+
+UNIFIED MACHINE-PARSEABLE AI TAGS (use exactly this syntax; one tag per pair of brackets):
+  [[AI:CITE|source=...; doc=...; page=...; section=...; scope=...; metric=...; period=...; confidence=...]]
+  [[AI:XREF|to=exact_section_id]]
+  [[AI:VERIFY|evidence=...]]
+  [[AI:LPD|timestamp=ISO8601]]
+  [[AI:LOCKED|reason=mandatory_rule_text|...]]
+
 - Avoid promotional, absolute, or unqualified forward-looking language. Avoid explicit or implicit profit forecasts unless a formal profit-forecast workflow applies. Require cross-reference discipline and evidence hooks for claims needing verification.
-- Regime-sensitive: If the issuer has WVR, Chapter 18C / Specialist Technology, Pre-Commercial status, internet information services or personal data processing, or VIE/contractual arrangements, follow the section requirements for tailored disclosure logic.
+- Regime-sensitive flags in ISSUER METADATA control which conditional warnings and cross-references are mandatory; do not contradict issuer metadata.
 """
 
 
@@ -166,7 +219,7 @@ Context from user-uploaded company documents (ONLY source of data):
 Instructions:
 1. Use the section requirements and HKEX conventions to build the section structure and sub-headings.
 2. Use ONLY the provided context for company-specific facts, figures, names, dates, and status statements.
-3. If a required item is unsupported, keep the relevant heading, write "[Information not provided in the documents]", and add the most useful AI tag(s) if appropriate.
+3. If a required item is unsupported, keep the relevant heading; use **DATA_MISSING** or **COUNSEL_INPUT_REQUIRED** (or legacy "[Information not provided in the documents]") and add [[AI:VERIFY|...]] where appropriate — do not fabricate narrative.
 4. Write ENTIRELY in English. Use formal, factual, balanced prose. Tables or lists are allowed where appropriate.
 5. You may include short working-draft note blocks or end-notes when needed, but only within the section itself and only using neutral drafting language plus the allowed AI tags.
 6. For rankings, market data, share, CAGR, or third-party study statements, include [[AI:CITE|source=...; scope=...; date=...; metric=...]] unless the required source metadata already appears in the context.
@@ -761,10 +814,14 @@ def _build_section_state(
     model_name: str,
     max_revision_loops: int,
     modification_instructions: str | None = None,
+    issuer_metadata_path: Path | None = None,
 ) -> SectionDraftState:
     section_name = _lookup_section_name(section_id)
     reqs = requirements_map.get(section_id, {})
-    requirements = reqs.get("requirements", f"Write the {section_name} section.")
+    base_req = reqs.get("requirements", f"Write the {section_name} section.")
+    requirements = _augment_requirements(
+        section_id, base_req, issuer_metadata_path
+    )
     return {
         "section_id": section_id,
         "section_name": section_name,
@@ -849,6 +906,35 @@ def _run_section_graph(
     return graph.invoke(section_state)
 
 
+def _resolve_issuer_metadata_path(explicit: Path | None) -> Path | None:
+    if explicit is not None:
+        return explicit if explicit.exists() else None
+    default = _issuer_metadata_default_path()
+    return default if default.exists() else None
+
+
+def _finalize_output_bundle(
+    output_dir: Path,
+    issuer_metadata_path: Path | None,
+) -> dict[str, str] | None:
+    combined = output_dir / "all_sections.md"
+    if not combined.exists():
+        return None
+    from prospectus_graph.output_bundle import write_output_bundle
+
+    text = combined.read_text(encoding="utf-8")
+    paths = write_output_bundle(
+        output_dir,
+        combined_markdown=text,
+        issuer_metadata_path=issuer_metadata_path,
+    )
+    print(
+        "Output bundle:",
+        ", ".join(f"{k}={v}" for k, v in paths.items()),
+    )
+    return paths
+
+
 def run_agent2_single(
     section_id: str,
     rag_dir: str | Path = "agent1_output",
@@ -857,11 +943,15 @@ def run_agent2_single(
     max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
     max_revision_loops: int = 1,
     model_name: str = DEFAULT_MODEL,
+    issuer_metadata_path: Path | None = None,
+    finalize_bundle: bool = True,
 ) -> str:
     """Generate a single section. ExpectedTimetable uses template; others use LLM pipeline."""
     rag_path = Path(rag_dir)
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
+
+    meta_path = _resolve_issuer_metadata_path(issuer_metadata_path)
 
     if section_id == "ExpectedTimetable":
         text = _render_expected_timetable(rag_path, out_path)
@@ -872,12 +962,18 @@ def run_agent2_single(
             text,
             only_sections_up_to=None if modification_instructions else section_id,
         )
+        if finalize_bundle:
+            _rebuild_all_sections(out_path)
+            _finalize_output_bundle(out_path, meta_path)
         return text
 
     if section_id == "Contents":
         existing = _load_existing_sections(out_path)
         _rebuild_all_sections(out_path)
-        return _generate_contents_body(existing)
+        body = _generate_contents_body(existing)
+        if finalize_bundle:
+            _finalize_output_bundle(out_path, meta_path)
+        return body
 
     retriever = _create_retriever(rag_path)
     requirements_map = _build_requirements_map()
@@ -891,6 +987,7 @@ def run_agent2_single(
         model_name=model_name,
         max_revision_loops=max_revision_loops,
         modification_instructions=modification_instructions,
+        issuer_metadata_path=meta_path,
     )
 
     result = _run_section_graph(
@@ -901,7 +998,11 @@ def run_agent2_single(
         combine_immediately=True,
         only_sections_up_to=None if modification_instructions else section_id,
     )
-    return result.get("verified_text") or result.get("draft_text", "")
+    out_text = result.get("verified_text") or result.get("draft_text", "")
+    if finalize_bundle:
+        _rebuild_all_sections(out_path)
+        _finalize_output_bundle(out_path, meta_path)
+    return out_text
 
 
 def run_agent2(
@@ -911,6 +1012,8 @@ def run_agent2(
     max_context_chars: int = DEFAULT_MAX_CONTEXT_CHARS,
     max_revision_loops: int = 1,
     model_name: str = DEFAULT_MODEL,
+    issuer_metadata_path: Path | None = None,
+    finalize_bundle: bool = True,
 ) -> dict[str, str]:
     """
     Run agent2: generate prospectus sections through the LangGraph pipeline.
@@ -935,6 +1038,7 @@ def run_agent2(
         print("Model loaded once; reusing for all sections.")
 
     retriever = _create_retriever(rag_path)
+    meta_path = _resolve_issuer_metadata_path(issuer_metadata_path)
 
     results: dict[str, str] = {}
     for section_id in valid_sections:
@@ -953,6 +1057,7 @@ def run_agent2(
                 max_context_chars=max_context_chars,
                 model_name=model_name,
                 max_revision_loops=max_revision_loops,
+                issuer_metadata_path=meta_path,
             )
             result = _run_section_graph(
                 section_state=state,
@@ -967,6 +1072,9 @@ def run_agent2(
             results[section_id] = result.get("verified_text") or result.get("draft_text", "")
         # Rebuild all_sections.md after each section so UI can show incremental progress
         _rebuild_all_sections(out_path)
+
+    if finalize_bundle:
+        _finalize_output_bundle(out_path, meta_path)
 
     return results
 
@@ -1013,6 +1121,16 @@ def main() -> None:
         default="",
         help="Path to file containing modification instructions (for single-section regenerate)",
     )
+    parser.add_argument(
+        "--issuer-metadata",
+        default="",
+        help="Path to issuer_metadata.json (default: ./issuer_metadata.json if present)",
+    )
+    parser.add_argument(
+        "--no-output-bundle",
+        action="store_true",
+        help="Do not write draft_clean.md, validation_report.md, evidence_register.jsonl, coverage_matrix.md",
+    )
     args = parser.parse_args()
 
     sections = args.section
@@ -1025,6 +1143,9 @@ def main() -> None:
         if mod_path.exists():
             modification = mod_path.read_text(encoding="utf-8").strip()
 
+    im_path = Path(args.issuer_metadata) if args.issuer_metadata else None
+    fin_bundle = not args.no_output_bundle
+
     if sections and len(sections) == 1 and modification is not None:
         text = run_agent2_single(
             sections[0],
@@ -1034,6 +1155,8 @@ def main() -> None:
             max_context_chars=args.max_context,
             max_revision_loops=args.max_revisions,
             model_name=args.model,
+            issuer_metadata_path=im_path,
+            finalize_bundle=fin_bundle,
         )
         print(text[:200] + "..." if len(text) > 200 else text)
     elif sections and len(sections) == 1:
@@ -1045,6 +1168,8 @@ def main() -> None:
             max_context_chars=args.max_context,
             max_revision_loops=args.max_revisions,
             model_name=args.model,
+            issuer_metadata_path=im_path,
+            finalize_bundle=fin_bundle,
         )
         print(text[:200] + "..." if len(text) > 200 else text)
     else:
@@ -1055,6 +1180,8 @@ def main() -> None:
             max_context_chars=args.max_context,
             max_revision_loops=args.max_revisions,
             model_name=args.model,
+            issuer_metadata_path=im_path,
+            finalize_bundle=fin_bundle,
         )
 
 

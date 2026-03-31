@@ -4,6 +4,7 @@ import json
 import re
 from typing import Any
 
+from prospectus_graph.ai_tag_schema import find_malformed_cite_tags
 from prospectus_graph.state import VerificationIssue
 
 BANNED_PROMOTIONAL_PATTERNS = [
@@ -161,6 +162,19 @@ def verify_section_draft(
             }
         )
 
+    for raw in find_malformed_cite_tags(draft_text):
+        issues.append(
+            {
+                "severity": "high",
+                "code": "citation_schema",
+                "message": (
+                    "CITE tag must include source= and doc= or page= or section=: "
+                    f"{raw[:200]}"
+                ),
+                "category": "WRITING_ERROR",
+            }
+        )
+
     if (
         "[information not provided in the documents]" in lower_text
         and "[[ai:verify|" not in lower_text
@@ -235,7 +249,7 @@ def parse_verifier_agent_output(
             "Verifier agent did not return parseable JSON.",
             [
                 {
-                    "severity": "high",
+                    "severity": "blocker",
                     "code": "verifier_output_unparseable",
                     "message": "Verifier agent response could not be parsed into the required JSON format.",
                     "category": "WRITING_ERROR",

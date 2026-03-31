@@ -1,0 +1,15 @@
+{
+  "section_id": "Risk_Factors",
+  "canonical_name": "Risk Factors",
+  "aliases": [],
+  "mandatory": true,
+  "optional": false,
+  "typical_order_index": 6,
+  "common_subsections": ["sub:rf:general"],
+  "optional_subsections": [],
+  "common_patterns": [],
+  "common_evidence_types": [],
+  "activated_conditions": [],
+  "typical_predecessors": ["Summary"],
+  "typical_successors": ["Business"]
+}

@@ -22,7 +22,8 @@ const serif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: "HKEX Prospectus AI | Sponsor Counsel Drafting",
-  description: "AI-assisted prospectus drafting for HKEX technology-sector IPOs. Agent1 (Excel → RAG) → Agent2 (sections).",
+  description:
+    "AI-assisted prospectus drafting for HKEX technology-sector IPOs — upload your data, review chapter coverage, export a Word draft.",
 };
 
 export default function RootLayout({

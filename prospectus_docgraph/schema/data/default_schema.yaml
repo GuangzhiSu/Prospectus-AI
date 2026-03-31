@@ -1,0 +1,40 @@
+# Registry of allowed structural node / edge *names* (documentation; optional validation).
+version: "0.2.0"
+
+node_types:
+  SectionType:
+    description: "Top-level HKEX-style chapter."
+  SubsectionType:
+    description: "Heading nested under a section."
+  DisclosureFunction:
+    description: "Why text exists (definitional, cautionary, quantitative, …)."
+  RhetoricalPattern:
+    description: "Boilerplate or recurring rhetorical shape."
+  EvidenceType:
+    description: "Citation / cross-reference / appendix hook pattern."
+  ConditionType:
+    description: "Listing regime or issuer condition (18C, WVR, …)."
+  AliasTitle:
+    description: "Surface TOC string mapping to a canonical node."
+
+edge_types:
+  contains:
+    description: "Section contains subsection (structural parent)."
+  optionally_contains:
+    description: "Optional or conditional subsection."
+  has_function:
+    description: "Section or subsection primarily serves this disclosure function."
+  commonly_uses_pattern:
+    description: "Mined: section often uses this rhetorical pattern."
+  supported_by:
+    description: "Claim structure supported by this evidence type."
+  activated_by_condition:
+    description: "Disclosure activated when condition holds."
+  has_alias:
+    description: "Canonical node has this surface alias title."
+  typically_precedes:
+    description: "Weak ordering prior in TOC across corpus."
+  depends_on:
+    description: "Structural or logical dependency."
+  cross_references:
+    description: "Explicit cross-reference target."

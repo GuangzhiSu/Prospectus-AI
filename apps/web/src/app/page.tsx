@@ -1,4 +1,4 @@
-// app/page.tsx - HKEX Prospectus AI: Agent1 + Agent2 pipeline
+// HKEX Prospectus AI — main drafting workspace (data prep + chapter coverage + draft)
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -105,9 +105,9 @@ function formatBytes(bytes: number) {
 }
 
 const STEPS = [
-  { id: 1, label: "Upload Excel", short: "Upload" },
-  { id: 2, label: "Process Data", short: "Agent1" },
-  { id: 3, label: "Generate Sections", short: "Agent2" },
+  { id: 1, label: "Upload", short: "Upload" },
+  { id: 2, label: "Prepare data", short: "Prepare" },
+  { id: 3, label: "Draft sections", short: "Draft" },
   { id: 4, label: "Export", short: "Export" },
 ];
 
@@ -132,10 +132,7 @@ export default function Page() {
     spawn?: string;
     checks?: Record<string, string>;
   } | null>(null);
-  const [hoveredSectionId, setHoveredSectionId] = useState<string | null>(null);
-  const [hoveredSectionContent, setHoveredSectionContent] = useState<string>("");
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
-  const hoverLeaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [draftMd, setDraftMd] = useState<string>(
     `# Prospectus Draft\n\n(Your generated prospectus will appear here.)\n`
   );
@@ -198,7 +195,7 @@ export default function Page() {
       };
       setAgent2Status(data);
     } catch {
-      setAgent2Status({ ok: false, hint: "Could not check Agent2 status." });
+      setAgent2Status({ ok: false, hint: "Could not verify generation setup." });
     }
   }, []);
 
@@ -365,44 +362,6 @@ export default function Page() {
     setModifyingSectionId(null);
   }
 
-  async function handleSectionHover(sectionId: string) {
-    if (hoverLeaveRef.current) {
-      clearTimeout(hoverLeaveRef.current);
-      hoverLeaveRef.current = null;
-    }
-    setHoveredSectionId(sectionId);
-    try {
-      const res = await fetch(`/api/agent1/section/${sectionId}`);
-      if (res.ok) {
-        const data = (await res.json()) as { preview?: string };
-        setHoveredSectionContent(data.preview ?? "");
-      } else {
-        setHoveredSectionContent("");
-      }
-    } catch {
-      setHoveredSectionContent("");
-    }
-  }
-
-  function handleSectionLeave() {
-    hoverLeaveRef.current = setTimeout(() => {
-      setHoveredSectionId(null);
-      setHoveredSectionContent("");
-    }, 150);
-  }
-
-  function handleTooltipEnter() {
-    if (hoverLeaveRef.current) {
-      clearTimeout(hoverLeaveRef.current);
-      hoverLeaveRef.current = null;
-    }
-  }
-
-  function handleTooltipLeave() {
-    setHoveredSectionId(null);
-    setHoveredSectionContent("");
-  }
-
   async function handleClearAll() {
     if (generating) return;
     try {
@@ -442,7 +401,7 @@ export default function Page() {
 
   async function handleStartOver() {
     if (generating || running) return;
-    if (!confirm("Clear all Agent1 and Agent2 outputs? You will need to run Agent1 again.")) return;
+    if (!confirm("Clear all processed data and the draft? You will need to prepare your files again.")) return;
     setError(null);
     try {
       const res = await fetch("/api/reset", { method: "POST" });
@@ -501,7 +460,7 @@ export default function Page() {
                 HKEX Prospectus AI
               </h1>
               <p className="text-sm text-[var(--muted)] mt-0.5">
-                Sponsor counsel drafting · Excel → RAG → Sections
+                From your files to HKEX-style sections — draft, refine, export
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -510,7 +469,7 @@ export default function Page() {
                   onClick={handleStartOver}
                   disabled={generating || running}
                   className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-50"
-                  title="Clear Agent1 & Agent2 outputs, start from Upload"
+                  title="Clear processed data and draft, start from upload"
                 >
                   Start over
                 </button>
@@ -537,7 +496,7 @@ export default function Page() {
                   )}
                 </button>
                 {exporting && (
-                  <p className="text-xs text-[var(--muted)]">Generating .docx from section files…</p>
+                  <p className="text-xs text-[var(--muted)]">Building your Word document…</p>
                 )}
               </div>
               )}
@@ -584,8 +543,8 @@ export default function Page() {
       <div className="mx-auto max-w-[1800px] flex h-[calc(100vh-140px)]">
         {/* Left: Excel files */}
         <aside className="w-72 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] p-4 overflow-auto">
-          <h2 className="text-sm font-semibold text-[var(--foreground)]">Data source</h2>
-          <p className="text-xs text-[var(--muted)] mt-1">Upload .xlsx or .json for Agent1</p>
+          <h2 className="text-sm font-semibold text-[var(--foreground)]">Your files</h2>
+          <p className="text-xs text-[var(--muted)] mt-1">Excel workbooks or structured JSON</p>
           <div className="mt-4 flex gap-2">
             <input
               ref={fileInputRef}
@@ -640,25 +599,28 @@ export default function Page() {
           </div>
         </aside>
 
-        {/* Center: Agent1 + Agent2 flow */}
+        {/* Center: prepare data + review coverage */}
         <main className="flex-1 flex flex-col overflow-auto min-w-0">
           <div className="flex-1 overflow-auto p-6 space-y-6">
             <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-              <h2 className="text-base font-semibold mb-1">Step 1: Process data (Agent1)</h2>
+              <h2 className="text-base font-semibold mb-1">Step 1: Prepare your data</h2>
               <p className="text-sm text-[var(--muted)] mb-4">
-                Excel: table summaries via Qwen. JSON: structured fields → RAG chunks. A few minutes for Excel.
+                We read your spreadsheets or JSON and organize them for each prospectus chapter. Large Excel files may take several minutes.
               </p>
               <button
                 onClick={handleRunAgent1}
                 disabled={running || files.length === 0}
                 className="rounded-lg bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
               >
-                {running ? "Processing…" : "Run Agent1"}
+                {running ? "Working…" : "Prepare data"}
               </button>
             </section>
 
             <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-              <h2 className="text-base font-semibold mb-1">Step 2: RAG results</h2>
+              <h2 className="text-base font-semibold mb-1">Step 2: Status</h2>
+              <p className="text-sm text-[var(--muted)] mb-4">
+                Confirms your files are processed and you can move on to drafting.
+              </p>
               <button
                 onClick={fetchResults}
                 className="text-xs rounded-lg border border-[var(--border)] px-2 py-1 hover:bg-[var(--background)] mb-4"
@@ -667,69 +629,24 @@ export default function Page() {
               </button>
               {!manifest ? (
                 <div className="rounded-lg border-2 border-dashed border-[var(--border)] p-6 text-sm text-[var(--muted)] text-center">
-                  No results. Run Agent1 first.
+                  No results yet. Use Step 1 after uploading files.
                 </div>
               ) : (
                 <div className="space-y-6">
                   <div className="rounded-lg border border-[var(--success)]/40 bg-[var(--success-bg)] p-4">
                     <p className="text-sm text-[var(--success)] font-medium">
-                      Ready for section generation
+                      Ready to draft
                     </p>
-                    {("total_chunks" in manifest || "text_chunk_count" in manifest) && (
-                      <p className="text-xs text-[var(--muted)] mt-1">
-                        {typeof manifest.text_chunk_count === "number" && typeof manifest.fact_count === "number"
-                          ? `${manifest.text_chunk_count} text chunks + ${manifest.fact_count} facts`
-                          : typeof manifest.total_chunks === "number"
-                            ? `${manifest.total_chunks} RAG chunks`
-                            : ""}
-                        {` from ${Array.isArray(manifest.source_files) ? manifest.source_files.length : 0} files`}
+                    <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed">
+                      Generate and edit your prospectus in the panel on the right.
+                    </p>
+                    {Array.isArray(manifest.source_files) && manifest.source_files.length > 0 && (
+                      <p className="text-xs text-[var(--muted)] mt-3">
+                        {manifest.source_files.length} file
+                        {manifest.source_files.length === 1 ? "" : "s"} from your upload
                       </p>
                     )}
                   </div>
-                  {Array.isArray(manifest.sections) && manifest.sections.length > 0 && (
-                    <div className="relative">
-                      <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">RAG sections</h3>
-                      <p className="text-xs text-[var(--muted)] mb-3">Hover to preview content</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {(manifest.sections as Array<{ id: string; name: string; chunk_count: number; fact_count?: number }>).map((s) => (
-                          <div
-                            key={s.id}
-                            className="relative"
-                            onMouseEnter={() => handleSectionHover(s.id)}
-                            onMouseLeave={handleSectionLeave}
-                          >
-                            <div className="rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-4 cursor-default hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/5 transition-colors">
-                              <div className="text-sm font-semibold text-[var(--foreground)]">{s.id}</div>
-                              <div className="text-sm text-[var(--muted)] mt-0.5 leading-relaxed line-clamp-2">{s.name}</div>
-                              <div className="mt-2 flex gap-3 text-xs text-[var(--muted)]">
-                                <span>{s.chunk_count} chunks</span>
-                                {typeof s.fact_count === "number" && s.fact_count > 0 && (
-                                  <span>{s.fact_count} facts</span>
-                                )}
-                              </div>
-                            </div>
-                            {hoveredSectionId === s.id && hoveredSectionContent && (
-                              <div
-                                className="absolute left-full top-0 ml-3 z-50 w-96 max-h-80 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-xl"
-                                onMouseEnter={handleTooltipEnter}
-                                onMouseLeave={handleTooltipLeave}
-                              >
-                                <div className="text-sm font-semibold text-[var(--foreground)] mb-2">{s.name}</div>
-                                <div
-                                  className="text-[13px] leading-relaxed text-[var(--muted)]"
-                                  style={{ fontFamily: "var(--font-serif)" }}
-                                >
-                                  <pre className="whitespace-pre-wrap break-words font-[inherit] p-0 m-0">
-                                    {hoveredSectionContent}
-                                  </pre>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   {qualityFlags.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-xs font-semibold text-[var(--muted)]">Data quality</h3>
@@ -897,7 +814,7 @@ export default function Page() {
                   {agent2Status && !agent2Status.ok && (
                     <div className="mb-3 rounded-lg border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
                       <p className="font-medium text-[var(--warning)]">Setup issue:</p>
-                      <p className="mt-1 text-[var(--muted)]">{agent2Status.spawn || "Check Agent2 status"}</p>
+                      <p className="mt-1 text-[var(--muted)]">{agent2Status.spawn || "Check backend setup in the terminal."}</p>
                       <button onClick={fetchAgent2Status} className="mt-2 text-[var(--accent)] hover:underline">Re-check</button>
                     </div>
                   )}
@@ -925,7 +842,7 @@ export default function Page() {
                       onClick={fetchAgent2Status}
                       disabled={generating}
                       className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:bg-[var(--background)] disabled:opacity-50"
-                      title="Verify Agent2 can run"
+                      title="Verify the drafting backend is ready"
                     >
                       Check setup
                     </button>

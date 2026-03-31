@@ -1,0 +1,6 @@
+# Schema-first structural graph (prospectus_docgraph) — Python 3.11+
+pydantic>=2.5
+networkx>=3.2
+PyYAML>=6.0
+pytest>=7.0
+rapidfuzz>=3.0
