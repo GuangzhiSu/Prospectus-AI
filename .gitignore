@@ -37,6 +37,7 @@ agent2_output/
 # agent2_section_requirements.json, apps/web/*.json, etc.
 ipo_prospectus_pipeline/outputs/
 ipo_prospectus_pipeline/outputs_*/
+prospectus_kg_output/
 
 # HKEX prospectus PDF corpus (large binaries; licensing / redistribution — keep local)
 hkex_prospectus/
@@ -48,6 +49,7 @@ hkex_prospectus/
 
 # Root-level Word documents (reference packs, often large or internal-only)
 /*.docx
+docs/*.pdf
 
 # ML / export weights if ever stored in-repo (Hugging Face–style artifacts)
 *.safetensors
@@ -87,6 +89,9 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Local “one folder to send” bundle (packaging/bundle-release.*)
+dist/ProspectusAI-SharingBundle/
 
 # Temp / lock files
 ~$*

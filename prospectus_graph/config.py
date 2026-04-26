@@ -110,7 +110,7 @@ SECTION_TO_AGENT1_IDS: dict[str, list[str]] = {
 }
 
 DEFAULT_MAX_CONTEXT_CHARS = 15000
-DEFAULT_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+DEFAULT_MODEL = "Qwen/Qwen3.5-4B"
 
 
 def load_section_requirements(requirements_path: Path) -> dict[str, dict]:

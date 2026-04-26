@@ -5,6 +5,7 @@ import fs from "fs/promises";
 import os from "os";
 import { spawn } from "child_process";
 import { getProspectusRoot } from "@/lib/prospectus-root";
+import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
 /** Vercel Hobby: max 300s. Pro allows higher; local dev has no this cap. */
@@ -83,14 +84,13 @@ export async function POST(req: Request) {
     }
 
     const python = process.env.AGENT1_PYTHON || "python3";
+    const settings = await readSettings();
+    const env = buildAgentProcessEnv(process.env, settings);
     const model =
-      process.env.AGENT1_MODEL || "Qwen/Qwen2.5-3B-Instruct";
-    const env = { ...process.env };
-    if (process.env.AGENT1_USE_CPU === "1") {
-      env.CUDA_VISIBLE_DEVICES = "";
-    } else if (process.env.AGENT1_CUDA_DEVICES) {
-      env.CUDA_VISIBLE_DEVICES = process.env.AGENT1_CUDA_DEVICES;
-    }
+      env.AGENT2_MODEL ||
+      process.env.AGENT2_MODEL ||
+      process.env.AGENT1_MODEL ||
+      "Qwen/Qwen3.5-4B";
 
     // sections: array of section IDs for batch generation (one process, model loaded once)
     const sectionArgs = Array.isArray(sections) && sections.length > 0

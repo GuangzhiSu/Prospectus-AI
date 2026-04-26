@@ -48,6 +48,8 @@ class SectionDraftState(TypedDict, total=False):
     text_evidence: list[EvidenceChunk]
     retrieved_facts: list[RetrievedFact]
     formatted_facts: str
+    # KG-derived outline skeleton (from agent2_section_requirements.json)
+    kg_typical_structure: list[dict]
     # Section Planner output
     planner_outline: str
     planner_fact_mapping: dict[str, list[str]]  # subsection -> fact_ids or field paths

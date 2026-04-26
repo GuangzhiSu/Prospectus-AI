@@ -12,7 +12,10 @@ import unicodedata
 from typing import Sequence
 
 from prospectus_docgraph.models.enums import NodeType
-from prospectus_docgraph.normalizer.aliases_seed import DEFAULT_SECTION_ALIASES
+from prospectus_docgraph.normalizer.aliases_seed import (
+    DEFAULT_SECTION_ALIAS_REGEX,
+    DEFAULT_SECTION_ALIASES,
+)
 from prospectus_docgraph.normalizer.match_result import MatchAlternative, MatchResult
 from prospectus_docgraph.schema.seed import CANONICAL_SECTION_SPECS
 
@@ -205,6 +208,19 @@ class TitleNormalizer:
                 match_method="alias",
                 alternatives=[],
             )
+
+        # 3b) Regex fallback (e.g. "APPENDIX I — ACCOUNTANTS' REPORT" -> Appendices).
+        for pattern, canonical in DEFAULT_SECTION_ALIAS_REGEX:
+            if pattern.search(nt):
+                return MatchResult(
+                    raw_title=raw_title,
+                    normalized_title=nt,
+                    canonical_name=canonical,
+                    node_type=NodeType.SECTION,
+                    confidence=0.9,
+                    match_method="regex_alias",
+                    alternatives=[],
+                )
 
         # 4) Fuzzy over full candidate map
         cid, conf, alts = self._best_fuzzy(nt, choices)

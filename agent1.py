@@ -45,6 +45,49 @@ FILE_TO_SECTION: dict[str, str] = {
     "operating-capability": "D", "profit-forecast-comparison": "D",
     "share-capital-structure": "E", "holdings-or-equity": "E", "mainland-fund-holdings": "E",
     "board-and-executives": "F",
+    # Reverse-engineered native-doc filenames (slice + template outputs)
+    "industry_overview": "B", "regulatory_overview": "G", "legal_opinion": "G",
+    "connected_transactions": "G", "vie_opinion": "G",
+    "financial_information": "D", "financial_model": "D", "comfort_letter": "D",
+    "audit_report": "D", "mdna": "D",
+    "sponsor_dd_memorandum": "C", "risk_factors": "C",
+    "issuer_corporate_info": "A", "corporate_info": "A",
+    "shareholder_list": "E", "share_capital": "E",
+    "directors_senior_management": "F",
+}
+
+# Filename-token -> Schema A gating-doc field_id (optional; used when manifest absent)
+FILENAME_TO_SCHEMA_FIELD: dict[str, str] = {
+    "industry_overview": "prof.industry_consultant.research_report",
+    "regulatory_overview": "prof.legal.regulatory_opinion",
+    "legal_opinion": "prof.legal.hk_legal_opinion",
+    "vie_opinion": "prof.legal.vie_opinion",
+    "connected_transactions": "prof.legal.connected_transactions_memo",
+    "sponsor_dd_memorandum": "prof.sponsor.dd_memorandum",
+    "mdna": "prof.accountants.mdna_commentary",
+    "financial_model": "prof.accountants.financial_model",
+    "audit_report": "prof.accountants.audit_report",
+    "comfort_letter": "prof.accountants.comfort_letter",
+    "shareholder_list": "issuer.corp.shareholder_register",
+    "issuer_corporate_info": "issuer.corp.certificate_of_incorporation",
+}
+
+# Canonical prospectus section (Agent2 naming) -> legacy Agent1 letter bucket (A-H)
+CANONICAL_TO_LEGACY: dict[str, str] = {
+    "Business": "A", "Corporate_Information": "A",
+    "History_Reorganization_Corporate_Structure": "A",
+    "Industry_Overview": "B",
+    "Risk_Factors": "C", "Forward_Looking_Statements": "C",
+    "Financial_Information": "D", "Summary": "D",
+    "Future_Plans_and_Use_of_Proceeds": "E", "Share_Capital": "E",
+    "Substantial_Shareholders": "E", "Cornerstone_Investors": "E",
+    "Directors_and_Senior_Management": "F",
+    "Relationship_with_Controlling_Shareholders": "F",
+    "Regulatory_Overview": "G", "Waivers_and_Exemptions": "G",
+    "Connected_Transactions": "G", "Contractual_Arrangements_VIE": "G",
+    "Structure_of_the_Global_Offering": "H", "Underwriting": "H",
+    "Parties_Involved_in_the_Global_Offering": "H",
+    "Expected_Timetable": "H", "How_to_Apply_for_Hong_Kong_Offer_Shares": "H",
 }
 
 JSON_CATEGORY_TO_SECTION: dict[str, str] = {
@@ -249,11 +292,29 @@ def summarize_table_with_qwen(
     sheet_name: str,
     model_name: str = DEFAULT_MODEL,
 ) -> str:
+    import os
+
+    if os.environ.get("AGENT1_SKIP_TABLE_LLM") == "1":
+        return f"Table: {filename} / {sheet_name}"
+
+    prompt = (
+        "Summarize this Excel table in 2-4 sentences for HKEX prospectus drafting. "
+        "Be factual.\n\n"
+        f"File: {filename}\nSheet: {sheet_name}\n\nExcerpt:\n{text_sample[:2500]}\n\nSUMMARY:"
+    )
     try:
+        provider = (os.environ.get("LLM_PROVIDER") or "qwen_local").strip().lower()
+        if provider == "openai":
+            from llm_openai import run_openai_chat
+
+            out = run_openai_chat(prompt, max_new_tokens=256)
+            return out.strip() or f"Table: {filename} / {sheet_name}"
         from llm_qwen import run_qwen_text
+
         out = run_qwen_text(
-            f"Summarize this Excel table in 2-4 sentences for HKEX prospectus drafting. Be factual.\n\nFile: {filename}\nSheet: {sheet_name}\n\nExcerpt:\n{text_sample[:2500]}\n\nSUMMARY:",
-            model_name=model_name, max_new_tokens=256
+            prompt,
+            model_name=model_name,
+            max_new_tokens=256,
         )
         return out.strip() or f"Table: {filename} / {sheet_name}"
     except Exception:
@@ -266,6 +327,108 @@ def classify_file(filename: str) -> str:
         if key in stem:
             return section_id
     return "D"
+
+
+def classify_file_with_schema(
+    filename: str,
+    manifest_lookup: dict[str, dict] | None = None,
+) -> tuple[str, str | None, str | None]:
+    """Resolve (legacy_letter_section, schema_a_field_id, canonical_prospectus_section).
+
+    Priority: native_docs manifest entry > filename-token map > legacy keyword map.
+    `canonical_prospectus_section` uses Agent2 section naming (e.g. ``Industry_Overview``);
+    ``None`` when unknown.
+    """
+    canonical: str | None = None
+    schema_field: str | None = None
+    if manifest_lookup:
+        entry = (
+            manifest_lookup.get(filename)
+            or manifest_lookup.get(Path(filename).name)
+        )
+        if entry:
+            schema_field = entry.get("schema_a_field_id") or None
+            canonical = entry.get("section_hint") or None
+            legacy = CANONICAL_TO_LEGACY.get(canonical or "") if canonical else None
+            if not legacy:
+                legacy = classify_file(filename)
+            return legacy, schema_field, canonical
+
+    stem = Path(filename).stem.lower()
+    for token, field_id in FILENAME_TO_SCHEMA_FIELD.items():
+        if token in stem:
+            schema_field = field_id
+            break
+    legacy = classify_file(filename)
+    return legacy, schema_field, canonical
+
+
+def _load_input_manifest(data_path: Path) -> dict[str, dict]:
+    """Load ``<data_dir>/manifest.json`` (from native-doc reverse-engineering).
+
+    Returns a ``{path_or_basename: entry}`` lookup. Silent no-op when absent.
+    """
+    mpath = data_path / "manifest.json"
+    if not mpath.exists():
+        return {}
+    try:
+        raw = json.loads(mpath.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    lookup: dict[str, dict] = {}
+    for entry in raw.get("files", []) or []:
+        p = entry.get("path", "")
+        if not p:
+            continue
+        lookup[p] = entry
+        lookup[Path(p).name] = entry
+    return lookup
+
+
+def extract_from_docx(path: Path) -> list[tuple[str, str]]:
+    """Return ``(topic, text)`` tuples for a .docx: one for narrative, one per table."""
+    try:
+        from docx import Document
+    except ImportError as exc:
+        raise ImportError(
+            "agent1 DOCX support requires python-docx: pip install python-docx"
+        ) from exc
+    doc = Document(str(path))
+    out: list[tuple[str, str]] = []
+    paras = [p.text.strip() for p in doc.paragraphs if p.text and p.text.strip()]
+    if paras:
+        out.append(("narrative", "\n\n".join(paras)))
+    for idx, tbl in enumerate(doc.tables, start=1):
+        rows: list[str] = []
+        for row in tbl.rows:
+            cells = [c.text.strip().replace("\n", " ") for c in row.cells]
+            rows.append(" | ".join(cells))
+        if rows:
+            out.append((f"table_{idx}", f"[Table {idx}]\n" + "\n".join(rows)))
+    return out
+
+
+def extract_from_pdf(path: Path) -> list[tuple[int, str]]:
+    """Return per-page ``(page_number_1indexed, text)`` for a PDF (no OCR)."""
+    try:
+        import fitz  # PyMuPDF
+    except ImportError as exc:
+        raise ImportError(
+            "agent1 PDF support requires PyMuPDF: pip install pymupdf"
+        ) from exc
+    out: list[tuple[int, str]] = []
+    with fitz.open(str(path)) as doc:
+        for i, page in enumerate(doc, start=1):
+            txt = page.get_text("text") or ""
+            if len(txt.strip()) < 20:
+                print(
+                    f"  [PDF warn] {path.name} page {i}: <20 chars "
+                    "(likely image-based; OCR deferred)"
+                )
+                if not txt.strip():
+                    continue
+            out.append((i, txt))
+    return out
 
 
 def extract_per_sheet(path: Path) -> list[tuple[str, str]]:
@@ -289,17 +452,39 @@ def run_agent1(
     text_chunk_size: int = TEXT_CHUNK_SIZE,
     text_chunk_overlap: int = TEXT_CHUNK_OVERLAP,
     model_name: str = DEFAULT_MODEL,
+    project_id: str | None = None,
 ) -> None:
-    data_path = Path(data_dir)
-    output_path = Path(output_dir)
+    # Per-project isolation: when project_id set, resolve data_dir + output_dir
+    # under that namespace unless the caller already points at a project folder.
+    base_data = Path(data_dir)
+    base_out = Path(output_dir)
+    if project_id:
+        candidate = base_data / project_id
+        data_path = candidate if candidate.exists() else base_data
+        output_path = base_out / project_id
+    else:
+        data_path = base_data
+        output_path = base_out
     output_path.mkdir(parents=True, exist_ok=True)
     (output_path / "by_section").mkdir(exist_ok=True)
 
-    excel_files = sorted(data_path.glob("*.xlsx"))
+    manifest_lookup = _load_input_manifest(data_path)
+    if manifest_lookup:
+        print(
+            f"  [manifest] loaded {len(manifest_lookup)//2} entries from "
+            f"{data_path/'manifest.json'}"
+        )
+
+    excel_files = sorted(data_path.rglob("*.xlsx"))
     json_files = sorted(data_path.glob("*.json"))
-    if not excel_files and not json_files:
+    # Exclude the input manifest.json from JSON-ingest path.
+    json_files = [p for p in json_files if p.name != "manifest.json"]
+    docx_files = sorted(data_path.rglob("*.docx"))
+    pdf_files = sorted(data_path.rglob("*.pdf"))
+    if not any([excel_files, json_files, docx_files, pdf_files]):
         raise FileNotFoundError(
-            f"No .xlsx or .json files in {data_path}. Put files there first."
+            f"No .xlsx / .json / .docx / .pdf files in {data_path}. "
+            "Put files there first."
         )
 
     text_chunks: list[dict[str, Any]] = []
@@ -312,7 +497,9 @@ def run_agent1(
         sheets = extract_per_sheet(f)
         if not sheets:
             continue
-        section_id = classify_file(f.name)
+        section_id, schema_field, canonical = classify_file_with_schema(
+            f.name, manifest_lookup
+        )
         section_name = next((n for sid, n in SECTIONS if sid == section_id), "Unknown")
         for sheet_name, sheet_text in sheets:
             print(f"  [Qwen] {f.name} / {sheet_name} -> summarising...")
@@ -325,6 +512,8 @@ def run_agent1(
                     "text": f"{summary}\n\n[Data]\n{chunk}",
                     "source_file": f.name,
                     "section_hint": section_id,
+                    "schema_field_hint": schema_field,
+                    "prospectus_section_hint": canonical,
                     "topic": sheet_name,
                     "importance": "high",
                     "chunk_id": chunk_id,
@@ -365,6 +554,89 @@ def run_agent1(
                 text_chunks.append(rec)
                 by_section[item["section_hint"]].append(rec)
         print(f"  [JSON] {f.name} -> {len(facts)} facts, {len(narrative)} narrative blocks")
+
+    # --- DOCX → text store ---
+    for f in docx_files:
+        try:
+            blocks = extract_from_docx(f)
+        except ImportError as exc:
+            print(f"  [DOCX skip] {f.name}: {exc}")
+            break
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [DOCX error] {f.name}: {exc}")
+            continue
+        if not blocks:
+            continue
+        section_id, schema_field, canonical = classify_file_with_schema(
+            f.name, manifest_lookup
+        )
+        for topic, text in blocks:
+            chunks = chunk_text(
+                text, max_chars=text_chunk_size, overlap=text_chunk_overlap
+            )
+            for i, chunk in enumerate(chunks):
+                chunk_id = hashlib.md5(
+                    f"{f.name}:{topic}:{i}:{chunk[:50]}".encode()
+                ).hexdigest()[:12]
+                rec = {
+                    "text": chunk,
+                    "source_file": f.name,
+                    "section_hint": section_id,
+                    "schema_field_hint": schema_field,
+                    "prospectus_section_hint": canonical,
+                    "topic": topic,
+                    "importance": "high" if topic.startswith("table_") else "medium",
+                    "chunk_id": chunk_id,
+                    "source_type": "docx_table" if topic.startswith("table_") else "docx_paragraphs",
+                }
+                text_chunks.append(rec)
+                by_section[section_id].append(rec)
+        print(
+            f"  [DOCX] {f.name} -> Section {section_id}"
+            f"{' / '+schema_field if schema_field else ''} ({len(blocks)} block(s))"
+        )
+
+    # --- Raw PDF → text store ---
+    for f in pdf_files:
+        try:
+            pages = extract_from_pdf(f)
+        except ImportError as exc:
+            print(f"  [PDF skip] {f.name}: {exc}")
+            break
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [PDF error] {f.name}: {exc}")
+            continue
+        if not pages:
+            continue
+        section_id, schema_field, canonical = classify_file_with_schema(
+            f.name, manifest_lookup
+        )
+        for page_no, page_text in pages:
+            chunks = chunk_text(
+                page_text, max_chars=text_chunk_size, overlap=text_chunk_overlap
+            )
+            for i, chunk in enumerate(chunks):
+                chunk_id = hashlib.md5(
+                    f"{f.name}:p{page_no}:{i}:{chunk[:50]}".encode()
+                ).hexdigest()[:12]
+                rec = {
+                    "text": chunk,
+                    "source_file": f.name,
+                    "section_hint": section_id,
+                    "schema_field_hint": schema_field,
+                    "prospectus_section_hint": canonical,
+                    "topic": f"page_{page_no}",
+                    "importance": "medium",
+                    "chunk_id": chunk_id,
+                    "source_type": "pdf_page",
+                    "page": page_no,
+                }
+                text_chunks.append(rec)
+                by_section[section_id].append(rec)
+        print(
+            f"  [PDF] {f.name} -> Section {section_id}"
+            f"{' / '+schema_field if schema_field else ''} ({len(pages)} page(s))"
+        )
 
     # --- Write text_chunks.jsonl ---
     text_path = output_path / "text_chunks.jsonl"
@@ -462,9 +734,22 @@ def run_agent1(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Agent1: Excel + JSON → text_chunks + fact_store")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Agent1: Excel + JSON + DOCX + PDF -> text_chunks + fact_store. "
+            "When --project-id is given, data is read from <data-dir>/<project-id>/ "
+            "(if present) and output lands under <output-dir>/<project-id>/. "
+            "When <data-dir> contains a manifest.json from reverse_engineer_all.py, "
+            "per-file section_hint and Schema A field_id are taken from the manifest."
+        )
+    )
     parser.add_argument("--data-dir", default="data")
     parser.add_argument("--output-dir", default="agent1_output")
+    parser.add_argument(
+        "--project-id",
+        default=None,
+        help="Optional project namespace for multi-run isolation.",
+    )
     parser.add_argument("--text-chunk-size", type=int, default=TEXT_CHUNK_SIZE)
     parser.add_argument("--text-chunk-overlap", type=int, default=TEXT_CHUNK_OVERLAP)
     parser.add_argument("--model", default=DEFAULT_MODEL)
@@ -475,6 +760,7 @@ def main() -> None:
         text_chunk_size=args.text_chunk_size,
         text_chunk_overlap=args.text_chunk_overlap,
         model_name=args.model,
+        project_id=args.project_id,
     )
 
 

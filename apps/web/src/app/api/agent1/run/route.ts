@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs/promises";
 import { spawn } from "child_process";
 import { getProspectusRoot } from "@/lib/prospectus-root";
+import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 min for LLM
@@ -35,16 +36,12 @@ export async function POST(req: Request) {
     }
 
     const python = process.env.AGENT1_PYTHON || "python3";
-    // Use 3B model by default (fits in 11GB GPU); 7B needs ~14GB+
+    const settings = await readSettings();
+    const env = buildAgentProcessEnv(process.env, settings);
     const model =
-      process.env.AGENT1_MODEL || "Qwen/Qwen2.5-3B-Instruct";
-    const env = { ...process.env };
-    if (process.env.AGENT1_USE_CPU === "1") {
-      env.CUDA_VISIBLE_DEVICES = "";
-    } else if (process.env.AGENT1_CUDA_DEVICES) {
-      // Specify GPU IDs, e.g. 2,3,4
-      env.CUDA_VISIBLE_DEVICES = process.env.AGENT1_CUDA_DEVICES;
-    }
+      env.AGENT1_MODEL ||
+      process.env.AGENT1_MODEL ||
+      "Qwen/Qwen3.5-4B";
     return new Promise<NextResponse>((resolve) => {
       const proc = spawn(
         python,

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { SectionMarkdown } from "@/components/SectionMarkdown";
 
 type DataFile = { name: string; size: number; lastModified: string };
 
@@ -462,6 +463,20 @@ export default function Page() {
               <p className="text-sm text-[var(--muted)] mt-0.5">
                 From your files to HKEX-style sections — draft, refine, export
               </p>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                <a
+                  href="/kg-view"
+                  className="text-[var(--accent)] hover:underline"
+                >
+                  Knowledge Graph web view
+                </a>
+                <a
+                  href="/settings"
+                  className="text-[var(--accent)] hover:underline"
+                >
+                  Inference &amp; GPU settings
+                </a>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {(manifest || hasDraft) && (
@@ -703,7 +718,19 @@ export default function Page() {
                 const isGenerated = !!content;
                 const isModifying = modifyingSectionId === sectionId;
                 const isExpanded = expandedSectionId === sectionId;
-                const preview = content ? content.slice(0, 120).replace(/\n/g, " ") + (content.length > 120 ? "…" : "") : null;
+                const previewRaw = content
+                  ? content
+                      .replace(/^#{1,6}\s+/gm, "")
+                      .replace(/\*\*(.+?)\*\*/g, "$1")
+                      .replace(/\*(.+?)\*/g, "$1")
+                      .replace(/`(.+?)`/g, "$1")
+                      .replace(/\[\[AI:[^\]]*\]\]/g, "")
+                      .replace(/\s+/g, " ")
+                      .trim()
+                  : "";
+                const preview = previewRaw
+                  ? previewRaw.slice(0, 120) + (previewRaw.length > 120 ? "…" : "")
+                  : null;
                 return (
                   <div
                     key={sectionId}
@@ -768,15 +795,12 @@ export default function Page() {
                             </div>
                           </div>
                         ) : (
-                          <div className="pt-4 prose prose-sm max-w-none">
-                            <div
-                              className="text-[15px] leading-[1.7] text-[var(--foreground)]"
-                              style={{ fontFamily: "var(--font-serif)" }}
+                          <div className="pt-4">
+                            <SectionMarkdown
+                              className="text-[15px] leading-[1.7] text-[var(--foreground)] break-words"
                             >
-                              <pre className="whitespace-pre-wrap break-words font-[inherit] bg-transparent p-0 m-0 text-inherit">
-                                {content}
-                              </pre>
-                            </div>
+                              {content}
+                            </SectionMarkdown>
                           </div>
                         )}
                       </div>

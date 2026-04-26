@@ -11,8 +11,17 @@ transformers>=4.45.0
 torch>=2.0.0
 accelerate>=0.30.0
 
+# Optional cloud backend for Agent2 / Agent1 table summary (OpenAI-compatible API)
+openai>=1.40.0
+
+# First-run model download (Windows installer / settings UI)
+huggingface_hub>=0.24.0
+
 # Hybrid retriever: semantic search over text chunks
 sentence-transformers>=2.2.0
 
-# Export to Word
+# Export to Word + DOCX ingest (agent1) + native-doc templates
 python-docx>=1.0
+
+# PDF ingest (agent1) + slicing (reverse_engineer_slice) + stage3 text extract
+pymupdf>=1.24

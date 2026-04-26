@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:standalone": "node .next/standalone/apps/web/server.js",
     "lint": "eslint"
   },
   "dependencies": {
@@ -16,6 +17,8 @@
     "pdf-parse": "^1.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

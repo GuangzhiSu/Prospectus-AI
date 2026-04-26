@@ -1,1 +1,1 @@
-"""Repository scripts (runnable with ``python -m scripts.<name>`` when PYTHONPATH includes repo root)."""
+"""Orchestration scripts for the prospectus KG pipeline."""

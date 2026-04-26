@@ -1,102 +1,2763 @@
 {
   "ExpectedTimetable": {
     "name": "Expected Timetable",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present the IPO timetable as a precision timetable and compliance control schedule. Use exact dates and local times; precision, not marketing tone.\n\nRequired structure:\n- Lead-in note that the timetable may change and announcements will be published.\n- Table or bullet timeline with event, date, time, and note fields.\n- Include application opening and closing, pricing, results and allotment, share certificate validity or CCASS crediting, and expected trading commencement if supported.\n- State that all dates and times are Hong Kong time unless otherwise stated.\n- Include severe weather or extreme conditions arrangements if supported.\n\nControls:\n- Treat this as a factual timing section, not marketing copy.\n- Keep every event line even if incomplete; for missing dates or times use [Information not provided in the documents].\n- Add [[AI:XREF|to=GlobalOfferingStructure]] and cross-references to Structure of the Global Offering and application procedures (How to Apply) where timetable items depend on offering mechanics.\n- If application procedures are not separately available, add [[AI:VERIFY|Confirm application channel timing, severe weather arrangements, and results publication process.]]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present the IPO timetable as a precision timetable and compliance control schedule. Use exact dates and local times; precision, not marketing tone.\n\nRequired structure:\n- Lead-in note that the timetable may change and announcements will be published.\n- Table or bullet timeline with event, date, time, and note fields.\n- Include application opening and closing, pricing, results and allotment, share certificate validity or CCASS crediting, and expected trading commencement if supported.\n- State that all dates and times are Hong Kong time unless otherwise stated.\n- Include severe weather or extreme conditions arrangements if supported.\n\nControls:\n- Treat this as a factual timing section, not marketing copy.\n- Keep every event line even if incomplete; for missing dates or times use [Information not provided in the documents].\n- Add [[AI:XREF|to=GlobalOfferingStructure]] and cross-references to Structure of the Global Offering and application procedures (How to Apply) where timetable items depend on offering mechanics.\n- If application procedures are not separately available, add [[AI:VERIFY|Confirm application channel timing, severe weather arrangements, and results publication process.]].",
+    "kg_section_id": "Expected_Timetable",
+    "kg_function": "To outline the schedule of key events in the Hong Kong Public Offering.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and clarity regarding the timeline of the offering process, allowing investors to plan accordingly. Regulators and investors expect to understand when critical steps occur, such as the start and end of the application period, price determination, and the release of allocation results.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Commencement of Hong Kong Public Offering",
+        "description": "The exact time and day when the public offering begins."
+      },
+      {
+        "subsection": "Deadline for Electronic Applications",
+        "description": "The last time electronic applications can be submitted."
+      },
+      {
+        "subsection": "Opening of Application Lists",
+        "description": "The time when application lists are made available to the public."
+      },
+      {
+        "subsection": "Deadline for Payment and Instructions",
+        "description": "The last time payments for applications and instructions to HKSCC must be completed."
+      },
+      {
+        "subsection": "Closing of Application Lists",
+        "description": "The exact time when applications lists are closed."
+      },
+      {
+        "subsection": "Price Determination Date",
+        "description": "The date when the offer price is determined."
+      },
+      {
+        "subsection": "Announcement of Offer Price and Other Details",
+        "description": "The date and method of announcing the offer price and other relevant details."
+      },
+      {
+        "subsection": "Results of Allocations",
+        "description": "The date and method of releasing the results of allocations."
+      },
+      {
+        "subsection": "Dispatch/Collection of Share Certificates and Refunds",
+        "description": "The date and method of dispatching or collecting share certificates and refunds."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and precise language.",
+      "Ensure all times and dates are accurate and consistent.",
+      "Cross-reference with other sections such as 'Structure of the Global Offering' and 'How to Apply for Hong Kong Offer Shares'.",
+      "Include any changes to the timetable in subsequent announcements.",
+      "Adhere to the format and style guidelines provided by HKEX."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "commencement_date",
+        "description": "The date when the Hong Kong Public Offering starts.",
+        "example": "9:00 a.m. on Tuesday, December 7, 2021"
+      },
+      {
+        "field": "deadline_for_electronic_applications",
+        "description": "The last time electronic applications can be submitted.",
+        "example": "11:30 a.m. on Friday, December 10, 2021"
+      },
+      {
+        "field": "opening_of_application_lists",
+        "description": "The time when application lists are made available.",
+        "example": "11:45 a.m. on Friday, December 10, 2021"
+      },
+      {
+        "field": "deadline_for_payment_and_instructions",
+        "description": "The last time payments for applications and instructions to HKSCC must be completed.",
+        "example": "12:00 noon on Friday, December 10, 2021"
+      },
+      {
+        "field": "closing_of_application_lists",
+        "description": "The exact time when applications lists are closed.",
+        "example": "12:00 noon on Friday, December 10, 2021"
+      },
+      {
+        "field": "price_determination_date",
+        "description": "The date when the offer price is determined.",
+        "example": "Friday, December 10, 2021"
+      },
+      {
+        "field": "announcement_of_offer_price",
+        "description": "The date and method of announcing the offer price.",
+        "example": "Wednesday, December 16, 2021"
+      },
+      {
+        "field": "results_of_allocations",
+        "description": "The date and method of releasing the results of allocations.",
+        "example": "Wednesday, December 16, 2021"
+      },
+      {
+        "field": "dispatch_collection_of_share_certificates_refunds",
+        "description": "The date and method of dispatching or collecting share certificates and refunds.",
+        "example": "Or before such other date as notified by us as the date of dispatch/collection of Share certificates/e-Refund payment instructions/refund checks."
+      }
+    ],
+    "kg_evidence_types": [
+      "Company's internal calendar",
+      "Bank statements",
+      "CCASS records",
+      "HKSCC records",
+      "Internal communications"
+    ],
+    "kg_common_pitfalls": [
+      "Inconsistent or incorrect dates and times.",
+      "Failing to update the timetable if changes occur.",
+      "Omitting important steps in the process.",
+      "Not providing sufficient detail for each step.",
+      "Failing to cross-reference with other sections."
+    ]
   },
   "Contents": {
     "name": "Contents",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a hierarchical table of contents for the prospectus. Headings here must match the final document exactly.\n\nRequired structure:\n- Exact heading list in final order: front matter, risk and compliance chapters, business and financial chapters, offering chapters, and appendices if supported.\n- Use section titles exactly as they appear in the generated document. No missing headings; no orphan sections that are referenced elsewhere but absent here.\n- Page mapping or section references; if pagination is unavailable, keep the entry and mark the page field as [Information not provided in the documents].\n\nControls:\n- No orphan sections: if a section is listed here it must appear elsewhere, and vice versa. Every heading referenced in the body must appear in Contents.\n- Add [[AI:XREF|to=all section headings]] or equivalent notes wherever heading alignment must be checked.\n- Add [[AI:VERIFY|Final pagination and heading consistency check required before filing.]]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a hierarchical table of contents for the prospectus. Headings here must match the final document exactly.\n\nRequired structure:\n- Exact heading list in final order: front matter, risk and compliance chapters, business and financial chapters, offering chapters, and appendices if supported.\n- Use section titles exactly as they appear in the generated document. No missing headings; no orphan sections that are referenced elsewhere but absent here.\n- Page mapping or section references; if pagination is unavailable, keep the entry and mark the page field as [Information not provided in the documents].\n\nControls:\n- No orphan sections: if a section is listed here it must appear elsewhere, and vice versa. Every heading referenced in the body must appear in Contents.\n- Add [[AI:XREF|to=all section headings]] or equivalent notes wherever heading alignment must be checked.\n- Add [[AI:VERIFY|Final pagination and heading consistency check required before filing.]].",
+    "kg_section_id": "Contents",
+    "kg_function": "To outline the organization of the prospectus and guide readers to the relevant sections.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and ease of navigation for investors. It serves as a roadmap, allowing readers to quickly find the information they need regarding the offering, including important disclaimers, key financial details, and other critical sections like future plans and use of proceeds.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Important Notice to Prospective Investors",
+        "description": "Contains disclaimers and legal notices about the prospectus and the securities being offered."
+      },
+      {
+        "subsection": "Expected Timetable",
+        "description": "Provides a timeline for the offering process, including key dates and milestones."
+      },
+      {
+        "subsection": "Summary",
+        "description": "Offers a brief overview of the company, its business, and the offering."
+      },
+      {
+        "subsection": "Definitions",
+        "description": "Lists and explains key terms and acronyms used throughout the prospectus."
+      },
+      {
+        "subsection": "History, Reorganization and Corporate Structure",
+        "description": "Describes the company’s history, reorganizations, and current corporate structure."
+      },
+      {
+        "subsection": "Business",
+        "description": "Details the company’s business operations, strategies, and market position."
+      },
+      {
+        "subsection": "Financial Information",
+        "description": "Includes audited and unaudited financial statements and other financial data."
+      },
+      {
+        "subsection": "Relationship with Controlling Shareholders",
+        "description": "Discusses relationships between the company and its controlling shareholders."
+      },
+      {
+        "subsection": "Connected Transactions",
+        "description": "Details any significant transactions involving related parties."
+      },
+      {
+        "subsection": "Share Capital",
+        "description": "Provides information on the company’s share capital structure."
+      },
+      {
+        "subsection": "Substantial Shareholders",
+        "description": "Lists major shareholders and their stakes in the company."
+      },
+      {
+        "subsection": "Directors and Senior Management",
+        "description": "Describes the board of directors and senior management team."
+      },
+      {
+        "subsection": "Future Plans and Use of Proceeds",
+        "description": "Outlines the company’s future plans and how the proceeds from the offering will be used."
+      },
+      {
+        "subsection": "Cornerstone Investors",
+        "description": "Details the cornerstone investors and their commitments."
+      },
+      {
+        "subsection": "Underwriting",
+        "description": "Explains the underwriting arrangements and the role of underwriters."
+      },
+      {
+        "subsection": "Structure of the Global Offering",
+        "description": "Describes the structure of the global offering, including the roles of various parties."
+      },
+      {
+        "subsection": "How to Apply for Hong Kong Offer Shares",
+        "description": "Provides instructions on how to apply for the Hong Kong offer shares."
+      },
+      {
+        "subsection": "Appendices",
+        "description": "Includes additional documents such as reports, financial information, and legal summaries."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all disclaimers and legal notices are accurate and up-to-date.",
+      "Cross-reference important information within the prospectus.",
+      "Maintain a consistent format and style throughout the document.",
+      "Avoid using technical jargon unless necessary and define it clearly."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "expected_timetable",
+        "description": "Key dates and milestones for the offering process.",
+        "example": "Application period: 1st January 2023 - 31st January 2023; Listing date: 1st February 2023"
+      },
+      {
+        "field": "summary",
+        "description": "Brief overview of the company, its business, and the offering.",
+        "example": "Our company is a leading provider of AI solutions in the technology sector."
+      },
+      {
+        "field": "financial_information",
+        "description": "Audited and unaudited financial statements and other financial data.",
+        "example": "Annual financial statements for the years ended 31 December 2021 and 2020."
+      },
+      {
+        "field": "future_plans_and_use_of_proceeds",
+        "description": "Detailed plans for the use of proceeds from the offering.",
+        "example": "Proceeds will be used to expand our R&D capabilities and market presence."
+      },
+      {
+        "field": "cornerstone_investors",
+        "description": "Details of cornerstone investors and their commitments.",
+        "example": "Cornerstone investor A committed to invest $10 million in the offering."
+      },
+      {
+        "field": "underwriting",
+        "description": "Information on underwriting arrangements and the role of underwriters.",
+        "example": "Underwriting agreement with XYZ Investment Bank."
+      },
+      {
+        "field": "structure_of_the_global_offering",
+        "description": "Description of the structure of the global offering, including the roles of various parties.",
+        "example": "The offering will be structured as a global offering with joint bookrunners and lead managers."
+      },
+      {
+        "field": "how_to_apply_for_hong_kong_offer_shares",
+        "description": "Instructions on how to apply for the Hong Kong offer shares.",
+        "example": "Applications can be submitted online through the company’s website."
+      }
+    ],
+    "kg_evidence_types": [
+      "Audit report",
+      "Financial statements",
+      "Legal opinions",
+      "Company articles of association",
+      "Regulatory filings",
+      "Market research reports",
+      "Commitment letters from cornerstone investors"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to include all required disclaimers and legal notices.",
+      "Inconsistent formatting and style throughout the document.",
+      "Omitting important financial information or misrepresenting data.",
+      "Neglecting to update information that is outdated or incorrect.",
+      "Failing to properly cross-reference important information."
+    ]
   },
   "Summary": {
     "name": "Summary",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a high-level, balanced executive summary of the issuer and the offering. Balanced factual tone only.\n\nRequired structure:\n- Opening purpose statement explaining that the summary should be read with the full prospectus.\n- Business and issuer overview (high-level only).\n- Industry and market context only if supported.\n- Key operating and financial information, preferably in concise tables if the data supports it.\n- Material strengths stated neutrally and only if evidenced.\n- Short risk summary with [[AI:XREF|to=Risk Factors]]. No new risk themes that are absent from Risk Factors.\n- Offering overview and recent developments if supported.\n\nControls:\n- No marketing hype, no superlatives unless tightly scoped and supported.\n- Every numeric claim must reconcile to Business or Financial Information or be replaced with [Information not provided in the documents].\n- Every market claim (rank, market share, CAGR, leadership) must be tagged with [[AI:CITE|source=...; scope=...; date=...; metric=...]] or be omitted.\n- Do not quantify future profitability, margins, or valuation outcomes."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a high-level, balanced executive summary of the issuer and the offering. Balanced factual tone only.\n\nRequired structure:\n- Opening purpose statement explaining that the summary should be read with the full prospectus.\n- Business and issuer overview (high-level only).\n- Industry and market context only if supported.\n- Key operating and financial information, preferably in concise tables if the data supports it.\n- Material strengths stated neutrally and only if evidenced.\n- Short risk summary with [[AI:XREF|to=Risk Factors]]. No new risk themes that are absent from Risk Factors.\n- Offering overview and recent developments if supported.\n\nControls:\n- No marketing hype, no superlatives unless tightly scoped and supported.\n- Every numeric claim must reconcile to Business or Financial Information or be replaced with [Information not provided in the documents].\n- Every market claim (rank, market share, CAGR, leadership) must be tagged with [[AI:CITE|source=...; scope=...; date=...; metric=...]] or be omitted.\n- Do not quantify future profitability, margins, or valuation outcomes.",
+    "kg_section_id": "Summary",
+    "kg_function": "To provide a high-level overview of the key aspects of the issuer and the offering, ensuring investors understand the core business, risks, and use of proceeds.",
+    "kg_purpose": "HKEX requires the Summary section to ensure that investors have a clear understanding of the key aspects of the issuer and the offering without delving into detailed technical or financial information. This helps investors make informed decisions and ensures transparency and fairness in the IPO process.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Overview",
+        "description": "Brief introduction to the issuer, highlighting its core business, market position, and key achievements."
+      },
+      {
+        "subsection": "Business Overview",
+        "description": "Detailed description of the issuer’s business, including its products, services, market position, and competitive landscape."
+      },
+      {
+        "subsection": "Risk Factors",
+        "description": "Summary of the main risks associated with the investment, cross-referencing to the full risk factors section."
+      },
+      {
+        "subsection": "Use of Proceeds",
+        "description": "Description of how the proceeds from the offering will be used, aligned with the issuer’s strategic plans."
+      },
+      {
+        "subsection": "Key Financial Highlights",
+        "description": "Summary of key financial metrics, such as revenue, profit margins, and growth trends."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Avoid technical jargon and overly complex sentences.",
+      "Provide factual information and avoid subjective opinions.",
+      "Cross-reference to other sections of the prospectus where appropriate.",
+      "Ensure consistency with the information provided in other sections of the prospectus."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Issuer Name",
+        "description": "Name of the company issuing the shares.",
+        "example": "Amind Holdings Limited"
+      },
+      {
+        "field": "Business Overview",
+        "description": "Brief description of the issuer’s business, products, and services.",
+        "example": "Leading AI software company with a focus on computer vision technologies."
+      },
+      {
+        "field": "Market Position",
+        "description": "Details on the issuer’s market position and competitive landscape.",
+        "example": "Largest AI software company in Asia, with a market share of 11% in China."
+      },
+      {
+        "field": "Risk Factors",
+        "description": "Summary of the main risks associated with the investment.",
+        "example": "Risks related to technological obsolescence and regulatory changes."
+      },
+      {
+        "field": "Use of Proceeds",
+        "description": "Description of how the proceeds from the offering will be used.",
+        "example": "Enhancing R&D capabilities, commercialization capabilities, and potential strategic investments."
+      },
+      {
+        "field": "Financial Highlights",
+        "description": "Key financial metrics, such as revenue, profit margins, and growth trends.",
+        "example": "Revenue of HK$1,000 million in the last fiscal year, with a 10% year-over-year growth."
+      }
+    ],
+    "kg_evidence_types": [
+      "Audit Report",
+      "Industry Reports",
+      "Market Research",
+      "Financial Statements",
+      "Patent and Publication Records"
+    ],
+    "kg_common_pitfalls": [
+      "Overgeneralizing or oversimplifying the business and risks.",
+      "Failing to cross-reference to other sections of the prospectus.",
+      "Including outdated or incorrect financial information.",
+      "Neglecting to highlight key risks that could impact the investment.",
+      "Providing too much detail that distracts from the overall summary."
+    ]
   },
   "Definitions": {
     "name": "Definitions",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide the formal Definitions section as a dictionary-style list. Exact wording consistency with document-wide usage.\n\nRequired structure:\n- Dictionary-style output: alphabetical list of defined terms.\n- Include company entities, key people where defined, regulators, legal and financial abbreviations, and recurring deal terms if supported.\n- Maintain prospectus-style precise wording rather than narrative prose.\n\nControls:\n- Do not invent definitions for terms not supported by the documents. Remove unnecessary defined terms; define only terms that are actually used or clearly need standardised meaning.\n- Jurisdiction definitions must be used consistently across the document.\n- Add [[AI:VERIFY|Confirm each defined term matches actual usage throughout the draft.]] where helpful."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide the formal Definitions section as a dictionary-style list. Exact wording consistency with document-wide usage.\n\nRequired structure:\n- Dictionary-style output: alphabetical list of defined terms.\n- Include company entities, key people where defined, regulators, legal and financial abbreviations, and recurring deal terms if supported.\n- Maintain prospectus-style precise wording rather than narrative prose.\n\nControls:\n- Do not invent definitions for terms not supported by the documents. Remove unnecessary defined terms; define only terms that are actually used or clearly need standardised meaning.\n- Jurisdiction definitions must be used consistently across the document.\n- Add [[AI:VERIFY|Confirm each defined term matches actual usage throughout the draft.]] where helpful.",
+    "kg_section_id": "Definitions",
+    "kg_function": "To define key terms and acronyms used throughout the prospectus to ensure clarity and consistency.",
+    "kg_purpose": "HKEX requires this section to ensure that all terms and acronyms used in the prospectus are clearly defined to prevent ambiguity and ensure that investors and regulators understand the precise meanings of these terms. This section helps maintain transparency and facilitates a smooth reading experience for the audience.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Term Definitions",
+        "description": "Lists of terms and their definitions, often organized alphabetically or by relevance."
+      },
+      {
+        "subsection": "Cross-References",
+        "description": "References to other sections where related terms are defined or explained in more detail."
+      },
+      {
+        "subsection": "Rounding Notes",
+        "description": "Notes on how rounding has affected certain figures and the implications thereof."
+      },
+      {
+        "subsection": "Language Notes",
+        "description": "Notes on the use of Chinese and English names for entities, with a preference for Chinese versions in case of inconsistencies."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Define terms consistently throughout the document.",
+      "Cross-reference to glossary or other relevant sections.",
+      "Include rounding notes if applicable.",
+      "Use consistent formatting for all definitions.",
+      "Ensure all acronyms are expanded on first use.",
+      "Use the same term for the same concept throughout the document."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Term",
+        "description": "The term to be defined.",
+        "example": "affiliate"
+      },
+      {
+        "field": "Definition",
+        "description": "The definition of the term.",
+        "example": "any other person, directly or indirectly, controlling or controlled by or under direct or indirect common control with such specified person"
+      },
+      {
+        "field": "Acronym",
+        "description": "The acronym to be expanded.",
+        "example": "CAC"
+      },
+      {
+        "field": "Full Name",
+        "description": "The full name of the entity or organization.",
+        "example": "Cyberspace Administration of China"
+      },
+      {
+        "field": "Rounding Note",
+        "description": "Note on rounding of figures and its impact.",
+        "example": "Figures shown as totals in certain tables may not be an arithmetic aggregation of the figures preceding them."
+      },
+      {
+        "field": "Cross-Reference",
+        "description": "Section or part of the document where the term is further explained.",
+        "example": "Appendix III to this Prospectus"
+      }
+    ],
+    "kg_evidence_types": [
+      "Articles of Association",
+      "Company Bylaws",
+      "Legal Documents",
+      "Financial Statements",
+      "Regulatory Filings",
+      "Industry Reports",
+      "Audit Reports"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to define terms consistently throughout the document.",
+      "Overlooking rounding notes and their impact on figures.",
+      "Not providing cross-references to other relevant sections.",
+      "Using inconsistent formatting for definitions.",
+      "Failing to expand acronyms on first use.",
+      "Including outdated or incorrect definitions."
+    ]
   },
   "Glossary": {
     "name": "Glossary of Technical Terms",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain technical or industry-specific terms in plain language for investors. Consistency with Business and Regulatory Overview.\n\nRequired structure:\n- Alphabetical list of technical terms or acronyms. Plain-language explanations only.\n- Each entry should be concise, plain-language, and non-promotional.\n- Include only technical concepts that are relevant to the business and used elsewhere in the draft.\n\nControls:\n- Do not duplicate legal or entity definitions that belong in Definitions. Avoid circular or self-referential explanations.\n- Risk-sensitive technical terms (e.g. data, privacy, cybersecurity, model training, internet information services) must carry [[AI:XREF|to=Business]], [[AI:XREF|to=Regulation]], or [[AI:XREF|to=Risk Factors]] where appropriate.\n- For missing technical definitions keep the term and use [Information not provided in the documents]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain technical or industry-specific terms in plain language for investors. Consistency with Business and Regulatory Overview.\n\nRequired structure:\n- Alphabetical list of technical terms or acronyms. Plain-language explanations only.\n- Each entry should be concise, plain-language, and non-promotional.\n- Include only technical concepts that are relevant to the business and used elsewhere in the draft.\n\nControls:\n- Do not duplicate legal or entity definitions that belong in Definitions. Avoid circular or self-referential explanations.\n- Risk-sensitive technical terms (e.g. data, privacy, cybersecurity, model training, internet information services) must carry [[AI:XREF|to=Business]], [[AI:XREF|to=Regulation]], or [[AI:XREF|to=Risk Factors]] where appropriate.\n- For missing technical definitions keep the term and use [Information not provided in the documents].",
+    "kg_section_id": "Glossary_of_Technical_Terms",
+    "kg_function": "To define and explain technical terms used throughout the prospectus to ensure clarity and consistency.",
+    "kg_purpose": "HKEX requires this section to ensure that all technical terms used in the prospectus are clearly defined and consistent with the issuer's intended meaning. This helps investors and regulators understand the issuer's business and technology accurately, reducing ambiguity and potential misinterpretation.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Definition of Technical Terms",
+        "description": "Each term is defined with a clear and concise explanation."
+      },
+      {
+        "subsection": "Examples and Context",
+        "description": "Where applicable, examples and context are provided to illustrate how the term is used in practice."
+      },
+      {
+        "subsection": "Cross-References",
+        "description": "Cross-references to related terms or sections are included where relevant."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Define terms consistently with industry standards when possible.",
+      "Avoid overly technical jargon unless necessary.",
+      "Include cross-references to related terms or sections.",
+      "Ensure definitions align with the issuer's intended meaning."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "term",
+        "description": "The technical term to be defined.",
+        "example": "AI"
+      },
+      {
+        "field": "definition",
+        "description": "A clear and concise definition of the term.",
+        "example": "Artificial intelligence, an area of computer science that focuses on machinery simulation of intelligence displayed by humans and other animals."
+      },
+      {
+        "field": "context",
+        "description": "Any additional context or examples to clarify the term's usage.",
+        "example": "AI is used in our company to develop autonomous intelligent entities leveraging LLM technology."
+      },
+      {
+        "field": "cross_reference",
+        "description": "Any related terms or sections that should be cross-referenced.",
+        "example": "See also 'AI Agent', 'AI Infrastructure'"
+      }
+    ],
+    "kg_evidence_types": [
+      "Technical documentation",
+      "Product descriptions",
+      "Industry reports",
+      "Patent filings",
+      "Internal company documents"
+    ],
+    "kg_common_pitfalls": [
+      "Overuse of technical jargon without clear definitions.",
+      "Inconsistent definitions across the prospectus.",
+      "Lack of cross-references to related terms or sections.",
+      "Failure to update definitions if the meaning changes post-filing."
+    ]
   },
   "ForwardLooking": {
     "name": "Forward-Looking Statements",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a formal cautionary disclaimer for forward-looking statements. Legal cautionary tone.\n\nRequired structure:\n- Explain what forward-looking statements are; include examples of forward-looking language where appropriate.\n- State that such statements are based on assumptions and currently available information.\n- Warn that actual results may differ materially.\n- Caution investors not to place undue reliance on such statements.\n- State that the statements speak only as of the date of the prospectus and the issuer undertakes no obligation to update except as required by law.\n- Add [[AI:XREF|to=Risk Factors]].\n\nControls:\n- Use formal legal language and neutral examples only. Explicit warning: do not embed unqualified future language elsewhere in the document; this section is the designated place for forward-looking caveats.\n- Do not include express or implied profit forecasts, margin forecasts, or dated profitability claims.\n- If company-specific future plans are not evidenced, do not invent them; use generic safe-harbour wording and [Information not provided in the documents] where necessary."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a formal cautionary disclaimer for forward-looking statements. Legal cautionary tone.\n\nRequired structure:\n- Explain what forward-looking statements are; include examples of forward-looking language where appropriate.\n- State that such statements are based on assumptions and currently available information.\n- Warn that actual results may differ materially.\n- Caution investors not to place undue reliance on such statements.\n- State that the statements speak only as of the date of the prospectus and the issuer undertakes no obligation to update except as required by law.\n- Add [[AI:XREF|to=Risk Factors]].\n\nControls:\n- Use formal legal language and neutral examples only. Explicit warning: do not embed unqualified future language elsewhere in the document; this section is the designated place for forward-looking caveats.\n- Do not include express or implied profit forecasts, margin forecasts, or dated profitability claims.\n- If company-specific future plans are not evidenced, do not invent them; use generic safe-harbour wording and [Information not provided in the documents] where necessary.",
+    "kg_section_id": "Forward_Looking_Statements",
+    "kg_function": "To disclose potential risks and uncertainties associated with forward-looking statements in the prospectus.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and protect investors by clearly identifying statements that are speculative in nature. It helps prevent misinterpretation of the company's future expectations and aligns with regulatory standards for disclosure practices.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Identification of Forward-Looking Statements",
+        "description": "Lists all forward-looking statements in the prospectus and identifies them using specific language."
+      },
+      {
+        "subsection": "Risks and Uncertainties",
+        "description": "Discusses various risks and uncertainties that could affect the accuracy of forward-looking statements."
+      },
+      {
+        "subsection": "Cautionary Statements",
+        "description": "Provides a disclaimer to caution readers against placing undue reliance on forward-looking statements."
+      },
+      {
+        "subsection": "Obligation to Update",
+        "description": "States the company's obligation (or lack thereof) to update forward-looking statements."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Identify forward-looking statements using specific phrases like 'believe', 'expect', 'anticipate', etc.",
+      "List all forward-looking statements comprehensively.",
+      "Provide a detailed discussion of risks and uncertainties.",
+      "Include a disclaimer to caution against relying on forward-looking statements.",
+      "State the company's obligation (or lack thereof) to update forward-looking statements."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "forward-looking_statements",
+        "description": "List of all forward-looking statements in the prospectus.",
+        "example": "We believe our revenue will grow by 20% next year."
+      },
+      {
+        "field": "risks_and_uncertainties",
+        "description": "List of factors that could impact the accuracy of forward-looking statements.",
+        "example": "Economic downturn, regulatory changes, competition, etc."
+      },
+      {
+        "field": "disclaimer",
+        "description": "Text of the disclaimer to caution against relying on forward-looking statements.",
+        "example": "We do not undertake any obligation to update or revise any forward-looking statements."
+      }
+    ],
+    "kg_evidence_types": [
+      "Internal business plans and strategies",
+      "Market research reports",
+      "Regulatory filings",
+      "Financial forecasts",
+      "Competitor analysis"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to identify all forward-looking statements.",
+      "Overstating the certainty of forward-looking statements.",
+      "Neglecting to discuss significant risks and uncertainties.",
+      "Not providing a clear disclaimer.",
+      "Failing to update the section if there are changes in the company's situation."
+    ]
   },
   "RiskFactors": {
     "name": "Risk Factors",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present material applicant-specific risks in a frank, structured, and disclosure-focused manner. One principal risk per heading; preserve individual risk specificity before any grouping.\n\nRequired structure:\n- Use one principal risk per sub-heading. Under each sub-heading explain the factual cause, how the risk harms the issuer or investors, and quantification where possible. If quantification is not available from the documents, say so explicitly rather than guessing.\n- Group by sensible risk type (business and industry, regulation and compliance, financial condition, technology or data, offering or shareholder risks) only after individual risk specificity is preserved.\n\nControls:\n- No mitigation language inside the same risk narrative; place any mitigation in other sections and use [[AI:XREF|to=Business]] or [[AI:XREF|to=Regulation]] where appropriate.\n- No vague unknown-risks boilerplate.\n- For technology issuers, include supported risks relating to commercialisation, data privacy and cybersecurity, IP ownership, model performance or safety, third-party dependency, WVR, or 18C where applicable.\n- Unsupported required risks should remain as headings with [Information not provided in the documents] plus [[AI:VERIFY|Obtain issuer-specific facts and quantification for this risk.]]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present material applicant-specific risks in a frank, structured, and disclosure-focused manner. One principal risk per heading; preserve individual risk specificity before any grouping.\n\nRequired structure:\n- Use one principal risk per sub-heading. Under each sub-heading explain the factual cause, how the risk harms the issuer or investors, and quantification where possible. If quantification is not available from the documents, say so explicitly rather than guessing.\n- Group by sensible risk type (business and industry, regulation and compliance, financial condition, technology or data, offering or shareholder risks) only after individual risk specificity is preserved.\n\nControls:\n- No mitigation language inside the same risk narrative; place any mitigation in other sections and use [[AI:XREF|to=Business]] or [[AI:XREF|to=Regulation]] where appropriate.\n- No vague unknown-risks boilerplate.\n- For technology issuers, include supported risks relating to commercialisation, data privacy and cybersecurity, IP ownership, model performance or safety, third-party dependency, WVR, or 18C where applicable.\n- Unsupported required risks should remain as headings with [Information not provided in the documents] plus [[AI:VERIFY|Obtain issuer-specific facts and quantification for this risk.]].",
+    "kg_section_id": "Risk_Factors",
+    "kg_function": "To disclose material risks that could impact the issuer's business, financial condition, and results of operations, thereby enabling investors to make informed decisions.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and full disclosure of potential risks that could affect the issuer's business. This helps protect investors by providing them with comprehensive information about the risks associated with investing in the company's securities, ensuring they can make informed investment decisions based on a thorough understanding of the risks involved.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Introduction",
+        "description": "Briefly introduces the risk factors section and reminds readers to consider all information in the document, especially the risks mentioned."
+      },
+      {
+        "subsection": "Industry Risks",
+        "description": "Discusses risks related to the industry in which the issuer operates, such as technological obsolescence, competition, and regulatory changes."
+      },
+      {
+        "subsection": "Operational Risks",
+        "description": "Details risks related to the day-to-day operations of the issuer, such as supply chain disruptions, cybersecurity threats, and labor issues."
+      },
+      {
+        "subsection": "Financial Risks",
+        "description": "Outlines financial risks, including liquidity issues, credit risks, and the impact of economic conditions on the issuer's financial health."
+      },
+      {
+        "subsection": "Regulatory Risks",
+        "description": "Describes risks related to compliance with laws and regulations, including the possibility of fines, penalties, or operational disruptions due to non-compliance."
+      },
+      {
+        "subsection": "Market Risks",
+        "description": "Addresses risks associated with market conditions, such as fluctuations in exchange rates, commodity prices, and market volatility."
+      },
+      {
+        "subsection": "Other Risks",
+        "description": "Includes any other significant risks that are not covered in the above subsections but are material to the issuer's business."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Avoid vague or overly general statements.",
+      "Provide specific examples to illustrate risks.",
+      "Cross-reference relevant sections of the prospectus where appropriate.",
+      "Disclose all material risks, even if they are unlikely to occur.",
+      "Update the section with the latest information available."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "issuer_name",
+        "description": "Name of the issuing company.",
+        "example": "Tech Innovations Ltd."
+      },
+      {
+        "field": "latest_practicable_date",
+        "description": "Date up to which the information in the risk factors section is current.",
+        "example": "31 December 2022"
+      },
+      {
+        "field": "industry_risks",
+        "description": "List of industry-specific risks faced by the issuer.",
+        "example": [
+          "Technological obsolescence",
+          "Competition from new entrants"
+        ]
+      },
+      {
+        "field": "operational_risks",
+        "description": "List of operational risks faced by the issuer.",
+        "example": [
+          "Supply chain disruptions",
+          "Cybersecurity threats"
+        ]
+      },
+      {
+        "field": "financial_risks",
+        "description": "List of financial risks faced by the issuer.",
+        "example": [
+          "Liquidity issues",
+          "Credit risks"
+        ]
+      },
+      {
+        "field": "regulatory_risks",
+        "description": "List of regulatory risks faced by the issuer.",
+        "example": [
+          "Compliance with data protection laws",
+          "Penalties for non-compliance"
+        ]
+      },
+      {
+        "field": "market_risks",
+        "description": "List of market risks faced by the issuer.",
+        "example": [
+          "Fluctuations in exchange rates",
+          "Commodity price volatility"
+        ]
+      },
+      {
+        "field": "other_material_risks",
+        "description": "Any other significant risks that are material to the issuer's business.",
+        "example": [
+          "Dependence on key suppliers",
+          "Risks associated with international operations"
+        ]
+      }
+    ],
+    "kg_evidence_types": [
+      "Internal reports",
+      "External industry reports",
+      "Regulatory filings",
+      "Legal opinions",
+      "Audit reports"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose all material risks, even if they are unlikely to occur.",
+      "Using overly general or vague language to describe risks.",
+      "Not updating the section with the latest information available.",
+      "Failing to cross-reference relevant sections of the prospectus.",
+      "Omitting important details that could affect the reader's understanding of the risks."
+    ]
   },
   "Waivers": {
     "name": "Waivers from Strict Compliance with Listing Rules (Waivers and Exemptions)",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose any waivers or exemptions from strict compliance with Listing Rules or prospectus requirements.\n\nRequired structure (for each waiver): rule; normal requirement; issuer-specific reason for non-compliance; waiver granted; conditions; investor relevance; documentary verification hook (evidence reference for approval and conditions).\n- Cite rule numbers and titles where supported.\n- If no waiver is disclosed in the documents, say so expressly.\n\nControls:\n- Do not say a waiver was granted unless the documents support that conclusion.\n- If a waiver signals structural or compliance risk, add [[AI:XREF|to=Risk Factors]].\n- Add [[AI:VERIFY|Obtain Exchange approval evidence and confirm compliance with any conditions.]] where details are incomplete.\n- Keep unsupported line items as [Information not provided in the documents] rather than inferring the waiver package."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose any waivers or exemptions from strict compliance with Listing Rules or prospectus requirements.\n\nRequired structure (for each waiver): rule; normal requirement; issuer-specific reason for non-compliance; waiver granted; conditions; investor relevance; documentary verification hook (evidence reference for approval and conditions).\n- Cite rule numbers and titles where supported.\n- If no waiver is disclosed in the documents, say so expressly.\n\nControls:\n- Do not say a waiver was granted unless the documents support that conclusion.\n- If a waiver signals structural or compliance risk, add [[AI:XREF|to=Risk Factors]].\n- Add [[AI:VERIFY|Obtain Exchange approval evidence and confirm compliance with any conditions.]] where details are incomplete.\n- Keep unsupported line items as [Information not provided in the documents] rather than inferring the waiver package.",
+    "kg_section_id": "Waivers_and_Exemptions",
+    "kg_function": "To detail any waivers or exemptions obtained from the strict compliance with the Hong Kong Exchanges and Clearing Limited (HKEX) Listing Rules or other relevant ordinances.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and to address any deviations from the standard requirements, providing investors with a clear understanding of the rationale behind these deviations. This section helps maintain market integrity and ensures that the issuer meets the necessary regulatory standards where possible.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Waiver in Respect of Joint Company Secretaries",
+        "description": "Details the appointment of joint company secretaries who may not meet the strict qualifications under Rule 3.28 of the Listing Rules."
+      },
+      {
+        "subsection": "Waiver in Relation to Management Presence in Hong Kong",
+        "description": "Provides justification for the lack of sufficient management presence in Hong Kong and outlines the measures taken to maintain regular and effective communication with the Stock Exchange."
+      },
+      {
+        "subsection": "Waiver in Relation to Continuing Connected Transactions",
+        "description": "Details any ongoing or expected connected transactions and the waivers granted for compliance with Chapter 14A of the Listing Rules."
+      },
+      {
+        "subsection": "Other Specific Waivers",
+        "description": "Includes any other specific waivers or exemptions granted for compliance with various Listing Rules or other relevant ordinances."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use formal and precise language consistent with the Listing Rules and HKEX guidelines.",
+      "Clearly state the specific rule or ordinance being waived or exempted.",
+      "Provide detailed explanations for the necessity of the waiver or exemption.",
+      "Include the date of application and the date of grant for each waiver or exemption.",
+      "Cross-reference relevant sections of the prospectus for additional information."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "waiver_date",
+        "description": "The date the waiver or exemption was granted by HKEX.",
+        "example": "2023-10-15"
+      },
+      {
+        "field": "waiver_rule",
+        "description": "The specific rule or ordinance being waived or exempted.",
+        "example": "Rule 8.17 of the Listing Rules"
+      },
+      {
+        "field": "waiver_reason",
+        "description": "The reason for seeking the waiver or exemption.",
+        "example": "Management presence in Hong Kong is impractical due to the company's operations in the PRC."
+      },
+      {
+        "field": "waiver_expiration_date",
+        "description": "The expiration date of the waiver or exemption.",
+        "example": "2026-10-15"
+      },
+      {
+        "field": "waiver_grantor",
+        "description": "The entity granting the waiver or exemption.",
+        "example": "The Stock Exchange"
+      }
+    ],
+    "kg_evidence_types": [
+      "Letter of consent from HKEX",
+      "Appointment letter of joint company secretaries",
+      "Confirmation of management presence",
+      "Communication plan with authorized representatives"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to provide a clear and detailed explanation for the necessity of the waiver or exemption.",
+      "Not including the date of application and grant for each waiver or exemption.",
+      "Omitting cross-references to relevant sections of the prospectus.",
+      "Not updating the waiver or exemption details if the situation changes post-listing."
+    ]
   },
   "InfoProspectus": {
     "name": "Information about this Prospectus and the Global Offering",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide key reliance, distribution, and offering-notice language for the prospectus and the Global Offering.\n\nRequired structure:\n- Reliance-only-on-this-prospectus language.\n- No-authorised-other-information language.\n- Territorial restrictions and no-public-offer-outside-permitted-jurisdictions wording if supported.\n- Currency conversion note where relevant.\n- Listing, trading, and CCASS or settlement context if supported.\n- Website-not-part-of-the-prospectus wording where website references appear. Any section that mentions a website must state that the website does not form part of the prospectus where appropriate.\n- Directors' responsibility wording if supported.\n\nControls:\n- Use formal explanatory prose, not marketing language. No hidden profit-forecast implications.\n- Do not imply a profit forecast, valuation certainty, or offering completion certainty.\n- Add [[AI:XREF|to=Risk Factors]] and [[AI:XREF|to=GlobalOfferingStructure]] where helpful.\n- Missing notices should remain visible as [Information not provided in the documents] plus [[AI:VERIFY|Confirm standard reliance, territorial restriction, and website-not-part wording.]]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide key reliance, distribution, and offering-notice language for the prospectus and the Global Offering.\n\nRequired structure:\n- Reliance-only-on-this-prospectus language.\n- No-authorised-other-information language.\n- Territorial restrictions and no-public-offer-outside-permitted-jurisdictions wording if supported.\n- Currency conversion note where relevant.\n- Listing, trading, and CCASS or settlement context if supported.\n- Website-not-part-of-the-prospectus wording where website references appear. Any section that mentions a website must state that the website does not form part of the prospectus where appropriate.\n- Directors' responsibility wording if supported.\n\nControls:\n- Use formal explanatory prose, not marketing language. No hidden profit-forecast implications.\n- Do not imply a profit forecast, valuation certainty, or offering completion certainty.\n- Add [[AI:XREF|to=Risk Factors]] and [[AI:XREF|to=GlobalOfferingStructure]] where helpful.\n- Missing notices should remain visible as [Information not provided in the documents] plus [[AI:VERIFY|Confirm standard reliance, territorial restriction, and website-not-part wording.]].",
+    "kg_section_id": "Prospectus_and_Global_Offering_Information",
+    "kg_function": "To detail the responsibilities of the directors, the structure and conditions of the global offering, and to ensure the accuracy and completeness of the prospectus.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and accuracy in the prospectus, providing investors with critical information about the offering, the roles of various parties involved, and the conditions under which the shares will be offered. This section also clarifies the legal and regulatory compliance of the offering and addresses potential tax implications and exchange rate conversions.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Directors’ Responsibility for the Contents of this Prospectus",
+        "description": "States the responsibility of the directors for the contents of the prospectus and confirms the accuracy and completeness of the information provided."
+      },
+      {
+        "subsection": "Information on the Global Offering, Structure and Conditions of the Global Offering and Procedures for Application for Hong Kong Offer Shares",
+        "description": "Describes the global offering, including the number of shares, the structure, and the application process for Hong Kong offer shares."
+      },
+      {
+        "subsection": "Exchange Rate Conversion",
+        "description": "Provides translations of certain amounts denominated in different currencies for convenience and clarifies that no representation is made regarding actual conversion rates."
+      },
+      {
+        "subsection": "Language",
+        "description": "Clarifies the precedence of the English version in case of inconsistencies with the Chinese translation."
+      },
+      {
+        "subsection": "Rounding",
+        "description": "Explains that certain amounts and percentage figures have been subject to rounding adjustments."
+      },
+      {
+        "subsection": "Over-Allotment and Stabilization",
+        "description": "Details the arrangement relating to the over-allotment option and stabilization if applicable."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all information is accurate and complete.",
+      "Cross-reference with other sections of the prospectus where appropriate.",
+      "Adhere to the Companies (Winding Up and Miscellaneous Provisions) Ordinance, the Securities and Futures (Stock Market Listing) Rules, and the Listing Rules.",
+      "Include translations for amounts denominated in different currencies.",
+      "Specify the precedence of the English version in case of inconsistencies with the Chinese translation."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "directors_responsibility_statement",
+        "description": "Statement confirming the directors' responsibility for the contents of the prospectus.",
+        "example": "Our Directors, having made all reasonable enquiries, confirm that, to the best of their knowledge and belief, the information contained in this prospectus is accurate and complete in all material respects and not misleading or deceptive."
+      },
+      {
+        "field": "number_of_hong_kong_offer_shares",
+        "description": "Number of Hong Kong offer shares to be issued.",
+        "example": "70,612,000"
+      },
+      {
+        "field": "number_of_international_offer_shares",
+        "description": "Number of international offer shares to be issued.",
+        "example": "635,494,000"
+      },
+      {
+        "field": "underwriting_agreement_details",
+        "description": "Details of the underwriting agreement, including the names of the underwriters and the terms of the agreement.",
+        "example": "The Hong Kong Offer Shares are offered solely on the basis of the information contained and representations made in this prospectus and the Application Forms and on the terms and subject to the conditions set out herein and therein."
+      },
+      {
+        "field": "exchange_rate_conversions",
+        "description": "Exchange rate conversions for amounts denominated in different currencies.",
+        "example": "The translations between Renminbi and Hong Kong dollars were made at the rate of RMB0.78623 to HK$1.00."
+      },
+      {
+        "field": "language_precedence",
+        "description": "Precedence of the English version in case of inconsistencies with the Chinese translation.",
+        "example": "If there is any inconsistency between this prospectus and the Chinese translation of this prospectus, this prospectus shall prevail."
+      }
+    ],
+    "kg_evidence_types": [
+      "Audit reports",
+      "Legal opinions",
+      "Regulatory filings",
+      "Underwriting agreements",
+      "Exchange rate data"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to accurately represent the directors' responsibility for the contents of the prospectus.",
+      "Omitting important information about the global offering structure and conditions.",
+      "Incorrect exchange rate conversions.",
+      "Inconsistencies between the English and Chinese versions of the prospectus.",
+      "Failure to disclose all relevant tax implications."
+    ]
   },
   "DirectorsParties": {
     "name": "Directors and Parties Involved in the Global Offering",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a directory of directors and the professional parties involved in the transaction. Exact names and roles; directory style, not narrative style.\n\nRequired structure:\n- Directors with title and any address or nationality fields if supported.\n- Professional parties such as sponsors, coordinators, bookrunners, lead managers, legal advisers, reporting accountants or auditors, valuers, compliance advisers, receiving banks, and registrars if supported.\n- Use a list or table rather than narrative prose. Consistency with Underwriting and appendices.\n\nControls:\n- Names and roles must match the source documents exactly. Do not invent roles, firm names, or addresses.\n- Evidence references: where available, tie to engagement letters or official appointment records.\n- Add [[AI:XREF|to=Underwriting]] where party names must reconcile across sections.\n- Add [[AI:VERIFY|Confirm official names and appointments against engagement letters or formal appointment records.]] when any entry is incomplete."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a directory of directors and the professional parties involved in the transaction. Exact names and roles; directory style, not narrative style.\n\nRequired structure:\n- Directors with title and any address or nationality fields if supported.\n- Professional parties such as sponsors, coordinators, bookrunners, lead managers, legal advisers, reporting accountants or auditors, valuers, compliance advisers, receiving banks, and registrars if supported.\n- Use a list or table rather than narrative prose. Consistency with Underwriting and appendices.\n\nControls:\n- Names and roles must match the source documents exactly. Do not invent roles, firm names, or addresses.\n- Evidence references: where available, tie to engagement letters or official appointment records.\n- Add [[AI:XREF|to=Underwriting]] where party names must reconcile across sections.\n- Add [[AI:VERIFY|Confirm official names and appointments against engagement letters or formal appointment records.]] when any entry is incomplete.",
+    "kg_section_id": "Parties_Involved_in_the_Global_Offering",
+    "kg_function": "To disclose the key individuals and entities involved in the global offering process, including directors, parties involved, and their roles.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and provide investors with comprehensive information about the management and advisory teams involved in the global offering. This helps investors understand the governance structure and the expertise behind the offering.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Directors",
+        "description": "Lists the names, addresses, nationalities, and roles of the company’s directors."
+      },
+      {
+        "subsection": "Supervisors",
+        "description": "Lists the names, addresses, and nationalities of the company’s supervisors if applicable."
+      },
+      {
+        "subsection": "Parties Involved in the Global Offering",
+        "description": "Details the roles and contact information of joint sponsors, joint representatives, joint global coordinators, joint bookrunners, and joint lead managers."
+      },
+      {
+        "subsection": "Legal Advisors",
+        "description": "Names and addresses of legal advisors to the company, joint sponsors, and underwriters, along with the jurisdictions they cover."
+      },
+      {
+        "subsection": "Reporting Accountant and Independent Auditor",
+        "description": "Information on the company’s reporting accountant and independent auditor."
+      },
+      {
+        "subsection": "Industry Consultant",
+        "description": "Details on the industry consultant, if any."
+      },
+      {
+        "subsection": "Receiving Banks",
+        "description": "Names and addresses of banks designated to receive funds from the offering."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all names and addresses are accurate and up-to-date.",
+      "Cross-reference with other sections of the prospectus where relevant.",
+      "Disclose the roles and responsibilities of each party involved.",
+      "Adhere to the disclosure requirements set by HKEX."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "director_name",
+        "description": "Full name of the director.",
+        "example": "Dr. Xu Li"
+      },
+      {
+        "field": "director_address",
+        "description": "Physical address of the director.",
+        "example": "Flat A2, 1/F, Block A Grandview Tower, 130 Kennedy Road, Wan Chai, Hong Kong"
+      },
+      {
+        "field": "director_nationality",
+        "description": "Nationality of the director.",
+        "example": "Chinese (Hong Kong)"
+      },
+      {
+        "field": "director_role",
+        "description": "Role of the director within the company.",
+        "example": "Executive Director"
+      },
+      {
+        "field": "joint_sponsor_name",
+        "description": "Name of the joint sponsor.",
+        "example": "China International Capital Corporation Hong Kong Securities Limited"
+      },
+      {
+        "field": "joint_sponsor_address",
+        "description": "Physical address of the joint sponsor.",
+        "example": "29th Floor, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+      },
+      {
+        "field": "legal_advisor_name",
+        "description": "Name of the legal advisor.",
+        "example": "Clifford Chance"
+      },
+      {
+        "field": "legal_advisor_address",
+        "description": "Physical address of the legal advisor.",
+        "example": "27/F, Jardine House, One Connaught Place, Central, Hong Kong"
+      },
+      {
+        "field": "reporting_accountant_name",
+        "description": "Name of the reporting accountant.",
+        "example": "PricewaterhouseCoopers"
+      },
+      {
+        "field": "reporting_accountant_address",
+        "description": "Physical address of the reporting accountant.",
+        "example": "22/F, Prince’s Building, Central, Hong Kong"
+      },
+      {
+        "field": "industry_consultant_name",
+        "description": "Name of the industry consultant.",
+        "example": "Frost & Sullivan International Limited"
+      },
+      {
+        "field": "industry_consultant_address",
+        "description": "Physical address of the industry consultant.",
+        "example": "1706, One Exchange Square, 8 Connaught Place, Central, Hong Kong"
+      },
+      {
+        "field": "receiving_bank_name",
+        "description": "Name of the receiving bank.",
+        "example": "Bank of China (Hong Kong) Limited"
+      },
+      {
+        "field": "receiving_bank_address",
+        "description": "Physical address of the receiving bank.",
+        "example": "1 Garden Road, Hong Kong"
+      }
+    ],
+    "kg_evidence_types": [
+      "Board Resolutions",
+      "Company Bylaws",
+      "Legal Agreements",
+      "Audit Reports",
+      "Corporate Governance Policies",
+      "Financial Statements",
+      "Regulatory Filings"
+    ],
+    "kg_common_pitfalls": [
+      "Omitting or incorrectly listing the roles of directors and supervisors.",
+      "Providing outdated or incorrect contact information.",
+      "Failing to disclose the full scope of services provided by legal advisors.",
+      "Not cross-referencing with other sections of the prospectus.",
+      "Neglecting to include all relevant parties involved in the global offering."
+    ]
   },
   "CorporateInfo": {
     "name": "Corporate Information",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present key corporate particulars as a reference block. Evidence hooks for incorporation and appointment records where verification is needed.\n\nRequired structure:\n- Jurisdiction of incorporation and registered office.\n- Principal place of business and contact particulars if supported.\n- Website reference with a statement that the website does not form part of the prospectus.\n- Company secretary, authorised representatives, compliance adviser, registrar, stock code, and similar particulars as applicable and supported.\n\nControls:\n- Use structured list or table format. Do not infer missing corporate particulars.\n- Add [[AI:LPD|refresh=corporate particulars and officers]] for information likely to change before filing.\n- Add [[AI:VERIFY|Confirm incorporation, registered office, company secretary, and registrar details from corporate records.]] when required."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present key corporate particulars as a reference block. Evidence hooks for incorporation and appointment records where verification is needed.\n\nRequired structure:\n- Jurisdiction of incorporation and registered office.\n- Principal place of business and contact particulars if supported.\n- Website reference with a statement that the website does not form part of the prospectus.\n- Company secretary, authorised representatives, compliance adviser, registrar, stock code, and similar particulars as applicable and supported.\n\nControls:\n- Use structured list or table format. Do not infer missing corporate particulars.\n- Add [[AI:LPD|refresh=corporate particulars and officers]] for information likely to change before filing.\n- Add [[AI:VERIFY|Confirm incorporation, registered office, company secretary, and registrar details from corporate records.]] when required.",
+    "kg_section_id": "Corporate_Information",
+    "kg_function": "To provide essential corporate details and governance information for potential investors.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and provide investors with comprehensive information about the issuer's corporate structure, key personnel, and governance mechanisms. This helps investors make informed decisions and ensures compliance with regulatory standards.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Registered Office",
+        "description": "Details of the issuer's registered office, including address and jurisdiction."
+      },
+      {
+        "subsection": "Head Office and Principal Place of Business",
+        "description": "Addresses of the issuer's head offices and principal places of business in different jurisdictions."
+      },
+      {
+        "subsection": "Company’s Website",
+        "description": "URL of the issuer's official website, if any."
+      },
+      {
+        "subsection": "Joint Company Secretaries",
+        "description": "Names and contact details of the joint company secretaries."
+      },
+      {
+        "subsection": "Authorized Representatives",
+        "description": "Names and contact details of authorized representatives."
+      },
+      {
+        "subsection": "Audit Committee",
+        "description": "Composition of the audit committee, including names and roles of members."
+      },
+      {
+        "subsection": "Remuneration and Evaluation Committee",
+        "description": "Composition of the remuneration and evaluation committee, including names and roles of members."
+      },
+      {
+        "subsection": "Nomination Committee",
+        "description": "Composition of the nomination committee, including names and roles of members."
+      },
+      {
+        "subsection": "Strategy Committee",
+        "description": "Composition of the strategy committee, including names and roles of members."
+      },
+      {
+        "subsection": "Compliance Advisor",
+        "description": "Name and contact details of the compliance advisor."
+      },
+      {
+        "subsection": "Share Registrars",
+        "description": "Names and contact details of the share registrars."
+      },
+      {
+        "subsection": "Principal Banks",
+        "description": "Names and addresses of the principal banks."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all information is accurate and up-to-date.",
+      "Cross-reference with other sections where relevant.",
+      "Follow HKEX guidelines on disclosure requirements.",
+      "Maintain consistent formatting and style throughout the section."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "registered_office_address",
+        "description": "Address of the issuer's registered office.",
+        "example": "3-212 Governors Square, 23 Lime Tree Bay Avenue, P.O. Box 30746, Seven Mile Beach, Grand Cayman KY1-1203, Cayman Islands"
+      },
+      {
+        "field": "head_office_address",
+        "description": "Address of the issuer's head office in the PRC.",
+        "example": "No. 1900 Hongmei Road, Xuhui District, Shanghai 200233, PRC"
+      },
+      {
+        "field": "principal_place_of_business_hk",
+        "description": "Address of the issuer's principal place of business in Hong Kong.",
+        "example": "2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+      },
+      {
+        "field": "company_website",
+        "description": "URL of the issuer's official website.",
+        "example": "https://www.sensetime.com"
+      },
+      {
+        "field": "joint_company_secretaries",
+        "description": "Names and contact details of the joint company secretaries.",
+        "example": "Ms. Lin Jiemin (林潔敏), 2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+      },
+      {
+        "field": "authorized_representatives",
+        "description": "Names and contact details of authorized representatives.",
+        "example": "Mr. Xu Bing (徐冰), Flat A, 62/F, Luna Sky, The Cullinan, 1 Austin Road West, Tsim Sha Tsui, Kowloon, Hong Kong"
+      },
+      {
+        "field": "audit_committee_members",
+        "description": "Names and roles of members of the audit committee.",
+        "example": "Mr. Lyn Frank Yee Chon (林怡仲) (Chairperson), Ms. Fan Yuanyuan (范瑗瑗), Mr. Li Wei (厲偉)"
+      },
+      {
+        "field": "remuneration_and_evaluation_committee_members",
+        "description": "Names and roles of members of the remuneration and evaluation committee.",
+        "example": "Mr. Li Wei (厲偉) (Chairperson), Mr. Lyn Frank Yee Chon (林怡仲), Dr. Xu Li (徐立)"
+      },
+      {
+        "field": "nomination_committee_members",
+        "description": "Names and roles of members of the nomination committee.",
+        "example": "Mr. Li Wei (厲偉) (Chairperson), Dr. Xu Li (徐立), Prof. Xue Lan (薛瀾)"
+      },
+      {
+        "field": "strategy_committee_members",
+        "description": "Names and roles of members of the strategy committee.",
+        "example": "Mr. Li Zhen (李真) (Chairman), Mr. Zhang Guangping (張廣平), Mr. Li Yi (李一)"
+      },
+      {
+        "field": "compliance_advisor",
+        "description": "Name and contact details of the compliance advisor.",
+        "example": "Haitong International Capital Limited, Suites 3001-3006 and 3015-3016, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+      },
+      {
+        "field": "share_registrars",
+        "description": "Names and contact details of the share registrars.",
+        "example": "Computershare Hong Kong Investor Services Limited, Shops 1712-1716, 17th Floor, Hopewell Centre, 183 Queen’s Road East, Wan Chai, Hong Kong"
+      },
+      {
+        "field": "principal_banks",
+        "description": "Names and addresses of the principal banks.",
+        "example": "China Construction Bank, No. 25, Finance Street, Xicheng District, Beijing, PRC"
+      }
+    ],
+    "kg_evidence_types": [
+      "Company registration documents",
+      "Office lease agreements",
+      "Website URL",
+      "Contact details of company secretaries and authorized representatives",
+      "Committee membership records",
+      "Bank account details"
+    ],
+    "kg_common_pitfalls": [
+      "Omitting or providing outdated information.",
+      "Failing to include all required committees and their members.",
+      "Incorrect formatting or inconsistent style.",
+      "Neglecting to update the information regularly.",
+      "Including non-compliant or misleading statements."
+    ]
   },
   "Regulation": {
     "name": "Regulation (Regulatory Overview)",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Summarise the principal laws, licences, approvals, restrictions, and compliance status by topic that materially affect the business.\n\nRequired structure:\n- Organise by regulatory topic: licensing and approvals, data privacy and cybersecurity (including data lifecycle and personal-data logic if relevant), internet information services, foreign ownership restrictions, IP, consumer or product regulation, and other sector-specific rules as supported.\n- For each topic state the main rule set, the relevant regulator, the core requirement, and the issuer's compliance status if supported. Material incidents if relevant and evidenced.\n\nControls:\n- Cross-reference Business and Risk Factors using [[AI:XREF|to=Business]] and [[AI:XREF|to=Risk Factors]] where relevant.\n- For technology issuers, do not omit data privacy and cybersecurity logic, personal-data lifecycle controls, or material incidents if supported by the documents.\n- Do not downplay regulatory risk or state legal conclusions without support.\n- Add [[AI:VERIFY|Obtain legal opinions, licence evidence, filing records, and incident logs.]] where required."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Summarise the principal laws, licences, approvals, restrictions, and compliance status by topic that materially affect the business.\n\nRequired structure:\n- Organise by regulatory topic: licensing and approvals, data privacy and cybersecurity (including data lifecycle and personal-data logic if relevant), internet information services, foreign ownership restrictions, IP, consumer or product regulation, and other sector-specific rules as supported.\n- For each topic state the main rule set, the relevant regulator, the core requirement, and the issuer's compliance status if supported. Material incidents if relevant and evidenced.\n\nControls:\n- Cross-reference Business and Risk Factors using [[AI:XREF|to=Business]] and [[AI:XREF|to=Risk Factors]] where relevant.\n- For technology issuers, do not omit data privacy and cybersecurity logic, personal-data lifecycle controls, or material incidents if supported by the documents.\n- Do not downplay regulatory risk or state legal conclusions without support.\n- Add [[AI:VERIFY|Obtain legal opinions, licence evidence, filing records, and incident logs.]] where required.",
+    "kg_section_id": "Regulatory_Overview",
+    "kg_function": "To summarize the key regulatory frameworks affecting the issuer's business in the PRC.",
+    "kg_purpose": "HKEX requires this section to ensure that potential investors have a clear understanding of the regulatory environment in which the issuer operates, particularly focusing on PRC laws and regulations that significantly impact the issuer's business activities, financial performance, and compliance obligations.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Regulations on Value-Added Telecommunications Services and Foreign Investment Restrictions",
+        "description": "Details on foreign investment regulations, including the latest versions of the Negative List and Catalogs of Encouraged Industries."
+      },
+      {
+        "subsection": "Government Policies Related to the Issuer's Industry",
+        "description": "Summaries of government policies and initiatives that support the industry in which the issuer operates."
+      },
+      {
+        "subsection": "Product Liability and Consumer Protection",
+        "description": "Information on regulations governing product liability, consumer protection, and safety standards."
+      },
+      {
+        "subsection": "Cross-Border Transactions and Foreign Exchange Regulations",
+        "description": "Details on regulations related to cross-border transactions, foreign exchange controls, and overseas listings."
+      },
+      {
+        "subsection": "Intellectual Property and Data Security",
+        "description": "Summaries of laws and regulations related to intellectual property rights and data security."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all references to laws and regulations are up-to-date.",
+      "Provide specific examples where applicable.",
+      "Cross-reference with other sections of the prospectus as necessary.",
+      "Maintain a neutral tone and avoid promotional language."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "latest_negative_list",
+        "description": "The most recent version of the Negative List for Foreign Investment Access.",
+        "example": "Special Administrative Measures (Negative List) for Foreign Investment Access (2020 Version)"
+      },
+      {
+        "field": "encouraged_industries_catalog",
+        "description": "The current version of the Catalog of Industries for Encouraging Foreign Investment.",
+        "example": "Catalog of Industries for Encouraging Foreign Investment (2020 Version)"
+      },
+      {
+        "field": "government_policies",
+        "description": "Key government policies supporting the issuer's industry.",
+        "example": "Made in China 2025 Plan"
+      },
+      {
+        "field": "product_liability_laws",
+        "description": "Laws and regulations related to product liability and consumer protection.",
+        "example": "PRC Product Quality Law"
+      },
+      {
+        "field": "cross_border_transaction_regulations",
+        "description": "Regulations governing cross-border transactions and foreign exchange controls.",
+        "example": "SAFE Circular 28"
+      }
+    ],
+    "kg_evidence_types": [
+      "Official government publications",
+      "Regulatory notices and circulars",
+      "Industry reports",
+      "Legal opinions"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to update references to outdated laws and regulations.",
+      "Omitting critical regulatory requirements that could impact the issuer's business.",
+      "Providing vague or overly general descriptions of regulations.",
+      "Neglecting to include relevant government policies that support the issuer's industry."
+    ]
   },
   "IndustryOverview": {
     "name": "Industry Overview",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide an objective market background only. No company promotion disguised as industry analysis. Clear third-party attribution for all market data.\n\nRequired structure:\n- Define the industry or relevant market segments.\n- Present market size, growth, demand drivers, and competitive landscape only if supported by sourced materials.\n- For each sourced statistic define scope, metric, date, and period explicitly.\n- Include concentration, ranking, share, barriers to entry, or outlook only if supported by sourced materials. Use tables or concise prose as the data allows.\n\nControls:\n- Every market statistic, projection, ranking, share, or CAGR must carry [[AI:CITE|source=...; scope=...; date=...; metric=...]] with defined scope, metric, date, and period.\n- Do not present unsourced leadership claims, estimated growth, or third-party projections as issuer facts.\n- If sourcing metadata is incomplete, keep the statement as [Information not provided in the documents] and add [[AI:VERIFY|Obtain full third-party source, scope, metric, and date.]].\n- Add [[AI:XREF|to=Business]] and [[AI:XREF|to=Risk Factors]] where competitive or market statements connect to company disclosure."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide an objective market background only. No company promotion disguised as industry analysis. Clear third-party attribution for all market data.\n\nRequired structure:\n- Define the industry or relevant market segments.\n- Present market size, growth, demand drivers, and competitive landscape only if supported by sourced materials.\n- For each sourced statistic define scope, metric, date, and period explicitly.\n- Include concentration, ranking, share, barriers to entry, or outlook only if supported by sourced materials. Use tables or concise prose as the data allows.\n\nControls:\n- Every market statistic, projection, ranking, share, or CAGR must carry [[AI:CITE|source=...; scope=...; date=...; metric=...]] with defined scope, metric, date, and period.\n- Do not present unsourced leadership claims, estimated growth, or third-party projections as issuer facts.\n- If sourcing metadata is incomplete, keep the statement as [Information not provided in the documents] and add [[AI:VERIFY|Obtain full third-party source, scope, metric, and date.]].\n- Add [[AI:XREF|to=Business]] and [[AI:XREF|to=Risk Factors]] where competitive or market statements connect to company disclosure.",
+    "kg_section_id": "Industry_Overview",
+    "kg_function": "To provide an overview of the industry in which the issuer operates, including relevant market data, trends, and competitive landscape.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and provide potential investors with a clear understanding of the industry dynamics, market size, growth prospects, and competitive environment. Regulators and investors expect to see reliable and up-to-date information that supports the issuer's business strategy and financial projections.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Introduction",
+        "description": "Brief introduction to the industry, highlighting its significance and relevance to the issuer."
+      },
+      {
+        "subsection": "Market Size and Growth",
+        "description": "Detailed analysis of the current market size, growth rates, and projected future trends."
+      },
+      {
+        "subsection": "Key Drivers and Challenges",
+        "description": "Discussion of the main factors driving industry growth and the challenges faced by the industry."
+      },
+      {
+        "subsection": "Competitive Landscape",
+        "description": "Overview of major competitors, market share, and competitive strategies."
+      },
+      {
+        "subsection": "Regulatory Environment",
+        "description": "Explanation of relevant regulations and their impact on the industry."
+      },
+      {
+        "subsection": "Technology Trends",
+        "description": "Discussion of emerging technologies and their potential impact on the industry."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Avoid overly technical jargon unless necessary.",
+      "Provide cross-references to other sections of the prospectus where relevant information is discussed.",
+      "Ensure all data and statistics are accurate and up-to-date.",
+      "Disclose any conflicts of interest related to the sources of information."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "industry_name",
+        "description": "Name of the industry in which the issuer operates.",
+        "example": "Artificial Intelligence"
+      },
+      {
+        "field": "market_size",
+        "description": "Current market size of the industry.",
+        "example": "USD 10 billion"
+      },
+      {
+        "field": "growth_rate",
+        "description": "Annual growth rate of the industry.",
+        "example": "15%"
+      },
+      {
+        "field": "projected_market_size",
+        "description": "Projected market size of the industry in the next 5 years.",
+        "example": "USD 15 billion"
+      },
+      {
+        "field": "key_drivers",
+        "description": "Main factors driving industry growth.",
+        "example": "Advancements in AI technology, increased adoption of automation, regulatory support"
+      },
+      {
+        "field": "challenges",
+        "description": "Challenges faced by the industry.",
+        "example": "High initial investment costs, talent shortage, data privacy concerns"
+      },
+      {
+        "field": "major_competitors",
+        "description": "Names and market shares of major competitors.",
+        "example": "Company A (30%), Company B (25%), Company C (20%)"
+      },
+      {
+        "field": "regulatory_environment",
+        "description": "Relevant regulations and their impact on the industry.",
+        "example": "Data protection laws, patent regulations, industry-specific standards"
+      },
+      {
+        "field": "emerging_technologies",
+        "description": "Emerging technologies and their potential impact on the industry.",
+        "example": "Quantum computing, blockchain, edge computing"
+      }
+    ],
+    "kg_evidence_types": [
+      "Official government publications",
+      "Market research reports (e.g., Frost & Sullivan)",
+      "Industry association reports",
+      "Publicly available industry statistics"
+    ],
+    "kg_common_pitfalls": [
+      "Inaccurate or outdated data",
+      "Lack of cross-referencing to other sections",
+      "Failure to disclose conflicts of interest",
+      "Over-reliance on a single source of information",
+      "Omission of key risks and challenges"
+    ]
   },
   "HistoryReorg": {
     "name": "History, Reorganization, and Corporate Structure",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain the issuer's historical development, any pre-IPO reorganisation, and the resulting group structure. Chronological history; clean chain-of-title logic; entity and ownership consistency with Share Capital and Substantial Shareholders.\n\nRequired structure:\n- Chronological company history and major milestones.\n- IPO reorganisation steps undertaken for listing purposes.\n- Current group structure, including principal entities, jurisdictions, ownership relationships, and diagram references where relevant.\n- Pre- and post-listing ownership context if supported.\n\nControls:\n- Do not invent dates, legal steps, ownership percentages, or entity relationships.\n- Add [[AI:VERIFY|Obtain board resolutions, reorganisation agreements, share transfer documents, and filings.]].\n- Add [[AI:XREF|to=ShareCapital]] and [[AI:XREF|to=SubstantialShareholders]] where structural information must reconcile.\n- If a structural step is required but unsupported, preserve the sub-heading and use [Information not provided in the documents]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain the issuer's historical development, any pre-IPO reorganisation, and the resulting group structure. Chronological history; clean chain-of-title logic; entity and ownership consistency with Share Capital and Substantial Shareholders.\n\nRequired structure:\n- Chronological company history and major milestones.\n- IPO reorganisation steps undertaken for listing purposes.\n- Current group structure, including principal entities, jurisdictions, ownership relationships, and diagram references where relevant.\n- Pre- and post-listing ownership context if supported.\n\nControls:\n- Do not invent dates, legal steps, ownership percentages, or entity relationships.\n- Add [[AI:VERIFY|Obtain board resolutions, reorganisation agreements, share transfer documents, and filings.]].\n- Add [[AI:XREF|to=ShareCapital]] and [[AI:XREF|to=SubstantialShareholders]] where structural information must reconcile.\n- If a structural step is required but unsupported, preserve the sub-heading and use [Information not provided in the documents].",
+    "kg_section_id": "History_Reorganization_Corporate_Structure",
+    "kg_function": "To provide a detailed account of the issuer's history, key milestones, reorganizations, and corporate structure, ensuring transparency and aiding investor understanding.",
+    "kg_purpose": "HKEX requires this section to ensure that investors have a clear understanding of the issuer's historical development, key achievements, and current corporate structure. This helps in assessing the issuer's stability, growth trajectory, and compliance with relevant regulations, particularly those related to cross-border investments and operations.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Overview",
+        "description": "Brief introduction to the issuer's history and current status."
+      },
+      {
+        "subsection": "Key Milestones",
+        "description": "Detailed timeline of significant events and developments in the issuer's history."
+      },
+      {
+        "subsection": "Corporate Structure",
+        "description": "Description of the issuer's current corporate structure, including ownership, subsidiaries, and affiliates."
+      },
+      {
+        "subsection": "Reorganizations",
+        "description": "Details of any significant corporate reorganizations, mergers, acquisitions, or divestitures."
+      },
+      {
+        "subsection": "Cross-Border Investments and Operations",
+        "description": "Information on the issuer's operations and investments outside its home jurisdiction, including regulatory compliance."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all dates and events are accurate and verifiable.",
+      "Include relevant regulatory information, especially concerning cross-border investments.",
+      "Cross-reference with other sections where appropriate.",
+      "Maintain a consistent chronological order."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Company_Incorporation_Date",
+        "description": "The date the company was incorporated.",
+        "example": "October 15, 2014"
+      },
+      {
+        "field": "Key_Milestones",
+        "description": "List of significant events and achievements in the company's history.",
+        "example": "2014 - Our Company was incorporated; 2015 - We started R&D on our deep learning training framework, SenseParrots."
+      },
+      {
+        "field": "Corporate_Structure",
+        "description": "Description of the current corporate structure, including ownership and subsidiaries.",
+        "example": "Our Company is the holding company of the Group with businesses conducted through its subsidiaries and the Consolidated Affiliated Entities."
+      },
+      {
+        "field": "Reorganizations",
+        "description": "Details of any significant corporate reorganizations, mergers, acquisitions, or divestitures.",
+        "example": "2019 - We co-founded China Augmented Reality Core Technology Industry Alliance."
+      },
+      {
+        "field": "Cross_Border_Operations",
+        "description": "Information on the issuer's operations and investments outside its home jurisdiction.",
+        "example": "Pursuant to Circular 37, promulgated by SAFE, a PRC resident must register with the local SAFE branch in connection with their contribution of offshore or domestic assets."
+      }
+    ],
+    "kg_evidence_types": [
+      "Company Incorporation Certificate",
+      "Shareholder Register",
+      "Audit Report",
+      "Regulatory Compliance Certificates",
+      "Legal Opinions",
+      "Industry Reports"
+    ],
+    "kg_common_pitfalls": [
+      "Omitting key milestones or reorganizations that could impact investor perception.",
+      "Providing inaccurate or outdated information about the company's history and structure.",
+      "Failing to disclose relevant regulatory requirements and compliance issues.",
+      "Not maintaining a clear and chronological order in the presentation of information."
+    ]
   },
   "Business": {
     "name": "Business",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a detailed, evidence-based description of the issuer's operations.\n\nRequired structure:\n- Business overview; products and services; business model and monetisation.\n- Operations and supply chain; R&D and technology; sales and marketing.\n- IP, properties, employees, compliance, and incidents where relevant.\n- If the issuer is Pre-Commercial: explicit support for a credible path to commercialisation where evidenced.\n- If the issuer is internet/data-heavy: operational data-flow disclosure and related controls where supported.\n- Competition and market positioning only if supported. Growth strategy only where current plans are supported and carefully qualified.\n\nControls:\n- No hype, no unsourced leadership claims, and no absolute performance statements.\n- For technology issuers, include supported disclosure on personal data categories, data lifecycle controls, material incidents, key agreements, and IP ownership or licensing.\n- Do not convert strategy into a profit forecast or certainty of future success.\n- Add [[AI:XREF|to=Regulation]] and [[AI:XREF|to=Risk Factors]] where risk-sensitive operational matters appear.\n- Add [[AI:VERIFY|Obtain key customer, supplier, R&D, IP, privacy, and incident evidence where incomplete.]] as needed."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide a detailed, evidence-based description of the issuer's operations.\n\nRequired structure:\n- Business overview; products and services; business model and monetisation.\n- Operations and supply chain; R&D and technology; sales and marketing.\n- IP, properties, employees, compliance, and incidents where relevant.\n- If the issuer is Pre-Commercial: explicit support for a credible path to commercialisation where evidenced.\n- If the issuer is internet/data-heavy: operational data-flow disclosure and related controls where supported.\n- Competition and market positioning only if supported. Growth strategy only where current plans are supported and carefully qualified.\n\nControls:\n- No hype, no unsourced leadership claims, and no absolute performance statements.\n- For technology issuers, include supported disclosure on personal data categories, data lifecycle controls, material incidents, key agreements, and IP ownership or licensing.\n- Do not convert strategy into a profit forecast or certainty of future success.\n- Add [[AI:XREF|to=Regulation]] and [[AI:XREF|to=Risk Factors]] where risk-sensitive operational matters appear.\n- Add [[AI:VERIFY|Obtain key customer, supplier, R&D, IP, privacy, and incident evidence where incomplete.]] as needed.",
+    "kg_section_id": "Business",
+    "kg_function": "Provides an overview of the issuer's business, including its mission, vision, core competencies, market position, and competitive landscape.",
+    "kg_purpose": "HKEX requires this section to ensure transparency about the issuer's business operations, strategic direction, and competitive environment. Investors and regulators expect to understand the issuer's business model, market position, and how it plans to achieve its goals.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Mission and Vision",
+        "description": "Describes the issuer's mission and vision statements."
+      },
+      {
+        "subsection": "Business Overview",
+        "description": "Summarizes the issuer's business, including its core products or services, target markets, and key business segments."
+      },
+      {
+        "subsection": "Market Position",
+        "description": "Details the issuer's market position, including market share, competitive advantages, and key differentiators."
+      },
+      {
+        "subsection": "Products and Services",
+        "description": "Lists the issuer's main products and services, along with their features and benefits."
+      },
+      {
+        "subsection": "Business Model",
+        "description": "Explains the issuer's business model, including revenue streams, cost structure, and pricing strategies."
+      },
+      {
+        "subsection": "Competition",
+        "description": "Describes the issuer's competitors, competitive landscape, and strategies to maintain or gain market share."
+      },
+      {
+        "subsection": "Regulatory Environment",
+        "description": "Outlines the regulatory environment in which the issuer operates, including any relevant laws, regulations, and compliance requirements."
+      },
+      {
+        "subsection": "Intellectual Property",
+        "description": "Discusses the issuer's intellectual property rights, including patents, trademarks, and copyrights."
+      },
+      {
+        "subsection": "Data Security and Privacy",
+        "description": "Details the issuer's policies and practices related to data security and privacy, including data collection, storage, and usage."
+      },
+      {
+        "subsection": "Risk Factors",
+        "description": "Identifies and discusses material risks that could affect the issuer's business, financial condition, or operating results."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Avoid overly technical jargon unless necessary.",
+      "Provide specific examples and data to support claims.",
+      "Cross-reference with other sections of the prospectus as needed.",
+      "Ensure consistency with the issuer's annual reports and other public filings."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "mission_statement",
+        "description": "The issuer's mission statement.",
+        "example": "To create a better AI-empowered future through innovation."
+      },
+      {
+        "field": "vision_statement",
+        "description": "The issuer's vision statement.",
+        "example": "To advance the interconnection of the physical and digital worlds with artificial intelligence, driving sustainable productivity growth and seamless interactive experiences."
+      },
+      {
+        "field": "core_products_services",
+        "description": "List of the issuer's core products or services.",
+        "example": [
+          "AI software platforms",
+          "computer vision technologies"
+        ]
+      },
+      {
+        "field": "market_position",
+        "description": "Details on the issuer's market position, including market share and competitive advantages.",
+        "example": "Largest AI software company in Asia with a market share of 11% in China."
+      },
+      {
+        "field": "competitors",
+        "description": "List of the issuer's main competitors.",
+        "example": [
+          "Company A",
+          "Company B"
+        ]
+      },
+      {
+        "field": "regulatory_environment",
+        "description": "Description of the regulatory environment in which the issuer operates.",
+        "example": "Compliance with data protection regulations such as GDPR and CCPA."
+      },
+      {
+        "field": "intellectual_property",
+        "description": "Details on the issuer's intellectual property rights.",
+        "example": "Over 8,000 AI patents and patent applications."
+      },
+      {
+        "field": "data_security_and_privacy",
+        "description": "Policies and practices related to data security and privacy.",
+        "example": "Encryption of processed data and data desensitization technologies."
+      },
+      {
+        "field": "risk_factors",
+        "description": "Material risks that could affect the issuer's business, financial condition, or operating results.",
+        "example": "Risks related to data breaches and cybersecurity threats."
+      }
+    ],
+    "kg_evidence_types": [
+      "Annual reports",
+      "Industry reports",
+      "Patent filings",
+      "Compliance documents",
+      "Customer contracts",
+      "Market research studies"
+    ],
+    "kg_common_pitfalls": [
+      "Overgeneralizing the business model without providing specific details.",
+      "Failing to disclose material risks adequately.",
+      "Using overly technical language that may confuse investors.",
+      "Not providing sufficient context for the issuer's market position.",
+      "Neglecting to update the section with the latest information."
+    ]
   },
   "ContractualArrangements": {
     "name": "Contractual Arrangements (Variable Interest Entities)",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain contractual arrangements or VIE structures if the issuer uses them. Regulatory reason for the structure; parties and key contracts; control and economic benefit explanation; enforceability and loss-of-control risks. Consistency with Regulatory Overview and Risk Factors.\n\nRequired structure:\n- Regulatory background creating the need for contractual arrangements.\n- Identification of the relevant entities and parties; summary of the principal contracts and how they are intended to confer control and economic benefits.\n- Enforceability and loss-of-control risks; brief explanation of main risks and uncertainties.\n- Counsel or enforceability statements only if supported.\n\nControls:\n- If no VIE or contractual arrangement is disclosed, state [Not applicable - no VIE or contractual arrangement disclosed in the documents].\n- Do not invent the existence of contracts, legal conclusions, or regulatory barriers.\n- Add [[AI:XREF|to=Regulation]] and [[AI:XREF|to=Risk Factors]] for consistency.\n- Add [[AI:VERIFY|Obtain executed VIE agreements, PRC counsel opinions, and supporting regulatory materials.]] where relevant."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain contractual arrangements or VIE structures if the issuer uses them. Regulatory reason for the structure; parties and key contracts; control and economic benefit explanation; enforceability and loss-of-control risks. Consistency with Regulatory Overview and Risk Factors.\n\nRequired structure:\n- Regulatory background creating the need for contractual arrangements.\n- Identification of the relevant entities and parties; summary of the principal contracts and how they are intended to confer control and economic benefits.\n- Enforceability and loss-of-control risks; brief explanation of main risks and uncertainties.\n- Counsel or enforceability statements only if supported.\n\nControls:\n- If no VIE or contractual arrangement is disclosed, state [Not applicable - no VIE or contractual arrangement disclosed in the documents].\n- Do not invent the existence of contracts, legal conclusions, or regulatory barriers.\n- Add [[AI:XREF|to=Regulation]] and [[AI:XREF|to=Risk Factors]] for consistency.\n- Add [[AI:VERIFY|Obtain executed VIE agreements, PRC counsel opinions, and supporting regulatory materials.]] where relevant.",
+    "kg_section_id": "Contractual_Arrangements_VIE",
+    "kg_function": "To disclose the contractual arrangements between the Variable Interest Entity (VIE) and the WFOE, detailing how these arrangements allow the WFOE to control the VIE and consolidate its financial results.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the complex ownership and control structures of the applicant, particularly when involving offshore entities and PRC regulations on foreign investment. This helps investors understand the true economic substance of the applicant’s operations and the risks associated with such structures.",
+    "kg_typical_structure": [
+      {
+        "subsection": "PRC Regulatory Background",
+        "description": "Provides context on PRC laws and regulations governing foreign investment, especially those relevant to the VIE structure."
+      },
+      {
+        "subsection": "Description of Contractual Arrangements",
+        "description": "Details the specific contractual agreements (e.g., exclusive business cooperation agreements, exclusive call option agreements) that establish the VIE structure and control mechanisms."
+      },
+      {
+        "subsection": "Control Mechanisms",
+        "description": "Explains how the WFOE exercises control over the VIE, including mechanisms like equity pledges, exclusive call options, and board representation rights."
+      },
+      {
+        "subsection": "Accounting Aspects",
+        "description": "Describes how the VIE’s financial results are consolidated into the applicant’s financial statements, including the basis of consolidation and any relevant accounting treatments."
+      },
+      {
+        "subsection": "Impact and Potential Consequences of PRC Legislation",
+        "description": "Discusses the impact of recent PRC legislation on the VIE structure, including the Foreign Investment Law and its implications."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all contractual agreements are accurately described and cross-referenced.",
+      "Provide detailed explanations of control mechanisms and their legal basis.",
+      "Disclose any potential risks and uncertainties related to the VIE structure.",
+      "Refer to the latest PRC laws and regulations.",
+      "Include a statement from the company’s directors on the fairness and reasonableness of the contractual arrangements."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "VIE_WFOE_name",
+        "description": "Name of the Variable Interest Entity (VIE) and the Wholly Foreign-Owned Enterprise (WFOE).",
+        "example": "Shanghai SenseTime Technology Development Co., Ltd."
+      },
+      {
+        "field": "Relevant_businesses",
+        "description": "List of businesses subject to foreign investment restrictions in the PRC.",
+        "example": [
+          "Value-added telecommunication service business"
+        ]
+      },
+      {
+        "field": "Control_mechanisms",
+        "description": "Detailed description of control mechanisms (e.g., equity pledges, exclusive call options).",
+        "example": "Jilin Yutai pledged their equity interest in Jiaxiang Interactive to Homeland PRC."
+      },
+      {
+        "field": "Consolidation_basis",
+        "description": "Explanation of the basis for consolidating the VIE’s financial results into the applicant’s financial statements.",
+        "example": "Services fee equals to Consolidated Affiliated Entities’ profit before tax, deducting any accumulated losses of Consolidated Affiliated Entities and its subsidiaries from the preceding fiscal year."
+      },
+      {
+        "field": "Legal_advisory_opinion",
+        "description": "Opinion from the PRC legal advisor on the compliance of the VIE structure with PRC laws and regulations.",
+        "example": "Advised by the PRC Legal Advisor, a summary of our business/operation that is subject to foreign investment restriction..."
+      }
+    ],
+    "kg_evidence_types": [
+      "Legal advisory opinions",
+      "Corporate governance documents",
+      "Financial statements",
+      "Regulatory filings",
+      "Board resolutions"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose all relevant control mechanisms and their legal basis.",
+      "Overlooking the impact of recent PRC legislation on the VIE structure.",
+      "Inaccurate descriptions of contractual agreements and their enforcement.",
+      "Insufficient disclosure of risks and uncertainties related to the VIE structure.",
+      "Failure to obtain a formal opinion from the PRC legal advisor."
+    ]
   },
   "ControllingShareholders": {
     "name": "Relationship with Our Controlling Shareholders",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose ownership and influence of controlling shareholders; independence safeguards; non-competition or conflict-management logic if applicable. WVR influence discussion where relevant.\n\nRequired structure:\n- Identify controlling shareholders and their shareholding or voting influence if supported.\n- Explain relationship to the Group and any actual or potential conflicts.\n- Set out operational, management, and financial independence measures if supported.\n- Describe non-competition or governance arrangements if supported. Cross-reference related dealings where relevant.\n\nControls:\n- If WVR applies, highlight the control-risk narrative and any divergence between voting power and economic ownership.\n- Do not give comfort statements about independence unless the documents support them.\n- Add [[AI:XREF|to=RiskFactors]] and [[AI:XREF|to=ConnectedTransactions]] where relevant.\n- Add [[AI:VERIFY|Obtain register, shareholder agreements, governance policies, and non-competition deeds.]] where necessary."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose ownership and influence of controlling shareholders; independence safeguards; non-competition or conflict-management logic if applicable. WVR influence discussion where relevant.\n\nRequired structure:\n- Identify controlling shareholders and their shareholding or voting influence if supported.\n- Explain relationship to the Group and any actual or potential conflicts.\n- Set out operational, management, and financial independence measures if supported.\n- Describe non-competition or governance arrangements if supported. Cross-reference related dealings where relevant.\n\nControls:\n- If WVR applies, highlight the control-risk narrative and any divergence between voting power and economic ownership.\n- Do not give comfort statements about independence unless the documents support them.\n- Add [[AI:XREF|to=RiskFactors]] and [[AI:XREF|to=ConnectedTransactions]] where relevant.\n- Add [[AI:VERIFY|Obtain register, shareholder agreements, governance policies, and non-competition deeds.]] where necessary.",
+    "kg_section_id": "Relationship_with_Controlling_Shareholders",
+    "kg_function": "To disclose the relationship between the company and its controlling shareholders, including their shareholdings, voting rights, and measures taken to manage conflicts of interest.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the influence of controlling shareholders on the company and to demonstrate that the company has adequate measures in place to protect minority shareholders' interests. This section helps investors understand the potential conflicts of interest and the steps taken to mitigate them.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Controlling Shareholders",
+        "description": "Details of the controlling shareholders, including their shareholdings and voting rights."
+      },
+      {
+        "subsection": "Shareholding Structure",
+        "description": "Explanation of the shareholding structure, including any concert parties or associated parties."
+      },
+      {
+        "subsection": "Voting Rights",
+        "description": "Details of the voting rights associated with different classes of shares."
+      },
+      {
+        "subsection": "Conflicts of Interest Management",
+        "description": "Measures taken to manage conflicts of interest, including internal controls and independent oversight."
+      },
+      {
+        "subsection": "Disclosure of Connected Transactions",
+        "description": "Procedures for disclosing and managing connected transactions involving controlling shareholders."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Disclose all relevant information about shareholdings and voting rights.",
+      "Cross-reference with other sections of the prospectus, such as the Share Capital section.",
+      "Ensure consistency with the Listing Rules and the Code on Corporate Governance.",
+      "Provide details of any concert party agreements or similar arrangements."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "controlling_shareholder_name",
+        "description": "Name of the controlling shareholder.",
+        "example": "Prof. Tang"
+      },
+      {
+        "field": "controlling_shareholder_shareholding",
+        "description": "Percentage of shareholding by the controlling shareholder.",
+        "example": "26.43%"
+      },
+      {
+        "field": "voting_rights_details",
+        "description": "Details of the voting rights associated with different classes of shares.",
+        "example": "Each Class A Share has 10 votes per share, while each Class B Share has one vote per share."
+      },
+      {
+        "field": "concert_party_agreements",
+        "description": "Details of any concert party agreements or similar arrangements.",
+        "example": "Agreement among Sinovation Ventures, Sinovation Ventures Yucheng, Mr. Wang Hua, Ms. Tao Ning, Ms. Lang Chunhui, and Mr. Zhang Ying."
+      },
+      {
+        "field": "internal_control_mechanisms",
+        "description": "Description of internal control mechanisms to manage conflicts of interest.",
+        "example": "Annual review by independent non-executive directors."
+      }
+    ],
+    "kg_evidence_types": [
+      "Shareholding register",
+      "Concert party agreement",
+      "Board resolution",
+      "Independent non-executive directors' report"
+    ],
+    "kg_common_pitfalls": [
+      "Omitting details of concert party agreements or similar arrangements.",
+      "Failing to disclose all relevant information about shareholdings and voting rights.",
+      "Not providing sufficient detail on internal control mechanisms.",
+      "Inconsistent information across different sections of the prospectus."
+    ]
   },
   "ConnectedTransactions": {
     "name": "Connected Transactions",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose identification of connected persons; nature and terms of transactions; historical amounts if applicable; annual caps where applicable; waivers or exemptions where applicable; internal controls and monitoring mechanisms. Cross-check with Financial Information for hidden dependence.\n\nRequired structure:\n- Identify connected persons if supported.\n- Describe nature and terms of transactions; historical connected transactions, continuing connected transactions, and any basis for annual caps if supported.\n- State internal control procedures, exemptions, or waivers only if supported. Use tables where monetary data or annual caps are available.\n\nControls:\n- Do not invent connected-person status, cap amounts, or waiver status. If no connected transactions are disclosed, say so expressly.\n- Add [[AI:XREF|to=FinancialInfo]] where transaction economics or dependency must reconcile; cross-check for hidden dependence on connected parties.\n- Add [[AI:VERIFY|Obtain contracts, pricing support, board or committee approvals, and internal control documentation.]] when details are incomplete."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Disclose identification of connected persons; nature and terms of transactions; historical amounts if applicable; annual caps where applicable; waivers or exemptions where applicable; internal controls and monitoring mechanisms. Cross-check with Financial Information for hidden dependence.\n\nRequired structure:\n- Identify connected persons if supported.\n- Describe nature and terms of transactions; historical connected transactions, continuing connected transactions, and any basis for annual caps if supported.\n- State internal control procedures, exemptions, or waivers only if supported. Use tables where monetary data or annual caps are available.\n\nControls:\n- Do not invent connected-person status, cap amounts, or waiver status. If no connected transactions are disclosed, say so expressly.\n- Add [[AI:XREF|to=FinancialInfo]] where transaction economics or dependency must reconcile; cross-check for hidden dependence on connected parties.\n- Add [[AI:VERIFY|Obtain contracts, pricing support, board or committee approvals, and internal control documentation.]] when details are incomplete.",
+    "kg_section_id": "Connected_Transactions",
+    "kg_function": "Discloses ongoing transactions between the issuer and its connected persons, ensuring transparency and compliance with HKEX regulations.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding ongoing transactions between the issuer and its connected persons. This helps investors understand potential conflicts of interest and assess the fairness and reasonableness of these transactions. It also ensures compliance with the Listing Rules, particularly Chapter 14A, which governs connected transactions.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Overview",
+        "description": "Provides a general introduction to the section, outlining the nature and scope of connected transactions."
+      },
+      {
+        "subsection": "Connected Persons",
+        "description": "Lists the connected persons involved in the transactions, detailing their relationships with the issuer."
+      },
+      {
+        "subsection": "Transactions",
+        "description": "Describes the specific transactions, including the parties involved, the nature of the transactions, and the amounts or terms of the transactions."
+      },
+      {
+        "subsection": "Waivers and Exemptions",
+        "description": "Details any waivers or exemptions sought from the Listing Rules, along with the rationale and conditions attached to these requests."
+      },
+      {
+        "subsection": "Review and Approval",
+        "description": "Outlines the processes for reviewing and approving the transactions, including the roles of the board of directors and independent non-executive directors."
+      },
+      {
+        "subsection": "Future Amendments",
+        "description": "States the issuer's commitment to comply with any future amendments to the Listing Rules that may impose stricter requirements."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all transactions are accurately described and disclosed.",
+      "Cross-reference with other sections of the prospectus as necessary.",
+      "Adhere to the specific requirements of Chapter 14A of the Listing Rules.",
+      "Include any relevant waivers or exemptions obtained from the Stock Exchange."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "connected_persons",
+        "description": "Names and details of the connected persons involved in the transactions.",
+        "example": "SoftBank SPV, WeWork HK, WeWork Abu Dhabi, ST Solutions Taiwan, JCV"
+      },
+      {
+        "field": "transaction_details",
+        "description": "Specific details of the transactions, including parties involved, nature of the transactions, and amounts or terms.",
+        "example": "Providing customized image detection technology services to Inner Mongolia Yili Industrial Group Co., Ltd. for RMB 3,500,000 annually."
+      },
+      {
+        "field": "waivers_and_exemptions",
+        "description": "Details of any waivers or exemptions sought from the Listing Rules, including the rationale and conditions.",
+        "example": "Waiver from the announcement requirement under Rule 14A.35 for the Image Detection Technology Service Framework Agreement."
+      },
+      {
+        "field": "review_process",
+        "description": "Description of the review and approval process for the transactions, including the roles of the board of directors and independent non-executive directors.",
+        "example": "The independent non-executive directors and auditors will review the transactions and confirm their fairness and reasonableness annually."
+      }
+    ],
+    "kg_evidence_types": [
+      "Shareholding structure diagrams",
+      "Transaction agreements",
+      "Board meeting minutes",
+      "Waiver applications and approvals",
+      "Independent director confirmations"
+    ],
+    "kg_common_pitfalls": [
+      "Omitting important connected persons or transactions.",
+      "Failing to disclose the full scope of transactions and their impact.",
+      "Not obtaining necessary waivers or exemptions from the Stock Exchange.",
+      "Lack of clarity in the description of transactions and their terms.",
+      "Neglecting to update the section with any changes in connected transactions post-filing."
+    ]
   },
   "DirectorsSeniorMgmt": {
     "name": "Directors and Senior Management",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present factual biographies only: roles, experience, qualifications, major prior positions. No hype language. Evidence support for any awards or qualifications if mentioned.\n\nRequired structure:\n- Separate board roles and senior management where appropriate.\n- For each person include name, age if supported, title, responsibilities, relevant experience, qualifications, and other directorships or positions if supported. Use concise profile paragraphs or tables.\n\nControls:\n- Keep biographies factual and avoid hype such as visionary, best-in-class, or similar promotional language. Do not invent educational, professional, or award details; any awards or qualifications cited must be evidenced.\n- Add [[AI:VERIFY|Obtain CVs, appointment letters, academic or professional credentials, and recent directorship records.]] where relevant.\n- If remuneration, service contracts, or share interests are not supported, keep the relevant sub-heading with [Information not provided in the documents]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Present factual biographies only: roles, experience, qualifications, major prior positions. No hype language. Evidence support for any awards or qualifications if mentioned.\n\nRequired structure:\n- Separate board roles and senior management where appropriate.\n- For each person include name, age if supported, title, responsibilities, relevant experience, qualifications, and other directorships or positions if supported. Use concise profile paragraphs or tables.\n\nControls:\n- Keep biographies factual and avoid hype such as visionary, best-in-class, or similar promotional language. Do not invent educational, professional, or award details; any awards or qualifications cited must be evidenced.\n- Add [[AI:VERIFY|Obtain CVs, appointment letters, academic or professional credentials, and recent directorship records.]] where relevant.\n- If remuneration, service contracts, or share interests are not supported, keep the relevant sub-heading with [Information not provided in the documents].",
+    "kg_section_id": "Directors_and_Senior_Management",
+    "kg_function": "To provide details about the directors and senior management of the company, including their roles, responsibilities, and relationships.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and accountability in corporate governance. Regulators and investors expect to understand the composition and dynamics of the board, the qualifications and experience of the directors, and the structure of senior management to assess the company's leadership and strategic direction.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Directors",
+        "description": "Lists the names, ages, positions, joining dates, appointment dates, roles, and relationships of the directors."
+      },
+      {
+        "subsection": "Non-executive Directors",
+        "description": "Details the roles and responsibilities of non-executive directors, including their independence and contributions to the board."
+      },
+      {
+        "subsection": "Independent Non-executive Directors",
+        "description": "Provides information on independent non-executive directors, including their qualifications and how they contribute to the board's independence."
+      },
+      {
+        "subsection": "Remuneration Committee",
+        "description": "Describes the committee responsible for setting the remuneration of directors and senior management."
+      },
+      {
+        "subsection": "Remuneration Details",
+        "description": "Discloses the remuneration details of directors and senior management, including salaries, bonuses, and other benefits."
+      },
+      {
+        "subsection": "Compliance Adviser",
+        "description": "Identifies the compliance adviser appointed by the company and outlines their role in advising on compliance with listing rules."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all information is accurate and up-to-date.",
+      "Disclose any conflicts of interest.",
+      "Cross-reference with other sections of the prospectus, such as the remuneration section.",
+      "Adhere to the format and structure specified by HKEX."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "director_name",
+        "description": "The full name of the director.",
+        "example": "Dr. Xu Li"
+      },
+      {
+        "field": "director_age",
+        "description": "The age of the director.",
+        "example": "39"
+      },
+      {
+        "field": "director_position",
+        "description": "The position held by the director in the company.",
+        "example": "Co-founder, executive Chairman of our Board, executive Director, chief executive officer and member of the remuneration committee and the nomination committee"
+      },
+      {
+        "field": "director_join_date",
+        "description": "The date the director joined the company.",
+        "example": "March 2015"
+      },
+      {
+        "field": "director_appointment_date",
+        "description": "The date the director was appointed as a director.",
+        "example": "December 15, 2015"
+      },
+      {
+        "field": "director_roles",
+        "description": "The roles and responsibilities of the director.",
+        "example": "Responsible for our Group’s vision strategy, business development and daily operations"
+      },
+      {
+        "field": "director_relationships",
+        "description": "Any relationships between the director and other directors or senior management.",
+        "example": "Brother-in-law of Dr. Wang"
+      },
+      {
+        "field": "remuneration_details",
+        "description": "Details of the remuneration received by the director, including salaries, bonuses, and other benefits.",
+        "example": "RMB60,730,000"
+      }
+    ],
+    "kg_evidence_types": [
+      "Board meeting minutes",
+      "Employment contracts",
+      "Remuneration agreements",
+      "Internal policies and procedures"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose conflicts of interest.",
+      "Inaccurate or outdated information about directors and their roles.",
+      "Lack of clarity in the description of roles and responsibilities.",
+      "Failure to cross-reference with other sections of the prospectus."
+    ]
   },
   "SubstantialShareholders": {
     "name": "Substantial Shareholders",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Identify substantial shareholders; LPD-based shareholding tables; pre- and post-offering positions where relevant; ownership chain transparency; reconciliation with Share Capital.\n\nRequired structure:\n- Present holdings as of the Latest Practicable Date and, if supported, immediately after the Global Offering.\n- Include holder name, number of shares, percentage, and nature of interest. Identify intermediary holding vehicles or trusts where supported.\n\nControls:\n- Use [[AI:LPD|refresh=shareholding table]] for all shareholding tables.\n- Do not invent percentages, indirect ownership chains, or lock-up arrangements.\n- Add [[AI:XREF|to=ShareCapital]] where reconciliation is required.\n- Add [[AI:VERIFY|Obtain register of members, ownership confirmations, and group ownership charts.]] when the supporting evidence is incomplete."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Identify substantial shareholders; LPD-based shareholding tables; pre- and post-offering positions where relevant; ownership chain transparency; reconciliation with Share Capital.\n\nRequired structure:\n- Present holdings as of the Latest Practicable Date and, if supported, immediately after the Global Offering.\n- Include holder name, number of shares, percentage, and nature of interest. Identify intermediary holding vehicles or trusts where supported.\n\nControls:\n- Use [[AI:LPD|refresh=shareholding table]] for all shareholding tables.\n- Do not invent percentages, indirect ownership chains, or lock-up arrangements.\n- Add [[AI:XREF|to=ShareCapital]] where reconciliation is required.\n- Add [[AI:VERIFY|Obtain register of members, ownership confirmations, and group ownership charts.]] when the supporting evidence is incomplete.",
+    "kg_section_id": "Substantial_Shareholders",
+    "kg_function": "Discloses the identities and shareholdings of individuals or entities that hold 10% or more of the share capital of the company, providing transparency regarding significant ownership.",
+    "kg_purpose": "HKEX mandates this section to ensure transparency and disclosure of significant ownership stakes, aiding investors in understanding the potential influence of major shareholders and ensuring compliance with securities laws. This section helps prevent conflicts of interest and ensures that the public is informed about the distribution of ownership within the company.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Name of substantial shareholder",
+        "description": "Lists the names of the substantial shareholders."
+      },
+      {
+        "subsection": "Capacity/nature of interest",
+        "description": "Describes the nature of the interest held by the shareholder, such as beneficial interest or interest in a controlled corporation."
+      },
+      {
+        "subsection": "Number and class of shares held",
+        "description": "Details the number and class of shares held by the substantial shareholder."
+      },
+      {
+        "subsection": "Approximate percentage of shareholding of each class of shares",
+        "description": "Provides the approximate percentage of the shareholding of each class of shares held by the substantial shareholder."
+      },
+      {
+        "subsection": "Approximate percentage of shareholding in the issued and outstanding share capital",
+        "description": "Indicates the approximate percentage of the shareholding in the issued and outstanding share capital of the company."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all information is accurate and up-to-date.",
+      "Cross-reference with other sections where relevant.",
+      "Follow the format and structure provided by HKEX guidelines.",
+      "Include details on any changes in shareholdings due to the offering."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "name_of_substantial_shareholder",
+        "description": "The name of the substantial shareholder.",
+        "example": "Amind"
+      },
+      {
+        "field": "capacity_nature_of_interest",
+        "description": "The nature of the interest held by the shareholder, e.g., beneficial interest, interest in a controlled corporation.",
+        "example": "Beneficial interest"
+      },
+      {
+        "field": "number_and_class_of_shares_held",
+        "description": "The number and class of shares held by the substantial shareholder.",
+        "example": "6,906,080,602 Class A Shares"
+      },
+      {
+        "field": "approximate_percentage_of_shareholding_of_each_class_of_shares",
+        "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder.",
+        "example": "91.73%"
+      },
+      {
+        "field": "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
+        "description": "The approximate percentage of the shareholding in the issued and outstanding share capital of the company.",
+        "example": "20.75%"
+      }
+    ],
+    "kg_evidence_types": [
+      "Shareholding records",
+      "Company register of members",
+      "Share transfer agreements",
+      "Corporate governance documents"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to update shareholding information accurately.",
+      "Omitting relevant information about controlled corporations.",
+      "Misrepresenting the nature of the interest held.",
+      "Not cross-referencing with other sections of the prospectus."
+    ]
   },
   "ShareCapital": {
     "name": "Share Capital",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain classes of shares; pre- and post-offering capital structure; capitalisation issue if applicable; overallotment logic if applicable; WVR conversion and cessation logic if applicable; math reconciliation across the document.\n\nRequired structure:\n- Authorised and issued share capital before and after the offering if supported.\n- Share classes and rights attaching to each class.\n- Capitalisation issue, options, RSUs, convertibles, or other dilutive instruments if supported.\n- Assumptions regarding the over-allotment option or similar mechanics if supported.\n- WVR-related share class disclosure if applicable and supported.\n\nControls:\n- Do not invent share numbers, par value, percentages, class rights, or dilution effects. Ensure math reconciliation across the document (totals, percentages, class rights, dilution).\n- Use [[AI:LPD|refresh=share capital tables]] where current figures may change before filing.\n- Add [[AI:XREF|to=ControllingShareholders]] and [[AI:XREF|to=GlobalOfferingStructure]] where capital structure must reconcile with governance and offering mechanics.\n- Add [[AI:VERIFY|Perform math checks and reconcile totals, percentages, class rights, and dilution assumptions.]]."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain classes of shares; pre- and post-offering capital structure; capitalisation issue if applicable; overallotment logic if applicable; WVR conversion and cessation logic if applicable; math reconciliation across the document.\n\nRequired structure:\n- Authorised and issued share capital before and after the offering if supported.\n- Share classes and rights attaching to each class.\n- Capitalisation issue, options, RSUs, convertibles, or other dilutive instruments if supported.\n- Assumptions regarding the over-allotment option or similar mechanics if supported.\n- WVR-related share class disclosure if applicable and supported.\n\nControls:\n- Do not invent share numbers, par value, percentages, class rights, or dilution effects. Ensure math reconciliation across the document (totals, percentages, class rights, dilution).\n- Use [[AI:LPD|refresh=share capital tables]] where current figures may change before filing.\n- Add [[AI:XREF|to=ControllingShareholders]] and [[AI:XREF|to=GlobalOfferingStructure]] where capital structure must reconcile with governance and offering mechanics.\n- Add [[AI:VERIFY|Perform math checks and reconcile totals, percentages, class rights, and dilution assumptions.]].",
+    "kg_section_id": "Share_Capital",
+    "kg_function": "To describe the authorized and issued share capital of the company, including any changes due to the offering, and to detail the voting rights and repurchase mandates.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and provide investors with a clear understanding of the company's share structure, including authorized and issued shares, voting rights, and any repurchase mandates. This helps investors assess the company's capital structure and potential dilution risks.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Authorized Share Capital",
+        "description": "Describes the total number of shares that the company is authorized to issue."
+      },
+      {
+        "subsection": "Issued, Fully Paid or Credited to be Fully Paid",
+        "description": "Details the number of shares that have been issued and the nominal value of these shares."
+      },
+      {
+        "subsection": "Share Capital Immediately Following Completion of the Offering",
+        "description": "Provides a breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares."
+      },
+      {
+        "subsection": "Weighted Voting Rights Structure",
+        "description": "Details the voting rights structure, if applicable, including the ranking of shares and any special voting rights."
+      },
+      {
+        "subsection": "Repurchase Mandates",
+        "description": "Describes any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all figures are accurate and up-to-date.",
+      "Cross-reference with other sections of the prospectus where necessary.",
+      "Adhere to the prescribed format and disclosure requirements.",
+      "Include any relevant legal and regulatory information."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "authorized_share_capital",
+        "description": "Total number of shares the company is authorized to issue.",
+        "example": "500,000,000"
+      },
+      {
+        "field": "issued_share_capital",
+        "description": "Number of shares that have been issued and the nominal value of these shares.",
+        "example": "100,000,000 shares with a nominal value of $0.001 each"
+      },
+      {
+        "field": "share_capital_after_offering",
+        "description": "Breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares.",
+        "example": "122,323,870 Class A Shares, 14,835,491 Class B Shares, 7,219,000 Class A Shares to be issued"
+      },
+      {
+        "field": "voting_rights_structure",
+        "description": "Details of the voting rights structure, if applicable, including the ranking of shares and any special voting rights.",
+        "example": "Class A Shares rank equally with all other Class A Shares and Class B Shares rank below Class A Shares."
+      },
+      {
+        "field": "repurchase_mandate_details",
+        "description": "Details of any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates.",
+        "example": "Directors can repurchase up to 10% of the total number of shares in issue, excluding certain classes of shares."
+      }
+    ],
+    "kg_evidence_types": [
+      "Audit report",
+      "Articles of Association",
+      "Memorandum of Association",
+      "Board resolutions",
+      "Shareholder agreements"
+    ],
+    "kg_common_pitfalls": [
+      "Inaccurate or outdated figures",
+      "Failure to disclose all relevant share classes and their voting rights",
+      "Omission of repurchase mandate details",
+      "Insufficient cross-referencing with other sections of the prospectus",
+      "Non-compliance with HKEX formatting and disclosure requirements"
+    ]
   },
   "FinancialInfo": {
     "name": "Financial Information",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide historical analysis only unless a formal forecast workflow is intentionally engaged. Drivers of performance and period-on-period changes; liquidity, capital resources, working capital, debt, and accounting judgments; reconciliations for non-IFRS measures. If Pre-Commercial, working capital coverage logic where supported.\n\nRequired structure:\n- Overview of the track record period. Revenue, cost, gross profit, operating expense, and profitability discussion if supported.\n- Segment or product mix discussion if supported. Liquidity, capital resources, indebtedness, and working capital discussion if supported.\n- Balance sheet, cash flow, turnover, and key accounting policy discussion if supported. Non-IFRS measures only if clearly defined and reconcilable from the documents.\n\nControls:\n- Historical facts only; do not create express or implied forecasts of future profit, loss, or margin.\n- If a metric or explanation is missing, preserve the sub-heading and use [Information not provided in the documents].\n- If the issuer appears to be Pre-Commercial and a working capital statement is supported, retain it and cross-reference Use of Proceeds with [[AI:XREF|to=UseOfProceeds]].\n- Add [[AI:VERIFY|Obtain audited financials, accountants' report, reconciliations, and working capital support.]] where required."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Provide historical analysis only unless a formal forecast workflow is intentionally engaged. Drivers of performance and period-on-period changes; liquidity, capital resources, working capital, debt, and accounting judgments; reconciliations for non-IFRS measures. If Pre-Commercial, working capital coverage logic where supported.\n\nRequired structure:\n- Overview of the track record period. Revenue, cost, gross profit, operating expense, and profitability discussion if supported.\n- Segment or product mix discussion if supported. Liquidity, capital resources, indebtedness, and working capital discussion if supported.\n- Balance sheet, cash flow, turnover, and key accounting policy discussion if supported. Non-IFRS measures only if clearly defined and reconcilable from the documents.\n\nControls:\n- Historical facts only; do not create express or implied forecasts of future profit, loss, or margin.\n- If a metric or explanation is missing, preserve the sub-heading and use [Information not provided in the documents].\n- If the issuer appears to be Pre-Commercial and a working capital statement is supported, retain it and cross-reference Use of Proceeds with [[AI:XREF|to=UseOfProceeds]].\n- Add [[AI:VERIFY|Obtain audited financials, accountants' report, reconciliations, and working capital support.]] where required.",
+    "kg_section_id": "Financial_Information",
+    "kg_function": "To present the issuer's financial performance and position, along with relevant analysis and forward-looking statements.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and provide investors with comprehensive financial information, enabling them to make informed investment decisions. It also helps regulators assess the financial health and stability of the issuer.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Overview",
+        "description": "Provides a high-level summary of the issuer's business and key financial highlights."
+      },
+      {
+        "subsection": "Business Model",
+        "description": "Describes the issuer's business model, including revenue streams and cost structures."
+      },
+      {
+        "subsection": "Consolidated Financial Statements",
+        "description": "Includes detailed financial statements such as income statement, balance sheet, and cash flow statement."
+      },
+      {
+        "subsection": "Key Financial Ratios",
+        "description": "Presents important financial ratios like profitability, liquidity, and solvency ratios."
+      },
+      {
+        "subsection": "Management Discussion and Analysis (MD&A)",
+        "description": "Analyzes the financial results, discusses trends, and provides forward-looking statements."
+      },
+      {
+        "subsection": "Risk Factors",
+        "description": "Identifies and explains potential risks that could affect the issuer's financial performance."
+      },
+      {
+        "subsection": "Non-GAAP Measures",
+        "description": "Discloses non-GAAP financial measures and reconciles them to GAAP measures."
+      },
+      {
+        "subsection": "Segment Analysis",
+        "description": "Breaks down financial performance by segments or geographic regions."
+      },
+      {
+        "subsection": "Capital Expenditure",
+        "description": "Details planned capital expenditures and their impact on the issuer's financial position."
+      },
+      {
+        "subsection": "Liquidity and Capital Resources",
+        "description": "Describes the issuer's liquidity position and sources and uses of capital."
+      },
+      {
+        "subsection": "Critical Accounting Policies",
+        "description": "Explains the critical accounting policies and estimates used in preparing the financial statements."
+      },
+      {
+        "subsection": "Recent Developments",
+        "description": "Summarizes recent developments that may impact the issuer's financial performance."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all forward-looking statements are accompanied by appropriate cautionary language.",
+      "Cross-reference MD&A with the financial statements and notes.",
+      "Adhere to HKFRS/GAAP reporting standards.",
+      "Include a disclaimer for the limitations of forward-looking statements.",
+      "Maintain consistency in terminology and financial metrics."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "issuer_name",
+        "description": "Name of the issuing entity.",
+        "example": "Tech Innovations Ltd."
+      },
+      {
+        "field": "financial_years",
+        "description": "List of financial years covered in the prospectus.",
+        "example": [
+          "2022",
+          "2023",
+          "2024"
+        ]
+      },
+      {
+        "field": "revenue",
+        "description": "Annual revenue figures.",
+        "example": [
+          100000000,
+          120000000,
+          150000000
+        ]
+      },
+      {
+        "field": "net_income",
+        "description": "Annual net income figures.",
+        "example": [
+          20000000,
+          25000000,
+          30000000
+        ]
+      },
+      {
+        "field": "assets",
+        "description": "Balance sheet assets at year-end.",
+        "example": [
+          200000000,
+          250000000,
+          300000000
+        ]
+      },
+      {
+        "field": "liabilities",
+        "description": "Balance sheet liabilities at year-end.",
+        "example": [
+          100000000,
+          120000000,
+          150000000
+        ]
+      },
+      {
+        "field": "cash_flows",
+        "description": "Cash flow statement figures.",
+        "example": [
+          15000000,
+          20000000,
+          25000000
+        ]
+      },
+      {
+        "field": "key_ratios",
+        "description": "Financial ratios like ROE, ROA, EPS, etc.",
+        "example": {
+          "ROE": [
+            15,
+            18,
+            20
+          ],
+          "ROA": [
+            10,
+            12,
+            15
+          ],
+          "EPS": [
+            2,
+            2.5,
+            3
+          ]
+        }
+      },
+      {
+        "field": "segment_data",
+        "description": "Revenue and profit breakdown by segments.",
+        "example": [
+          {
+            "segment": "Product A",
+            "revenue": [
+              30000000,
+              35000000,
+              40000000
+            ],
+            "profit": [
+              5000000,
+              6000000,
+              7000000
+            ]
+          }
+        ]
+      },
+      {
+        "field": "risk_factors",
+        "description": "List of risk factors affecting the issuer.",
+        "example": [
+          "Market competition",
+          "Regulatory changes",
+          "Supply chain disruptions"
+        ]
+      }
+    ],
+    "kg_evidence_types": [
+      "Audited financial statements",
+      "Unaudited interim financial statements",
+      "Industry reports",
+      "Regulatory filings",
+      "Internal management reports"
+    ],
+    "kg_common_pitfalls": [
+      "Over-reliance on forward-looking statements without adequate disclosure of risks.",
+      "Failure to reconcile non-GAAP measures with GAAP measures.",
+      "Inconsistent use of financial metrics and terminology.",
+      "Omission of critical accounting policies and estimates.",
+      "Insufficient detail in segment analysis.",
+      "Lack of cross-referencing between MD&A and financial statements."
+    ]
   },
   "UseOfProceeds": {
     "name": "Future Plans and Use of Proceeds",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain allocation by category; consistency with strategy and business model; no implied profitability timetable. If Pre-Commercial, alignment with commercialisation path and runway logic where evidenced.\n\nRequired structure:\n- Short strategic overview. Expected gross and net proceeds baseline if supported.\n- Allocation by category, with percentage and amount where supported. Brief implementation plan, timing, or priority notes where supported.\n- Adjustment language if proceeds differ from the assumed amount and the documents support that logic.\n\nControls:\n- Do not invent net proceeds, percentages, budgets, milestones, or deployment timing. Do not imply a profitability timetable or forecast.\n- If the issuer appears to be Pre-Commercial, align supported uses of proceeds to commercialisation path and working capital coverage where evidenced.\n- Add [[AI:XREF|to=Business]] and [[AI:XREF|to=FinancialInfo]] where strategy and liquidity need reconciliation.\n- Add [[AI:VERIFY|Obtain board-approved budgets, capex plans, and net proceeds allocation support.]] when incomplete."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain allocation by category; consistency with strategy and business model; no implied profitability timetable. If Pre-Commercial, alignment with commercialisation path and runway logic where evidenced.\n\nRequired structure:\n- Short strategic overview. Expected gross and net proceeds baseline if supported.\n- Allocation by category, with percentage and amount where supported. Brief implementation plan, timing, or priority notes where supported.\n- Adjustment language if proceeds differ from the assumed amount and the documents support that logic.\n\nControls:\n- Do not invent net proceeds, percentages, budgets, milestones, or deployment timing. Do not imply a profitability timetable or forecast.\n- If the issuer appears to be Pre-Commercial, align supported uses of proceeds to commercialisation path and working capital coverage where evidenced.\n- Add [[AI:XREF|to=Business]] and [[AI:XREF|to=FinancialInfo]] where strategy and liquidity need reconciliation.\n- Add [[AI:VERIFY|Obtain board-approved budgets, capex plans, and net proceeds allocation support.]] when incomplete.",
+    "kg_section_id": "Future_Plans_and_Use_of_Proceeds",
+    "kg_function": "Discloses how the company intends to use the proceeds from the offering and outlines the company's future plans.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the intended use of proceeds from the offering, allowing investors to assess the company's strategic direction and financial health. Regulators and investors expect to understand the company's future plans, the allocation of proceeds, and the rationale behind the proposed uses.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Future Plans",
+        "description": "Describes the company's strategic objectives and future plans, often cross-referencing the main business strategy section."
+      },
+      {
+        "subsection": "Use of Proceeds",
+        "description": "Details the specific uses of the proceeds from the offering, including percentages and amounts allocated to various purposes."
+      },
+      {
+        "subsection": "Pro Rata Adjustments",
+        "description": "Explains how the company will adjust the use of proceeds if the actual net proceeds differ from the estimated amount."
+      },
+      {
+        "subsection": "Alternative Uses",
+        "description": "Outlines alternative uses of the proceeds if the primary plans do not materialize due to unforeseen circumstances."
+      },
+      {
+        "subsection": "Short-Term Investments",
+        "description": "Describes how the company intends to manage excess proceeds until they are used for their intended purposes."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Provide specific percentages and amounts for each use of proceeds.",
+      "Cross-reference with the business strategy section.",
+      "Include a disclaimer about the pro rata adjustments if the actual net proceeds differ significantly from the estimated amount.",
+      "State the company’s intention to use the proceeds for the stated purposes within a reasonable time frame.",
+      "Ensure consistency with the financial statements and other sections of the prospectus."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Offer_Price",
+        "description": "The price per share at which the shares are being offered.",
+        "example": "HK$3.92"
+      },
+      {
+        "field": "Net_Proceeds",
+        "description": "The total net proceeds from the offering, calculated after deducting underwriting commissions and other expenses.",
+        "example": "HK$5,655 million"
+      },
+      {
+        "field": "Percentage_Allocation",
+        "description": "The percentage of net proceeds allocated to each use of proceeds.",
+        "example": "60.0%"
+      },
+      {
+        "field": "Amount_Allocation",
+        "description": "The specific amount of net proceeds allocated to each use of proceeds.",
+        "example": "HK$3,393 million"
+      },
+      {
+        "field": "Purpose_Description",
+        "description": "A brief description of the purpose for which the proceeds will be used.",
+        "example": "Enhancing research and development capabilities"
+      },
+      {
+        "field": "Pro_Rata_Adjustment_Policy",
+        "description": "The policy for adjusting the use of proceeds if the actual net proceeds differ from the estimated amount.",
+        "example": "Adjust the use of proceeds on a pro rata basis."
+      }
+    ],
+    "kg_evidence_types": [
+      "Financial Statements",
+      "Underwriting Agreement",
+      "Offer Document",
+      "Prospectus Supplement",
+      "Board Resolution"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose pro rata adjustments if the actual net proceeds differ significantly from the estimated amount.",
+      "Not providing a detailed breakdown of the use of proceeds.",
+      "Lack of consistency between the use of proceeds and the financial projections.",
+      "Omitting alternative uses of the proceeds if the primary plans do not materialize.",
+      "Failing to update the section if there are significant changes in the company's plans or financial forecasts."
+    ]
   },
   "Underwriting": {
     "name": "Underwriting",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Summarise underwriter identities and roles; underwriting commitments; pricing agreement mechanics; fees and expenses where available; lock-ups; conditions precedent; termination grounds; overallotment and stabilisation arrangements.\n\nRequired structure:\n- Underwriters and their roles. Scope of underwriting commitments.\n- Pricing agreement mechanics if supported. Fees and expenses where available.\n- Lock-up arrangements, conditions precedent, termination rights, and over-allotment or stabilisation arrangements if supported.\n\nControls:\n- Do not invent commission rates, contractual terms, termination triggers, or stabilisation details. Use a precise legal tone rather than narrative sales language.\n- Add [[AI:XREF|to=GlobalOfferingStructure]] where the mechanics overlap.\n- Add [[AI:VERIFY|Obtain underwriting agreement terms, fee disclosure support, termination clause summary, and stabilisation compliance materials.]] when required."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Summarise underwriter identities and roles; underwriting commitments; pricing agreement mechanics; fees and expenses where available; lock-ups; conditions precedent; termination grounds; overallotment and stabilisation arrangements.\n\nRequired structure:\n- Underwriters and their roles. Scope of underwriting commitments.\n- Pricing agreement mechanics if supported. Fees and expenses where available.\n- Lock-up arrangements, conditions precedent, termination rights, and over-allotment or stabilisation arrangements if supported.\n\nControls:\n- Do not invent commission rates, contractual terms, termination triggers, or stabilisation details. Use a precise legal tone rather than narrative sales language.\n- Add [[AI:XREF|to=GlobalOfferingStructure]] where the mechanics overlap.\n- Add [[AI:VERIFY|Obtain underwriting agreement terms, fee disclosure support, termination clause summary, and stabilisation compliance materials.]] when required.",
+    "kg_section_id": "Underwriting",
+    "kg_function": "To detail the underwriting arrangements for the Hong Kong Public Offering and International Offering, including the underwriters involved, the underwriting agreement, and the stabilizing activities.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the underwriting process, the roles of underwriters, and the potential impact of stabilizing activities on the market price of the shares. This information helps investors understand the risks associated with the offering and the mechanisms in place to manage them.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Underwriting Arrangements and Expenses",
+        "description": "Details the underwriting agreement, the underwriters involved, and the terms and conditions of the underwriting."
+      },
+      {
+        "subsection": "Stabilizing Activities",
+        "description": "Describes the potential stabilizing activities that underwriters may engage in and the restrictions they must adhere to."
+      },
+      {
+        "subsection": "Investment Banking Services",
+        "description": "Lists any investment banking and other services provided by the underwriters to the issuer and its affiliates."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all underwriting agreements are accurately reflected.",
+      "Disclose any investment banking services provided by underwriters.",
+      "Comply with the Market Misconduct Provisions of the Securities and Futures Ordinance (SFO).",
+      "Cross-reference relevant sections of the prospectus where applicable."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Underwriters",
+        "description": "Names and details of the underwriters involved in the offering.",
+        "example": "China International Capital Corporation Hong Kong Securities Limited"
+      },
+      {
+        "field": "Underwriting Agreement Date",
+        "description": "Date the underwriting agreement was signed.",
+        "example": "Monday, December 6, 2021"
+      },
+      {
+        "field": "Offer Price",
+        "description": "Price at which the shares will be offered to the public.",
+        "example": "HKD 10.00 per share"
+      },
+      {
+        "field": "Number of Offer Shares",
+        "description": "Total number of offer shares for the Hong Kong Public Offering and International Offering.",
+        "example": "150,000,000 Hong Kong Offer Shares and 1,350,000,000 International Offer Shares"
+      },
+      {
+        "field": "Over-allotment Option",
+        "description": "Details of the over-allotment option, if applicable.",
+        "example": "The International Offering includes an over-allotment option for up to 20% additional shares."
+      }
+    ],
+    "kg_evidence_types": [
+      "Underwriting Agreement",
+      "Subscription Agreements",
+      "Market Conduct Guidelines",
+      "Regulatory Approvals"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose all underwriting services provided by underwriters.",
+      "Not accurately reflecting the terms of the underwriting agreement.",
+      "Ignoring the restrictions on stabilizing activities.",
+      "Failing to cross-reference relevant sections of the prospectus."
+    ]
   },
   "GlobalOfferingStructure": {
     "name": "Structure of the Global Offering",
-    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain total offering size; HK/international tranche split; reallocation or clawback logic; price-setting logic; completion conditions and refund logic; settlement and trading mechanics. Reciprocal cross-references to application procedures (How to Apply) where relevant.\n\nRequired structure:\n- Total offer size and split between Hong Kong Public Offering and International Offering if supported.\n- Clawback or reallocation mechanics and any reserved or cornerstone allocations if supported.\n- Pricing process and final offer price determination logic if supported.\n- Conditions for completion, refund logic, and impact of any over-allotment option if supported.\n- Listing, trading, allocation result publication, and CCASS or settlement arrangements if supported.\n\nControls:\n- Keep all assumptions explicit and do not infer board lot size, reallocation thresholds, refund timing, or settlement mechanics.\n- Add [[AI:XREF|to=Underwriting]] and [[AI:XREF|to=ExpectedTimetable]] where timing and transactional mechanics must reconcile. Add reciprocal cross-references to application procedures (How to Apply) where timetable or mechanics overlap.\n- If application-procedure detail is incomplete, add [[AI:VERIFY|Confirm application channel mechanics, refund process, and result publication workflow.]].\n- Use [Information not provided in the documents] for unsupported numeric mechanics rather than guessing."
+    "requirements": "Draft in sponsor-counsel working draft mode, not as a fully complete final filing copy.\n\nRole: Explain total offering size; HK/international tranche split; reallocation or clawback logic; price-setting logic; completion conditions and refund logic; settlement and trading mechanics. Reciprocal cross-references to application procedures (How to Apply) where relevant.\n\nRequired structure:\n- Total offer size and split between Hong Kong Public Offering and International Offering if supported.\n- Clawback or reallocation mechanics and any reserved or cornerstone allocations if supported.\n- Pricing process and final offer price determination logic if supported.\n- Conditions for completion, refund logic, and impact of any over-allotment option if supported.\n- Listing, trading, allocation result publication, and CCASS or settlement arrangements if supported.\n\nControls:\n- Keep all assumptions explicit and do not infer board lot size, reallocation thresholds, refund timing, or settlement mechanics.\n- Add [[AI:XREF|to=Underwriting]] and [[AI:XREF|to=ExpectedTimetable]] where timing and transactional mechanics must reconcile. Add reciprocal cross-references to application procedures (How to Apply) where timetable or mechanics overlap.\n- If application-procedure detail is incomplete, add [[AI:VERIFY|Confirm application channel mechanics, refund process, and result publication workflow.]].\n- Use [Information not provided in the documents] for unsupported numeric mechanics rather than guessing.",
+    "kg_section_id": "Structure_of_the_Global_Offering",
+    "kg_function": "Describes the structure of the global offering, including the Hong Kong public offering and international placing, and the conditions for the offering to proceed.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the terms and conditions of the global offering, including the allocation of shares, the role of underwriters, and the conditions for the offering to proceed. This information is crucial for investors to understand the risks and opportunities associated with the offering.",
+    "kg_typical_structure": [
+      {
+        "subsection": "THE GLOBAL OFFERING",
+        "description": "Introduction to the global offering, including the joint representatives and sponsors."
+      },
+      {
+        "subsection": "THE HONG KONG PUBLIC OFFERING",
+        "description": "Details of the Hong Kong public offering, including the number of shares, pricing, and application procedures."
+      },
+      {
+        "subsection": "THE INTERNATIONAL OFFERING",
+        "description": "Details of the international offering, including the number of shares, pricing, and application procedures."
+      },
+      {
+        "subsection": "CONDITIONS FOR THE OFFERING TO PROCEED",
+        "description": "Conditions that must be met for the offering to proceed, including the agreement on the offer price and the validity of certain conditions."
+      },
+      {
+        "subsection": "DEALING ARRANGEMENTS",
+        "description": "Details of when and how the shares will start trading on the stock exchange."
+      },
+      {
+        "subsection": "UNDERWRITING ARRANGEMENTS",
+        "description": "Details of the underwriting arrangements, including the roles of the underwriters and the terms of the underwriting agreements."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all conditions for the offering to proceed are clearly stated.",
+      "Cross-reference relevant sections of the prospectus where appropriate.",
+      "Disclose all material facts related to the offering.",
+      "Adhere to the specific format and style guidelines provided by HKEX."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "joint_representatives",
+        "description": "Names of the joint representatives for the global offering.",
+        "example": "China International Capital Corporation Hong Kong Securities Limited, Haitong International Securities Company Limited"
+      },
+      {
+        "field": "number_of_hong_kong_shares",
+        "description": "Number of Hong Kong public offering shares.",
+        "example": "150,000,000"
+      },
+      {
+        "field": "number_of_international_shares",
+        "description": "Number of international offering shares.",
+        "example": "1,350,000,000"
+      },
+      {
+        "field": "price_determination_date",
+        "description": "Date by which the offer price must be agreed upon.",
+        "example": "Thursday, December 16, 2021"
+      },
+      {
+        "field": "over_allotment_option",
+        "description": "Details of the over-allotment option, if applicable.",
+        "example": "Up to 18,750,000 additional shares"
+      },
+      {
+        "field": "share_dealing_start_date",
+        "description": "Date when share dealings are expected to commence.",
+        "example": "Friday, December 17, 2021"
+      }
+    ],
+    "kg_evidence_types": [
+      "Underwriting agreements",
+      "Regulatory approvals",
+      "Board resolutions",
+      "Shareholder resolutions",
+      "Offer price determination documents"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to disclose all material conditions for the offering to proceed.",
+      "Not accurately reflecting the terms of the underwriting agreements.",
+      "Omitting important details about the international offering.",
+      "Providing conflicting information across different sections of the prospectus."
+    ]
+  },
+  "Appendices": {
+    "name": "Appendices",
+    "requirements": "[KG-derived placeholder — refine manually] To include additional reports, financial information, and other documents that support the main prospectus content.",
+    "kg_section_id": "Appendices",
+    "kg_function": "To include additional reports, financial information, and other documents that support the main prospectus content.",
+    "kg_purpose": "HKEX requires appendices to ensure transparency and accuracy of financial information, to provide detailed explanations of accounting policies, and to include reports from independent auditors. This helps investors understand the company's financial health and compliance with regulatory standards.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Accountant’s Report",
+        "description": "A report from the company’s auditor detailing the review of historical financial information."
+      },
+      {
+        "subsection": "Unaudited Pro Forma Financial Information",
+        "description": "Financial projections reflecting the impact of the proposed offering on the company’s financial position."
+      },
+      {
+        "subsection": "Other Supporting Documents",
+        "description": "Additional documents such as legal opinions, environmental assessments, or other relevant reports."
+      }
+    ],
+    "kg_writing_rules": [
+      "Must be prepared and addressed to the directors and sponsors as required by HKSIRO 200.",
+      "Should be written in clear, concise, and formal language.",
+      "Cross-reference to the main prospectus where necessary.",
+      "Include all required disclosures as specified by HKEX regulations."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "Auditor’s Name",
+        "description": "Name of the auditing firm.",
+        "example": "PricewaterhouseCoopers"
+      },
+      {
+        "field": "Date of Report",
+        "description": "Date the report was issued.",
+        "example": "December 7, 2021"
+      },
+      {
+        "field": "Historical Financial Information",
+        "description": "Consolidated financial statements and notes.",
+        "example": "Balance sheets, income statements, and notes for multiple periods."
+      },
+      {
+        "field": "Pro Forma Adjustments",
+        "description": "Details of how the offering will affect the company’s financials.",
+        "example": "Impact on net tangible assets, earnings per share, etc."
+      },
+      {
+        "field": "Significant Accounting Policies",
+        "description": "Explanation of key accounting policies used.",
+        "example": "Impairment testing, revenue recognition, etc."
+      }
+    ],
+    "kg_evidence_types": [
+      "Audit report",
+      "Financial statements",
+      "Industry reports",
+      "Legal opinions",
+      "Environmental assessments"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to include all required disclosures.",
+      "Incorrectly translating financial information.",
+      "Omitting important accounting policies.",
+      "Not cross-referencing adequately with the main prospectus."
+    ]
+  },
+  "BackCover": {
+    "name": "Back Cover",
+    "requirements": "[KG-derived placeholder — refine manually] No corpus samples were available for Back_Cover.",
+    "kg_section_id": "Back_Cover",
+    "kg_function": "No corpus samples were available for Back_Cover.",
+    "kg_purpose": "",
+    "kg_typical_structure": [],
+    "kg_writing_rules": [],
+    "kg_required_input_fields": [],
+    "kg_evidence_types": [],
+    "kg_common_pitfalls": []
+  },
+  "CornerstoneInvestors": {
+    "name": "Cornerstone Investors",
+    "requirements": "[KG-derived placeholder — refine manually] To detail the cornerstone investors' commitment to purchasing shares at the offering price and the conditions under which the cornerstone placing can proceed.",
+    "kg_section_id": "Cornerstone_Investors",
+    "kg_function": "To detail the cornerstone investors' commitment to purchasing shares at the offering price and the conditions under which the cornerstone placing can proceed.",
+    "kg_purpose": "HKEX requires this section to ensure transparency regarding the cornerstone placing, which is a significant component of the global offering. Regulators and investors expect to understand the terms of the cornerstone investment agreements, the identities of the cornerstone investors, and the conditions precedent to the cornerstone placing. This section also outlines restrictions on the disposal of shares by the cornerstone investors, ensuring market stability post-listing.",
+    "kg_typical_structure": [
+      {
+        "subsection": "The Cornerstone Placing",
+        "description": "Details the cornerstone investment agreements, the number of shares to be subscribed, and the total amount of money to be invested."
+      },
+      {
+        "subsection": "Conditions Precedent",
+        "description": "Lists the conditions that must be satisfied for the cornerstone placing to proceed, including regulatory approvals, pricing agreements, and representations and warranties."
+      },
+      {
+        "subsection": "Restrictions on Disposals by the Cornerstone Investors",
+        "description": "Describes the lock-up period and any other restrictions on the sale of shares by the cornerstone investors."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all financial figures are accurate and up-to-date.",
+      "Cross-reference with the financial statements and other sections of the prospectus.",
+      "Adhere to the prescribed format and disclosure requirements of HKEX.",
+      "Maintain a consistent tone throughout the section."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "cornerstone_investors_names",
+        "description": "Names of the cornerstone investors.",
+        "example": "Guosen Securities (HK) Capital Co., Ltd., Macquarie Capital Limited"
+      },
+      {
+        "field": "cornerstone_investment_amounts",
+        "description": "Amounts of money to be invested by each cornerstone investor.",
+        "example": "US$450 million"
+      },
+      {
+        "field": "cornerstone_investment_agreements",
+        "description": "Details of the cornerstone investment agreements, including the subscription terms.",
+        "example": "Subscription for 879,605,000 Offer Shares at HK$3.99 per Offer Share"
+      },
+      {
+        "field": "lock_up_period",
+        "description": "Duration of the lock-up period for the cornerstone investors.",
+        "example": "Six months from the Listing Date"
+      },
+      {
+        "field": "conditions_precedent",
+        "description": "List of conditions that must be met for the cornerstone placing to proceed.",
+        "example": "Regulatory approvals, pricing agreements, representations and warranties"
+      }
+    ],
+    "kg_evidence_types": [
+      "Cornerstone investment agreements",
+      "Financial statements",
+      "Regulatory approvals",
+      "Listing committee permissions"
+    ],
+    "kg_common_pitfalls": [
+      "Inaccurate or outdated financial figures.",
+      "Failure to include all necessary conditions precedent.",
+      "Insufficient detail on the lock-up period and restrictions on disposals.",
+      "Lack of cross-referencing with other sections of the prospectus."
+    ]
+  },
+  "Cover": {
+    "name": "Cover",
+    "requirements": "[KG-derived placeholder — refine manually] To introduce the issuer, listing details, and key underwriters of the global offering.",
+    "kg_section_id": "Cover",
+    "kg_function": "To introduce the issuer, listing details, and key underwriters of the global offering.",
+    "kg_purpose": "HKEX requires the Cover section to provide essential information about the issuer, including its corporate structure, stock code, and key underwriters involved in the global offering. This section serves as the opening page of the prospectus, giving investors their first glimpse into the offering and the entities involved.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Global Offering",
+        "description": "Indicates the nature of the offering."
+      },
+      {
+        "subsection": "Stock Code",
+        "description": "Provides the stock code of the issuer on the Hong Kong Stock Exchange."
+      },
+      {
+        "subsection": "Issuer Name",
+        "description": "Lists the full name of the issuer in both English and Chinese."
+      },
+      {
+        "subsection": "Corporate Structure",
+        "description": "Describes the corporate structure of the issuer, particularly if it involves weighted voting rights or other unique structures."
+      },
+      {
+        "subsection": "Key Underwriters",
+        "description": "Names the joint sponsors, global coordinators, bookrunners, and lead managers involved in the offering."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all names are spelled correctly in both English and Chinese.",
+      "List key underwriters in the order specified by HKEX guidelines.",
+      "Include the stock code prominently at the top of the section.",
+      "Provide accurate and up-to-date information."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "stock_code",
+        "description": "The stock code assigned by the Hong Kong Stock Exchange.",
+        "example": "0020"
+      },
+      {
+        "field": "issuer_name_en",
+        "description": "The English name of the issuer.",
+        "example": "SenseTime Group Inc."
+      },
+      {
+        "field": "issuer_name_ch",
+        "description": "The Chinese name of the issuer.",
+        "example": "感性科技有限公司"
+      },
+      {
+        "field": "corporate_structure",
+        "description": "Details of the issuer’s corporate structure, especially if it includes weighted voting rights.",
+        "example": "a company controlled through weighted voting rights and incorporated in the Cayman Islands with limited liability"
+      },
+      {
+        "field": "key_underwriters",
+        "description": "Names of the joint sponsors, global coordinators, bookrunners, and lead managers.",
+        "example": [
+          "Joint Sponsors",
+          "Joint Global Coordinators",
+          "Joint Bookrunners and Joint Lead Managers"
+        ]
+      }
+    ],
+    "kg_evidence_types": [
+      "Company registration documents",
+      "Stock exchange filings",
+      "Underwriting agreements"
+    ],
+    "kg_common_pitfalls": [
+      "Incorrect spelling of the issuer’s name in either language.",
+      "Omitting the stock code or placing it in an inconspicuous location.",
+      "Failing to list all required key underwriters in the correct order.",
+      "Providing outdated or incorrect information about the issuer’s corporate structure."
+    ]
+  },
+  "HowToApply": {
+    "name": "How to Apply for Hong Kong Offer Shares",
+    "requirements": "[KG-derived placeholder — refine manually] Describes the process for investors to apply for Hong Kong Offer Shares using an electronic application process.",
+    "kg_section_id": "How_to_Apply_for_Hong_Kong_Offer_Shares",
+    "kg_function": "Describes the process for investors to apply for Hong Kong Offer Shares using an electronic application process.",
+    "kg_purpose": "HKEX requires this section to ensure transparency and standardization in the application process for Hong Kong Offer Shares, providing clear instructions to investors on how to participate in the offering. This section helps protect investor rights and ensures compliance with regulatory requirements.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Important Notice to Investors",
+        "description": "Highlights the fully electronic application process and provides contact information for inquiries."
+      },
+      {
+        "subsection": "Application Channels",
+        "description": "Details the methods through which investors can apply for Hong Kong Offer Shares, including online platforms and CCASS services."
+      },
+      {
+        "subsection": "Application Procedures",
+        "description": "Outlines the steps involved in applying for Hong Kong Offer Shares, including payment deadlines and verification processes."
+      },
+      {
+        "subsection": "Notification of Results",
+        "description": "Describes how and when investors will be informed of the outcome of their applications, including allocation of shares and refund of application monies."
+      },
+      {
+        "subsection": "Confidentiality and Data Protection",
+        "description": "Explains how personal data will be handled and protected during the application process."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Mention all relevant application channels and procedures.",
+      "Include contact information for inquiries and support.",
+      "Ensure all dates and times are accurate and up-to-date.",
+      "Cross-reference with other sections of the prospectus as needed."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "application_channels",
+        "description": "List of application channels available for investors.",
+        "example": "HK eIPO White Form service, HKSCC EIPO channel"
+      },
+      {
+        "field": "application_period_start_date",
+        "description": "Start date of the application period.",
+        "example": "2023-10-23"
+      },
+      {
+        "field": "application_period_end_date",
+        "description": "End date of the application period.",
+        "example": "2023-10-28"
+      },
+      {
+        "field": "payment_deadline",
+        "description": "Deadline for completing full payment of application monies.",
+        "example": "2023-10-28T12:00:00+08:00"
+      },
+      {
+        "field": "contact_information",
+        "description": "Contact details for inquiries and support.",
+        "example": "+852 2862 8558, www.eipo.com.hk"
+      }
+    ],
+    "kg_evidence_types": [
+      "Company website URL",
+      "Prospectus registration with the Registrar of Companies",
+      "CCASS and HKSCC operational guidelines",
+      "Regulatory requirements and Listing Rules"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to update dates and times accurately.",
+      "Omitting critical application channels or procedures.",
+      "Neglecting to include confidentiality and data protection measures.",
+      "Not providing sufficient contact information for inquiries."
+    ]
+  },
+  "ImportantNotice": {
+    "name": "Important Notice",
+    "requirements": "[KG-derived placeholder — refine manually] To inform potential investors about the importance of seeking independent professional advice if they have doubts about the prospectus content.",
+    "kg_section_id": "Important_Notice",
+    "kg_function": "To inform potential investors about the importance of seeking independent professional advice if they have doubts about the prospectus content.",
+    "kg_purpose": "HKEX requires this section to ensure that investors are fully aware of the risks and complexities involved in investing in the company and to encourage them to seek professional advice. This section also disclaims liability for the accuracy of the prospectus and highlights important terms and conditions of the offering.",
+    "kg_typical_structure": [
+      {
+        "subsection": "Disclaimer of Liability",
+        "description": "States that the exchange and its affiliates do not take responsibility for the contents of the prospectus and disclaim any liability for losses arising from reliance on the prospectus."
+      },
+      {
+        "subsection": "Application Details",
+        "description": "Provides information on how to apply for shares, including minimum application amounts, payment details, and application processes."
+      },
+      {
+        "subsection": "Important Terms and Conditions",
+        "description": "Lists key terms and conditions related to the offer, such as the maximum number of shares that can be applied for and the expected offer price range."
+      },
+      {
+        "subsection": "Regulatory Information",
+        "description": "Includes information about regulatory bodies involved in the offering and their disclaimers regarding the prospectus."
+      }
+    ],
+    "kg_writing_rules": [
+      "Use clear and concise language.",
+      "Ensure all disclaimers are accurate and comply with HKEX regulations.",
+      "Cross-reference important terms and conditions with relevant sections of the prospectus.",
+      "Maintain a formal tone throughout the section.",
+      "Include all necessary information as required by HKEX guidelines."
+    ],
+    "kg_required_input_fields": [
+      {
+        "field": "issuer_name",
+        "description": "Name of the issuing company.",
+        "example": "SenseTime Group Inc."
+      },
+      {
+        "field": "stock_code",
+        "description": "Stock code assigned to the offer shares.",
+        "example": "0020"
+      },
+      {
+        "field": "number_of_hk_offershares",
+        "description": "Number of Hong Kong offer shares available for sale.",
+        "example": "150,000,000"
+      },
+      {
+        "field": "maximum_offer_price",
+        "description": "Maximum offer price per share, including fees and levies.",
+        "example": "HK$3.99 per Offer Share"
+      },
+      {
+        "field": "minimum_application_amount",
+        "description": "Minimum number of shares that can be applied for.",
+        "example": "1,000 Hong Kong Offer Shares"
+      },
+      {
+        "field": "price_determination_date",
+        "description": "Date when the offer price is expected to be determined.",
+        "example": "Price Determination Date"
+      }
+    ],
+    "kg_evidence_types": [
+      "Company registration documents",
+      "Prospectus registration confirmation from the Registrar of Companies",
+      "Regulatory body confirmations (Securities and Futures Commission, etc.)",
+      "Audit reports",
+      "Legal opinions"
+    ],
+    "kg_common_pitfalls": [
+      "Failing to include all necessary disclaimers and warnings.",
+      "Providing inaccurate or outdated information about the offer.",
+      "Omitting important terms and conditions that affect investor rights.",
+      "Not cross-referencing with other sections of the prospectus.",
+      "Using informal or ambiguous language that could mislead investors."
+    ]
   }
 }

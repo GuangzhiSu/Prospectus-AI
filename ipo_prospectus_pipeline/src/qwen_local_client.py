@@ -12,8 +12,9 @@ import structlog
 
 logger = structlog.get_logger()
 
-# Default: Qwen 3.5 27B on Hugging Face. Override with QWEN_MODEL or config.qwen_model.
-DEFAULT_QWEN_MODEL = "Qwen/Qwen3.5-27B"
+# Default: Qwen2.5-7B-Instruct (fits bf16 on a single 24GB card, reliable JSON mode).
+# Override with QWEN_MODEL or config.qwen_model. Note: "Qwen/Qwen3.5-*" does not exist on HF.
+DEFAULT_QWEN_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
 _MODEL_TOKENIZER_CACHE: dict[str, tuple[Any, Any]] = {}
 
@@ -43,9 +44,14 @@ def _load_model_and_tokenizer(model_name: str) -> tuple[Any, Any]:
     device = _device()
     use_8bit = os.environ.get("QWEN_USE_8BIT") == "1" or os.environ.get("AGENT1_USE_8BIT") == "1"
     use_4bit = os.environ.get("QWEN_USE_4BIT") == "1" or os.environ.get("AGENT1_USE_4BIT") == "1"
+    # transformers >= 4.43 deprecated `torch_dtype` in favor of `dtype`. Pass both so we
+    # work on either version; otherwise the arg is silently ignored and the model loads
+    # in fp32 (~30GB for 7B), causing OOM on 24GB cards.
+    target_dtype = torch.bfloat16 if device == "cuda" else torch.float32
     load_kwargs: dict[str, Any] = {
         "trust_remote_code": True,
-        "torch_dtype": torch.bfloat16 if device == "cuda" else torch.float32,
+        "dtype": target_dtype,
+        "torch_dtype": target_dtype,  # backwards compat
     }
     if device == "cuda" and (use_8bit or use_4bit):
         try:
@@ -143,7 +149,11 @@ class QwenLocalClient:
             tokenize=False,
             add_generation_prompt=True,
         )
-        max_ctx = 8192 if next(model.parameters()).is_cuda else 16384
+        # Cap input length to protect VRAM during prefill. Turing GPUs (sm_75) don't
+        # have flash-attn-2 so SDPA can materialize O(seq^2) attention weights.
+        # Override via QWEN_MAX_CTX (default 4096).
+        default_ctx = 4096 if next(model.parameters()).is_cuda else 8192
+        max_ctx = int(os.environ.get("QWEN_MAX_CTX", str(default_ctx)))
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=max_ctx)
         inputs = {k: v.to(model.device) for k, v in inputs.items()}
         pad_id = tokenizer.pad_token_id or tokenizer.eos_token_id
@@ -203,7 +213,32 @@ class QwenLocalClient:
             try:
                 out["parsed"] = json.loads(blob)
             except json.JSONDecodeError as e:
-                logger.warning("qwen_json_parse_failed", raw_preview=content[:200], error=str(e))
-                out["parse_error"] = str(e)
+                # Fallback: attempt structural repair (handles truncated output,
+                # trailing commas, unclosed brackets, single quotes, etc.)
+                repaired = None
+                try:
+                    import json_repair  # type: ignore
+
+                    repaired = json_repair.loads(blob)
+                except Exception:  # noqa: BLE001
+                    # Try repairing the raw content (in case fence extraction over-trimmed).
+                    try:
+                        import json_repair  # type: ignore
+
+                        repaired = json_repair.loads(content)
+                    except Exception:  # noqa: BLE001
+                        repaired = None
+
+                if isinstance(repaired, (dict, list)) and repaired:
+                    out["parsed"] = repaired
+                    out["parse_repaired"] = True
+                    logger.warning(
+                        "qwen_json_parsed_via_repair",
+                        raw_preview=content[:160],
+                        error=str(e),
+                    )
+                else:
+                    logger.warning("qwen_json_parse_failed", raw_preview=content[:200], error=str(e))
+                    out["parse_error"] = str(e)
 
         return out

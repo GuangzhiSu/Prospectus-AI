@@ -54,10 +54,79 @@ def _read_section_generation_rules_excerpt() -> str:
     return p.read_text(encoding="utf-8")[:8000]
 
 
+def _format_kg_guidance(reqs: dict) -> str:
+    """Render the KG-derived fields (kg_function, kg_typical_structure, ...) from
+    ``agent2_section_requirements.json`` into a prompt-ready block. Returns an
+    empty string if no KG fields are present."""
+    kg_keys = [
+        "kg_function",
+        "kg_purpose",
+        "kg_typical_structure",
+        "kg_writing_rules",
+        "kg_required_input_fields",
+        "kg_evidence_types",
+        "kg_common_pitfalls",
+    ]
+    if not any(reqs.get(k) for k in kg_keys):
+        return ""
+
+    lines: list[str] = [
+        "KNOWLEDGE-GRAPH SECTION GUIDANCE (derived from 125 HKEX prospectuses):"
+    ]
+    if reqs.get("kg_function"):
+        lines.append(f"Function: {reqs['kg_function']}")
+    if reqs.get("kg_purpose"):
+        lines.append(f"Purpose: {reqs['kg_purpose']}")
+
+    struct = reqs.get("kg_typical_structure") or []
+    if struct:
+        lines.append("Typical structure:")
+        for item in struct:
+            sub = item.get("subsection") or ""
+            desc = item.get("description") or ""
+            lines.append(f"  - {sub}: {desc}")
+        lines.append("")
+        lines.append(
+            "HEADING LOCK: Use the subsection names listed under \"Typical structure\" above "
+            "VERBATIM as your H2/H3 headings, in that order. You may prefix them with "
+            "sequential numbers (\"1 <name>\", \"2 <name>\", ...). You MUST NOT rename, "
+            "merge, split, reorder, or omit them. If a subsection has no supporting "
+            "evidence, still include the heading with body \"**DATA_MISSING**\" plus an "
+            "[[AI:VERIFY|evidence=...]] pointer. You MAY add at most one extra trailing "
+            "subsection for genuinely section-specific content if the evidence requires it."
+        )
+
+    rules = reqs.get("kg_writing_rules") or []
+    if rules:
+        lines.append("Writing rules:")
+        for r in rules:
+            lines.append(f"  - {r}")
+
+    fields = reqs.get("kg_required_input_fields") or []
+    if fields:
+        lines.append("Required input fields (fill from context or mark DATA_MISSING):")
+        for f in fields:
+            name = f.get("field") or f.get("field_id") or ""
+            desc = f.get("description") or ""
+            lines.append(f"  - {name}: {desc}")
+
+    evidence = reqs.get("kg_evidence_types") or []
+    if evidence:
+        lines.append("Evidence types: " + ", ".join(str(e) for e in evidence))
+
+    pitfalls = reqs.get("kg_common_pitfalls") or []
+    if pitfalls:
+        lines.append("Common pitfalls to avoid:")
+        for p in pitfalls:
+            lines.append(f"  - {p}")
+    return "\n".join(lines)
+
+
 def _augment_requirements(
     section_id: str,
     base_requirements: str,
     issuer_metadata_path: Path | None,
+    reqs: dict | None = None,
 ) -> str:
     from prospectus_graph.issuer_metadata import (
         conditional_section_emphasis,
@@ -78,7 +147,29 @@ def _augment_requirements(
     if ex.strip():
         parts.append("SECTION GENERATION RULES (apply before drafting narrative):\n" + ex)
     parts.append("---\nSECTION-SPECIFIC REQUIREMENTS:\n" + base_requirements)
+    gating_block = _format_gating_docs_block(section_id)
+    if gating_block:
+        parts.append(gating_block)
+    if reqs is not None:
+        kg_block = _format_kg_guidance(reqs)
+        if kg_block:
+            parts.append(kg_block)
     return "\n\n".join(parts)
+
+
+def _format_gating_docs_block(section_id: str) -> str:
+    """Pull the Schema A gating-doc / deliverable block for this section from the
+    crosswalk. Silent no-op when the section is not crosswalked or the files are
+    missing — this keeps Agent2 backward-compatible with environments that have
+    not yet regenerated the schema bundle."""
+    try:
+        from prospectus_graph.crosswalk import format_gating_block
+    except Exception:  # noqa: BLE001
+        return ""
+    try:
+        return format_gating_block(section_id)
+    except Exception:  # noqa: BLE001
+        return ""
 
 
 def _lookup_section_name(section_id: str) -> str:
@@ -104,6 +195,7 @@ UNIFIED MACHINE-PARSEABLE AI TAGS (use exactly this syntax; one tag per pair of 
   [[AI:VERIFY|evidence=...]]
   [[AI:LPD|timestamp=ISO8601]]
   [[AI:LOCKED|reason=mandatory_rule_text|...]]
+  [[AI: DD evidence needed — <gating_doc_field_id>]]   (see REPORT-DRIVEN GATING DOCUMENTS block)
 
 - Avoid promotional, absolute, or unqualified forward-looking language. Avoid explicit or implicit profit forecasts unless a formal profit-forecast workflow applies. Require cross-reference discipline and evidence hooks for claims needing verification.
 - Regime-sensitive flags in ISSUER METADATA control which conditional warnings and cross-references are mandatory; do not contradict issuer metadata.
@@ -135,14 +227,34 @@ def build_planner_prompt(
     requirements: str,
     formatted_facts: str,
     text_summary: str,
+    kg_typical_structure: list[dict] | None = None,
 ) -> str:
     """Build prompt for Section Planner: structured outline + fact-to-subsection mapping."""
     numbered_facts = _add_fact_ids_to_formatted(formatted_facts)
+    required_outline_block = ""
+    required_outline_rule = ""
+    if kg_typical_structure:
+        lines: list[str] = [
+            "Required outline (copy these names VERBATIM, in this order, as your numbered outline):",
+        ]
+        for idx, item in enumerate(kg_typical_structure, start=1):
+            sub = (item.get("subsection") or "").strip()
+            if not sub:
+                continue
+            lines.append(f"  {idx}. {sub}")
+        required_outline_block = "\n".join(lines) + "\n\n"
+        required_outline_rule = (
+            "\n- Required outline is present above: your `outline` MUST reproduce those "
+            "titles VERBATIM and in that order (you may prefix them \"1 \", \"2 \", ...). "
+            "Do not rename, merge, split, reorder, or omit them. You MAY append at most "
+            "one extra trailing subsection for evidence-driven section-specific content. "
+            "Keys in `fact_mapping` MUST exactly match the outline titles (after the number)."
+        )
     return f"""Role: You are the Section Planner for an HKEX prospectus drafting workflow.
 
 Objective: Produce a structured outline for the "{section_name}" section and assign available facts to the most appropriate subsections.
 
-Section requirements:
+{required_outline_block}Section requirements:
 {requirements}
 
 Available structured facts (reference by fact_N in fact_mapping):
@@ -169,7 +281,7 @@ Rules:
 - outline: Numbered list of subsection titles, one per line. Match HKEX and section requirements.
 - fact_mapping: For each subsection, list fact IDs (e.g. fact_1, fact_2) that belong there.
 - If a fact fits multiple subsections, assign it to the single best fit.
-- Subsection names in fact_mapping must exactly match the outline titles (after the number).
+- Subsection names in fact_mapping must exactly match the outline titles (after the number).{required_outline_rule}
 """
 
 
@@ -226,6 +338,7 @@ Instructions:
 7. Do not use promotional, absolute, or unqualified forward-looking language. Do not create explicit or implicit profit forecasts, margin forecasts, valuation conclusions, or certainty of commercial success.
 8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags. Any materiality or legal sufficiency judgment must be escalated to sponsor-counsel review.
 9. LIST CONTROL: If a product list, item catalog, or enumerated list contains more than 10 items, SUMMARIZE by category instead of enumerating every item. Example: "The company's product portfolio includes education robots (e.g. Yanshee, Alpha Mini), logistics robots (AGVs, AMRs), and consumer products such as AiRROBO robotic appliances." Do NOT repeat the same product or item name multiple times. Do NOT loop or enumerate endlessly.
+10. DEPTH AND LENGTH: Produce a comprehensive sponsor-counsel working draft with full sub-headings, well-developed paragraphs, and tables where appropriate. Do NOT truncate prematurely — continue until every required subsection from the outline / KG typical structure is drafted (with content or explicit DATA_MISSING / COUNSEL_INPUT_REQUIRED placeholders). Aim for the depth and breadth expected of a real HKEX prospectus section; a summary of 2-3 paragraphs is usually insufficient for a named section.
 
 Section content (English only):"""
 
@@ -372,18 +485,68 @@ Instructions:
 Revised section (English only):"""
 
 
+import os as _os
+
+
+def _resolve_max_new_tokens(role: str, override: int | None) -> int:
+    """Pick max_new_tokens per node role. Writer/Revision need long-form prose;
+    Planner/Verifier only need short structured JSON.
+
+    Env overrides:
+      AGENT2_MAX_NEW_TOKENS_WRITER / _REVISION / _PLANNER / _VERIFIER
+      AGENT2_MAX_NEW_TOKENS (global default)
+    """
+    if override is not None:
+        return int(override)
+    per_role_env = {
+        "writer": ("AGENT2_MAX_NEW_TOKENS_WRITER", 4096),
+        "revision": ("AGENT2_MAX_NEW_TOKENS_REVISION", 4096),
+        "planner": ("AGENT2_MAX_NEW_TOKENS_PLANNER", 1024),
+        "verifier": ("AGENT2_MAX_NEW_TOKENS_VERIFIER", 1536),
+    }
+    env_name, default_tokens = per_role_env.get(role, ("AGENT2_MAX_NEW_TOKENS", 4096))
+    env_val = _os.environ.get(env_name) or _os.environ.get("AGENT2_MAX_NEW_TOKENS")
+    if env_val:
+        try:
+            return int(env_val)
+        except ValueError:
+            pass
+    return default_tokens
+
+
+def _llm_provider() -> str:
+    import os as _os
+
+    return (_os.environ.get("LLM_PROVIDER") or "qwen_local").strip().lower()
+
+
 def generate_with_llm(
     prompt: str,
     model_name: str = DEFAULT_MODEL,
     model: Any = None,
     tokenizer: Any = None,
+    *,
+    role: str = "writer",
+    max_new_tokens: int | None = None,
 ) -> str:
-    """Call Qwen via Hugging Face (llm_qwen) to generate section text."""
+    """Call Qwen (local HF) or OpenAI-compatible API depending on ``LLM_PROVIDER``.
+
+    The ``role`` picks a length budget tuned for that node:
+      - writer/revision: long-form prose (default 4096 new tokens)
+      - planner: short JSON outline (default 1024)
+      - verifier: short JSON review (default 1536)
+    """
+    tokens = _resolve_max_new_tokens(role, max_new_tokens)
+    if _llm_provider() == "openai":
+        from llm_openai import run_openai_chat
+
+        return run_openai_chat(prompt, max_new_tokens=tokens)
+
     from llm_qwen import run_qwen_text, run_qwen_with_model
 
     if model is not None and tokenizer is not None:
-        return run_qwen_with_model(model, tokenizer, prompt, max_new_tokens=2048)
-    return run_qwen_text(prompt, model_name=model_name, max_new_tokens=2048)
+        return run_qwen_with_model(model, tokenizer, prompt, max_new_tokens=tokens)
+    return run_qwen_text(prompt, model_name=model_name, max_new_tokens=tokens)
 
 
 def _supports_hybrid_retrieval(rag_dir: str | Path) -> bool:
@@ -485,12 +648,14 @@ class SectionPlannerAgent:
             requirements=state["requirements"],
             formatted_facts=state.get("formatted_facts", ""),
             text_summary=text_summary,
+            kg_typical_structure=state.get("kg_typical_structure") or [],
         )
         raw = generate_with_llm(
             prompt,
             model_name=self.model_name,
             model=self.model,
             tokenizer=self.tokenizer,
+            role="planner",
         )
         outline, fact_mapping = _parse_planner_output(raw)
         return {
@@ -525,6 +690,7 @@ class SectionWriterAgent:
             model_name=self.model_name,
             model=self.model,
             tokenizer=self.tokenizer,
+            role="writer",
         )
         return {
             "draft_text": draft_text,
@@ -564,6 +730,7 @@ class VerifierAgent:
             model_name=self.model_name,
             model=self.model,
             tokenizer=self.tokenizer,
+            role="verifier",
         )
         agent_pass, verifier_summary, agent_issues, revision_instructions = (
             parse_verifier_agent_output(verifier_raw_output)
@@ -649,6 +816,7 @@ class RevisionAgent:
             model_name=self.model_name,
             model=self.model,
             tokenizer=self.tokenizer,
+            role="revision",
         )
         return {
             "draft_text": revised_text,
@@ -820,12 +988,13 @@ def _build_section_state(
     reqs = requirements_map.get(section_id, {})
     base_req = reqs.get("requirements", f"Write the {section_name} section.")
     requirements = _augment_requirements(
-        section_id, base_req, issuer_metadata_path
+        section_id, base_req, issuer_metadata_path, reqs=reqs
     )
     return {
         "section_id": section_id,
         "section_name": section_name,
         "requirements": requirements,
+        "kg_typical_structure": reqs.get("kg_typical_structure") or [],
         "rag_dir": str(rag_dir),
         "output_dir": str(output_dir),
         "model_name": model_name,
@@ -990,6 +1159,17 @@ def run_agent2_single(
         issuer_metadata_path=meta_path,
     )
 
+    # Load the model once and reuse it across every LangGraph node (planner,
+    # writer, verifier, revision). OpenAI path skips local weights.
+    model, tokenizer = None, None
+    if _llm_provider() != "openai":
+        from llm_qwen import _load_qwen_model as _load_model_once
+
+        model, tokenizer = _load_model_once(model_name)
+        print("Model loaded once; reusing for all nodes in this section.")
+    else:
+        print("LLM_PROVIDER=openai; using cloud API (no local Qwen load).")
+
     result = _run_section_graph(
         section_state=state,
         retriever=retriever,
@@ -997,6 +1177,8 @@ def run_agent2_single(
         model_name=model_name,
         combine_immediately=True,
         only_sections_up_to=None if modification_instructions else section_id,
+        model=model,
+        tokenizer=tokenizer,
     )
     out_text = result.get("verified_text") or result.get("draft_text", "")
     if finalize_bundle:
@@ -1031,11 +1213,13 @@ def run_agent2(
     use_cached_model = len(valid_sections) > 1
 
     model, tokenizer = None, None
-    if use_cached_model:
+    if use_cached_model and _llm_provider() != "openai":
         from llm_qwen import _load_qwen_model
 
         model, tokenizer = _load_qwen_model(model_name)
         print("Model loaded once; reusing for all sections.")
+    elif use_cached_model:
+        print("LLM_PROVIDER=openai; using cloud API for all sections.")
 
     retriever = _create_retriever(rag_path)
     meta_path = _resolve_issuer_metadata_path(issuer_metadata_path)

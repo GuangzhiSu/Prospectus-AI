@@ -4,7 +4,7 @@
 # Default: https://huggingface.co/Qwen/Qwen3.5-27B — override with QWEN_MODEL or qwen_model.
 
 llm_provider: qwen_local
-qwen_model: Qwen/Qwen3.5-27B
+qwen_model: Qwen/Qwen2.5-7B-Instruct
 max_tokens: 8192
 temperature: 0.0
 
