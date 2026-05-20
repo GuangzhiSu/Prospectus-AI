@@ -1,4 +1,22 @@
-# Data — Li Auto (2015.HK) financial documents
+# Data — issuer inputs and collaboration manifest
+
+## Large files / team sync
+
+Bulk issuer Excel and JSON are **not** in git. See **[`manifest.json`](manifest.json)** and:
+
+- **[`docs/COLLABORATOR_SETUP.zh-CN.md`](../docs/COLLABORATOR_SETUP.zh-CN.md)** — 协作者完整搭建（中文）
+- **[`docs/COLLABORATION.md`](../docs/COLLABORATION.md)** — English collaboration notes
+
+```bash
+python scripts/sync_data.py fetch --profile dev-full   # after PROSPECTUS_DATA_REMOTE is set
+# or offline: scripts/ingest_data_bundle.sh /path/to/*.tar.zst
+```
+
+Maintainer packs and publishes snapshots: `./scripts/publish_data_snapshot.sh`
+
+---
+
+## Li Auto (2015.HK) financial documents (sample)
 
 All files use English names for easier reference.
 

@@ -17,6 +17,9 @@ openai>=1.40.0
 # First-run model download (Windows installer / settings UI)
 huggingface_hub>=0.24.0
 
+# Data collaboration bundles (scripts/sync_data.py, pack_data_bundle.sh)
+zstandard>=0.22.0
+
 # Hybrid retriever: semantic search over text chunks
 sentence-transformers>=2.2.0
 

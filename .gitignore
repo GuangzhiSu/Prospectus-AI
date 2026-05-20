@@ -8,6 +8,10 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
+# Electron (apps/desktop)
+apps/desktop/release/
+apps/desktop/node_modules/
+
 # Next.js (apps/web)
 apps/web/.next/
 apps/web/out/
@@ -37,13 +41,22 @@ agent2_output/
 # agent2_section_requirements.json, apps/web/*.json, etc.
 ipo_prospectus_pipeline/outputs/
 ipo_prospectus_pipeline/outputs_*/
-prospectus_kg_output/
 
-# HKEX prospectus PDF corpus (large binaries; licensing / redistribution — keep local)
-hkex_prospectus/
+# KG outputs — bulk ignored; contract JSON under inputs/ is tracked (see docs/COLLABORATION.md)
+prospectus_kg_output/*
+!prospectus_kg_output/inputs/
+prospectus_kg_output/inputs/*
+!prospectus_kg_output/inputs/input_schema.json
+!prospectus_kg_output/inputs/input_schema_crosswalk.json
+!prospectus_kg_output/inputs/input_schema_sections.json
+!prospectus_kg_output/inputs/_coverage_vs_report.md
 
-# Agent1 input data (often large or issuer-specific; keep README tracked)
+# Exchange prospectus PDF corpus (large binaries; licensing / redistribution — keep local)
+prospectus_corpus/
+
+# Agent1 input data (often large or issuer-specific; keep README + manifest tracked)
 /data/*.json
+!/data/manifest.json
 /data/*.xlsx
 /data/*.csv
 
@@ -92,6 +105,12 @@ yarn-error.log*
 
 # Local “one folder to send” bundle (packaging/bundle-release.*)
 dist/ProspectusAI-SharingBundle/
+dist/ProspectusAI/
+dist/ProspectusAI-linux/
+dist/ProspectusAI-linux-*.tar.gz
+dist/ProspectusAI-windows-from-linux-*.tar.gz
+dist/ProspectusAI-windows-*.zip
+dist/data-bundles/
 
 # Temp / lock files
 ~$*

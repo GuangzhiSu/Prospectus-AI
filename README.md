@@ -1,6 +1,6 @@
 # Prospectus AI
 
-Repository for generating HKEX prospectus working drafts from structured source materials.
+Repository for generating Exchange prospectus working drafts from structured source materials.
 
 ## Current status
 
@@ -74,6 +74,20 @@ For the **legacy / optional document-RAG workflow**, you may still need:
 - `OPENAI_API_KEY` when `RAG_PROVIDER=openai`
 - `HF_API_KEY` when `RAG_PROVIDER=hf`
 - a running `services/local-llm` server when `RAG_PROVIDER=local`
+
+## Collaborator setup (large KG / PDF corpus)
+
+Git does **not** include `prospectus_corpus/`, bulk `prospectus_kg_output/`, or issuer Excel under `data/`. Use the data manifest and sync tooling instead.
+
+**协作者请优先阅读：[docs/COLLABORATOR_SETUP.zh-CN.md](docs/COLLABORATOR_SETUP.zh-CN.md)**（中文完整搭建：Git + 大文件 + 模型 + 自检清单）。
+
+English workflow summary:
+
+1. Read **[docs/COLLABORATION.md](docs/COLLABORATION.md)** for tiers (Git vs artifacts vs generated outputs).
+2. Fetch team data: `python scripts/sync_data.py fetch --profile dev-full` (set `PROSPECTUS_DATA_REMOTE` when published), or ingest offline bundles via `scripts/ingest_data_bundle.sh`.
+3. Shortcut: `make data-dev-full` (same as fetch after `pip install -r requirements.txt`).
+
+Contract files (`input_schema.json`, `input_schema_crosswalk.json`) are tracked in git under `prospectus_kg_output/inputs/`.
 
 ## Quick start
 
@@ -292,7 +306,7 @@ In this mode, the older `/api/chat` route calls `http://127.0.0.1:8000` for inge
 ## Other reference files
 
 - `Guidelines for Writing Prospectus Sections.docx` - older drafting guidance reference
-- `Sponsor Counsel Drafting & AI Validation Framework for HKEX Technology-Sector IPO Prospectuses.docx` - sponsor-counsel drafting and validation framework that now informs `Agent2` working-draft behavior
+- `Sponsor Counsel Drafting & AI Validation Framework for Exchange Technology-Sector IPO Prospectuses.docx` - sponsor-counsel drafting and validation framework that now informs `Agent2` working-draft behavior
 - `Final Project_*.ipynb` - notebooks or experiments
 
 ## License

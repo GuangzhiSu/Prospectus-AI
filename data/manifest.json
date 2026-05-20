@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "published_tag": "local-2026-05-20",
+  "description": "Large artifacts for Prospectus AI collaboration. Set PROSPECTUS_DATA_REMOTE then fetch, or use file:// paths after publish-local on your machine.",
+  "profiles": {
+    "minimal": {
+      "description": "Git-tracked contract JSON only (input_schema + crosswalk). No download.",
+      "artifacts": []
+    },
+    "kg-dev": {
+      "description": "KG structure, writing cards, and input records for pipeline dev / kg-view.",
+      "artifacts": [
+        "kg-structure",
+        "kg-writing",
+        "kg-inputs-bulk"
+      ]
+    },
+    "dev-full": {
+      "description": "Full internal dev: PDF corpus, complete prospectus_kg_output, sample issuer Excel.",
+      "artifacts": [
+        "prospectus-corpus",
+        "kg-output-full",
+        "data-samples"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "prospectus-corpus",
+      "description": "Exchange prospectus PDF corpus (team-internal)",
+      "pack_paths": [
+        "prospectus_corpus"
+      ],
+      "extract_to": "prospectus_corpus",
+      "extract_base": ".",
+      "archive": "bundles/prospectus_corpus.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_corpus.tar.zst",
+      "sha256": "aacdf081ad406ffa9b41e0eed4480b4028de377d32add277d769be2998254146",
+      "size_bytes": 782337037
+    },
+    {
+      "id": "kg-output-full",
+      "description": "Complete prospectus_kg_output tree",
+      "pack_paths": [
+        "prospectus_kg_output"
+      ],
+      "extract_to": "prospectus_kg_output",
+      "extract_base": ".",
+      "archive": "bundles/prospectus_kg_output.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_kg_output.tar.zst",
+      "sha256": "faa5343b158bd65af7eaf55fdac7e9eb12c5469ba7713f11464e33c94bdc6224",
+      "size_bytes": 208382408
+    },
+    {
+      "id": "kg-structure",
+      "description": "Structural KG (docgraph.json, statistics)",
+      "pack_paths": [
+        "prospectus_kg_output/structure"
+      ],
+      "extract_to": "prospectus_kg_output/structure",
+      "extract_base": ".",
+      "archive": "bundles/kg_structure.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_structure.tar.zst",
+      "sha256": "583742f739f9b545e28bcb80cd4424a41c3cf9746540b5c6d9871ac78aabd273",
+      "size_bytes": 608215
+    },
+    {
+      "id": "kg-writing",
+      "description": "Writing KG section cards",
+      "pack_paths": [
+        "prospectus_kg_output/writing"
+      ],
+      "extract_to": "prospectus_kg_output/writing",
+      "extract_base": ".",
+      "archive": "bundles/kg_writing.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_writing.tar.zst",
+      "sha256": "226ec174873cb2b2a78dae0a8899c35fa42fce1672d1b64a3431bc1064a13312",
+      "size_bytes": 153774
+    },
+    {
+      "id": "kg-inputs-bulk",
+      "description": "Reverse-engineered records and raw extracts (not git-tracked schema)",
+      "pack_paths": [
+        "prospectus_kg_output/inputs/records",
+        "prospectus_kg_output/inputs/input_records",
+        "prospectus_kg_output/inputs/qwen_raw_extract_v2",
+        "prospectus_kg_output/native_docs"
+      ],
+      "extract_to": "prospectus_kg_output/inputs",
+      "extract_base": ".",
+      "archive": "bundles/kg_inputs_bulk.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_inputs_bulk.tar.zst",
+      "sha256": "19832d1a69326f459b3effaa3b1467ce024ba43eb644f9f37c2a54f73edbb1a7",
+      "size_bytes": 144596037
+    },
+    {
+      "id": "data-samples",
+      "description": "Sample issuer Excel/JSON for Agent1 (optional)",
+      "pack_paths": [
+        "data"
+      ],
+      "extract_to": "data",
+      "extract_base": ".",
+      "archive": "bundles/data_samples.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/data_samples.tar.zst",
+      "sha256": "38d121980d5fe6c67b505d8d2d1a552d2382c8f0d16fe6d715cc4ca0d332e9c6",
+      "size_bytes": 13808
+    }
+  ]
+}
