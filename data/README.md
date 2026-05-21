@@ -14,6 +14,8 @@ python scripts/sync_data.py fetch --profile dev-full   # after PROSPECTUS_DATA_R
 
 Maintainer packs and publishes snapshots: `./scripts/publish_data_snapshot.sh`
 
+Codeup LFS (no separate object storage): see [`CODEUP_SETUP.md`](CODEUP_SETUP.md)
+
 ---
 
 ## Li Auto (2015.HK) financial documents (sample)

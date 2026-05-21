@@ -39,8 +39,8 @@
         "dev-full"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_corpus.tar.zst",
-      "sha256": "aacdf081ad406ffa9b41e0eed4480b4028de377d32add277d769be2998254146",
-      "size_bytes": 782337037
+      "sha256": "0430befe59e055b76dc4db02b2b7e83262948b12bf9c73ce4ef745bca2f197f5",
+      "size_bytes": 781241448
     },
     {
       "id": "kg-output-full",
@@ -56,8 +56,8 @@
         "dev-full"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_kg_output.tar.zst",
-      "sha256": "faa5343b158bd65af7eaf55fdac7e9eb12c5469ba7713f11464e33c94bdc6224",
-      "size_bytes": 208382408
+      "sha256": "e2d88662856dd044ef7badf928faf5fc99f8d90862687965c53c5651c856c591",
+      "size_bytes": 208024267
     },
     {
       "id": "kg-structure",
@@ -73,8 +73,8 @@
         "kg-dev"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_structure.tar.zst",
-      "sha256": "583742f739f9b545e28bcb80cd4424a41c3cf9746540b5c6d9871ac78aabd273",
-      "size_bytes": 608215
+      "sha256": "63af85cf4d9d8101d5e8b7eeb69ea554684126ad171f1a2a2b3de7bd71050949",
+      "size_bytes": 604747
     },
     {
       "id": "kg-writing",
@@ -90,8 +90,8 @@
         "kg-dev"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_writing.tar.zst",
-      "sha256": "226ec174873cb2b2a78dae0a8899c35fa42fce1672d1b64a3431bc1064a13312",
-      "size_bytes": 153774
+      "sha256": "2ec4f29ab87657768dc1833e3e14f576745bfec7059c78c530c392f2dda548f1",
+      "size_bytes": 153482
     },
     {
       "id": "kg-inputs-bulk",
@@ -110,8 +110,8 @@
         "kg-dev"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_inputs_bulk.tar.zst",
-      "sha256": "19832d1a69326f459b3effaa3b1467ce024ba43eb644f9f37c2a54f73edbb1a7",
-      "size_bytes": 144596037
+      "sha256": "4be0e1183f4bcf28b9ca2c0d559c547c65f0778a910da59efbedeaf882326746",
+      "size_bytes": 143858027
     },
     {
       "id": "data-samples",
@@ -127,8 +127,8 @@
         "dev-full"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/data_samples.tar.zst",
-      "sha256": "38d121980d5fe6c67b505d8d2d1a552d2382c8f0d16fe6d715cc4ca0d332e9c6",
-      "size_bytes": 13808
+      "sha256": "a246faa33c83b4d9944eb826e1c306b28ec2f294de2e90b02e3fc16e3717f165",
+      "size_bytes": 16283
     }
   ]
 }

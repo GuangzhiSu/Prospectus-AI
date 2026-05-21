@@ -60,12 +60,41 @@ cd ../..
 
 任选 **一种** 方式即可凑齐 `dev-full` 所需的全部数据。维护者会告知你们团队用哪一种。
 
-#### 方式 A — 从团队云存储拉取（有 S3 / 内网存储时）
+#### 方式 A — 从团队云存储拉取
+
+维护者会告知具体用哪一种：**S3/OSS** 或 **Codeup Git LFS 数据仓**。
+
+##### 方式 A1 — Codeup Git LFS（推荐：全部在阿里云 Codeup，无需 OSS）
+
+维护者会提供：
+
+- Codeup **数据仓** Git 地址（例如 `git@codeup.aliyun.com:<org>/prospectus-ui-data.git`）
+- Codeup 仓库访问权限（SSH 或 HTTPS 令牌）
+- 当前数据版本 tag（与 `data/manifest.json` 里 `published_tag` 一致）
+
+需安装 [Git LFS](https://git-lfs.com)：`git lfs install`
+
+在仓库根目录执行：
+
+```bash
+source .venv/bin/activate
+
+./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:<org>/prospectus-ui-data.git
+./scripts/codeup_data_repo.sh pull
+eval "$(./scripts/codeup_data_repo.sh env)"
+
+python scripts/sync_data.py fetch --profile dev-full
+python scripts/sync_data.py verify --profile dev-full
+```
+
+维护者详细说明见 [`data/CODEUP_SETUP.md`](../data/CODEUP_SETUP.md)。
+
+##### 方式 A2 — S3 / 阿里云 OSS 等对象存储
 
 维护者会提供：
 
 - `PROSPECTUS_DATA_REMOTE`（例如 `s3://团队-bucket/prospectus-ai-data`）
-- 若为 S3：`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`（或等价凭证）
+- 若为 S3/OSS：`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`（或等价凭证）
 - 当前数据版本 tag（与 `data/manifest.json` 里 `published_tag` 一致，例如 `local-2026-05-20` 或 `v1`）
 
 在仓库根目录执行：
@@ -74,7 +103,7 @@ cd ../..
 source .venv/bin/activate
 
 export PROSPECTUS_DATA_REMOTE=s3://<维护者提供的 bucket 路径>
-# 若用 S3，再 export AWS 相关变量
+# 若用 S3/OSS，再 export AWS 相关变量
 
 python scripts/sync_data.py fetch --profile dev-full
 python scripts/sync_data.py verify --profile dev-full
@@ -275,7 +304,7 @@ python scripts/download_qwen_model.py \
 开始搭建前，可向仓库维护者确认：
 
 1. Git 仓库地址与分支（通常 `main` / `develop`）  
-2. 数据获取方式：**S3 凭证 + `PROSPECTUS_DATA_REMOTE`**，或 **离线 tar.zst 下载链接/拷贝**  
+2. 数据获取方式：**Codeup LFS 数据仓**（见 [`data/CODEUP_SETUP.md`](../data/CODEUP_SETUP.md)）、**S3/OSS 凭证 + `PROSPECTUS_DATA_REMOTE`**，或 **离线 tar.zst 下载链接/拷贝**  
 3. 当前数据版本 tag（与 `data/manifest.json` 中 `published_tag` 一致）  
 4. 是否需 Hugging Face token、VPN 或内网模型镜像  
 5. Windows 用户是否使用 [`WINDOWS_INSTALL.md`](WINDOWS_INSTALL.md) 安装包流程  
