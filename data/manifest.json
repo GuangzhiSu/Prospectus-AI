@@ -127,8 +127,8 @@
         "dev-full"
       ],
       "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/data_samples.tar.zst",
-      "sha256": "a246faa33c83b4d9944eb826e1c306b28ec2f294de2e90b02e3fc16e3717f165",
-      "size_bytes": 16283
+      "sha256": "5a839591d4f086a5d5e4a978718de54530c206c2a6e8e9bcb9e213081b30c632",
+      "size_bytes": 16297
     }
   ]
 }
