@@ -75,19 +75,77 @@ For the **legacy / optional document-RAG workflow**, you may still need:
 - `HF_API_KEY` when `RAG_PROVIDER=hf`
 - a running `services/local-llm` server when `RAG_PROVIDER=local`
 
-## Collaborator setup (large KG / PDF corpus)
+## User guide: what lives where and how to get it
 
-Git does **not** include `prospectus_corpus/`, bulk `prospectus_kg_output/`, or issuer Excel under `data/`. Use the data manifest and sync tooling instead.
+`git clone` alone does **not** give you everything. Use this table first, then follow the setup steps below.
 
-**协作者请优先阅读：[docs/COLLABORATOR_SETUP.zh-CN.md](docs/COLLABORATOR_SETUP.zh-CN.md)**（中文完整搭建：Git + 大文件 + 模型 + 自检清单）。
+| Content | Where it lives | How you get it |
+|---------|----------------|----------------|
+| Application code (`apps/`, `agent1.py`, `scripts/`, …) | **GitHub** main repo | `git clone git@github.com:GuangzhiSu/Prospectus-AI.git` |
+| KG contract JSON (`input_schema*.json`, crosswalk) | **GitHub** main repo | same clone (`prospectus_kg_output/inputs/`) |
+| Data manifest + checksums ([`data/manifest.json`](data/manifest.json)) | **GitHub** main repo | same clone |
+| PDF corpus `prospectus_corpus/` (~750 MB compressed) | **Codeup LFS** data repo | see [Fetch large files](#fetch-large-files-codeup) below |
+| Full KG output `prospectus_kg_output/` (~200 MB compressed) | **Codeup LFS** data repo | same |
+| Sample issuer Excel/JSON under `data/` | **Codeup LFS** data repo (`dev-full` bundle) | same |
+| Qwen model weights | **Hugging Face** | auto-download on first Agent1/Agent2 run |
+| Run outputs `agent1_output/`, `agent2_output/` | local only | generated when you run the pipeline; never commit |
 
-English workflow summary:
+**Current data release:** `published_tag` in [`data/manifest.json`](data/manifest.json) (currently `local-2026-05-20`).
 
-1. Read **[docs/COLLABORATION.md](docs/COLLABORATION.md)** for tiers (Git vs artifacts vs generated outputs).
-2. Fetch team data: `python scripts/sync_data.py fetch --profile dev-full` (set `PROSPECTUS_DATA_REMOTE` when published), or ingest offline bundles via `scripts/ingest_data_bundle.sh`.
-3. Shortcut: `make data-dev-full` (same as fetch after `pip install -r requirements.txt`).
+**Team repositories**
 
-Contract files (`input_schema.json`, `input_schema_crosswalk.json`) are tracked in git under `prospectus_kg_output/inputs/`.
+| Role | URL |
+|------|-----|
+| Main code (GitHub) | `git@github.com:GuangzhiSu/Prospectus-AI.git` |
+| Large data bundles (Codeup LFS) | `git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git` |
+
+中文逐步说明（含离线包、常见问题）：**[docs/COLLABORATOR_SETUP.zh-CN.md](docs/COLLABORATOR_SETUP.zh-CN.md)**
+
+English maintainer / return-workflow notes: **[docs/COLLABORATION.md](docs/COLLABORATION.md)**
+
+### Full setup (recommended order)
+
+1. **Clone code and install dependencies** (see [Quick start](#quick-start) below).
+2. **Fetch large files** from Codeup (requires Git LFS + Codeup access).
+3. **Configure** `apps/web/.env.local` with your absolute paths.
+4. **Run** `npm run dev` from the repo root.
+
+### Fetch large files (Codeup)
+
+Prerequisites: [Git LFS](https://git-lfs.com) installed (`git lfs install`), SSH key added to Codeup, access to the data repo above.
+
+From the **repo root** after `pip install -r requirements.txt`:
+
+```bash
+source .venv/bin/activate
+
+# Clone/update the LFS data repo (~1.1 GB download)
+./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git
+./scripts/codeup_data_repo.sh pull
+eval "$(./scripts/codeup_data_repo.sh env)"
+
+# Download, verify checksums, and extract into the working tree
+python scripts/sync_data.py fetch --profile dev-full
+python scripts/sync_data.py verify --profile dev-full
+```
+
+Shortcut (same fetch, after env is set): `make data-dev-full`
+
+**Partial profiles** (if you do not need PDFs or full KG):
+
+| Profile | What you get |
+|---------|----------------|
+| `minimal` | Git-tracked schema/crosswalk only; no download |
+| `kg-dev` | KG structure, writing cards, records (no PDF corpus) |
+| `dev-full` | Everything: corpus + full KG + sample Excel |
+
+```bash
+python scripts/sync_data.py fetch --profile kg-dev
+```
+
+**Offline alternative:** maintainer sends `.tar.zst` files; use `./scripts/ingest_data_bundle.sh /path/to/file.tar.zst` (see collaborator doc).
+
+**Verify after setup:** `prospectus_corpus/` has PDFs; `prospectus_kg_output/structure/docgraph.json` exists for `/kg-view`.
 
 ## Quick start
 

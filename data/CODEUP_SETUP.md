@@ -33,7 +33,7 @@ prospectus-ui-data/
 ## 2. 初始化本地数据仓
 
 ```bash
-export CODEUP_DATA_REPO_URL=git@codeup.aliyun.com:<org>/prospectus-ui-data.git
+export CODEUP_DATA_REPO_URL=git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git
 ./scripts/codeup_data_repo.sh init "$CODEUP_DATA_REPO_URL"
 ```
 
@@ -66,7 +66,7 @@ git push
 简要步骤：
 
 ```bash
-./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:<org>/prospectus-ui-data.git
+./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git
 ./scripts/codeup_data_repo.sh pull
 eval "$(./scripts/codeup_data_repo.sh env)"
 python scripts/sync_data.py fetch --profile dev-full

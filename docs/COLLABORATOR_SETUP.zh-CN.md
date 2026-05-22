@@ -8,11 +8,11 @@
 
 ## 一、先搞清楚：哪些在 Git 里，哪些不在
 
-| 内容 | 是否在 GitHub | 你如何获取 |
+| 内容 | 是否在 Git 主仓 | 你如何获取 |
 |------|----------------|------------|
-| 应用与流水线代码（`apps/`、`agent1.py`、`scripts/prospectus_kg/` 等） | 是 | `git clone` |
-| KG 契约文件（`input_schema.json`、`input_schema_crosswalk.json` 等） | 是 | `git clone` |
-| 数据清单 [`data/manifest.json`](../data/manifest.json)（含下载地址与校验和） | 是 | `git clone` |
+| 应用与流水线代码（`apps/`、`agent1.py`、`scripts/prospectus_kg/` 等） | 是（GitHub） | `git clone git@github.com:GuangzhiSu/Prospectus-AI.git` |
+| KG 契约文件（`input_schema.json`、`input_schema_crosswalk.json` 等） | 是（GitHub） | 同上 |
+| 数据清单 [`data/manifest.json`](../data/manifest.json)（含下载地址与校验和） | 是（GitHub） | 同上 |
 | 招股书 PDF 语料 `prospectus_corpus/`（约 **750 MB** 压缩包） | **否** | 见下文「大文件」 |
 | 完整 KG 产出 `prospectus_kg_output/`（约 **200 MB** 压缩包） | **否** | 见下文「大文件」 |
 | 示例发行人 Excel/JSON `data/*.xlsx` 等 | **否** | 含在 `dev-full` 数据包 |
@@ -28,7 +28,7 @@
 ### 磁盘与网络（建议）
 
 - 空闲磁盘：**至少 15 GB**（数据包约 1 GB、解压后约 1.7 GB、`node_modules`、Python venv、Qwen 模型数 GB）
-- 网络：能访问 GitHub；若用云存储拉数据，需维护者提供的 bucket 权限；模型需能访问 Hugging Face（或维护者提供离线模型路径）
+- 网络：能访问 GitHub 与 Codeup；Codeup 数据仓需 SSH 公钥或 HTTPS 令牌；模型需能访问 Hugging Face（或维护者提供离线模型路径）
 
 ### 软件
 
@@ -44,8 +44,8 @@
 ### 步骤 1：克隆仓库并安装依赖
 
 ```bash
-git clone <仓库地址>
-cd prospectus-ui
+git clone git@github.com:GuangzhiSu/Prospectus-AI.git
+cd Prospectus-AI   # 或你本地的目录名
 
 python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
@@ -66,11 +66,14 @@ cd ../..
 
 ##### 方式 A1 — Codeup Git LFS（推荐：全部在阿里云 Codeup，无需 OSS）
 
-维护者会提供：
+团队 **Codeup 数据仓**（Git LFS，约 1.1 GB）：
 
-- Codeup **数据仓** Git 地址（例如 `git@codeup.aliyun.com:<org>/prospectus-ui-data.git`）
-- Codeup 仓库访问权限（SSH 或 HTTPS 令牌）
-- 当前数据版本 tag（与 `data/manifest.json` 里 `published_tag` 一致）
+- SSH：`git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git`
+- HTTPS：`https://codeup.aliyun.com/6a0f36b843d4694d6a535802/prospectus-ui-data.git`
+
+还需：Codeup 账号已被加入该仓库；本机 SSH 公钥已添加到 Codeup 个人设置。
+
+当前数据版本 tag：与 `data/manifest.json` 中 `published_tag` 一致（现为 **`local-2026-05-20`**）。
 
 需安装 [Git LFS](https://git-lfs.com)：`git lfs install`
 
@@ -79,7 +82,7 @@ cd ../..
 ```bash
 source .venv/bin/activate
 
-./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:<org>/prospectus-ui-data.git
+./scripts/codeup_data_repo.sh init git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git
 ./scripts/codeup_data_repo.sh pull
 eval "$(./scripts/codeup_data_repo.sh env)"
 
@@ -303,9 +306,9 @@ python scripts/download_qwen_model.py \
 
 开始搭建前，可向仓库维护者确认：
 
-1. Git 仓库地址与分支（通常 `main` / `develop`）  
-2. 数据获取方式：**Codeup LFS 数据仓**（见 [`data/CODEUP_SETUP.md`](../data/CODEUP_SETUP.md)）、**S3/OSS 凭证 + `PROSPECTUS_DATA_REMOTE`**，或 **离线 tar.zst 下载链接/拷贝**  
-3. 当前数据版本 tag（与 `data/manifest.json` 中 `published_tag` 一致）  
+1. Git 主仓：`git@github.com:GuangzhiSu/Prospectus-AI.git`（分支通常 `main`）  
+2. 大文件数据仓：`git@codeup.aliyun.com:6a0f36b843d4694d6a535802/prospectus-ui-data.git`（需 Codeup 权限 + Git LFS；见 [`data/CODEUP_SETUP.md`](../data/CODEUP_SETUP.md)）  
+3. 当前数据 tag：`local-2026-05-20`（以 `data/manifest.json` 为准）  
 4. 是否需 Hugging Face token、VPN 或内网模型镜像  
 5. Windows 用户是否使用 [`WINDOWS_INSTALL.md`](WINDOWS_INSTALL.md) 安装包流程  
 
@@ -315,4 +318,4 @@ python scripts/download_qwen_model.py \
 
 - 英文协作说明（含回传流程）：[`COLLABORATION.md`](COLLABORATION.md)  
 - 维护者发布数据：[`data/REMOTE_SETUP.example.md`](../data/REMOTE_SETUP.example.md)  
-- 主 README：[`README.md`](../README.md)
+- 主 README 用户指南：[`README.md`](../README.md#user-guide-what-lives-where-and-how-to-get-it)

@@ -2,10 +2,11 @@
 
 ## Large files / team sync
 
-Bulk issuer Excel and JSON are **not** in git. See **[`manifest.json`](manifest.json)** and:
+Bulk issuer Excel and JSON are **not** in git. See:
 
+- **[`README.md`](../README.md#user-guide-what-lives-where-and-how-to-get-it)** — what lives where + Codeup fetch steps (English)
 - **[`docs/COLLABORATOR_SETUP.zh-CN.md`](../docs/COLLABORATOR_SETUP.zh-CN.md)** — 协作者完整搭建（中文）
-- **[`docs/COLLABORATION.md`](../docs/COLLABORATION.md)** — English collaboration notes
+- **[`data/CODEUP_SETUP.md`](CODEUP_SETUP.md)** — 维护者发布到 Codeup LFS
 
 ```bash
 python scripts/sync_data.py fetch --profile dev-full   # after PROSPECTUS_DATA_REMOTE is set
