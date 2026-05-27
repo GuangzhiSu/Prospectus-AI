@@ -114,3 +114,16 @@ dist/data-bundles/
 
 # Temp / lock files
 ~$*
+
+# --- SenseTime sensitive data — NEVER on GitHub (Aliyun Codeup LFS only) ---
+sensetime.json
+compute_audit.json
+data.json
+*.pdf
+_work/
+_work_en/
+原文件/
+PROSPECTUSES/
+REQUIREMENTS_MATRIX*.md
+GAP_ANALYSIS*.md
+business_llm.md

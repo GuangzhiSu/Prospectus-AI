@@ -1,0 +1,129 @@
+{
+  "_comment": "REDACTED illustrative sample — placeholder values only, NO issuer data. Demonstrates the v3 schema SHAPE and the five $kind provenance classes. The real, value-filled instance (sensetime.json) lives in the Aliyun Codeup data repo, not here.",
+  "schema_version": "agent1-input/3.0",
+  "issuer_id": "<ISSUER_STOCK_CODE>",
+  "language": "en",
+  "source_defaults": { "company_legal_entity": "Issuer·corporate records" },
+
+  "company_legal_entity": {
+    "$source_default": "Issuer·corporate records",
+    "identity": {
+      "legal_name": "<Issuer legal name>",
+      "stock_code": "<stock code>",
+      "incorporation_jurisdiction": "<jurisdiction>",
+      "incorporation_date": "<YYYY-MM-DD>",
+      "legal_form": "<legal form>",
+      "par_value": { "value": "<par value>", "unit": "<CCY>" }
+    },
+    "pre_ipo_investments": [
+      {
+        "series": "<series id>",
+        "agreement_date": "<YYYY-MM-DD>",
+        "shares": "<share count>",
+        "cost_per_share": { "value": "<number>", "unit": "<CCY>" },
+        "amount_raised": { "value": "<number>", "unit": "<CCY>" },
+        "discount_to_offer": {
+          "$kind": "computed",
+          "formula": "1 - cost_per_share_hkd / offer_price.mid",
+          "inputs": ["company_legal_entity.pre_ipo_investments[<series>].cost_per_share", "offering_use_of_proceeds.offer.offer_price.mid"],
+          "unit": "%", "value": null, "generated_by": "compute_module"
+        }
+      }
+    ],
+    "public_float_pct": {
+      "$kind": "computed",
+      "formula": "100 - sum(company_legal_entity.public_float.non_public_float_holders[].pct_one_share_one_vote)",
+      "inputs": ["company_legal_entity.public_float.non_public_float_holders[].pct_one_share_one_vote"],
+      "unit": "%", "value": null, "generated_by": "compute_module"
+    }
+  },
+
+  "financials": {
+    "income_statement": [
+      { "period": "<FYxxxx>", "revenue": { "value": "<number>", "unit": "<CCY>" }, "gross_profit": { "value": "<number>", "unit": "<CCY>" }, "source": "Reporting Accountant" }
+    ],
+    "accounting_policies": [
+      { "$kind": "regulatory", "topic": "<policy topic>", "standard": "HKFRS <n>", "basis": "<recognition basis>", "source": "Reporting Accountant" }
+    ],
+    "ratios": {
+      "gross_margin": {
+        "$kind": "computed",
+        "formula": "financials.income_statement[period=<FYxxxx>].gross_profit / financials.income_statement[period=<FYxxxx>].revenue * 100",
+        "inputs": ["financials.income_statement[period=<FYxxxx>].gross_profit", "financials.income_statement[period=<FYxxxx>].revenue"],
+        "unit": "%", "value": null, "generated_by": "compute_module"
+      }
+    }
+  },
+
+  "business_products": {
+    "mission_vision": {
+      "$kind": "narrative", "source": "Issuer·business&ops",
+      "points": [ { "id": "mission", "text": "<terse factual bullet — NOT polished prose>", "provenance": "direct" } ]
+    },
+    "competitive_strengths": {
+      "$kind": "narrative", "source": "Issuer·business&ops",
+      "points": [ { "id": "str-1", "title": "<strength title>", "text": "<terse evidence bullets>", "provenance": "direct" } ]
+    }
+  },
+
+  "industry_market": {
+    "market_share": [
+      {
+        "$kind": "external", "provider": "Frost & Sullivan",
+        "metric": "<market-share metric description>",
+        "value": null, "unit": "%", "as_of": "<year>", "report_ref": "<consultant report ref>",
+        "requires_integration": true, "provenance": "external",
+        "schema_a_field": "prof.industry_consultant.research_report"
+      }
+    ]
+  },
+
+  "management_governance": {
+    "directors": [
+      { "name": "<Director name>", "role": "ED|NED|INED", "appointment_date": "<YYYY-MM-DD>",
+        "bio_points": { "$kind": "narrative", "source": "Issuer·directors&mgmt", "points": [ { "id": "bio", "text": "<bio bullet>" } ] } }
+    ],
+    "controlling_shareholders": [ { "name": "<Controlling shareholder>", "vehicle": "<holding vehicle>" } ]
+  },
+
+  "risk_seeds": {
+    "items": [
+      { "id": "risk-<cat>-<n>", "category": "business", "title": "<risk title>",
+        "trigger_facts": ["<dotted.path.to.a.fact>"],
+        "regulatory_basis": [],
+        "seed": { "$kind": "narrative", "source": "Issuer·business&ops", "points": [ { "id": "s1", "text": "<terse risk rationale>" } ] } }
+    ]
+  },
+
+  "offering_use_of_proceeds": {
+    "offer": {
+      "security_type": "<security type>",
+      "total_offer_shares": "<share count>",
+      "offer_price": { "low": "<number>", "high": "<number>", "mid": "<number>", "currency": "<CCY>" },
+      "listing_date": "<YYYY-MM-DD>"
+    },
+    "net_proceeds": {
+      "$kind": "computed",
+      "formula": "offering_use_of_proceeds.offer.total_offer_shares * offering_use_of_proceeds.offer.offer_price.mid - offering_use_of_proceeds.underwriting.aggregate_offering_expenses",
+      "inputs": ["offering_use_of_proceeds.offer.total_offer_shares", "offering_use_of_proceeds.offer.offer_price.mid", "offering_use_of_proceeds.underwriting.aggregate_offering_expenses"],
+      "unit": "<CCY>", "value": null, "generated_by": "compute_module"
+    },
+    "use_of_proceeds": [ { "purpose": "<use of proceeds purpose>", "pct": "<percent>" } ]
+  },
+
+  "related_party_transactions": {
+    "connected_transactions": [
+      { "counterparty": "<connected party>", "nature": "<nature>", "annual_cap": { "value": "<number>", "unit": "<CCY>" },
+        "lr_treatment": { "$kind": "regulatory", "instrument": "HKEX Listing Rules Ch.14A", "requirement": "<CCT classification / exemption>", "source": "HK legal counsel" } }
+    ]
+  },
+
+  "regulatory_legal": {
+    "applicable_regulations": [
+      { "$kind": "regulatory", "instrument": "<law / regulation name>", "jurisdiction": "PRC|HK|US|Cayman",
+        "authority": "<issuing authority>", "effective_date": "<YYYY-MM-DD>",
+        "key_requirement": "<requirement>", "status": "in force|draft",
+        "source": "<PRC/HK/US legal counsel>", "schema_a_field": "prof.legal.<...>" }
+    ]
+  }
+}
