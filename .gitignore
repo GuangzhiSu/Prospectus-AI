@@ -127,3 +127,6 @@ PROSPECTUSES/
 REQUIREMENTS_MATRIX*.md
 GAP_ANALYSIS*.md
 business_llm.md
+/data/sensetime/
+dist/
+*.tar.zst
