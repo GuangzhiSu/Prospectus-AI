@@ -30,9 +30,15 @@ DEFAULT_VL_MODEL = "Qwen/Qwen2-VL-2B-Instruct"
 def _get_device() -> str:
     import os
     import torch
-    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+    if os.environ.get("AGENT1_USE_CPU") == "1" or os.environ.get("CUDA_VISIBLE_DEVICES") == "":
         return "cpu"
-    return "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.cuda.is_available():
+        return "cuda"
+    # Apple Silicon GPU (Metal) — far faster than CPU/Accelerate-BLAS for local inference
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
+        return "mps"
+    return "cpu"
 
 
 def _is_qwen3_family(model_name: str) -> bool:
@@ -71,7 +77,11 @@ def _load_qwen_model(
     model_is_local_path = os.path.exists(model_name)
     load_kwargs: dict = {
         "trust_remote_code": True,
-        "torch_dtype": torch.bfloat16 if device == "cuda" else torch.float32,
+        "torch_dtype": (
+            torch.bfloat16 if device == "cuda"
+            else torch.float16 if device == "mps"
+            else torch.float32
+        ),
     }
     if device == "cuda":
         # Let accelerate shard a large model (e.g. 27B) across GPUs when present.

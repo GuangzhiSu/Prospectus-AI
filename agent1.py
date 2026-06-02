@@ -97,7 +97,21 @@ JSON_CATEGORY_TO_SECTION: dict[str, str] = {
     "management": "F", "shareholders": "E", "ipo_offering": "H",
     # legacy keys
     "company_information": "A", "business_operations": "A", "offering_information": "H",
+    # Schema v3 domains (INPUT_SCHEMA.md) -> A-H buckets ("financials" already mapped above)
+    "company_legal_entity": "A", "business_products": "A",
+    "customers_suppliers": "A", "rd_ip": "A", "industry_market": "B",
+    "management_governance": "F", "risk_seeds": "C", "offering_use_of_proceeds": "H",
+    "related_party_transactions": "G", "regulatory_legal": "G",
 }
+
+# Schema v3: top-level envelope keys Agent1 ignores; per-field metadata keys that
+# must not become facts; and `$`-prefixed keys are always skipped.
+RESERVED_KEYS: set[str] = {
+    "schema_version", "issuer_id", "language", "source_defaults",
+    "_comment", "_note", "_meta",
+}
+META_KEYS: set[str] = {"provenance", "source", "schema_a_field"}
+_SKIP_KEYS: set[str] = RESERVED_KEYS | META_KEYS
 
 
 def _infer_unit(key: str) -> str | None:
@@ -110,6 +124,76 @@ def _infer_unit(key: str) -> str | None:
     return None
 
 
+def _metric_of(prefix: str) -> str:
+    seg = re.sub(r"\[\d+\]", "", prefix).split(".")[-1]
+    return seg or prefix
+
+
+def _meta_from(node: dict, source_file: str) -> dict[str, Any]:
+    md: dict[str, Any] = {"source_file": source_file}
+    for mk in ("source", "schema_a_field", "provenance", "period"):
+        if node.get(mk) is not None:
+            md[mk] = node[mk]
+    return md
+
+
+def _handle_typed_node(
+    prefix: str, value: dict, facts: list[dict[str, Any]], source_file: str
+) -> bool:
+    """Schema v3 router. Returns True if the node was handled (caller stops).
+
+    Routes by `$kind`:
+      narrative  -> no fact (the narrative text pass emits points[].text)
+      computed   -> placeholder fact, value="[pending compute: ...]", numeric_value=None
+      external   -> placeholder fact, value="[pending external data ...]", numeric_value=None
+      regulatory -> structured citation fact
+    Also unwraps a plain {"value": ...} (a)-fact wrapper into a single fact.
+    Never emits a fabricated number for computed/external (value stays a marker).
+    """
+    metric = _metric_of(prefix)
+    kind = value.get("$kind")
+    if kind == "narrative":
+        return True
+    if kind == "computed":
+        md = _meta_from(value, source_file)
+        md.update({"kind": "computed", "status": "pending_compute",
+                   "formula": value.get("formula"), "inputs": value.get("inputs"),
+                   "numeric_value": None})
+        facts.append({"field": prefix, "period": value.get("period"), "metric": metric,
+                      "value": f"[pending compute: {metric}]",
+                      "unit": value.get("unit"), "metadata": md})
+        return True
+    if kind == "external":
+        md = _meta_from(value, source_file)
+        md.update({"kind": "external", "status": "pending_external",
+                   "provider": value.get("provider"),
+                   "external_metric": value.get("metric"), "numeric_value": None})
+        prov = value.get("provider") or "external source"
+        facts.append({"field": prefix, "period": value.get("as_of"), "metric": metric,
+                      "value": f"[pending external data — {prov}: {value.get('metric', metric)}]",
+                      "unit": value.get("unit"), "metadata": md})
+        return True
+    if kind == "regulatory":
+        md = _meta_from(value, source_file)
+        md.update({"kind": "regulatory", "instrument": value.get("instrument"),
+                   "jurisdiction": value.get("jurisdiction"),
+                   "authority": value.get("authority"),
+                   "effective_date": value.get("effective_date")})
+        val = (value.get("key_requirement") or value.get("requirement")
+               or value.get("instrument") or value.get("name"))
+        facts.append({"field": prefix, "period": value.get("effective_date"),
+                      "metric": metric, "value": val, "unit": None, "metadata": md})
+        return True
+    if kind is None and "value" in value:
+        # plain (a) fact wrapper {value, unit, period, provenance, source}
+        md = _meta_from(value, source_file)
+        facts.append({"field": prefix, "period": value.get("period"), "metric": metric,
+                      "value": value.get("value"), "unit": value.get("unit"),
+                      "metadata": md})
+        return True
+    return False
+
+
 def _extract_facts(
     prefix: str,
     value: Any,
@@ -118,6 +202,9 @@ def _extract_facts(
 ) -> None:
     """Recursively extract structured facts from JSON value."""
     if value is None:
+        return
+    # Schema v3: route typed nodes ($kind) and {value:...} wrappers first.
+    if isinstance(value, dict) and _handle_typed_node(prefix, value, facts, source_file):
         return
     if isinstance(value, (str, int, float, bool)):
         unit = _infer_unit(prefix.split(".")[-1]) if "." in prefix else None
@@ -132,10 +219,15 @@ def _extract_facts(
         return
     if isinstance(value, list):
         for i, item in enumerate(value):
+            if isinstance(item, dict) and _handle_typed_node(
+                f"{prefix}[{i}]", item, facts, source_file
+            ):
+                continue
             if isinstance(item, dict):
                 period = item.get("period") or item.get("date")
                 for k, v in item.items():
-                    if k in ("period", "date", "period_reference"):
+                    if (k in ("period", "date", "period_reference")
+                            or k.startswith("$") or k in _SKIP_KEYS):
                         continue
                     if isinstance(v, (str, int, float, bool)) and v is not None:
                         unit = _infer_unit(k)
@@ -182,6 +274,8 @@ def _extract_facts(
                 })
             return
         for k, v in value.items():
+            if k.startswith("$") or k in _SKIP_KEYS:
+                continue
             if isinstance(v, (str, int, float, bool)):
                 unit = _infer_unit(k)
                 facts.append({
@@ -205,11 +299,13 @@ def extract_facts_from_json(path: Path) -> list[dict[str, Any]]:
     facts: list[dict[str, Any]] = []
     source = path.name
     for category, fields in data.items():
+        if category.startswith("$") or category in RESERVED_KEYS:
+            continue
         if not isinstance(fields, dict):
             continue
         section = JSON_CATEGORY_TO_SECTION.get(category, "A")
         for field_name, value in fields.items():
-            if value is None:
+            if value is None or field_name.startswith("$") or field_name in RESERVED_KEYS:
                 continue
             full_field = f"{category}.{field_name}"
             start_len = len(facts)
@@ -263,6 +359,63 @@ def extract_text_from_json(path: Path) -> list[dict[str, Any]]:
                 "importance": "medium",
             })
     return texts
+
+
+def _narrative_points_to_text(node: dict) -> str:
+    """Render a $kind:"narrative" node's raw points[] into source-material text."""
+    lines: list[str] = []
+    for p in node.get("points") or []:
+        if isinstance(p, dict):
+            t = (p.get("text") or "").strip()
+            title = p.get("title")
+            if t or title:
+                lines.append(f"- {title}: {t}" if title else f"- {t}")
+        elif isinstance(p, str) and p.strip():
+            lines.append(f"- {p.strip()}")
+    return "\n".join(lines)
+
+
+def extract_narrative_blocks(path: Path) -> list[dict[str, Any]]:
+    """Schema v3: recursively collect $kind:"narrative" blocks anywhere in the JSON.
+
+    Emits the same text-item shape as ``extract_text_from_json`` so both feed the
+    text store. Raw bullet material only (points[].text) — no generated prose.
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return []
+    out: list[dict[str, Any]] = []
+    source = path.name
+
+    def walk(node: Any, top_category: str, fieldpath: str) -> None:
+        if isinstance(node, dict):
+            if node.get("$kind") == "narrative":
+                text = _narrative_points_to_text(node)
+                if text.strip():
+                    out.append({
+                        "text": text,
+                        "source_file": source,
+                        "section_hint": JSON_CATEGORY_TO_SECTION.get(top_category, "A"),
+                        "topic": fieldpath,
+                        "importance": "medium",
+                        "narrative_source": node.get("source"),
+                    })
+                return
+            for k, v in node.items():
+                if k.startswith("$") or k in RESERVED_KEYS:
+                    continue
+                walk(v, top_category, f"{fieldpath}.{k}" if fieldpath else k)
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, top_category, f"{fieldpath}[{i}]")
+
+    for category, fields in data.items():
+        if category.startswith("$") or category in RESERVED_KEYS:
+            continue
+        if isinstance(fields, (dict, list)):
+            walk(fields, category, category)
+    return out
 
 
 def chunk_text(text: str, max_chars: int = 600, overlap: int = 100) -> list[str]:
@@ -533,7 +686,7 @@ def run_agent1(
                 f"{f.name}:{fact.get('field','')}:{i}:{str(fact.get('value',''))}".encode()
             ).hexdigest()[:12]
             fact_store.append(fact)
-        narrative = extract_text_from_json(f)
+        narrative = extract_text_from_json(f) + extract_narrative_blocks(f)
         for item in narrative:
             chunk_list = chunk_text(
                 item["text"],
