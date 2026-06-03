@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reverse-engineer analytical DD deliverables via PDF slicing.
 
-For each historical prospectus in ``hkex_prospectus/``, read its section TOC from
+For each historical prospectus in ``prospectus_corpus/``, read its section TOC from
 ``prospectus_kg_output/sections_toc/<doc_id>.json`` and export sub-PDFs that
 stand in for Schema A gating documents whose content is *derived from* the
 prospectus (industry research report, regulatory opinion, sponsor DD memo...).
@@ -207,7 +207,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Slice historical prospectus PDFs into analytical DD deliverables."
     )
-    parser.add_argument("--pdf-dir", default="hkex_prospectus")
+    parser.add_argument("--pdf-dir", default="prospectus_corpus")
     parser.add_argument("--toc-dir", default="prospectus_kg_output/sections_toc")
     parser.add_argument(
         "--out-root", default="prospectus_kg_output/native_docs"

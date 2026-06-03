@@ -28,7 +28,20 @@ $Stage = Join-Path $RepoRoot $InstallRoot
 New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 
 Write-Host "Staging to $Stage"
-Copy-Item -Recurse -Force (Join-Path $RepoRoot "apps\web\.next\standalone\*") (Join-Path $Stage "web")
+$StandaloneWeb = Join-Path $RepoRoot "apps\web\.next\standalone\apps\web"
+$WebDir = Join-Path $RepoRoot "apps\web"
+if (-not (Test-Path (Join-Path $StandaloneWeb "server.js"))) {
+    throw "Missing $StandaloneWeb\server.js — run npm run build in apps\web first."
+}
+$StageWeb = Join-Path $Stage "web"
+New-Item -ItemType Directory -Force -Path $StageWeb | Out-Null
+Copy-Item -Recurse -Force (Join-Path $StandaloneWeb "*") $StageWeb
+$NextDir = Join-Path $StageWeb ".next"
+New-Item -ItemType Directory -Force -Path $NextDir | Out-Null
+Copy-Item -Recurse -Force (Join-Path $WebDir ".next\static") (Join-Path $NextDir "static")
+$PubDst = Join-Path $StageWeb "public"
+New-Item -ItemType Directory -Force -Path $PubDst | Out-Null
+Copy-Item -Recurse -Force (Join-Path $WebDir "public\*") $PubDst
 
 $Items = @(
     "agent1.py", "agent2.py", "llm_qwen.py", "llm_openai.py",

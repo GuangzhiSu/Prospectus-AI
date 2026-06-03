@@ -3,13 +3,13 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import {
-  answerWithRag,
-  answerWithoutRag,
   generateSectionDraft,
   indexDocumentFromBuffer,
   loadAllChunks,
   retrieveTopChunks,
 } from "@/lib/rag";
+import { readSettings, buildRagEnvOverrides } from "@/lib/app-settings";
+import { runWithRagEnv, effectiveRagProvider, effectiveLocalLlmUrl } from "@/lib/rag-env";
 
 export const runtime = "nodejs";
 
@@ -64,6 +64,12 @@ function originalNameFromStored(storedName: string): string {
 }
 
 export async function POST(req: Request) {
+  const settings = await readSettings();
+  const ragOverrides = buildRagEnvOverrides(settings);
+  return runWithRagEnv(ragOverrides, () => handleChatPost(req));
+}
+
+async function handleChatPost(req: Request) {
   try {
     const form = await req.formData();
     const messagesRaw = form.get("messages");
@@ -88,7 +94,7 @@ export async function POST(req: Request) {
     }> = [];
     const indexErrors: string[] = [];
     const storedPaths: string[] = [];
-    const provider = process.env.RAG_PROVIDER || "openai";
+    const provider = effectiveRagProvider();
 
     for (const f of files) {
       if (f.size > MAX_BYTES) {
@@ -175,7 +181,7 @@ export async function POST(req: Request) {
 
     if (provider === "local" && storedPaths.length) {
       try {
-        const res = await fetch("http://127.0.0.1:8000/ingest", {
+        const res = await fetch(`${effectiveLocalLlmUrl().replace(/\/$/, "")}/ingest`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ files: storedPaths }),
@@ -345,3 +351,4 @@ export async function POST(req: Request) {
     });
   }
 }
+

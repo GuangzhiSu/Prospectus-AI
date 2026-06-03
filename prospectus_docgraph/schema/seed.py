@@ -1,5 +1,5 @@
 """
-Seed loader: build the initial canonical graph with top-level HKEX-style sections only.
+Seed loader: build the initial canonical graph with top-level prospectus-style sections only.
 
 Subsections, functions, patterns, and mined edges can be added in later phases.
 """

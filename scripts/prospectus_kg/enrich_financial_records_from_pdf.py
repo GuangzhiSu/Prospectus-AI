@@ -409,7 +409,7 @@ def enrich_one(
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--records-dir", default="prospectus_kg_output/inputs/records")
-    ap.add_argument("--pdf-dir", default="hkex_prospectus")
+    ap.add_argument("--pdf-dir", default="prospectus_corpus")
     ap.add_argument("--toc-dir", default="prospectus_kg_output/sections_toc")
     ap.add_argument("--only", default=None, help="Single document_id stem")
     ap.add_argument("--regen-templated", action="store_true")

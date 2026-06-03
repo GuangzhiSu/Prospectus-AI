@@ -7,7 +7,7 @@ Use these directly in Cursor chat after attaching your existing prompt file.
 ## 1. Refactor a monolithic prompt into modules
 
 ```text
-Refactor the attached prompt into a modular prompt system for HKEX technology-sector IPO prospectus drafting.
+Refactor the attached prompt into a modular prompt system for Exchange technology-sector IPO prospectus drafting.
 
 Requirements:
 - Preserve all compliance, defensibility, and verifiability safeguards.
@@ -72,7 +72,7 @@ Return:
 ## 4. Build a section-writer prompt library
 
 ```text
-Using the attached material, create a reusable section-writer prompt library for HKEX technology-sector IPO prospectus drafting.
+Using the attached material, create a reusable section-writer prompt library for Exchange technology-sector IPO prospectus drafting.
 
 Requirements:
 - Create a separate prompt block for each major section.
@@ -182,7 +182,7 @@ Return:
 ## 9. Best single-shot instruction for Cursor
 
 ```text
-You are refining a prompt system for HKEX technology-sector IPO prospectus drafting from a sponsor-counsel perspective.
+You are refining a prompt system for Exchange technology-sector IPO prospectus drafting from a sponsor-counsel perspective.
 
 Your job is to improve structure, reduce ambiguity, and strengthen validation without weakening legal safeguards.
 

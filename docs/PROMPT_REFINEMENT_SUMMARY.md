@@ -1,6 +1,6 @@
 # Prompt Refinement Summary
 
-This document summarizes the prompt refinements applied to the Prospectus AI project using the requirements from **cursor_hkex_prompt_pack**. The goal was to align Agent1, Agent2, and all section requirements with HKEX sponsor-counsel drafting standards: compliance language, disclosure defensibility, and verifiability.
+This document summarizes the prompt refinements applied to the Prospectus AI project using the requirements from **cursor_prospectus_prompt_pack**. The goal was to align Agent1, Agent2, and all section requirements with Exchange sponsor-counsel drafting standards: compliance language, disclosure defensibility, and verifiability.
 
 ---
 
@@ -8,10 +8,10 @@ This document summarizes the prompt refinements applied to the Prospectus AI pro
 
 Refinements were driven by:
 
-- **`cursor_hkex_prompt_pack/.cursor/rules/00-hkex-prospectus-core.mdc`** — Core drafting constraints, primary objectives, AI tag schema, regime-sensitive logic, and prompt structure (Role, Objective, Inputs, Non-negotiables, etc.).
-- **`cursor_hkex_prompt_pack/.cursor/rules/10-hkex-section-requirements.mdc`** — Detailed section-by-section requirements for each prospectus section.
-- **`cursor_hkex_prompt_pack/.cursor/rules/20-hkex-validator.mdc`** — Validation philosophy, severity scale, and banned/controlled language (referenced for tone and constraints).
-- **`cursor_hkex_prompt_pack/docs/hkex_prompt_reference.md`** — Condensed reference for prompt design and tag usage.
+- **`cursor_prospectus_prompt_pack/.cursor/rules/00-prospectus-core.mdc`** — Core drafting constraints, primary objectives, AI tag schema, regime-sensitive logic, and prompt structure (Role, Objective, Inputs, Non-negotiables, etc.).
+- **`cursor_prospectus_prompt_pack/.cursor/rules/10-section-requirements.mdc`** — Detailed section-by-section requirements for each prospectus section.
+- **`cursor_prospectus_prompt_pack/.cursor/rules/20-validator.mdc`** — Validation philosophy, severity scale, and banned/controlled language (referenced for tone and constraints).
+- **`cursor_prospectus_prompt_pack/docs/prospectus_prompt_reference.md`** — Condensed reference for prompt design and tag usage.
 
 ---
 
@@ -24,7 +24,7 @@ Refinements were driven by:
 
 | Aspect | Before | After |
 |--------|--------|--------|
-| **Purpose** | Generic “summarize in 2–4 sentences” | Explicit: RAG-ready summary for HKEX prospectus drafting |
+| **Purpose** | Generic “summarize in 2–4 sentences” | Explicit: RAG-ready summary for Exchange prospectus drafting |
 | **Objective** | Implicit | Stated: produce a summary that helps section-writers find relevant evidence |
 | **Content focus** | “Key metrics, structure, and data scope” | (1) Key metrics, dates, figures; (2) table structure and meaning of rows/columns; (3) data scope and time period; (4) explicit note if sheet is definitions, lists, timelines, or financial data |
 | **Constraints** | “Factual and concise” | Factual, neutral, verifiable; do not interpret, infer, or add information not in the excerpt |
@@ -39,9 +39,9 @@ Refinements were driven by:
 ## 2. Agent2 Global Prompt Refinements
 
 **File:** `agent2.py`  
-**Elements:** `HKEX_FORMAT_INSTRUCTION` and `build_prompt()`
+**Elements:** `Exchange_FORMAT_INSTRUCTION` and `build_prompt()`
 
-### 2.1 `HKEX_FORMAT_INSTRUCTION`
+### 2.1 `Exchange_FORMAT_INSTRUCTION`
 
 | Addition | Description |
 |----------|-------------|
@@ -56,7 +56,7 @@ Refinements were driven by:
 
 | Addition | Description |
 |----------|-------------|
-| **Role** | Explicit: “You are drafting one prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode.” |
+| **Role** | Explicit: “You are drafting one prospectus section for a Hong Kong Stock Exchange (Exchange) listing in sponsor-counsel working draft mode.” |
 | **Objective** | Produce a conservative, verification-aware working draft; prospectus-ready prose where evidence exists, placeholders and AI tags where support is missing. |
 | **Document consistency** | Headings, contents entries, and cross-references must match exactly across the document. |
 | **Escalation** | Where human review is needed, state so and add `[[AI:VERIFY|...]]`. Materiality or legal sufficiency judgments must be escalated to sponsor-counsel review. |
@@ -67,7 +67,7 @@ Refinements were driven by:
 
 **File:** `agent2_section_requirements.json`
 
-Each section’s `requirements` text was updated to align with **10-hkex-section-requirements.mdc**. Below is a concise summary by section.
+Each section’s `requirements` text was updated to align with **10-section-requirements.mdc**. Below is a concise summary by section.
 
 | Section | Main refinements |
 |---------|------------------|
@@ -104,7 +104,7 @@ Each section’s `requirements` text was updated to align with **10-hkex-section
 | File | Scope of changes |
 |------|------------------|
 | `agent1.py` | Single prompt in `summarize_table_with_qwen()`. |
-| `agent2.py` | `HKEX_FORMAT_INSTRUCTION` and `build_prompt()` (role, objective, consistency, escalation). |
+| `agent2.py` | `Exchange_FORMAT_INSTRUCTION` and `build_prompt()` (role, objective, consistency, escalation). |
 | `agent2_section_requirements.json` | All 24 section entries: role, structure, and controls updated to match the pack. |
 
 No changes were made to:
@@ -129,9 +129,9 @@ No changes were made to:
 ## 6. Suggested Next Steps
 
 - **Test** — Run Agent1 on sample Excel files and Agent2 for a few sections (e.g. Summary, Risk Factors, Business) and review output against the new requirements.
-- **Validator** — Optionally run the pack’s validator rule (`20-hkex-validator.mdc`) over generated drafts to check for banned language, missing citations, and cross-reference issues.
-- **Cover / How to Apply** — The pack also describes **Cover / inside front cover** (disclaimers, WVR/18C/Pre-Commercial warnings) and **How to Apply for Hong Kong Offer Shares**. If those sections are added to the pipeline later, their requirements can be taken from `10-hkex-section-requirements.mdc` and added to `agent2_section_requirements.json` and `prospectus_graph/config.py`.
+- **Validator** — Optionally run the pack’s validator rule (`20-validator.mdc`) over generated drafts to check for banned language, missing citations, and cross-reference issues.
+- **Cover / How to Apply** — The pack also describes **Cover / inside front cover** (disclaimers, WVR/18C/Pre-Commercial warnings) and **How to Apply for Hong Kong Offer Shares**. If those sections are added to the pipeline later, their requirements can be taken from `10-section-requirements.mdc` and added to `agent2_section_requirements.json` and `prospectus_graph/config.py`.
 
 ---
 
-*Summary produced from refinements applied using cursor_hkex_prompt_pack. Last updated: March 2025.*
+*Summary produced from refinements applied using cursor_prospectus_prompt_pack. Last updated: March 2025.*

@@ -44,7 +44,7 @@ $RoboArgs = @(
     "/E", "/MT:8", "/NFL", "/NDL", "/NJH", "/NJS",
     "/XF", "~$*",
     "/XD", ".git", "node_modules", "__pycache__", ".venv", "venv",
-    "/XD", "uploads", "rag", "rag_raw", "agent1_output", "agent2_output", "hkex_prospectus", "prospectus_kg_output",
+    "/XD", "uploads", "rag", "rag_raw", "agent1_output", "agent2_output", "prospectus_corpus", "prospectus_kg_output",
     "/XD", "apps\web\.next", "apps\web\uploads", "apps\web\rag", "apps\web\rag_raw",
     "/XD", "ipo_prospectus_pipeline\outputs", "dist"
 )

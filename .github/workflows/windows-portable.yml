@@ -1,0 +1,49 @@
+# Builds the full Windows portable bundle (embedded Node + venv + Next standalone).
+# Linux-produced dist/ProspectusAI is NOT usable on Windows (wrong Python/venv + native modules).
+
+name: Windows portable bundle
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: windows-portable-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable:
+    runs-on: windows-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build bundle (PowerShell)
+        shell: pwsh
+        run: |
+          & "${{ github.workspace }}/packaging/windows/build-full-release.ps1"
+
+      - name: List dist output
+        shell: pwsh
+        run: Get-ChildItem -LiteralPath "${{ github.workspace }}/dist" -ErrorAction SilentlyContinue
+
+      - name: Upload portable ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProspectusAI-windows-portable
+          path: dist/ProspectusAI-windows-*.zip
+          if-no-files-found: error
+          retention-days: 30

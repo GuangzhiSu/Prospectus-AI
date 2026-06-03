@@ -1,5 +1,29 @@
 # Windows install (desktop packaging)
 
+## Windows folder built on your Linux server (for `dist/ProspectusAI`)
+
+From the repo root on Linux:
+
+```bash
+npm run pack:windows-dist
+```
+
+This fills **`dist/ProspectusAI/`** with **`start-prospectus-ui.bat`**, **`node/`** (Windows Node), **`python-embed/`**, **`web/`**, and agents. End users **double-click `start-prospectus-ui.bat`** (first run installs Python packages into `venv\`, then the server starts). No separate Node.js install.
+
+---
+
+## Download a ready-made portable ZIP from CI (no local Node for end users)
+
+If you do **not** use the Linux script above, note: a **`dist/ProspectusAI` produced only by the older Linux script** (`pack:linux`) is **not** a Windows app (Linux `venv`). For a **Windows double-click** bundle with embedded Node.js and a Windows Python `venv`, use either:
+
+1. **GitHub Actions** (after this workflow is on your default branch): open **Actions → “Windows portable bundle” → Run workflow**. When it finishes, download the artifact **`ProspectusAI-windows-portable`** (contains `ProspectusAI-windows-x86_64-*.zip`). Unzip, then double-click **`start-prospectus-ui.bat`** and open `http://127.0.0.1:3000`.
+
+2. **Build on a Windows x64 PC**:  
+   `powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1`  
+   Output: `dist\ProspectusAI\` and `dist\ProspectusAI-windows-*.zip`.
+
+---
+
 This repo runs as **Next.js + Python**: the web UI spawns `agent1.py` / `agent2.py` on the machine. The recommended consumer layout is:
 
 1. **Installer** (Inno Setup template: [`packaging/windows/ProspectusAI.iss`](../packaging/windows/ProspectusAI.iss)) copies:
@@ -20,13 +44,14 @@ This repo runs as **Next.js + Python**: the web UI spawns `agent1.py` / `agent2.
    - After download, set `TRANSFORMERS_OFFLINE=1` optionally; the UI saves model path in user settings, which sets `AGENT2_MODEL` / `AGENT1_MODEL` for Python.
 
 5. **Cloud API**
-   - In `/settings`, choose **OpenAI-compatible API** and enter an API key. This sets `LLM_PROVIDER=openai` for Agent2 and Agent1 table summaries. Use a base URL that implements the OpenAI Chat Completions API.
+   - In `/settings`, choose a cloud backend: **OpenAI / compatible**, **DeepSeek**, **Qwen (DashScope API)**, or **Anthropic (Claude / Opus)**. Enter the API key, optional base URL (OpenAI-compatible providers), and model id, then **Save** and **Test connection**. Agent1, Agent2, and document chat use the same saved backend (`LLM_PROVIDER` env: `openai`, `deepseek`, `qwen_api`, or `anthropic`).
 
 6. **GPU**
    - Install an NVIDIA driver that matches your **PyTorch CUDA** build. If CUDA is unavailable or the GPU architecture is unsupported, enable **Force CPU** in settings (slow).
 
-7. **Build script (on Windows)**
-   - [`packaging/windows/build.ps1`](../packaging/windows/build.ps1) — stages `web` + `app` for the installer. You must create and copy a **Python venv** into the stage separately (not automated here).
+7. **Build scripts (on Windows x64)**
+   - **All-in-one portable bundle (recommended for end users):** [`packaging/windows/build-full-release.ps1`](../packaging/windows/build-full-release.ps1) — builds Next, stages `web` + agents + slim KG inputs, creates a **Python venv**, downloads and embeds **Node.js win-x64** under `node\`, and copies [`start-prospectus-ui.bat`](../packaging/windows/start-prospectus-ui.bat). Recipients do **not** need to install Node.js separately; they run the `.bat` and open `http://127.0.0.1:3000`. Optional `-SkipZip` to skip creating `dist\ProspectusAI-windows-*.zip`.
+   - **Stage only (no venv / no embedded Node):** [`packaging/windows/build.ps1`](../packaging/windows/build.ps1) — for custom installers; you supply Python and Node on target machines yourself.
 
 8. **Development: standalone start**
    - From `apps/web` after `npm run build`:

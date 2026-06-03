@@ -1,15 +1,15 @@
-// POST /api/agent2/run - Run agent2.py (single section or all)
+// POST /api/agent2/run - Run agent2.py (single section or all), stream progress via SSE
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import os from "os";
-import { spawn } from "child_process";
+import { spawn, type ChildProcessWithoutNullStreams } from "child_process";
 import { getProspectusRoot } from "@/lib/prospectus-root";
 import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
 /** Vercel Hobby: max 300s. Pro allows higher; local dev has no this cap. */
-export const maxDuration = 300;
+export const maxDuration = 1800;
 
 const SECTION_ORDER = [
   "ExpectedTimetable",
@@ -39,6 +39,85 @@ const SECTION_ORDER = [
   "GlobalOfferingStructure",
 ];
 
+const AGENT2_PREFIX = "@@AGENT2@@";
+
+function agent2SseResponse(
+  proc: ChildProcessWithoutNullStreams,
+  cleanup?: () => Promise<void>
+): Response {
+  const encoder = new TextEncoder();
+  let stdoutBuf = "";
+  let stderr = "";
+
+  const stream = new ReadableStream({
+    start(controller) {
+      const flushLine = (line: string) => {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith(AGENT2_PREFIX)) return;
+        const payload = trimmed.slice(AGENT2_PREFIX.length);
+        controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+      };
+
+      proc.stdout.on("data", (d: Buffer) => {
+        stdoutBuf += d.toString();
+        const lines = stdoutBuf.split("\n");
+        stdoutBuf = lines.pop() ?? "";
+        for (const line of lines) flushLine(line);
+      });
+
+      proc.stderr.on("data", (d: Buffer) => {
+        stderr += d.toString();
+      });
+
+      proc.on("close", async (code) => {
+        if (stdoutBuf.trim()) flushLine(stdoutBuf);
+        if (code !== 0) {
+          controller.enqueue(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: "error",
+                message: stderr.trim() || stdoutBuf.trim() || `Exit code ${code}`,
+              })}\n\n`
+            )
+          );
+        }
+        if (cleanup) {
+          try {
+            await cleanup();
+          } catch {
+            /* ignore */
+          }
+        }
+        controller.close();
+      });
+
+      proc.on("error", async (err) => {
+        controller.enqueue(
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "error", message: String(err.message) })}\n\n`
+          )
+        );
+        if (cleanup) {
+          try {
+            await cleanup();
+          } catch {
+            /* ignore */
+          }
+        }
+        controller.close();
+      });
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      Connection: "keep-alive",
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const root = getProspectusRoot();
@@ -48,7 +127,7 @@ export async function POST(req: Request) {
     try {
       await fs.access(path.join(agent1Output, "rag_chunks.jsonl"));
       await fs.access(agent2Path);
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         {
           ok: false,
@@ -85,77 +164,46 @@ export async function POST(req: Request) {
 
     const python = process.env.AGENT1_PYTHON || "python3";
     const settings = await readSettings();
-    const env = buildAgentProcessEnv(process.env, settings);
+    const env = {
+      ...buildAgentProcessEnv(process.env, settings),
+      PYTHONUNBUFFERED: "1",
+      AGENT2_STREAM: "1",
+    };
     const model =
       env.AGENT2_MODEL ||
       process.env.AGENT2_MODEL ||
       process.env.AGENT1_MODEL ||
       "Qwen/Qwen3.5-4B";
 
-    // sections: array of section IDs for batch generation (one process, model loaded once)
-    const sectionArgs = Array.isArray(sections) && sections.length > 0
-      ? sections
-      : section
-        ? [section]
-        : ["all"];
-    const args = ["agent2.py", "--section", ...sectionArgs, "--model", model];
+    const sectionArgs =
+      Array.isArray(sections) && sections.length > 0
+        ? sections
+        : section
+          ? [section]
+          : ["all"];
+    const args = [
+      "agent2.py",
+      "--section",
+      ...sectionArgs,
+      "--model",
+      model,
+      "--stream",
+    ];
     if (modFilePath) args.push("--modification-file", modFilePath);
 
-    return new Promise<NextResponse>(async (resolve) => {
-      const proc = spawn(python, args, { cwd: root, env });
+    const proc = spawn(python, args, {
+      cwd: root,
+      env,
+    }) as ChildProcessWithoutNullStreams;
 
-      let stdout = "";
-      let stderr = "";
-
-      proc.stdout?.on("data", (d) => {
-        stdout += d.toString();
-      });
-      proc.stderr?.on("data", (d) => {
-        stderr += d.toString();
-      });
-
-      proc.on("close", async (code) => {
-        if (modFilePath) {
-          try {
-            await fs.unlink(modFilePath);
-          } catch {
-            /* ignore */
-          }
+    return agent2SseResponse(proc, async () => {
+      if (modFilePath) {
+        try {
+          await fs.unlink(modFilePath);
+        } catch {
+          /* ignore */
         }
-        if (code === 0) {
-          const batchCount = Array.isArray(sections) ? sections.length : 0;
-          resolve(
-            NextResponse.json({
-              ok: true,
-              message: isSingleSection
-                ? `Section ${section} generated.`
-                : batchCount > 0
-                  ? `${batchCount} sections generated.`
-                  : "Agent2 completed. Prospectus draft generated.",
-              section: isSingleSection ? section : undefined,
-            })
-          );
-        } else {
-          resolve(
-            NextResponse.json(
-              {
-                ok: false,
-                error: stderr || stdout || `Exit code ${code}`,
-              },
-              { status: 500 }
-            )
-          );
-        }
-      });
-
-      proc.on("error", (err) => {
-        resolve(
-          NextResponse.json(
-            { ok: false, error: String(err.message) },
-            { status: 500 }
-          )
-        );
-      });
+      }
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Server error";

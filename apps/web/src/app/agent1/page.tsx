@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { AppBackendStatus } from "@/components/AppBackendStatus";
 
 type DataFile = { name: string; size: number; lastModified: string };
 
@@ -229,6 +230,12 @@ export default function Agent1Page() {
             <p className="text-sm text-neutral-500 mt-1">
               Upload workbooks and prepare them for prospectus drafting on the home page
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <AppBackendStatus />
+              <Link href="/settings" className="text-xs text-sky-600 hover:underline">
+                Model &amp; inference
+              </Link>
+            </div>
           </div>
         </header>
 

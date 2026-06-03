@@ -5,6 +5,7 @@ import OpenAI from "openai";
 import { createRequire } from "module";
 import mammoth from "mammoth";
 import * as XLSX from "xlsx";
+import { effectiveLocalLlmUrl, ragGetEnv } from "./rag-env";
 
 export type RagChunk = {
   id: string;
@@ -28,20 +29,28 @@ export type SectionRequirement = {
 
 const RAG_DIR = path.join(process.cwd(), "rag");
 const RAW_DIR = path.join(process.cwd(), "rag_raw");
-const PROVIDER = process.env.RAG_PROVIDER || "openai";
-const LOCAL_LLM_URL = process.env.LOCAL_LLM_URL || "http://127.0.0.1:8000";
-
-const EMBEDDING_MODEL =
-  process.env.OPENAI_EMBEDDING_MODEL || "text-embedding-3-small";
-const CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini";
 
 const HF_API_URL = "https://router.huggingface.co/hf-inference/models";
-const HF_EMBEDDING_MODEL =
-  process.env.HF_EMBEDDING_MODEL || "sentence-transformers/all-MiniLM-L6-v2";
-const HF_CHAT_MODEL =
-  process.env.HF_CHAT_MODEL || "HuggingFaceH4/zephyr-7b-beta";
 
-let openaiClient: OpenAI | null = null;
+function ragProvider(): string {
+  return (ragGetEnv("RAG_PROVIDER") || "openai").trim().toLowerCase();
+}
+
+function openaiEmbeddingModel(): string {
+  return ragGetEnv("OPENAI_EMBEDDING_MODEL") || "text-embedding-3-small";
+}
+
+function openaiChatModel(): string {
+  return ragGetEnv("OPENAI_CHAT_MODEL") || "gpt-4o-mini";
+}
+
+function hfEmbeddingModel(): string {
+  return ragGetEnv("HF_EMBEDDING_MODEL") || "sentence-transformers/all-MiniLM-L6-v2";
+}
+
+function hfChatModel(): string {
+  return ragGetEnv("HF_CHAT_MODEL") || "HuggingFaceH4/zephyr-7b-beta";
+}
 type PdfParseFn = (data: Buffer) => Promise<{ text?: string }>;
 let pdfParseFn: PdfParseFn | null = null;
 
@@ -60,16 +69,15 @@ function getPdfParse() {
 }
 
 function getOpenAI() {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = ragGetEnv("OPENAI_API_KEY");
+  if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY.");
   }
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      baseURL: process.env.OPENAI_BASE_URL || undefined,
-    });
-  }
-  return openaiClient;
+  const baseURL = ragGetEnv("OPENAI_BASE_URL");
+  return new OpenAI({
+    apiKey,
+    baseURL: baseURL || undefined,
+  });
 }
 
 function normalizeText(input: string) {
@@ -141,7 +149,7 @@ async function hfRequest(model: string, payload: any) {
 }
 
 async function hfEmbedding(text: string) {
-  const data = await hfRequest(HF_EMBEDDING_MODEL, { inputs: text });
+  const data = await hfRequest(hfEmbeddingModel(), { inputs: text });
   if (!Array.isArray(data)) return [];
   if (Array.isArray(data[0]) && typeof data[0][0] === "number") {
     // token embeddings -> mean pool
@@ -154,8 +162,8 @@ async function hfEmbedding(text: string) {
 }
 
 async function embedTexts(texts: string[]) {
-  if (PROVIDER === "local") {
-    const res = await fetch(`${LOCAL_LLM_URL}/embed`, {
+  if (ragProvider() === "local") {
+    const res = await fetch(`${effectiveLocalLlmUrl()}/embed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ inputs: texts }),
@@ -168,7 +176,7 @@ async function embedTexts(texts: string[]) {
     return Array.isArray(data.embeddings) ? data.embeddings : [];
   }
 
-  if (PROVIDER === "hf") {
+  if (ragProvider() === "hf") {
     const out: number[][] = [];
     for (const t of texts) {
       out.push(await hfEmbedding(t));
@@ -182,7 +190,7 @@ async function embedTexts(texts: string[]) {
   for (let i = 0; i < texts.length; i += batchSize) {
     const batch = texts.slice(i, i + batchSize);
     const res = await openai.embeddings.create({
-      model: EMBEDDING_MODEL,
+      model: openaiEmbeddingModel(),
       input: batch,
     });
     embeddings.push(...res.data.map((d) => d.embedding));
@@ -195,8 +203,8 @@ async function completeChat(opts: {
   user: string;
   temperature: number;
 }) {
-  if (PROVIDER === "local") {
-    const res = await fetch(`${LOCAL_LLM_URL}/chat`, {
+  if (ragProvider() === "local") {
+    const res = await fetch(`${effectiveLocalLlmUrl()}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -213,9 +221,9 @@ async function completeChat(opts: {
     return (data.text || "").trim();
   }
 
-  if (PROVIDER === "hf") {
+  if (ragProvider() === "hf") {
     const prompt = `${opts.system}\n\nUser: ${opts.user}\n\nAssistant:`;
-    const data = await hfRequest(HF_CHAT_MODEL, {
+    const data = await hfRequest(hfChatModel(), {
       inputs: prompt,
       parameters: {
         max_new_tokens: 512,
@@ -232,7 +240,7 @@ async function completeChat(opts: {
 
   const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
-    model: CHAT_MODEL,
+    model: openaiChatModel(),
     temperature: opts.temperature,
     messages: [
       { role: "system", content: opts.system },
@@ -463,8 +471,8 @@ export async function generateSectionDraft(
   requirementText: string,
   topChunks: RagChunk[]
 ) {
-  if (PROVIDER === "local") {
-    const res = await fetch(`${LOCAL_LLM_URL}/draft_section`, {
+  if (ragProvider() === "local") {
+    const res = await fetch(`${effectiveLocalLlmUrl()}/draft_section`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

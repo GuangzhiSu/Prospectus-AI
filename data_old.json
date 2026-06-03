@@ -1006,7 +1006,7 @@
             "value_example": "Main Board of The Stock Exchange of Hong Kong Limited",
             "data_type": "string",
             "description": "Listing exchange",
-            "evidence_from_prospectus": "Global Offering and Listing section discloses intention to list on HKEX Main Board."
+            "evidence_from_prospectus": "Global Offering and Listing section discloses intention to list on Exchange Main Board."
         },
         "expected_listing_date": {
             "value_example": "2023-12-29",

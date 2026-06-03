@@ -196,7 +196,7 @@ def _section_prompt(
     example_block = json.dumps(_FEWSHOT_EXAMPLES[0]["output"], ensure_ascii=False, indent=2)
 
     system = (
-        "You are an HKEX IPO analyst extracting structured inputs from a single prospectus "
+        "You are an Exchange IPO analyst extracting structured inputs from a single prospectus "
         "section. For every field, either return a concrete value lifted from the text, or "
         "set it to null AND record why in `null_reasons`. Numbers and dates must be quoted "
         "verbatim. Aliases listed next to each field are the same concept in different words "

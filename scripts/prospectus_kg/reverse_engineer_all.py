@@ -120,7 +120,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Reverse-engineer 125 prospectuses into synthetic DD data rooms."
     )
-    parser.add_argument("--pdf-dir", default="hkex_prospectus")
+    parser.add_argument("--pdf-dir", default="prospectus_corpus")
     parser.add_argument("--toc-dir", default="prospectus_kg_output/sections_toc")
     parser.add_argument(
         "--records-dir", default="prospectus_kg_output/inputs/records"

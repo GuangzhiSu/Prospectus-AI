@@ -276,7 +276,7 @@ export default async function KgViewPage() {
               name="Ontology layer"
               type="Layer"
               count={totals.sectionTypes}
-              detail="Canonical HKEX section types mined from the corpus"
+              detail="Canonical prospectus section types mined from the corpus"
             >
               {ontology.map((n) => {
                 const card = cards.get(n.id);
@@ -431,7 +431,7 @@ export default async function KgViewPage() {
               name="Document layer"
               type="Layer"
               count={totals.docs}
-              detail="Every parsed HKEX prospectus and the sections it contains"
+              detail="Every parsed prospectus and the sections it contains"
             >
               {docNodes
                 .slice()

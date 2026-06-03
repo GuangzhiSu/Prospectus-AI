@@ -451,24 +451,14 @@ def summarize_table_with_qwen(
         return f"Table: {filename} / {sheet_name}"
 
     prompt = (
-        "Summarize this Excel table in 2-4 sentences for HKEX prospectus drafting. "
+        "Summarize this Excel table in 2-4 sentences for Exchange prospectus drafting. "
         "Be factual.\n\n"
         f"File: {filename}\nSheet: {sheet_name}\n\nExcerpt:\n{text_sample[:2500]}\n\nSUMMARY:"
     )
     try:
-        provider = (os.environ.get("LLM_PROVIDER") or "qwen_local").strip().lower()
-        if provider == "openai":
-            from llm_openai import run_openai_chat
+        from llm_providers import run_chat
 
-            out = run_openai_chat(prompt, max_new_tokens=256)
-            return out.strip() or f"Table: {filename} / {sheet_name}"
-        from llm_qwen import run_qwen_text
-
-        out = run_qwen_text(
-            prompt,
-            model_name=model_name,
-            max_new_tokens=256,
-        )
+        out = run_chat(prompt, model_name=model_name, max_new_tokens=256)
         return out.strip() or f"Table: {filename} / {sheet_name}"
     except Exception:
         return f"Table: {filename} / {sheet_name}"

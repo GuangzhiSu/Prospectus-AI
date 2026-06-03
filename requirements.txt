@@ -11,8 +11,9 @@ transformers>=4.45.0
 torch>=2.0.0
 accelerate>=0.30.0
 
-# Optional cloud backend for Agent2 / Agent1 table summary (OpenAI-compatible API)
+# Optional cloud backends for Agent2 / Agent1 (OpenAI-compatible + Anthropic)
 openai>=1.40.0
+anthropic>=0.40.0
 
 # First-run model download (Windows installer / settings UI)
 huggingface_hub>=0.24.0

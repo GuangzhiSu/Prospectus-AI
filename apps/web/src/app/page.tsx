@@ -1,8 +1,19 @@
-// HKEX Prospectus AI — main drafting workspace (data prep + chapter coverage + draft)
+// Prospectus AI — main drafting workspace (data prep + chapter coverage + draft)
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SectionMarkdown } from "@/components/SectionMarkdown";
+import { AppBackendStatus } from "@/components/AppBackendStatus";
+import {
+  countGeneratedSections,
+  getLastGeneratedIndex,
+  getMissingSectionIds,
+  parseDraftSections,
+  sectionIsComplete,
+  sectionHasContent,
+  SECTION_NAMES,
+  SECTION_ORDER,
+} from "@/lib/draft-sections";
 
 type DataFile = { name: string; size: number; lastModified: string };
 
@@ -38,60 +49,116 @@ type Classification = {
   data_quality_flags?: Manifest["data_quality_flags"];
 };
 
-const SECTION_ORDER = [
-  "ExpectedTimetable", "Contents", "Summary", "Definitions", "Glossary",
-  "ForwardLooking", "RiskFactors", "Waivers", "InfoProspectus", "DirectorsParties",
-  "CorporateInfo", "Regulation", "IndustryOverview", "HistoryReorg", "Business",
-  "ContractualArrangements", "ControllingShareholders", "ConnectedTransactions",
-  "DirectorsSeniorMgmt", "SubstantialShareholders", "ShareCapital", "FinancialInfo",
-  "UseOfProceeds", "Underwriting", "GlobalOfferingStructure",
-];
+type Agent2StreamEvent =
+  | { type: "section_start"; section_id: string; section_name?: string; phase: string }
+  | { type: "phase_start"; section_id: string; phase: string; revision_pass?: number }
+  | { type: "phase_end"; section_id: string; phase: string; revision_pass?: number; summary?: string }
+  | { type: "token"; section_id: string; phase: string; revision_pass?: number; text: string }
+  | { type: "section_done"; section_id: string; section_name: string }
+  | { type: "done"; ok: boolean }
+  | { type: "error"; message: string };
 
-const SECTION_NAMES: Record<string, string> = {
-  ExpectedTimetable: "Expected Timetable",
-  Contents: "Contents",
-  Summary: "Summary",
-  Definitions: "Definitions",
-  Glossary: "Glossary of Technical Terms",
-  ForwardLooking: "Forward-Looking Statements",
-  RiskFactors: "Risk Factors",
-  Waivers: "Waivers from Strict Compliance with Listing Rules",
-  InfoProspectus: "Information about this Prospectus and the Global Offering",
-  DirectorsParties: "Directors and Parties Involved",
-  CorporateInfo: "Corporate Information",
-  Regulation: "Regulation (Regulatory Overview)",
-  IndustryOverview: "Industry Overview",
-  HistoryReorg: "History, Reorganization, and Corporate Structure",
-  Business: "Business",
-  ContractualArrangements: "Contractual Arrangements (VIE)",
-  ControllingShareholders: "Relationship with Controlling Shareholders",
-  ConnectedTransactions: "Connected Transactions",
-  DirectorsSeniorMgmt: "Directors and Senior Management",
-  SubstantialShareholders: "Substantial Shareholders",
-  ShareCapital: "Share Capital",
-  FinancialInfo: "Financial Information",
-  UseOfProceeds: "Future Plans and Use of Proceeds",
-  Underwriting: "Underwriting",
-  GlobalOfferingStructure: "Structure of the Global Offering",
+const PHASE_LABELS: Record<string, string> = {
+  retriever: "Retrieving evidence",
+  planner: "Planning outline",
+  writer: "Writing draft",
+  verifier: "Verifying draft",
+  revision: "Revising draft",
+  assembler: "Saving section",
+  template: "Rendering template",
 };
 
-function parseDraftSections(md: string): Record<string, string> {
-  const sections: Record<string, string> = {};
-  if (!md || md.includes("(Your generated prospectus will appear here.)"))
-    return sections;
-  const blocks = md.split(/\n## /);
-  for (let i = 1; i < blocks.length; i++) {
-    const firstLine = blocks[i].split("\n")[0]?.trim() ?? "";
-    const content = blocks[i].split("\n").slice(1).join("\n").trim();
-    for (const sid of SECTION_ORDER) {
-      const name = SECTION_NAMES[sid];
-      if (firstLine === name || firstLine.startsWith(name) || firstLine.includes(sid)) {
-        sections[sid] = content;
-        break;
+type SectionStreamState = {
+  sectionId: string;
+  activePhase: string | null;
+};
+
+function createEmptyStreamState(sectionId: string): SectionStreamState {
+  return {
+    sectionId,
+    activePhase: null,
+  };
+}
+
+function normalizeStreamEvent(ev: Agent2StreamEvent): Agent2StreamEvent {
+  if (ev.type !== "section_start") return ev;
+  return {
+    type: "phase_start",
+    section_id: ev.section_id,
+    phase: ev.phase,
+    revision_pass: ev.phase === "writer" ? 0 : 1,
+  };
+}
+
+function applyStreamEvent(
+  prev: SectionStreamState | null,
+  raw: Agent2StreamEvent
+): SectionStreamState | null {
+  const ev = normalizeStreamEvent(raw);
+
+  if (ev.type === "section_done") {
+    return null;
+  }
+
+  if (ev.type === "phase_start") {
+    return {
+      sectionId: ev.section_id,
+      activePhase: ev.phase,
+    };
+  }
+
+  if (ev.type === "phase_end") {
+    if (!prev || prev.sectionId !== ev.section_id) return prev;
+    return prev;
+  }
+
+  if (ev.type === "token") {
+    return prev;
+  }
+
+  return prev;
+}
+
+async function consumeAgent2Stream(
+  res: Response,
+  onEvent: (ev: Agent2StreamEvent) => void
+): Promise<void> {
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const data = (await res.json()) as { error?: string };
+      if (data.error) message = data.error;
+    } catch {
+      try {
+        message = (await res.text()).slice(0, 500) || message;
+      } catch {
+        /* ignore */
+      }
+    }
+    throw new Error(message);
+  }
+  if (!res.body) throw new Error("No response body");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const parts = buffer.split("\n\n");
+    buffer = parts.pop() ?? "";
+    for (const part of parts) {
+      for (const line of part.split("\n")) {
+        if (!line.startsWith("data: ")) continue;
+        try {
+          onEvent(JSON.parse(line.slice(6)) as Agent2StreamEvent);
+        } catch {
+          /* ignore malformed chunk */
+        }
       }
     }
   }
-  return sections;
 }
 
 function formatBytes(bytes: number) {
@@ -123,7 +190,6 @@ export default function Page() {
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(-1);
   const [generatingSectionIndex, setGeneratingSectionIndex] = useState(-1);
   const [modificationInput, setModificationInput] = useState("");
   const [modifyingSectionId, setModifyingSectionId] = useState<string | null>(null);
@@ -134,6 +200,7 @@ export default function Page() {
     checks?: Record<string, string>;
   } | null>(null);
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
+  const [sectionStream, setSectionStream] = useState<SectionStreamState | null>(null);
   const [draftMd, setDraftMd] = useState<string>(
     `# Prospectus Draft\n\n(Your generated prospectus will appear here.)\n`
   );
@@ -210,17 +277,19 @@ export default function Page() {
     if (m && !generating) fetchDraft();
   }, [results, generating, fetchDraft]);
 
-  useEffect(() => {
-    if (!draftMd) return;
-    const parsed = parseDraftSections(draftMd);
-    let lastIndex = -1;
-    for (let i = 0; i < SECTION_ORDER.length; i++) {
-      if (parsed[SECTION_ORDER[i]]) lastIndex = i;
-    }
-    if (lastIndex >= 0 && currentSectionIndex < lastIndex) {
-      setCurrentSectionIndex(lastIndex);
-    }
-  }, [draftMd]);
+  const parsedSections = useMemo(() => parseDraftSections(draftMd), [draftMd]);
+  const missingSectionIds = useMemo(
+    () => getMissingSectionIds(parsedSections),
+    [parsedSections]
+  );
+  const generatedCount = useMemo(
+    () => countGeneratedSections(parsedSections),
+    [parsedSections]
+  );
+  const lastGeneratedIndex = useMemo(
+    () => getLastGeneratedIndex(parsedSections),
+    [parsedSections]
+  );
 
   async function handleUpload(filesToUpload: FileList | File[]) {
     const arr = Array.from(filesToUpload).filter((f) => f.size > 0);
@@ -263,6 +332,9 @@ export default function Page() {
   }
 
   async function runSectionApi(sectionId: string, modification?: string): Promise<boolean> {
+    setSectionStream(createEmptyStreamState(sectionId));
+    setExpandedSectionId(sectionId);
+
     const res = await fetch("/api/agent2/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -271,14 +343,27 @@ export default function Page() {
         modification_instructions: modification || undefined,
       }),
     });
-    let data: { ok?: boolean; error?: string };
-    try {
-      data = (await res.json()) as { ok?: boolean; error?: string };
-    } catch {
-      throw new Error(res.status === 404 ? "API not found." : `HTTP ${res.status} - check the terminal.`);
-    }
-    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    let streamError: string | null = null;
+    await consumeAgent2Stream(res, (ev) => {
+      if (ev.type === "section_done") {
+        void fetchDraft();
+        setSectionStream(null);
+      } else if (ev.type === "error") {
+        streamError = ev.message;
+      } else {
+        setSectionStream((prev) => applyStreamEvent(prev, ev));
+        if (ev.type === "phase_start" || ev.type === "section_start") {
+          setExpandedSectionId(ev.section_id);
+          const idx = SECTION_ORDER.indexOf(ev.section_id);
+          if (idx >= 0) setGeneratingSectionIndex(idx);
+        }
+      }
+    });
+    if (streamError) throw new Error(streamError);
+
     await fetchDraft();
+    setSectionStream(null);
     return true;
   }
 
@@ -298,58 +383,54 @@ export default function Page() {
   async function handleGenerateAllSequential() {
     setGenerating(true);
     setError(null);
-    const startFrom = currentSectionIndex + 1;
-    if (startFrom >= SECTION_ORDER.length) {
+    const remaining = getMissingSectionIds(parseDraftSections(draftMd));
+    if (remaining.length === 0) {
       setGenerating(false);
       return;
     }
-    const remaining = SECTION_ORDER.slice(startFrom);
-    setGeneratingSectionIndex(startFrom);
-    const pollMs = 2000;
-    const pollInterval = setInterval(async () => {
-      try {
-        const res = await fetch("/api/agent2/draft");
-        if (res.ok) {
-          const data = (await res.json()) as { markdown?: string };
-          const md = data.markdown ?? "";
-          if (md && !md.includes("(Your generated prospectus will appear here.)")) {
-            setDraftMd(md);
-          }
-        }
-      } catch {
-        /* ignore poll errors */
-      }
-    }, pollMs);
+    const firstIdx = SECTION_ORDER.indexOf(remaining[0]);
+    setGeneratingSectionIndex(firstIdx >= 0 ? firstIdx : 0);
+    setSectionStream(null);
+
     try {
       const res = await fetch("/api/agent2/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sections: remaining }),
       });
-      let data: { ok?: boolean; error?: string };
-      try {
-        data = (await res.json()) as { ok?: boolean; error?: string };
-      } catch {
-        throw new Error(res.status === 404 ? "API not found. Is the dev server running?" : `HTTP ${res.status} - check the terminal for errors.`);
-      }
-      if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+      let streamError: string | null = null;
+      await consumeAgent2Stream(res, (ev) => {
+        if (ev.type === "section_done") {
+          void fetchDraft();
+          setSectionStream(null);
+        } else if (ev.type === "error") {
+          streamError = ev.message;
+        } else {
+          setSectionStream((prev) => applyStreamEvent(prev, ev));
+          if (ev.type === "phase_start" || ev.type === "section_start") {
+            setExpandedSectionId(ev.section_id);
+            const idx = SECTION_ORDER.indexOf(ev.section_id);
+            if (idx >= 0) setGeneratingSectionIndex(idx);
+          }
+        }
+      });
+      if (streamError) throw new Error(streamError);
+
       await fetchDraft();
-      setCurrentSectionIndex(SECTION_ORDER.length - 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
     } finally {
-      clearInterval(pollInterval);
+      setSectionStream(null);
       setGenerating(false);
       setGeneratingSectionIndex(-1);
     }
   }
 
   function handleGenerateNext() {
-    const nextIndex = currentSectionIndex + 1;
-    if (nextIndex >= SECTION_ORDER.length) return;
-    generateSection(SECTION_ORDER[nextIndex]).then(() =>
-      setCurrentSectionIndex(nextIndex)
-    );
+    const missing = getMissingSectionIds(parseDraftSections(draftMd));
+    if (missing.length === 0) return;
+    void generateSection(missing[0]);
   }
 
   function handleModifySection(sectionId: string) {
@@ -370,7 +451,6 @@ export default function Page() {
       const data = (await res.json()) as { ok?: boolean; error?: string };
       if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
       setDraftMd(`# Prospectus Draft\n\n(Your generated prospectus will appear here.)\n`);
-      setCurrentSectionIndex(-1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Clear failed");
     }
@@ -391,7 +471,6 @@ export default function Page() {
       if (!resetRes.ok || !resetJson.ok) throw new Error(resetJson.error || "Reset failed");
       setResults(null);
       setDraftMd(`# Prospectus Draft\n\n(Your generated prospectus will appear here.)\n`);
-      setCurrentSectionIndex(-1);
       await fetchFiles();
       await fetchResults();
       await fetchDraft();
@@ -410,7 +489,6 @@ export default function Page() {
       if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
       setResults(null);
       setDraftMd(`# Prospectus Draft\n\n(Your generated prospectus will appear here.)\n`);
-      setCurrentSectionIndex(-1);
       await fetchFiles();
       await fetchResults();
       await fetchDraft();
@@ -443,12 +521,24 @@ export default function Page() {
   }
 
   const manifest = results?.manifest ?? results?.classification;
+  const sourceFiles = results?.manifest?.source_files;
   const qualityFlags =
     results?.manifest?.data_quality_flags ??
     results?.classification?.data_quality_flags ??
     [];
   const hasDraft = draftMd && draftMd.includes("## ") && !draftMd.includes("(Your generated prospectus will appear here.)");
-  const currentStep = !files.length ? 1 : !manifest ? 2 : currentSectionIndex < SECTION_ORDER.length - 1 ? 3 : 4;
+  const allSectionsDone = hasDraft && missingSectionIds.length === 0;
+  const hasGapSections =
+    missingSectionIds.length > 0 &&
+    lastGeneratedIndex >= 0 &&
+    SECTION_ORDER.indexOf(missingSectionIds[0]) < lastGeneratedIndex;
+  const currentStep = !files.length ? 1 : !manifest ? 2 : allSectionsDone ? 4 : 3;
+  const generateAllLabel =
+    generatedCount === 0 ? "Generate all" : `Remaining (${missingSectionIds.length})`;
+  const nextMissingSectionId = missingSectionIds[0];
+  const nextMissingLabel = nextMissingSectionId
+    ? `Next missing: ${SECTION_NAMES[nextMissingSectionId]}`
+    : "Next missing";
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -458,12 +548,13 @@ export default function Page() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-lg font-bold text-[var(--foreground)]">
-                HKEX Prospectus AI
+                Prospectus AI
               </h1>
               <p className="text-sm text-[var(--muted)] mt-0.5">
-                From your files to HKEX-style sections — draft, refine, export
+                From your files to prospectus sections — draft, refine, export
               </p>
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                <AppBackendStatus />
                 <a
                   href="/kg-view"
                   className="text-[var(--accent)] hover:underline"
@@ -474,7 +565,7 @@ export default function Page() {
                   href="/settings"
                   className="text-[var(--accent)] hover:underline"
                 >
-                  Inference &amp; GPU settings
+                  Model &amp; inference settings
                 </a>
               </div>
             </div>
@@ -655,10 +746,10 @@ export default function Page() {
                     <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed">
                       Generate and edit your prospectus in the panel on the right.
                     </p>
-                    {Array.isArray(manifest.source_files) && manifest.source_files.length > 0 && (
+                    {Array.isArray(sourceFiles) && sourceFiles.length > 0 && (
                       <p className="text-xs text-[var(--muted)] mt-3">
-                        {manifest.source_files.length} file
-                        {manifest.source_files.length === 1 ? "" : "s"} from your upload
+                        {sourceFiles.length} file
+                        {sourceFiles.length === 1 ? "" : "s"} from your upload
                       </p>
                     )}
                   </div>
@@ -696,10 +787,10 @@ export default function Page() {
               <div>
                 <h2 className="text-base font-semibold text-[var(--foreground)]">Prospectus draft</h2>
                 <p className="text-sm text-[var(--muted)] mt-0.5">
-                  25 sections in HKEX order · click to expand
+                  25 sections in prospectus order · click to expand
                 </p>
               </div>
-              {(currentSectionIndex >= 0 || hasDraft) && (
+              {(generatedCount > 0 || hasDraft) && (
                 <button
                   onClick={handleClearAll}
                   disabled={generating}
@@ -714,12 +805,34 @@ export default function Page() {
             <div className="space-y-2">
               {SECTION_ORDER.map((sectionId, index) => {
                 const name = SECTION_NAMES[sectionId];
-                const content = parseDraftSections(draftMd)[sectionId];
-                const isGenerated = !!content;
+                const savedContent = parsedSections[sectionId];
+                const isStreaming =
+                  generating && sectionStream?.sectionId === sectionId;
+                const stream = isStreaming ? sectionStream : null;
+                const hasContent = sectionHasContent(savedContent);
+                const isComplete = sectionIsComplete(savedContent, sectionId);
+                const showFinalContent = isComplete && !isStreaming;
+                const isGenerated = showFinalContent;
+                const isInProgress = isStreaming;
+                const isMissingGap =
+                  !isGenerated &&
+                  !isInProgress &&
+                  hasContent &&
+                  lastGeneratedIndex >= 0 &&
+                  index < lastGeneratedIndex;
+                const isThinDraft =
+                  !isGenerated &&
+                  !isInProgress &&
+                  hasContent &&
+                  !isMissingGap;
                 const isModifying = modifyingSectionId === sectionId;
                 const isExpanded = expandedSectionId === sectionId;
-                const previewRaw = content
-                  ? content
+                const phaseLabel =
+                  stream?.activePhase && PHASE_LABELS[stream.activePhase]
+                    ? PHASE_LABELS[stream.activePhase]
+                    : "Generating";
+                const previewRaw = isComplete
+                  ? savedContent!
                       .replace(/^#{1,6}\s+/gm, "")
                       .replace(/\*\*(.+?)\*\*/g, "$1")
                       .replace(/\*(.+?)\*/g, "$1")
@@ -731,28 +844,51 @@ export default function Page() {
                 const preview = previewRaw
                   ? previewRaw.slice(0, 120) + (previewRaw.length > 120 ? "…" : "")
                   : null;
+
                 return (
                   <div
                     key={sectionId}
                     className={`rounded-xl border transition-colors ${
-                      isGenerated ? "border-[var(--success)]/30 bg-[var(--success-bg)]/30" : "border-dashed border-[var(--border)] bg-[var(--background)]/30"
+                      isInProgress
+                        ? "border-[var(--accent)]/50 bg-[var(--accent)]/5"
+                        : isGenerated
+                          ? "border-[var(--success)]/30 bg-[var(--success-bg)]/30"
+                          : "border-dashed border-[var(--border)] bg-[var(--background)]/30"
                     }`}
                   >
                     <div
-                      className={`flex items-start gap-3 px-4 py-3 select-none ${isGenerated ? "cursor-pointer" : "cursor-default"}`}
-                      onClick={() => !isModifying && isGenerated && setExpandedSectionId((id) => (id === sectionId ? null : sectionId))}
+                      className={`flex items-start gap-3 px-4 py-3 select-none ${isGenerated || isInProgress ? "cursor-pointer" : "cursor-default"}`}
+                      onClick={() =>
+                        !isModifying &&
+                        !isInProgress &&
+                        isGenerated &&
+                        setExpandedSectionId((id) => (id === sectionId ? null : sectionId))
+                      }
                     >
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--foreground)]/8 text-xs font-semibold text-[var(--foreground)]">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-[var(--foreground)] leading-snug">{name}</div>
-                        {!isGenerated && <div className="text-xs text-[var(--muted)] mt-0.5 italic">Pending</div>}
+                        {!isGenerated && !isInProgress && (
+                          <div className={`text-xs mt-0.5 italic ${isMissingGap ? "text-[var(--warning)]" : isThinDraft ? "text-[var(--accent)]" : "text-[var(--muted)]"}`}>
+                            {isMissingGap
+                              ? "Missing — not generated"
+                              : isThinDraft
+                                ? "Thin draft — regenerate recommended"
+                                : "Pending"}
+                          </div>
+                        )}
+                        {isInProgress && (
+                          <div className="text-xs text-[var(--accent)] mt-0.5">
+                            {phaseLabel}…
+                          </div>
+                        )}
                         {isGenerated && !isExpanded && preview && (
                           <div className="text-xs text-[var(--muted)] mt-1 line-clamp-2">{preview}</div>
                         )}
                       </div>
-                      {isGenerated && !isModifying && (
+                      {isGenerated && !isModifying && !isInProgress && (
                         <div className="flex shrink-0 gap-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleModifySection(sectionId)}
@@ -795,12 +931,22 @@ export default function Page() {
                             </div>
                           </div>
                         ) : (
-                          <div className="pt-4">
-                            <SectionMarkdown
-                              className="text-[15px] leading-[1.7] text-[var(--foreground)] break-words"
-                            >
-                              {content}
-                            </SectionMarkdown>
+                          <div className="pt-4 space-y-4">
+                            {isInProgress && (
+                              <p className="text-xs text-[var(--muted)] italic">
+                                {phaseLabel}… Final text will appear when this section is saved.
+                              </p>
+                            )}
+                            {showFinalContent && (
+                              <SectionMarkdown
+                                className="text-[15px] leading-[1.7] text-[var(--foreground)] break-words"
+                              >
+                                {savedContent}
+                              </SectionMarkdown>
+                            )}
+                            {!showFinalContent && !isInProgress && (
+                              <p className="text-xs text-[var(--muted)] italic">No content yet.</p>
+                            )}
                           </div>
                         )}
                       </div>
@@ -817,23 +963,31 @@ export default function Page() {
                 <div className="space-y-2">
                   <p className="text-sm text-[var(--accent)] font-medium">
                     {generatingSectionIndex >= 0
-                      ? `Generating ${SECTION_ORDER.length - generatingSectionIndex} sections…`
+                      ? `Generating section ${generatingSectionIndex + 1} of ${SECTION_ORDER.length}…`
                       : "Generating…"}
                   </p>
                   <p className="text-xs text-[var(--muted)]">
-                    First run loads the AI model (1–5 min). Each section then takes ~2–5 min. Watch the terminal for progress.
+                    Only the final verified section appears when each step completes.
                   </p>
                 </div>
-              ) : currentSectionIndex >= SECTION_ORDER.length - 1 ? (
+              ) : allSectionsDone ? (
                 <p className="text-sm text-[var(--foreground)]">
                   All sections done. Use Modify above or Export to Word.
                 </p>
               ) : (
                 <>
                   <p className="text-sm text-[var(--foreground)] mb-3">
-                    {currentSectionIndex < 0
+                    {generatedCount === 0
                       ? "Generate all 25 sections sequentially."
-                      : `Up to part ${currentSectionIndex + 1}. Continue or modify.`}
+                      : `${generatedCount} of ${SECTION_ORDER.length} sections complete.`}
+                    {missingSectionIds.length > 0 && generatedCount > 0 && (
+                      <>
+                        {" "}
+                        {hasGapSections
+                          ? `${missingSectionIds.length} missing (including gaps before section ${lastGeneratedIndex + 1}).`
+                          : `${missingSectionIds.length} remaining.`}
+                      </>
+                    )}
                   </p>
                   {agent2Status && !agent2Status.ok && (
                     <div className="mb-3 rounded-lg border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
@@ -851,15 +1005,15 @@ export default function Page() {
                       disabled={generating}
                       className="rounded-lg bg-[var(--accent)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-50"
                     >
-                      {currentSectionIndex < 0 ? "Generate all" : `Remaining (${SECTION_ORDER.length - currentSectionIndex - 1})`}
+                      {generateAllLabel}
                     </button>
-                    {currentSectionIndex >= 0 && (
+                    {missingSectionIds.length > 0 && generatedCount > 0 && (
                       <button
                         onClick={handleGenerateNext}
                         disabled={generating}
                         className="rounded-lg border-2 border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10"
                       >
-                        Next section
+                        {nextMissingLabel}
                       </button>
                     )}
                     <button

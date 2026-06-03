@@ -22,7 +22,7 @@ from prospectus_docgraph.schema.seed import seed_canonical_sections
 def build_demo_document() -> ParsedDocument:
     sections = [
         ParsedSection(
-            document_id="HKEX-DEMO-2026",
+            document_id="Exchange-DEMO-2026",
             source_file="example_prospectus.pdf",
             raw_title="Summary",
             canonical_section="Summary",
@@ -32,7 +32,7 @@ def build_demo_document() -> ParsedDocument:
             confidence=0.99,
         ),
         ParsedSection(
-            document_id="HKEX-DEMO-2026",
+            document_id="Exchange-DEMO-2026",
             source_file="example_prospectus.pdf",
             raw_title="Risk Factors",
             canonical_section="Risk_Factors",
@@ -42,7 +42,7 @@ def build_demo_document() -> ParsedDocument:
             confidence=0.99,
         ),
         ParsedSection(
-            document_id="HKEX-DEMO-2026",
+            document_id="Exchange-DEMO-2026",
             source_file="example_prospectus.pdf",
             raw_title="Business",
             canonical_section="Business",
@@ -52,7 +52,7 @@ def build_demo_document() -> ParsedDocument:
             confidence=0.99,
         ),
         ParsedSection(
-            document_id="HKEX-DEMO-2026",
+            document_id="Exchange-DEMO-2026",
             source_file="example_prospectus.pdf",
             raw_title="Financial Information",
             canonical_section="Financial_Information",
@@ -62,7 +62,7 @@ def build_demo_document() -> ParsedDocument:
             confidence=0.99,
         ),
         ParsedSection(
-            document_id="HKEX-DEMO-2026",
+            document_id="Exchange-DEMO-2026",
             source_file="example_prospectus.pdf",
             raw_title="Future Plans and Use of Proceeds",
             canonical_section="Future_Plans_and_Use_of_Proceeds",
@@ -73,7 +73,7 @@ def build_demo_document() -> ParsedDocument:
         ),
     ]
     return ParsedDocument(
-        document_id="HKEX-DEMO-2026",
+        document_id="Exchange-DEMO-2026",
         source_file="example_prospectus.pdf",
         sections=sections,
     )

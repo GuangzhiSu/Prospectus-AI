@@ -1,5 +1,5 @@
 """
-Stage 3b: for each HKEX prospectus, reverse-engineer the structured input record that
+Stage 3b: for each Exchange prospectus, reverse-engineer the structured input record that
 would have been required to author it, using the Stage 3a schema.
 
 One LLM pass per document. The prompt concatenates:
@@ -96,7 +96,7 @@ def _build_messages(
     record_schema: dict[str, Any],
 ) -> list[dict[str, Any]]:
     system = (
-        "You are an HKEX IPO analyst. Given the fixed set of input fields below and a "
+        "You are an Exchange IPO analyst. Given the fixed set of input fields below and a "
         "prospectus split into canonical sections, reverse-engineer the issuer-input record "
         "that would have been required to draft this prospectus. Only use facts that appear in "
         "the text; use null for absent fields. Keep names in their original language and quote "

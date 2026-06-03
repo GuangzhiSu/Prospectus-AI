@@ -97,7 +97,7 @@ def conditional_section_emphasis(meta: dict[str, bool]) -> str:
             "PRC issuer: ensure regulatory, tax, and foreign exchange disclosures are scoped to supported evidence."
         )
     if not parts:
-        return "No additional regime-specific emphasis beyond standard HKEX working-draft controls."
+        return "No additional regime-specific emphasis beyond standard Exchange working-draft controls."
     return "\n".join(parts)
 
 

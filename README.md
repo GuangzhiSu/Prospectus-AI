@@ -329,9 +329,23 @@ Outputs:
 
 Important: the generated markdown is a **working draft**, not a filing-ready final prospectus.
 
+## Inference backends
+
+Configure in the web UI at **`/settings`** (saved to `~/.config/ProspectusAI/settings.json`):
+
+| UI choice | `LLM_PROVIDER` | Notes |
+|-----------|----------------|--------|
+| Local Qwen | `qwen_local` | Hugging Face on GPU/CPU (default) |
+| OpenAI / compatible | `openai` | ChatGPT, Azure, Ollama, LM Studio, vLLM (`/v1`) |
+| DeepSeek API | `deepseek` | `DEEPSEEK_API_KEY` |
+| Qwen (DashScope) | `qwen_api` | `DASHSCOPE_API_KEY` (Alibaba cloud) |
+| Anthropic | `anthropic` | `ANTHROPIC_API_KEY` (Claude / Opus) |
+
+Python deps: `pip install openai anthropic` (anthropic only required for Claude). Env vars can also be set manually without the UI.
+
 ## Qwen and hardware notes
 
-Both `Agent1` and `Agent2` use Qwen through Hugging Face `transformers`.
+Local mode: both `Agent1` and `Agent2` use Qwen through Hugging Face `transformers`.
 
 - Default web model: `Qwen/Qwen2.5-3B-Instruct`
 - You can run on CPU with `AGENT1_USE_CPU=1`

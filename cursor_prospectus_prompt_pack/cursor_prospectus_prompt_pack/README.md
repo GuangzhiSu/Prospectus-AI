@@ -1,19 +1,19 @@
-# Cursor Prompt Pack for HKEX Technology-Sector IPO Prospectus Drafting
+# Cursor Prompt Pack for Exchange Technology-Sector IPO Prospectus Drafting
 
 This pack converts the source framework into a repo-friendly format for Cursor.
 
 ## What is included
 
-- `.cursor/rules/00-hkex-prospectus-core.mdc`
+- `.cursor/rules/00-prospectus-core.mdc`
   - Always-on core rule.
   - Keeps Cursor aligned with sponsor-counsel priorities: compliance language, disclosure defensibility, and verifiability.
-- `.cursor/rules/10-hkex-section-requirements.mdc`
+- `.cursor/rules/10-section-requirements.mdc`
   - Detailed section-by-section drafting requirements.
   - Keep this as a reference rule; do not make it always-on unless you really want maximum constraint.
-- `.cursor/rules/20-hkex-validator.mdc`
+- `.cursor/rules/20-validator.mdc`
   - Validation and linting logic.
   - Best used when Cursor is reviewing, critiquing, or rewriting prompts.
-- `docs/hkex_prompt_reference.md`
+- `docs/prospectus_prompt_reference.md`
   - Human-readable condensed reference.
 - `prompts/prompt-refinement-workflows.md`
   - Ready-to-paste prompts for asking Cursor to refine your system prompts, section prompts, and validator prompts.
@@ -23,7 +23,7 @@ This pack converts the source framework into a repo-friendly format for Cursor.
 ### Option A: Lightweight setup
 Use only the always-on core rule:
 
-- copy `.cursor/rules/00-hkex-prospectus-core.mdc` into your repo
+- copy `.cursor/rules/00-prospectus-core.mdc` into your repo
 - keep the other files for manual reference
 
 This is best when you want Cursor to stay aligned without consuming too much context.
@@ -36,7 +36,7 @@ Use this when you want Cursor to actively help rewrite or lint prompt files.
 ### Option C: Manual context injection
 Do not install the rules. Instead:
 
-- open `docs/hkex_prompt_reference.md`
+- open `docs/prospectus_prompt_reference.md`
 - paste one of the tasks from `prompts/prompt-refinement-workflows.md`
 - attach your existing prompt file and ask Cursor to refactor it
 

@@ -27,7 +27,7 @@ rsync -a \
   --exclude='.progress.json' \
   --exclude='agent1_output' \
   --exclude='agent2_output' \
-  --exclude='hkex_prospectus' \
+  --exclude='prospectus_corpus' \
   --exclude='prospectus_kg_output' \
   --exclude='apps/web/.next' \
   --exclude='apps/web/uploads' \

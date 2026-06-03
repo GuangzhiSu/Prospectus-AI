@@ -1,4 +1,4 @@
-"""Enumerations for the HKEX prospectus structural graph (schema-first, not company facts)."""
+"""Enumerations for the Exchange prospectus structural graph (schema-first, not company facts)."""
 
 from __future__ import annotations
 

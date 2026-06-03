@@ -22,9 +22,34 @@ from __future__ import annotations
 from typing import Any
 import os
 import socket
+import json
+import time
 
 DEFAULT_TEXT_MODEL = "Qwen/Qwen3.5-4B"
 DEFAULT_VL_MODEL = "Qwen/Qwen2-VL-2B-Instruct"
+_DEBUG_LOG_PATH = "/home/gs285/finance/prospectus-ui/.cursor/debug-668fa0.log"
+
+
+def _debug_log(
+    hypothesis_id: str,
+    location: str,
+    message: str,
+    data: dict[str, Any] | None = None,
+) -> None:
+    payload = {
+        "sessionId": "668fa0",
+        "runId": "pre-fix",
+        "hypothesisId": hypothesis_id,
+        "location": location,
+        "message": message,
+        "data": data or {},
+        "timestamp": int(time.time() * 1000),
+    }
+    try:
+        with open(_DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=True) + "\n")
+    except Exception:
+        pass
 
 
 def _get_device() -> str:
@@ -33,7 +58,43 @@ def _get_device() -> str:
     if os.environ.get("AGENT1_USE_CPU") == "1" or os.environ.get("CUDA_VISIBLE_DEVICES") == "":
         return "cpu"
     if torch.cuda.is_available():
-        return "cuda"
+        # If user pinned visible devices explicitly, respect that and keep cuda:0.
+        if os.environ.get("CUDA_VISIBLE_DEVICES"):
+            return "cuda"
+        selected = 0
+        free_by_idx: dict[int, int] = {}
+        try:
+            count = torch.cuda.device_count()
+            best_free = -1
+            for idx in range(count):
+                try:
+                    major, _minor = torch.cuda.get_device_capability(idx)
+                except Exception:
+                    major = 0
+                # Current runtime requires sm_70+; skip older GPUs (e.g. GTX 1080 Ti sm_61).
+                if major < 7:
+                    continue
+                free_bytes, _ = torch.cuda.mem_get_info(idx)
+                free_by_idx[idx] = int(free_bytes)
+                if int(free_bytes) > best_free:
+                    best_free = int(free_bytes)
+                    selected = idx
+            torch.cuda.set_device(selected)
+        except Exception:
+            selected = 0
+        # region agent log
+        _debug_log(
+            "H8",
+            "llm_qwen.py:_get_device:auto_gpu_select",
+            "Auto-selected CUDA device by free memory",
+            {
+                "selected_cuda_index": selected,
+                "free_memory_bytes_by_index": free_by_idx,
+                "cuda_visible_devices_env": os.environ.get("CUDA_VISIBLE_DEVICES"),
+            },
+        )
+        # endregion
+        return f"cuda:{selected}"
     # Apple Silicon GPU (Metal) — far faster than CPU/Accelerate-BLAS for local inference
     mps = getattr(torch.backends, "mps", None)
     if mps is not None and mps.is_available():
@@ -62,10 +123,12 @@ def _load_qwen_model(
             AutoTokenizer,
         )
         import torch
+        import transformers
     except ImportError:
         raise ImportError(
             "Qwen text model requires: pip install transformers torch accelerate"
         )
+
     if device is None:
         device = _get_device()
     use_8bit = os.environ.get("AGENT1_USE_8BIT") == "1"
@@ -75,15 +138,34 @@ def _load_qwen_model(
         or os.environ.get("HF_LOCAL_ONLY") == "1"
     )
     model_is_local_path = os.path.exists(model_name)
+    # region agent log
+    _debug_log(
+        "H1",
+        "llm_qwen.py:_load_qwen_model:init",
+        "Starting model load",
+        {
+            "model_name": model_name,
+            "device": device,
+            "local_only": local_only,
+            "model_is_local_path": model_is_local_path,
+            "transformers_version": getattr(transformers, "__version__", "unknown"),
+            "hf_token_present": bool(os.environ.get("HF_TOKEN")),
+            "cuda_visible_devices_env": os.environ.get("CUDA_VISIBLE_DEVICES"),
+            "qwen_device_map_env": os.environ.get("QWEN_DEVICE_MAP", ""),
+            "use_8bit": use_8bit,
+            "use_4bit": use_4bit,
+        },
+    )
+    # endregion
     load_kwargs: dict = {
         "trust_remote_code": True,
         "torch_dtype": (
-            torch.bfloat16 if device == "cuda"
+            torch.bfloat16 if str(device).startswith("cuda")
             else torch.float16 if device == "mps"
             else torch.float32
         ),
     }
-    if device == "cuda":
+    if str(device).startswith("cuda"):
         # Let accelerate shard a large model (e.g. 27B) across GPUs when present.
         if use_8bit or use_4bit or os.environ.get("QWEN_DEVICE_MAP", "") == "auto":
             load_kwargs["device_map"] = "auto"
@@ -141,6 +223,17 @@ def _load_qwen_model(
     try:
         model = AutoModelForCausalLM.from_pretrained(model_name, **m_kwargs)
     except Exception as e:
+        # region agent log
+        _debug_log(
+            "H2",
+            "llm_qwen.py:_load_qwen_model:causal_fail",
+            "AutoModelForCausalLM load failed",
+            {
+                "error_type": type(e).__name__,
+                "error": str(e)[:500],
+            },
+        )
+        # endregion
         last_err = e
         # Multimodal checkpoints (Qwen3.5-*) may require AutoModelForImageTextToText.
         try:
@@ -152,12 +245,51 @@ def _load_qwen_model(
                 model = AutoModelForImageTextToText.from_pretrained(model_name, **m_kwargs)
                 last_err = None
             except Exception as e2:
+                # region agent log
+                _debug_log(
+                    "H3",
+                    "llm_qwen.py:_load_qwen_model:itt_fail",
+                    "AutoModelForImageTextToText load failed",
+                    {
+                        "error_type": type(e2).__name__,
+                        "error": str(e2)[:500],
+                    },
+                )
+                # endregion
                 last_err = e2
     if model is None:
+        # region agent log
+        _debug_log(
+            "H4",
+            "llm_qwen.py:_load_qwen_model:friendly_error",
+            "Model load failed after all strategies",
+            {
+                "final_error_type": type(last_err).__name__ if last_err else "RuntimeError",
+                "final_error": str(last_err)[:500] if last_err else "Failed to load model",
+                "local_only": local_only,
+                "model_is_local_path": model_is_local_path,
+            },
+        )
+        # endregion
         raise _friendly_load_error(last_err or RuntimeError("Failed to load model"))
 
     if "device_map" not in load_kwargs:
-        model = model.to(device)
+        try:
+            model = model.to(device)
+        except Exception as e:
+            # region agent log
+            _debug_log(
+                "H9",
+                "llm_qwen.py:_load_qwen_model:model_to_device_fail",
+                "Failed while moving model to target device",
+                {
+                    "target_device": device,
+                    "error_type": type(e).__name__,
+                    "error": str(e)[:500],
+                },
+            )
+            # endregion
+            raise
     return model, tokenizer
 
 
@@ -238,11 +370,106 @@ def run_qwen_with_model(
         out[0][inputs["input_ids"].shape[1]:],
         skip_special_tokens=True,
     )
-    # If a Qwen3 thinking block leaked through (e.g. user set QWEN_ENABLE_THINKING=1),
-    # strip it so downstream consumers only see the final answer.
-    if "</think>" in response:
-        response = response.split("</think>", 1)[1]
-    return response.strip()
+    from llm_sanitize import strip_model_reasoning
+
+    return strip_model_reasoning(response).strip()
+
+
+def run_qwen_with_model_stream(
+    model: Any,
+    tokenizer: Any,
+    prompt: str,
+    max_new_tokens: int | None = None,
+):
+    """Generate using a pre-loaded model; yield decoded token chunks."""
+    import torch
+    from threading import Thread
+    from transformers import TextIteratorStreamer
+
+    if max_new_tokens is None:
+        max_new_tokens = int(os.environ.get("QWEN_MAX_NEW_TOKENS", "4096"))
+
+    is_cuda = next(model.parameters()).is_cuda
+    default_ctx = 16384 if is_cuda else 32768
+    max_length = int(os.environ.get("QWEN_MAX_CTX", str(default_ctx)))
+
+    name = getattr(model.config, "_name_or_path", "") or ""
+    is_qwen3 = _is_qwen3_family(name)
+
+    text = _apply_chat_template(tokenizer, prompt, is_qwen3=is_qwen3)
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        truncation=True,
+        max_length=max_length,
+    )
+    target_device = next(model.parameters()).device
+    inputs = {k: v.to(target_device) for k, v in inputs.items()}
+
+    gen_kwargs = _build_generate_kwargs(tokenizer)
+    gen_kwargs["max_new_tokens"] = int(max_new_tokens)
+
+    streamer = TextIteratorStreamer(
+        tokenizer,
+        skip_special_tokens=True,
+        skip_prompt=True,
+    )
+    gen_kwargs["streamer"] = streamer
+
+    thread = Thread(
+        target=model.generate,
+        kwargs={**inputs, **gen_kwargs},
+        daemon=True,
+    )
+    thread.start()
+
+    from llm_sanitize import _END_REDACTED, _END_THINKING, strip_model_reasoning
+
+    pending = ""
+    for piece in streamer:
+        if not piece:
+            continue
+        pending += piece
+        # Hold back all output until any reasoning block ends.
+        lower = pending.lower()
+        cut = -1
+        for tag in (_END_REDACTED, _END_THINKING):
+            idx = lower.rfind(tag)
+            if idx >= 0:
+                cut = max(cut, idx + len(tag))
+        if cut >= 0:
+            to_emit = pending[cut:]
+            pending = ""
+            if to_emit:
+                yield to_emit
+        elif not _looks_like_reasoning_prefix(pending):
+            yield pending
+            pending = ""
+    if pending:
+        yield strip_model_reasoning(pending)
+    thread.join()
+
+
+def _looks_like_reasoning_prefix(text: str) -> bool:
+    from llm_sanitize import _END_REDACTED, _START_THINK
+
+    stripped = text.lstrip()
+    if not stripped:
+        return False
+    return stripped.startswith(
+        ("Thinking Process:", _START_THINK, _END_REDACTED)
+    )
+
+
+def run_qwen_text_stream(
+    prompt: str,
+    model_name: str = DEFAULT_TEXT_MODEL,
+    max_new_tokens: int | None = None,
+    device: str | None = None,
+):
+    """Load Qwen once per call and stream text chunks."""
+    model, tokenizer = _load_qwen_model(model_name, device)
+    yield from run_qwen_with_model_stream(model, tokenizer, prompt, max_new_tokens)
 
 
 def run_qwen_text(

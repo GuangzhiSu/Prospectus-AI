@@ -129,7 +129,7 @@ def build_coverage_matrix(
     lines = [
         "# Coverage matrix",
         "",
-        "| Section | Required (HKEX working draft) | Status | Gaps |",
+        "| Section | Required (Exchange working draft) | Status | Gaps |",
         "|---------|----------------------------------|--------|------|",
     ]
     for sid, name in SECTIONS:

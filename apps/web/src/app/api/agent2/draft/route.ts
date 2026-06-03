@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs/promises";
 import { getProspectusRoot } from "@/lib/prospectus-root";
 import { stripVerificationNotes } from "@/lib/draft-cleaning";
+import { cleanDraftMarkdown } from "@/lib/draft-sections";
 
 export const runtime = "nodejs";
 
@@ -14,9 +15,8 @@ export async function GET() {
 
     try {
       const content = await fs.readFile(draftPath, "utf8");
-      return NextResponse.json({
-        markdown: stripVerificationNotes(content),
-      });
+      const markdown = stripVerificationNotes(cleanDraftMarkdown(content));
+      return NextResponse.json({ markdown });
     } catch {
       return NextResponse.json(
         { error: "No draft yet. Run Agent2 first." },

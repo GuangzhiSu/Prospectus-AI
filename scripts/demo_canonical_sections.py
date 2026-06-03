@@ -21,7 +21,7 @@ def main() -> None:
     from prospectus_docgraph.schema.seed import seed_canonical_sections
 
     mgr = seed_canonical_sections()
-    print("Canonical HKEX-style sections (seed)\n")
+    print("Canonical prospectus-style sections (seed)\n")
     for sec in mgr.get_sections():
         m = "M" if sec.mandatory else "O"
         o = sec.typical_order_index

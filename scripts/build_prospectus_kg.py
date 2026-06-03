@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-End-to-end builder for the HKEX prospectus Knowledge Graph.
+End-to-end builder for the Exchange prospectus Knowledge Graph.
 
 Stages
 ------
-s0  Deterministic TOC-based sectioning of every PDF in ``hkex_prospectus/``.
+s0  Deterministic TOC-based sectioning of every PDF in ``prospectus_corpus/``.
 s1  Structural KG: seed ontology + ingest instances + mine + refine + export ``docgraph.json``.
 s2  Writing KG: generate per-canonical-section "section cards" (function / structure / rules /
     required input fields) via local Qwen; merge into graph.
@@ -158,10 +158,10 @@ def main() -> None:
         "--stages", nargs="+", default=["all"],
         help=f"Subset of stages to run. Options: {ALL_STAGES + ['all']}",
     )
-    ap.add_argument("--pdf-dir", type=Path, default=Path("hkex_prospectus"))
+    ap.add_argument("--pdf-dir", type=Path, default=Path("prospectus_corpus"))
     ap.add_argument(
         "--extracted-dir", type=Path,
-        default=Path("ipo_prospectus_pipeline/outputs_hkex_qwen/extracted"),
+        default=Path("ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
     )
     ap.add_argument("--sections-dir", type=Path, default=Path("prospectus_kg_output/sections_toc"))
     ap.add_argument("--structure-dir", type=Path, default=Path("prospectus_kg_output/structure"))

@@ -1,5 +1,5 @@
 """
-Schema-first structural knowledge graph for HKEX technology IPO prospectuses.
+Schema-first structural knowledge graph for Exchange technology IPO prospectuses.
 
 Models *document organization*, not issuer-specific facts. Lives in ``prospectus_docgraph``
 to avoid clashing with the legacy ``prospectus_graph`` Agent2 package (which has ``graph.py``).

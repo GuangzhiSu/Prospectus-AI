@@ -231,7 +231,7 @@ def run(pdf_path: Path, out_dir: Path) -> dict[str, Any]:
             text = text[:half] + "\n\n...[truncated middle]...\n\n" + text[-half:]
 
         system = (
-            "You are an HKEX IPO documentation analyst. Parse the provided Chinese input-report "
+            "You are an Exchange IPO documentation analyst. Parse the provided Chinese input-report "
             "and output a single JSON object describing the structured-input schema an issuer must "
             "provide before a prospectus can be drafted. Group fields by category. Each field must "
             "have a stable snake_case field_id, a short English field_name, a type from the allowed "

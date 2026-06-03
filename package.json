@@ -7,6 +7,13 @@
     "dev:web": "npm run dev --prefix apps/web",
     "build": "npm run build --prefix apps/web",
     "start": "npm run start --prefix apps/web",
-    "lint": "npm run lint --prefix apps/web"
+    "lint": "npm run lint --prefix apps/web",
+    "desktop:install": "npm install --prefix apps/desktop",
+    "desktop:dev": "npm run start --prefix apps/desktop",
+    "desktop:pack": "npm run pack --prefix apps/desktop",
+    "desktop:dist": "npm run dist --prefix apps/desktop",
+    "pack:linux": "bash packaging/linux/build-full-release.sh",
+    "pack:windows-dist": "bash packaging/linux/build-prospectusai-windows.sh",
+    "pack:windows": "echo 'Native Windows build (optional): powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1'"
   }
 }

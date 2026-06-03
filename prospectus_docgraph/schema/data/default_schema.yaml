@@ -3,7 +3,7 @@ version: "0.2.0"
 
 node_types:
   SectionType:
-    description: "Top-level HKEX-style chapter."
+    description: "Top-level prospectus-style chapter."
   SubsectionType:
     description: "Heading nested under a section."
   DisclosureFunction:

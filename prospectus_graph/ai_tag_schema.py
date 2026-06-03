@@ -1,5 +1,5 @@
 """
-Unified machine-parseable AI tag schema for HKEX working drafts.
+Unified machine-parseable AI tag schema for Exchange working drafts.
 Validators use these patterns; writers must not invent alternate tag syntax.
 """
 

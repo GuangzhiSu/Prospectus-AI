@@ -1,4 +1,4 @@
-// app/page.tsx - HKEX Prospectus AI: Agent1 + Agent2 pipeline
+// app/page.tsx - Prospectus AI: Agent1 + Agent2 pipeline
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";

@@ -57,7 +57,7 @@ SECTION_CARD_SCHEMA: dict[str, Any] = {
         },
         "purpose": {
             "type": "string",
-            "description": "A paragraph explaining why HKEX requires this section and what regulators/investors expect to learn.",
+            "description": "A paragraph explaining why Exchange requires this section and what regulators/investors expect to learn.",
         },
         "typical_structure": {
             "type": "array",
@@ -152,7 +152,7 @@ def _build_messages(
     chars_per_sample: int,
 ) -> list[dict[str, Any]]:
     sys_msg = (
-        "You are a senior Hong Kong IPO legal draftsperson. You are analyzing real HKEX prospectus "
+        "You are a senior Hong Kong IPO legal draftsperson. You are analyzing real Exchange prospectus "
         "filings to build a knowledge card for one canonical section so that a drafting agent can "
         "later author a new section of the same type for a different issuer. "
         "You MUST reply with a single valid JSON object conforming to the provided schema."
@@ -168,7 +168,7 @@ def _build_messages(
     user_msg = (
         f"Canonical section id: {section_id}\n"
         f"Canonical section name: {canonical_name}\n\n"
-        "Below are text excerpts of this section from several real HKEX prospectuses. "
+        "Below are text excerpts of this section from several real Exchange prospectuses. "
         "Read them carefully and produce a single consolidated 'section card' describing:\n"
         "  - the section's function and purpose,\n"
         "  - its typical subsection structure (in order),\n"
@@ -178,7 +178,7 @@ def _build_messages(
         "  - common pitfalls.\n\n"
         "Rules:\n"
         "  1. The 'section_id' field must equal exactly: " + section_id + "\n"
-        "  2. Prefer concrete, HKEX-specific guidance over generic advice.\n"
+        "  2. Prefer concrete, Exchange-specific guidance over generic advice.\n"
         "  3. 'required_input_fields' MUST list granular fields an IPO advisor would need to collect "
         "from the issuer (names, dates, amounts, structures) — not narrative prose.\n"
         "  4. Keep arrays concise (<= 12 items each) but specific.\n\n"

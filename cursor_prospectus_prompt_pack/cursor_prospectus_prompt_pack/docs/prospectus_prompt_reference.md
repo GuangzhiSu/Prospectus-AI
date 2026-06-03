@@ -1,4 +1,4 @@
-# Condensed Reference: HKEX Technology-Sector IPO Prospectus Prompt Engineering
+# Condensed Reference: Exchange Technology-Sector IPO Prospectus Prompt Engineering
 
 This is a distilled, Cursor-friendly reference built from the source framework.
 
@@ -19,7 +19,7 @@ The source framework treats the following as the most load-bearing disclosure st
 
 This architecture should be preserved in system prompts, section prompts, and validators.
 
-## 3. What usually causes HKEX review friction
+## 3. What usually causes Exchange review friction
 The source framework highlights these recurrent failure modes:
 - absolute or superlative wording
 - promotional tone

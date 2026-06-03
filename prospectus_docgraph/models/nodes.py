@@ -21,7 +21,7 @@ class BaseNode(BaseModel):
 
 
 class SectionNode(BaseNode):
-    """Top-level canonical chapter (HKEX-style section)."""
+    """Top-level canonical chapter (prospectus-style section)."""
 
     node_type: Literal[NodeType.SECTION] = NodeType.SECTION
     canonical_name: str = Field(

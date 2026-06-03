@@ -45,7 +45,7 @@ DEFAULT_SECTION_ALIASES: dict[str, str] = {
     "appendices": "Appendices",
     "expected timetable": "Expected_Timetable",
     "contents": "Contents",
-    # Front / back matter + extras observed in HKEX corpus.
+    # Front / back matter + extras observed in Exchange corpus.
     "cover": "Cover",
     "cover page": "Cover",
     "back cover": "Back_Cover",

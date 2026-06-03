@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo Part 4: mocked corpus statistics (150 HKEX-style tech IPO filings) → refinement report.
+Demo Part 4: mocked corpus statistics (150 prospectus-style tech IPO filings) → refinement report.
 
 No real PDF corpus is bundled; numbers are illustrative.
 """

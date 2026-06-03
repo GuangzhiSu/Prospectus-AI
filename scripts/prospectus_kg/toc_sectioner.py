@@ -1,15 +1,15 @@
 """
-Stage 0: split every HKEX prospectus PDF into ``ParsedDocument``-shaped sections.
+Stage 0: split every Exchange prospectus PDF into ``ParsedDocument``-shaped sections.
 
 Strategy
 --------
 1. Use PyMuPDF ``fitz.get_toc()`` to read the embedded bookmarks (level-1 entries).
-   HKEX prospectuses reliably carry clean TOC entries (cover, summary, risk factors,
+   Exchange prospectuses reliably carry clean TOC entries (cover, summary, risk factors,
    etc.), so we get deterministic, noise-free section boundaries for free.
 2. Resolve each raw TOC title to a canonical section id via
    ``prospectus_docgraph.normalizer.TitleNormalizer``.
 3. Read back the associated page text from the already-extracted JSON in
-   ``ipo_prospectus_pipeline/outputs_hkex_qwen/extracted/<doc_id>.json`` if available,
+   ``ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted/<doc_id>.json`` if available,
    otherwise re-extract on the fly (fallback path).
 4. Materialize subsections from level-2 TOC entries when present.
 5. Emit one JSON per document that mirrors ``prospectus_docgraph.parser.structure.ParsedDocument``
@@ -296,11 +296,11 @@ if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser(description="TOC-based prospectus sectioner (Stage 0).")
-    ap.add_argument("--pdf-dir", type=Path, default=Path("hkex_prospectus"))
+    ap.add_argument("--pdf-dir", type=Path, default=Path("prospectus_corpus"))
     ap.add_argument(
         "--extracted-dir",
         type=Path,
-        default=Path("ipo_prospectus_pipeline/outputs_hkex_qwen/extracted"),
+        default=Path("ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
     )
     ap.add_argument("--out-dir", type=Path, default=Path("prospectus_kg_output/sections_toc"))
     ap.add_argument("--limit", type=int, default=None)

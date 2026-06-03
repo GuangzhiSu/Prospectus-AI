@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Parallel launcher for Stage 3b v2 across multiple GPUs.
 #
-# Shards the 125 HKEX prospectuses across the free GPUs (default 2,3,4). Each shard
+# Shards the 125 Exchange prospectuses across the free GPUs (default 2,3,4). Each shard
 # runs one `build_prospectus_kg --stages s3b` worker writing its per-(doc, section)
 # JSON into the shared ``prospectus_kg_output/inputs/input_records/<doc>/`` tree.
 # All workers are resume-safe (they skip cached section files), so it's fine to

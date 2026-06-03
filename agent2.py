@@ -71,7 +71,7 @@ def _format_kg_guidance(reqs: dict) -> str:
         return ""
 
     lines: list[str] = [
-        "KNOWLEDGE-GRAPH SECTION GUIDANCE (derived from 125 HKEX prospectuses):"
+        "KNOWLEDGE-GRAPH SECTION GUIDANCE (derived from 125 Exchange prospectuses):"
     ]
     if reqs.get("kg_function"):
         lines.append(f"Function: {reqs['kg_function']}")
@@ -79,22 +79,31 @@ def _format_kg_guidance(reqs: dict) -> str:
         lines.append(f"Purpose: {reqs['kg_purpose']}")
 
     struct = reqs.get("kg_typical_structure") or []
+    structure_mode = str(reqs.get("kg_structure_mode") or "narrative").strip().lower()
     if struct:
         lines.append("Typical structure:")
         for item in struct:
             sub = item.get("subsection") or ""
             desc = item.get("description") or ""
             lines.append(f"  - {sub}: {desc}")
-        lines.append("")
-        lines.append(
-            "HEADING LOCK: Use the subsection names listed under \"Typical structure\" above "
-            "VERBATIM as your H2/H3 headings, in that order. You may prefix them with "
-            "sequential numbers (\"1 <name>\", \"2 <name>\", ...). You MUST NOT rename, "
-            "merge, split, reorder, or omit them. If a subsection has no supporting "
-            "evidence, still include the heading with body \"**DATA_MISSING**\" plus an "
-            "[[AI:VERIFY|evidence=...]] pointer. You MAY add at most one extra trailing "
-            "subsection for genuinely section-specific content if the evidence requires it."
-        )
+        if structure_mode == "narrative":
+            lines.append("")
+            lines.append(
+                "HEADING LOCK: Use the subsection names listed under \"Typical structure\" above "
+                "VERBATIM as your H2/H3 headings, in that order. You may prefix them with "
+                "sequential numbers (\"1 <name>\", \"2 <name>\", ...). You MUST NOT rename, "
+                "merge, split, reorder, or omit them. If a subsection has no supporting "
+                "evidence, still include the heading with body \"**DATA_MISSING**\" plus an "
+                "[[AI:VERIFY|evidence=...]] pointer. You MAY add at most one extra trailing "
+                "subsection for genuinely section-specific content if the evidence requires it."
+            )
+        else:
+            lines.append("")
+            lines.append(
+                "FORMAT LOCK (dictionary mode): do NOT force subsection headings from Typical structure. "
+                "Prefer a table or alphabetical list of entries, with concise row/term definitions. "
+                "Avoid adding narrative-only blocks unless the section requirements explicitly demand them."
+            )
 
     rules = reqs.get("kg_writing_rules") or []
     if rules:
@@ -176,13 +185,13 @@ def _lookup_section_name(section_id: str) -> str:
     return next((name for sid, name in SECTIONS if sid == section_id), section_id)
 
 
-HKEX_FORMAT_INSTRUCTION = """
-CRITICAL FORMAT REQUIREMENTS (HKEX sponsor-counsel working draft mode):
+Exchange_FORMAT_INSTRUCTION = """
+CRITICAL FORMAT REQUIREMENTS (Exchange sponsor-counsel working draft mode):
 
 Primary objective: Optimise for (1) compliance language, (2) disclosure defensibility, (3) verifiability under sponsor due-diligence standards. Preserve defensibility over elegance when they conflict. Do not convert possibility into certainty; do not smooth away legal or factual caveats.
 
 - Output in ENGLISH ONLY. No Chinese or other languages.
-- Draft in sponsor-counsel working draft mode for an HKEX listing document. This is not a fully complete clean final filing copy.
+- Draft in sponsor-counsel working draft mode for an Exchange listing document. This is not a fully complete clean final filing copy.
 - Use formal, factual, balanced, non-promotional language. Treat uncontrolled language as a major defect.
 - All company-specific facts, figures, dates, rankings, waivers, legal conclusions, and status statements must come only from the provided context. Do not invent sources, thresholds, definitions, or evidence.
 - EVIDENCE REGISTRY / ATOMIC CLAIMS: Every numeric or material factual claim should be traceable. Prefer structured placeholders over fluent invented narrative when support is missing.
@@ -228,12 +237,14 @@ def build_planner_prompt(
     formatted_facts: str,
     text_summary: str,
     kg_typical_structure: list[dict] | None = None,
+    kg_structure_mode: str = "narrative",
 ) -> str:
     """Build prompt for Section Planner: structured outline + fact-to-subsection mapping."""
     numbered_facts = _add_fact_ids_to_formatted(formatted_facts)
     required_outline_block = ""
     required_outline_rule = ""
-    if kg_typical_structure:
+    narrative_mode = (kg_structure_mode or "narrative").strip().lower() == "narrative"
+    if kg_typical_structure and narrative_mode:
         lines: list[str] = [
             "Required outline (copy these names VERBATIM, in this order, as your numbered outline):",
         ]
@@ -250,7 +261,13 @@ def build_planner_prompt(
             "one extra trailing subsection for evidence-driven section-specific content. "
             "Keys in `fact_mapping` MUST exactly match the outline titles (after the number)."
         )
-    return f"""Role: You are the Section Planner for an HKEX prospectus drafting workflow.
+    elif not narrative_mode:
+        required_outline_rule = (
+            "\n- This section is in dictionary mode: do NOT invent narrative subsection scaffolding. "
+            "Use a minimal structure optimized for glossary/definition entries (alphabetical table/list). "
+            "If you include headings, keep them minimal and functional."
+        )
+    return f"""Role: You are the Section Planner for an Exchange prospectus drafting workflow.
 
 Objective: Produce a structured outline for the "{section_name}" section and assign available facts to the most appropriate subsections.
 
@@ -278,7 +295,7 @@ Output JSON only, with this exact schema:
 }}
 
 Rules:
-- outline: Numbered list of subsection titles, one per line. Match HKEX and section requirements.
+- outline: Numbered list of subsection titles, one per line. Match Exchange and section requirements.
 - fact_mapping: For each subsection, list fact IDs (e.g. fact_1, fact_2) that belong there.
 - If a fact fits multiple subsections, assign it to the single best fit.
 - Subsection names in fact_mapping must exactly match the outline titles (after the number).{required_outline_rule}
@@ -309,11 +326,11 @@ Planned structure (follow this outline):
 {planner_outline.strip()}
 ---
 """
-    return f"""Role: You are drafting one prospectus section for a Hong Kong Stock Exchange (HKEX) listing in sponsor-counsel working draft mode.
+    return f"""Role: You are drafting one prospectus section for a Hong Kong Stock Exchange (Exchange) listing in sponsor-counsel working draft mode.
 
 Objective: Produce a conservative, verification-aware working draft: prospectus-ready prose where evidence exists, structured placeholders and AI tags where support is missing. Headings, contents entries, and cross-references must match exactly across the document.
 
-{HKEX_FORMAT_INSTRUCTION}
+{Exchange_FORMAT_INSTRUCTION}
 
 CRITICAL: Use ONLY data from the provided context for company-specific facts. Do NOT invent, fabricate, or hallucinate any facts, figures, names, dates, rankings, approvals, waivers, legal conclusions, or management intentions. If information is not in the context, state "[Information not provided in the documents]" and add [[AI:VERIFY|...]] where human review is needed.
 
@@ -329,7 +346,7 @@ Context from user-uploaded company documents (ONLY source of data):
 ---
 {mod_note}
 Instructions:
-1. Use the section requirements and HKEX conventions to build the section structure and sub-headings.
+1. Use the section requirements and Exchange conventions to build the section structure and sub-headings.
 2. Use ONLY the provided context for company-specific facts, figures, names, dates, and status statements.
 3. If a required item is unsupported, keep the relevant heading; use **DATA_MISSING** or **COUNSEL_INPUT_REQUIRED** (or legacy "[Information not provided in the documents]") and add [[AI:VERIFY|...]] where appropriate — do not fabricate narrative.
 4. Write ENTIRELY in English. Use formal, factual, balanced prose. Tables or lists are allowed where appropriate.
@@ -338,7 +355,9 @@ Instructions:
 7. Do not use promotional, absolute, or unqualified forward-looking language. Do not create explicit or implicit profit forecasts, margin forecasts, valuation conclusions, or certainty of commercial success.
 8. Do not output chatty assistant commentary. Output only the section working draft, placeholders, and allowed AI tags. Any materiality or legal sufficiency judgment must be escalated to sponsor-counsel review.
 9. LIST CONTROL: If a product list, item catalog, or enumerated list contains more than 10 items, SUMMARIZE by category instead of enumerating every item. Example: "The company's product portfolio includes education robots (e.g. Yanshee, Alpha Mini), logistics robots (AGVs, AMRs), and consumer products such as AiRROBO robotic appliances." Do NOT repeat the same product or item name multiple times. Do NOT loop or enumerate endlessly.
-10. DEPTH AND LENGTH: Produce a comprehensive sponsor-counsel working draft with full sub-headings, well-developed paragraphs, and tables where appropriate. Do NOT truncate prematurely — continue until every required subsection from the outline / KG typical structure is drafted (with content or explicit DATA_MISSING / COUNSEL_INPUT_REQUIRED placeholders). Aim for the depth and breadth expected of a real HKEX prospectus section; a summary of 2-3 paragraphs is usually insufficient for a named section.
+10. DEPTH AND LENGTH: Produce a comprehensive sponsor-counsel working draft with full sub-headings, well-developed paragraphs, and tables where appropriate. Do NOT truncate prematurely — continue until every required subsection from the outline / KG typical structure is drafted (with content or explicit DATA_MISSING / COUNSEL_INPUT_REQUIRED placeholders). Aim for the depth and breadth expected of a real Exchange prospectus section; a summary of 2-3 paragraphs is usually insufficient for a named section.
+11. OUTPUT FORMAT: Do NOT output "Thinking Process", chain-of-thought, analysis, or reviewer notes. Do NOT add a redundant all-caps H1 that repeats the section name (e.g. do not write `# BUSINESS` before `# Business` content). Start directly with the first required numbered subsection (e.g. `## 1 Overview`). Output ONLY the section working draft.
+12. SUBSECTION DEPTH: Every `##` subsection must contain at least two sentences of English prose. If evidence is missing, write **DATA_MISSING** plus one sentence explaining what evidence is needed — never leave a `##` heading with no sentences beneath it.
 
 Section content (English only):"""
 
@@ -368,7 +387,7 @@ def build_verifier_prompt(
     revision_count: int,
 ) -> str:
     mechanical_block = _format_issue_list_for_prompt(mechanical_issues)
-    return f"""Role: You are the Verifier Agent in a sponsor-counsel drafting workflow for an HKEX prospectus.
+    return f"""Role: You are the Verifier Agent in a sponsor-counsel drafting workflow for an Exchange prospectus.
 
 Objective: Review the current section draft against (1) the retrieved evidence, (2) the section requirements, and (3) sponsor-counsel controls. You are not the writer. Do not rewrite the section. Decide whether revision is required.
 
@@ -446,7 +465,7 @@ def build_revision_prompt(
             "\nAdditional user modification request to preserve while revising:\n"
             f"- {modification_instructions.strip()}\n"
         )
-    return f"""Role: You are the Revision Agent in a sponsor-counsel drafting workflow for an HKEX prospectus.
+    return f"""Role: You are the Revision Agent in a sponsor-counsel drafting workflow for an Exchange prospectus.
 
 Objective: Revise the section draft in response to reviewer feedback, while relying only on the retrieved evidence and preserving the working-draft style.
 
@@ -481,6 +500,8 @@ Instructions:
 4. Add or preserve [[AI:VERIFY|...]], [[AI:CITE|...]], [[AI:XREF|...]], and [[AI:LPD|...]] when appropriate.
 5. Do not invent new facts, dates, rankings, approvals, waivers, or legal conclusions.
 6. Do not add chatty commentary. Output only the revised section draft.
+7. Do NOT output "Thinking Process", chain-of-thought, or analysis. Do NOT add a redundant all-caps H1 repeating the section name. Start with the first required numbered subsection.
+8. Expand any `##` subsection that has fewer than two sentences of prose; use **DATA_MISSING** plus a brief explanation where evidence is still missing.
 
 Revised section (English only):"""
 
@@ -515,9 +536,15 @@ def _resolve_max_new_tokens(role: str, override: int | None) -> int:
 
 
 def _llm_provider() -> str:
-    import os as _os
+    from llm_providers import llm_provider
 
-    return (_os.environ.get("LLM_PROVIDER") or "qwen_local").strip().lower()
+    return llm_provider()
+
+
+def _uses_local_qwen() -> bool:
+    from llm_providers import is_local_qwen
+
+    return is_local_qwen()
 
 
 def generate_with_llm(
@@ -528,25 +555,53 @@ def generate_with_llm(
     *,
     role: str = "writer",
     max_new_tokens: int | None = None,
+    section_id: str | None = None,
+    section_name: str | None = None,
+    stream_phase: str | None = None,
+    revision_pass: int = 0,
 ) -> str:
-    """Call Qwen (local HF) or OpenAI-compatible API depending on ``LLM_PROVIDER``.
+    """Route to local Qwen or a cloud API per ``LLM_PROVIDER`` (see ``llm_providers``).
 
     The ``role`` picks a length budget tuned for that node:
       - writer/revision: long-form prose (default 4096 new tokens)
       - planner: short JSON outline (default 1024)
       - verifier: short JSON review (default 1536)
+
+    When ``AGENT2_STREAM=1``, phase events are emitted by graph nodes (not token streams).
     """
+    from llm_providers import run_chat
+    from llm_sanitize import still_contains_thinking, strip_model_reasoning
+
     tokens = _resolve_max_new_tokens(role, max_new_tokens)
-    if _llm_provider() == "openai":
-        from llm_openai import run_openai_chat
-
-        return run_openai_chat(prompt, max_new_tokens=tokens)
-
-    from llm_qwen import run_qwen_text, run_qwen_with_model
-
-    if model is not None and tokenizer is not None:
-        return run_qwen_with_model(model, tokenizer, prompt, max_new_tokens=tokens)
-    return run_qwen_text(prompt, model_name=model_name, max_new_tokens=tokens)
+    raw = run_chat(
+        prompt,
+        model_name=model_name,
+        model=model,
+        tokenizer=tokenizer,
+        max_new_tokens=tokens,
+    )
+    cleaned = strip_model_reasoning(raw)
+    if role in ("writer", "revision") and (
+        not cleaned.strip() or still_contains_thinking(cleaned)
+    ):
+        retry_note = (
+            "\n\nCRITICAL: Your previous answer included chain-of-thought or "
+            '"Thinking Process". Output ONLY the final section draft in English. '
+            "The first line must be the section heading. Do not include analysis."
+        )
+        print(
+            f"WARNING: {role} output empty or still contains thinking; retrying once."
+        )
+        cleaned = strip_model_reasoning(
+            run_chat(
+                prompt + retry_note,
+                model_name=model_name,
+                model=model,
+                tokenizer=tokenizer,
+                max_new_tokens=tokens,
+            )
+        )
+    return cleaned
 
 
 def _supports_hybrid_retrieval(rag_dir: str | Path) -> bool:
@@ -572,6 +627,9 @@ class RetrieverNode:
     def __call__(self, state: SectionDraftState) -> dict:
         from prospectus_graph.retrievers import HybridRetrievalResult, build_context
 
+        section_id = state["section_id"]
+        _emit_phase_start(section_id, "retriever")
+
         result = self.retriever.retrieve(
             section_id=state["section_id"],
             section_name=state["section_name"],
@@ -583,6 +641,7 @@ class RetrieverNode:
                 "[No supporting evidence was retrieved for this section. "
                 "Produce a structured working draft skeleton with placeholders and AI verification notes only.]"
             )
+            _emit_phase_end(section_id, "retriever")
             return {
                 "retrieved_chunks": result.text_evidence,
                 "text_evidence": result.text_evidence,
@@ -595,6 +654,7 @@ class RetrieverNode:
             "[No supporting evidence was retrieved for this section. "
             "Produce a structured working draft skeleton with placeholders and AI verification notes only.]"
         )
+        _emit_phase_end(section_id, "retriever")
         return {
             "retrieved_chunks": result.chunks,
             "retrieval_context": context,
@@ -637,6 +697,9 @@ class SectionPlannerAgent:
         self.tokenizer = tokenizer
 
     def __call__(self, state: SectionDraftState) -> dict:
+        section_id = state["section_id"]
+        _emit_phase_start(section_id, "planner")
+
         text_summary = ""
         if state.get("text_evidence"):
             parts = [ch.get("text", "")[:400] for ch in state["text_evidence"][:5]]
@@ -649,6 +712,7 @@ class SectionPlannerAgent:
             formatted_facts=state.get("formatted_facts", ""),
             text_summary=text_summary,
             kg_typical_structure=state.get("kg_typical_structure") or [],
+            kg_structure_mode=state.get("kg_structure_mode", "narrative"),
         )
         raw = generate_with_llm(
             prompt,
@@ -658,6 +722,11 @@ class SectionPlannerAgent:
             role="planner",
         )
         outline, fact_mapping = _parse_planner_output(raw)
+        _emit_phase_end(
+            section_id,
+            "planner",
+            summary=outline[:300] if outline else "Outline prepared.",
+        )
         return {
             "planner_outline": outline,
             "planner_fact_mapping": fact_mapping,
@@ -677,6 +746,9 @@ class SectionWriterAgent:
         self.tokenizer = tokenizer
 
     def __call__(self, state: SectionDraftState) -> dict:
+        section_id = state["section_id"]
+        _emit_phase_start(section_id, "writer", revision_pass=0)
+
         prompt = build_prompt(
             state["section_id"],
             state["section_name"],
@@ -691,7 +763,12 @@ class SectionWriterAgent:
             model=self.model,
             tokenizer=self.tokenizer,
             role="writer",
+            section_id=state["section_id"],
+            section_name=state["section_name"],
+            stream_phase="writer",
+            revision_pass=0,
         )
+        _emit_phase_end(section_id, "writer", revision_pass=0)
         return {
             "draft_text": draft_text,
             "initial_draft_text": state.get("initial_draft_text") or draft_text,
@@ -711,6 +788,10 @@ class VerifierAgent:
         self.tokenizer = tokenizer
 
     def __call__(self, state: SectionDraftState) -> dict:
+        section_id = state["section_id"]
+        revision_pass = int(state.get("revision_count", 0))
+        _emit_phase_start(section_id, "verifier", revision_pass=revision_pass)
+
         mechanical_issues, _ = verify_section_draft(
             section_id=state["section_id"],
             draft_text=state.get("draft_text", ""),
@@ -770,6 +851,12 @@ class VerifierAgent:
             summary=verifier_summary,
             revision_instructions=revision_instructions,
         )
+        _emit_phase_end(
+            section_id,
+            "verifier",
+            revision_pass=revision_pass,
+            summary=verifier_summary or ("Passed" if passed else "Revision requested"),
+        )
         return {
             "mechanical_verification_issues": mechanical_issues,
             "verification_issues": issues,
@@ -795,6 +882,10 @@ class RevisionAgent:
         self.tokenizer = tokenizer
 
     def __call__(self, state: SectionDraftState) -> dict:
+        section_id = state["section_id"]
+        revision_pass = int(state.get("revision_count", 0)) + 1
+        _emit_phase_start(section_id, "revision", revision_pass=revision_pass)
+
         # Only pass WRITING_ERROR issues to Revision Agent; DATA_MISSING cannot be fixed
         all_issues = state.get("verification_issues", [])
         revision_issues = [
@@ -817,7 +908,12 @@ class RevisionAgent:
             model=self.model,
             tokenizer=self.tokenizer,
             role="revision",
+            section_id=state["section_id"],
+            section_name=state["section_name"],
+            stream_phase="revision",
+            revision_pass=revision_pass,
         )
+        _emit_phase_end(section_id, "revision", revision_pass=revision_pass)
         return {
             "draft_text": revised_text,
             "revision_count": state.get("revision_count", 0) + 1,
@@ -838,12 +934,41 @@ class AssemblerNode:
         self.only_sections_up_to = only_sections_up_to
 
     def __call__(self, state: SectionDraftState) -> dict:
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        from llm_sanitize import strip_model_reasoning
+        from section_quality import analyze_section_quality, quality_score
+
         section_id = state["section_id"]
+        _emit_phase_start(section_id, "assembler")
+
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         section_name = state["section_name"]
-        text = state.get("verified_text") or state.get("draft_text", "")
+        text = strip_model_reasoning(
+            state.get("verified_text") or state.get("draft_text", "")
+        )
+        from prospectus_graph.output_bundle import strip_verification_notes
+
+        text = strip_verification_notes(text)
         safe_name = section_name.replace(" ", "_").replace("&", "and")
         out_file = self.output_dir / f"section_{section_id}_{safe_name}.md"
+
+        manifest_path = Path(state.get("rag_dir", "")) / "manifest.json"
+        mp = manifest_path if manifest_path.is_file() else None
+        new_report = analyze_section_quality(text, section_id, manifest_path=mp)
+
+        if out_file.is_file() and not new_report.ok:
+            existing_body = _section_body_from_file(
+                out_file.read_text(encoding="utf-8")
+            )
+            old_report = analyze_section_quality(
+                existing_body, section_id, manifest_path=mp
+            )
+            if quality_score(old_report) >= quality_score(new_report):
+                print(
+                    f"WARNING: {section_id} new draft failed quality checks "
+                    f"({', '.join(new_report.fail_reasons)}); keeping existing file."
+                )
+                _emit_phase_end(section_id, "assembler")
+                return {"output_file": str(out_file)}
 
         with open(out_file, "w", encoding="utf-8") as f:
             f.write(f"# Section {section_id}: {section_name}\n\n")
@@ -862,7 +987,18 @@ class AssemblerNode:
             result["combined_output_file"] = str(
                 self.output_dir / "all_sections.md"
             )
+        _emit_phase_end(section_id, "assembler")
         return result
+
+
+def _section_body_from_file(content: str) -> str:
+    """Extract section body from a section_*.md file and strip model reasoning."""
+    from llm_sanitize import strip_model_reasoning
+    from prospectus_graph.output_bundle import strip_verification_notes
+
+    parts = content.split("\n\n", 1)
+    body = parts[-1].strip() if len(parts) > 1 else content.strip()
+    return strip_verification_notes(strip_model_reasoning(body))
 
 
 def _load_existing_sections(out_path: Path) -> dict[str, str]:
@@ -874,8 +1010,7 @@ def _load_existing_sections(out_path: Path) -> dict[str, str]:
             safe = sname.replace(" ", "_").replace("&", "and")
             if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
                 content = path.read_text(encoding="utf-8")
-                parts = content.split("\n\n", 1)
-                existing[sid] = parts[-1].strip() if len(parts) > 1 else content.strip()
+                existing[sid] = _section_body_from_file(content)
                 break
     return existing
 
@@ -917,7 +1052,7 @@ def _append_to_all_sections(
                 continue
             safe = sname.replace(" ", "_").replace("&", "and")
             if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
-                existing[sid] = path.read_text(encoding="utf-8").split("\n\n", 1)[-1].strip()
+                existing[sid] = _section_body_from_file(path.read_text(encoding="utf-8"))
                 break
 
     existing[section_id] = text
@@ -948,8 +1083,7 @@ def _rebuild_all_sections(out_path: Path) -> None:
             safe = sname.replace(" ", "_").replace("&", "and")
             if f"section_{sid}_{safe}" in name or name.startswith(f"section_{sid}_"):
                 content = path.read_text(encoding="utf-8")
-                parts = content.split("\n\n", 1)
-                existing[sid] = parts[-1].strip() if len(parts) > 1 else content.strip()
+                existing[sid] = _section_body_from_file(content)
                 break
 
     with open(combined_path, "w", encoding="utf-8") as f:
@@ -995,6 +1129,7 @@ def _build_section_state(
         "section_name": section_name,
         "requirements": requirements,
         "kg_typical_structure": reqs.get("kg_typical_structure") or [],
+        "kg_structure_mode": str(reqs.get("kg_structure_mode") or "narrative"),
         "rag_dir": str(rag_dir),
         "output_dir": str(output_dir),
         "model_name": model_name,
@@ -1030,6 +1165,62 @@ def _render_expected_timetable(
         f.write(text)
     print(f"Saved (template): {out_file}")
     return text
+
+
+def _emit_phase_start(
+    section_id: str,
+    phase: str,
+    *,
+    revision_pass: int = 0,
+) -> None:
+    from agent2_stream import emit, stream_enabled
+
+    if not stream_enabled():
+        return
+    emit(
+        {
+            "type": "phase_start",
+            "section_id": section_id,
+            "phase": phase,
+            "revision_pass": revision_pass,
+        }
+    )
+
+
+def _emit_phase_end(
+    section_id: str,
+    phase: str,
+    *,
+    revision_pass: int = 0,
+    summary: str = "",
+) -> None:
+    from agent2_stream import emit, stream_enabled
+
+    if not stream_enabled():
+        return
+    payload: dict[str, Any] = {
+        "type": "phase_end",
+        "section_id": section_id,
+        "phase": phase,
+        "revision_pass": revision_pass,
+    }
+    if summary.strip():
+        payload["summary"] = summary.strip()[:500]
+    emit(payload)
+
+
+def _emit_section_done(section_id: str) -> None:
+    from agent2_stream import emit, stream_enabled
+
+    if not stream_enabled():
+        return
+    emit(
+        {
+            "type": "section_done",
+            "section_id": section_id,
+            "section_name": _lookup_section_name(section_id),
+        }
+    )
 
 
 def _run_section_graph(
@@ -1123,6 +1314,7 @@ def run_agent2_single(
     meta_path = _resolve_issuer_metadata_path(issuer_metadata_path)
 
     if section_id == "ExpectedTimetable":
+        _emit_phase_start(section_id, "template")
         text = _render_expected_timetable(rag_path, out_path)
         _append_to_all_sections(
             out_path,
@@ -1131,6 +1323,8 @@ def run_agent2_single(
             text,
             only_sections_up_to=None if modification_instructions else section_id,
         )
+        _emit_phase_end(section_id, "template")
+        _emit_section_done(section_id)
         if finalize_bundle:
             _rebuild_all_sections(out_path)
             _finalize_output_bundle(out_path, meta_path)
@@ -1140,6 +1334,7 @@ def run_agent2_single(
         existing = _load_existing_sections(out_path)
         _rebuild_all_sections(out_path)
         body = _generate_contents_body(existing)
+        _emit_section_done(section_id)
         if finalize_bundle:
             _finalize_output_bundle(out_path, meta_path)
         return body
@@ -1162,13 +1357,13 @@ def run_agent2_single(
     # Load the model once and reuse it across every LangGraph node (planner,
     # writer, verifier, revision). OpenAI path skips local weights.
     model, tokenizer = None, None
-    if _llm_provider() != "openai":
+    if _uses_local_qwen():
         from llm_qwen import _load_qwen_model as _load_model_once
 
         model, tokenizer = _load_model_once(model_name)
         print("Model loaded once; reusing for all nodes in this section.")
     else:
-        print("LLM_PROVIDER=openai; using cloud API (no local Qwen load).")
+        print(f"LLM_PROVIDER={_llm_provider()}; using cloud API (no local Qwen load).")
 
     result = _run_section_graph(
         section_state=state,
@@ -1181,6 +1376,7 @@ def run_agent2_single(
         tokenizer=tokenizer,
     )
     out_text = result.get("verified_text") or result.get("draft_text", "")
+    _emit_section_done(section_id)
     if finalize_bundle:
         _rebuild_all_sections(out_path)
         _finalize_output_bundle(out_path, meta_path)
@@ -1213,13 +1409,13 @@ def run_agent2(
     use_cached_model = len(valid_sections) > 1
 
     model, tokenizer = None, None
-    if use_cached_model and _llm_provider() != "openai":
+    if use_cached_model and _uses_local_qwen():
         from llm_qwen import _load_qwen_model
 
         model, tokenizer = _load_qwen_model(model_name)
         print("Model loaded once; reusing for all sections.")
     elif use_cached_model:
-        print("LLM_PROVIDER=openai; using cloud API for all sections.")
+        print(f"LLM_PROVIDER={_llm_provider()}; using cloud API for all sections.")
 
     retriever = _create_retriever(rag_path)
     meta_path = _resolve_issuer_metadata_path(issuer_metadata_path)
@@ -1227,11 +1423,15 @@ def run_agent2(
     results: dict[str, str] = {}
     for section_id in valid_sections:
         if section_id == "ExpectedTimetable":
+            _emit_phase_start(section_id, "template")
             text = _render_expected_timetable(rag_path, out_path)
             results[section_id] = text
+            _emit_phase_end(section_id, "template")
+            _emit_section_done(section_id)
         elif section_id == "Contents":
             _rebuild_all_sections(out_path)
             results[section_id] = _generate_contents_body(_load_existing_sections(out_path))
+            _emit_section_done(section_id)
         else:
             state = _build_section_state(
                 section_id=section_id,
@@ -1254,6 +1454,7 @@ def run_agent2(
                 tokenizer=tokenizer,
             )
             results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+            _emit_section_done(section_id)
         # Rebuild all_sections.md after each section so UI can show incremental progress
         _rebuild_all_sections(out_path)
 
@@ -1315,7 +1516,17 @@ def main() -> None:
         action="store_true",
         help="Do not write draft_clean.md, validation_report.md, evidence_register.jsonl, coverage_matrix.md",
     )
+    parser.add_argument(
+        "--stream",
+        action="store_true",
+        help="Emit structured JSON events on stdout for live UI streaming",
+    )
     args = parser.parse_args()
+
+    if args.stream:
+        from agent2_stream import enable_stream
+
+        enable_stream()
 
     sections = args.section
     if sections == ["all"]:
@@ -1367,6 +1578,11 @@ def main() -> None:
             issuer_metadata_path=im_path,
             finalize_bundle=fin_bundle,
         )
+
+    from agent2_stream import emit, stream_enabled
+
+    if stream_enabled():
+        emit({"type": "done", "ok": True})
 
 
 if __name__ == "__main__":
