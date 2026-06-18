@@ -1,0 +1,21 @@
+{
+  "name": "prospectus-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prospectus AI — standalone modular project (UI + AI + platform)",
+  "scripts": {
+    "dev": "npm run dev --prefix platform-module/web",
+    "build": "npm run build --prefix platform-module/web",
+    "start": "npm run start --prefix platform-module/web",
+    "lint": "npm run lint --prefix platform-module/web",
+    "setup": "bash setup.sh",
+    "update": "bash scripts/dev-update.sh",
+    "setup:ai": "cd ai-module && python3 -m venv .venv && .venv/bin/pip install -e .",
+    "setup:web": "npm install --prefix platform-module/web",
+    "pipeline": "bash run_full_pipeline.sh",
+    "data:fetch": "python scripts/sync_data.py fetch --profile kg-dev",
+    "data:verify": "python scripts/sync_data.py verify --profile kg-dev",
+    "desktop:install": "npm install --prefix platform-module/desktop",
+    "desktop:dev": "npm run start --prefix platform-module/desktop"
+  }
+}

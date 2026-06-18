@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prospectus-ai.local/contracts/v1/section-requirements.schema.json",
+  "title": "Section Requirements (Platform → AI)",
+  "description": "Platform-owned drafting instructions fed to Agent2. Same shape as agent2_section_requirements.json.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": ["name", "requirements"],
+    "properties": {
+      "name": { "type": "string" },
+      "requirements": { "type": "string" },
+      "kg_section_id": { "type": "string" },
+      "kg_function": { "type": "string" },
+      "kg_purpose": { "type": "string" },
+      "kg_typical_structure": { "type": "array" },
+      "kg_structure_mode": { "type": "string" },
+      "kg_writing_rules": { "type": "array" },
+      "kg_required_input_fields": { "type": "array" }
+    }
+  }
+}

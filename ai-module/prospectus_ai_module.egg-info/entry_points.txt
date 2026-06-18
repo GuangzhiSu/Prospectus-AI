@@ -1,0 +1,2 @@
+[console_scripts]
+prospectus-ai = prospectus_ai.cli:main

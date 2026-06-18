@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "notice": "Placeholder working-draft text. Replace with counsel-approved final wording before filing. Do not paraphrase locked blocks in prompts.",
+  "snippets": [
+    {
+      "id": "rule_11_20_disclaimer",
+      "title": "Rule 11.20 / prospectus responsibility (placeholder)",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|rule=11.20]]\n\n[PLACEHOLDER — insert counsel-approved Rule 11.20 / Companies (Winding Up and Miscellaneous Provisions) Ordinance responsibility statement and directors' responsibility language exactly as approved. Do not expand or summarise.]"
+    },
+    {
+      "id": "reliance_only",
+      "title": "Reliance on this prospectus only",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=reliance_only]]\n\n[PLACEHOLDER — insert standard reliance-only language: investors should rely only on this prospectus and any supplementary prospectus; no other information is authorised.]"
+    },
+    {
+      "id": "website_not_part",
+      "title": "Website does not form part of the prospectus",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=website_not_part]]\n\n[PLACEHOLDER — insert website-not-part-of-prospectus wording; list website if any, or generic formulation per counsel.]"
+    },
+    {
+      "id": "territorial_restrictions",
+      "title": "Territorial and offering restrictions",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=territorial_restrictions]]\n\n[PLACEHOLDER — insert territorial / selling restrictions summary per counsel and the underwriting.]"
+    },
+    {
+      "id": "wvr_warning",
+      "title": "Weighted voting rights",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=wvr]]\n\n[PLACEHOLDER — insert WVR-specific warning block as required by the Listing Rules and your counsel-approved form.]"
+    },
+    {
+      "id": "chapter_18c_warning",
+      "title": "Chapter 18C Specialist Technology / enhanced disclosures",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=18C]]\n\n[PLACEHOLDER — insert Chapter 18C / Specialist Technology mandatory warning and eligibility narrative per approved form.]"
+    },
+    {
+      "id": "pre_commercial_warning",
+      "title": "Pre-commercial company",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=pre_commercial]]\n\n[PLACEHOLDER — insert pre-commercial / commercialisation risk warning per approved form and issuer facts.]"
+    },
+    {
+      "id": "vie_structural_risk_note",
+      "title": "VIE / contractual arrangements (high-level pointer)",
+      "body": "[[AI:LOCKED|reason=mandatory_rule_text|topic=vie]]\n\n[PLACEHOLDER — short mandatory pointer to contractual arrangement risks; full detail in Contractual Arrangements and Risk Factors per counsel.]"
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prospectus-ai.local/contracts/v1/ai-job.schema.json",
+  "title": "Prospectus AI Job (Platform → AI Module)",
+  "description": "Stable contract for invoking the AI module. The platform module prepares inputs; the AI module writes outputs to the paths declared here.",
+  "type": "object",
+  "required": ["contract_version", "job_id", "task", "inputs", "outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Contract version. Bump only with backward-compatible or migrated changes."
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque id for logging and result correlation."
+    },
+    "task": {
+      "type": "string",
+      "enum": ["agent1", "agent2"],
+      "description": "Which AI pipeline stage to run."
+    },
+    "inputs": {
+      "$ref": "#/$defs/job_inputs"
+    },
+    "outputs": {
+      "$ref": "#/$defs/job_outputs"
+    },
+    "options": {
+      "$ref": "#/$defs/job_options"
+    }
+  },
+  "$defs": {
+    "absolute_path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Absolute filesystem path on the host running the AI module."
+    },
+    "job_inputs": {
+      "type": "object",
+      "required": ["materials_dir"],
+      "additionalProperties": false,
+      "properties": {
+        "materials_dir": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Issuer source files (.xlsx, .json, .docx, .pdf). Agent1 reads this directory."
+        },
+        "agent1_output_dir": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Required for agent2: directory produced by a prior agent1 run."
+        },
+        "section_requirements_path": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Platform-owned JSON: per-section drafting instructions (agent2_section_requirements.json shape)."
+        },
+        "issuer_metadata_path": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Optional platform-owned issuer metadata JSON for conditional prompts."
+        },
+        "kg_inputs_dir": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Directory containing input_schema.json and input_schema_crosswalk.json for gating-doc injection."
+        },
+        "data_manifest_path": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Optional native-doc manifest.json under materials (Agent1 section hints)."
+        },
+        "project_id": {
+          "type": "string",
+          "description": "Optional namespace for multi-project workspaces."
+        }
+      }
+    },
+    "job_outputs": {
+      "type": "object",
+      "required": ["work_dir"],
+      "additionalProperties": false,
+      "properties": {
+        "work_dir": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Root output directory for this job. Agent1 writes agent1 artifacts here; agent2 writes section drafts here."
+        },
+        "result_manifest_path": {
+          "$ref": "#/$defs/absolute_path",
+          "description": "Optional path for ai-result.json. Defaults to work_dir/ai-result.json when omitted."
+        }
+      }
+    },
+    "job_options": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "LLM model id (local Qwen id or cloud model name)."
+        },
+        "sections": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Agent2 only: section ids to generate, or omit for all."
+        },
+        "modification_instructions": {
+          "type": "string",
+          "description": "Agent2 only: user refinement instructions for a single-section rerun."
+        },
+        "max_context_chars": { "type": "integer", "minimum": 1000 },
+        "max_revision_loops": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "text_chunk_size": { "type": "integer", "minimum": 100 },
+        "text_chunk_overlap": { "type": "integer", "minimum": 0 },
+        "stream_progress": {
+          "type": "boolean",
+          "default": true,
+          "description": "Emit @@AGENT2@@ SSE lines on stdout when true."
+        },
+        "finalize_bundle": {
+          "type": "boolean",
+          "default": true,
+          "description": "Agent2: write all_sections.md and output bundle artifacts."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "task": { "const": "agent2" } } },
+      "then": {
+        "properties": {
+          "inputs": {
+            "required": ["materials_dir", "agent1_output_dir", "section_requirements_path"]
+          }
+        }
+      }
+    }
+  ]
+}

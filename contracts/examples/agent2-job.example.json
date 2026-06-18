@@ -1,0 +1,22 @@
+{
+  "contract_version": "1.0",
+  "job_id": "example-agent2-001",
+  "task": "agent2",
+  "inputs": {
+    "materials_dir": "/absolute/path/to/workspace/materials",
+    "agent1_output_dir": "/absolute/path/to/workspace/agent1-output",
+    "section_requirements_path": "/absolute/path/to/workspace/platform-config/agent2_section_requirements.json",
+    "issuer_metadata_path": "/absolute/path/to/workspace/platform-config/issuer_metadata.json",
+    "kg_inputs_dir": "/absolute/path/to/workspace/platform-config/kg-inputs"
+  },
+  "outputs": {
+    "work_dir": "/absolute/path/to/workspace/agent2-output"
+  },
+  "options": {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "sections": ["Summary", "RiskFactors"],
+    "stream_progress": true,
+    "finalize_bundle": true,
+    "max_revision_loops": 1
+  }
+}

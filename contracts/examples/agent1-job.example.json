@@ -1,0 +1,17 @@
+{
+  "contract_version": "1.0",
+  "job_id": "example-agent1-001",
+  "task": "agent1",
+  "inputs": {
+    "materials_dir": "/absolute/path/to/workspace/materials",
+    "project_id": null
+  },
+  "outputs": {
+    "work_dir": "/absolute/path/to/workspace/agent1-output"
+  },
+  "options": {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "text_chunk_size": 600,
+    "text_chunk_overlap": 100
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prospectus-ai.local/contracts/v1/agent1-output-manifest.schema.json",
+  "title": "Agent1 Output Manifest",
+  "description": "Shape of agent1_output/manifest.json — stable artifact the platform uses for UI and Agent2 handoff.",
+  "type": "object",
+  "required": ["text_chunk_count", "fact_count", "total_chunks", "sections"],
+  "properties": {
+    "text_chunk_count": { "type": "integer", "minimum": 0 },
+    "fact_count": { "type": "integer", "minimum": 0 },
+    "total_chunks": { "type": "integer", "minimum": 0 },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "chunk_count"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "chunk_count": { "type": "integer" },
+          "fact_count": { "type": "integer" }
+        }
+      }
+    },
+    "source_files": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "missing_information_requests": { "type": "array" },
+    "data_quality_flags": { "type": "array" },
+    "sheet_summaries": { "type": "object" }
+  }
+}

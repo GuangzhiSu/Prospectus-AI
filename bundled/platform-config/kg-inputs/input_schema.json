@@ -1,0 +1,2041 @@
+{
+  "language": "en",
+  "source_document": "docs/IPO_Input_Report_EN.docx (1).pdf",
+  "schema_version": "2.0",
+  "schema_name": "IPO Input Report — English — Schema A",
+  "description": "Structured input schema for Exchange prospectus drafting, derived from the English IPO Input Report. Top-level categories mirror Report §1–§6; §1 is further broken into 12 sub-categories matching §1.1–§1.4(i).",
+  "categories": [
+    {
+      "category_id": "issuer_materials",
+      "category_name": "Issuer-Supplied Materials",
+      "name_zh": "发行人必须提供的材料",
+      "report_anchor": "§1",
+      "description": "Materials the issuer must deliver to sponsors and reporting accountants. Organised into 12 sub-categories that mirror Report §1.1–§1.4(i).",
+      "sub_categories": [
+        {
+          "category_id": "issuer_materials.corporate_structure",
+          "category_name": "Corporate Structure and Records",
+          "name_zh": "公司架构与记录",
+          "report_anchor": "§1.1",
+          "fields": [
+            {
+              "field_id": "issuer.corp.certificate_of_incorporation",
+              "field_name": "Certificate of Incorporation",
+              "type": "string",
+              "description": "Original certificate evidencing the issuer's formation in its place of incorporation.",
+              "required": true,
+              "name_zh": "注册证书",
+              "evidence_source": "Company registry filing",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.business_registration",
+              "field_name": "Business Registration Certificate",
+              "type": "string",
+              "description": "Business registration certificate issued by the local tax authority.",
+              "required": true,
+              "name_zh": "商业登记证",
+              "evidence_source": "Inland Revenue Department / equivalent",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.articles_of_association",
+              "field_name": "Articles of Association (as amended)",
+              "type": "string",
+              "description": "Current articles including all amendments approved by shareholders.",
+              "required": true,
+              "name_zh": "公司章程",
+              "evidence_source": "Company secretary",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.statutory_books",
+              "field_name": "Statutory Books",
+              "type": "string",
+              "description": "Registers of members, directors, secretaries, charges and minute books.",
+              "required": true,
+              "name_zh": "法定簿册",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.board_minutes",
+              "field_name": "Board and Committee Minutes (3Y)",
+              "type": "table",
+              "description": "Board, audit/remuneration/nomination committee minutes covering the track-record period.",
+              "required": true,
+              "name_zh": "董事会纪要和决议",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.shareholder_register",
+              "field_name": "Register of Members",
+              "type": "string",
+              "description": "Current and historical register of shareholders.",
+              "required": true,
+              "name_zh": "股东名册",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.director_register",
+              "field_name": "Register of Directors",
+              "type": "string",
+              "description": "Current register of directors and company secretary.",
+              "required": true,
+              "name_zh": "董事名册",
+              "report_anchor": "§1.1"
+            },
+            {
+              "field_id": "issuer.corp.share_transfer_history",
+              "field_name": "Share Transfer History",
+              "type": "table",
+              "description": "Complete record of share transfers, issuances, and reorganisations during the track-record period.",
+              "required": true,
+              "name_zh": "股权变动历史",
+              "report_anchor": "§1.1"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.business",
+          "category_name": "Business and Operations",
+          "name_zh": "业务与运营",
+          "report_anchor": "§1.2",
+          "fields": [
+            {
+              "field_id": "issuer.biz.business_scope",
+              "field_name": "Principal Business Scope",
+              "type": "text",
+              "description": "Description of the issuer's principal products and services as disclosed to regulators.",
+              "required": true,
+              "name_zh": "业务范围",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.business_model",
+              "field_name": "Business Model and Revenue Streams",
+              "type": "text",
+              "description": "How the issuer generates revenue, including pricing, distribution, and go-to-market.",
+              "required": true,
+              "name_zh": "业务模式",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.major_products",
+              "field_name": "Major Products or Services",
+              "type": "list",
+              "description": "Itemised list of principal products/services with revenue contribution.",
+              "required": true,
+              "name_zh": "主要产品或服务",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.supply_chain",
+              "field_name": "Supply Chain and Manufacturing Footprint",
+              "type": "text",
+              "description": "Key suppliers, manufacturing locations, and critical inputs.",
+              "required": true,
+              "name_zh": "供应链",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.customer_contracts",
+              "field_name": "Material Customer Contracts",
+              "type": "table",
+              "description": "Copies of contracts with the five largest customers and any customer exceeding 5% revenue.",
+              "required": true,
+              "name_zh": "重大客户合同",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.major_customers",
+              "field_name": "Top Five Customers (3Y)",
+              "type": "table",
+              "description": "Name, revenue, % of total, and length of relationship for each year.",
+              "required": true,
+              "name_zh": "前五大客户",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.major_suppliers",
+              "field_name": "Top Five Suppliers (3Y)",
+              "type": "table",
+              "description": "Name, spend, % of total, and length of relationship for each year.",
+              "required": true,
+              "name_zh": "前五大供应商",
+              "report_anchor": "§1.2"
+            },
+            {
+              "field_id": "issuer.biz.geographic_distribution",
+              "field_name": "Geographic Distribution of Revenue",
+              "type": "table",
+              "description": "Revenue breakdown by geographic region across the track record.",
+              "required": true,
+              "name_zh": "地域分布",
+              "report_anchor": "§1.2"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.financial",
+          "category_name": "Financial Records",
+          "name_zh": "财务记录",
+          "report_anchor": "§1.3",
+          "fields": [
+            {
+              "field_id": "issuer.fin.audited_accounts_3y",
+              "field_name": "Audited Consolidated Accounts (3 Years)",
+              "type": "table",
+              "description": "Audited consolidated statements for the full track-record period.",
+              "required": true,
+              "name_zh": "三年审计账目",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.interim_financials",
+              "field_name": "Interim Financial Statements",
+              "type": "table",
+              "description": "Most recent interim period reviewed by the reporting accountants.",
+              "required": true,
+              "name_zh": "中期财务报表",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.management_accounts",
+              "field_name": "Monthly Management Accounts",
+              "type": "table",
+              "description": "Monthly P&L/BS/CF used for stub-period cut-off testing.",
+              "required": true,
+              "name_zh": "月度管理账",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.tax_returns",
+              "field_name": "Tax Returns (3Y)",
+              "type": "table",
+              "description": "Filed tax returns across the track-record period for each reporting entity.",
+              "required": true,
+              "name_zh": "税务申报表",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.bank_statements",
+              "field_name": "Bank Statements and Facility Confirmations",
+              "type": "list",
+              "description": "Bank confirmations supporting the working capital and indebtedness statements.",
+              "required": true,
+              "name_zh": "银行对账单与授信函",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.working_capital_model",
+              "field_name": "Working Capital Model",
+              "type": "object",
+              "description": "12-month forward-looking working capital projection underpinning the sufficiency opinion.",
+              "required": true,
+              "name_zh": "营运资金模型",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.indebtedness_schedule",
+              "field_name": "Indebtedness Schedule",
+              "type": "table",
+              "description": "Schedule of all borrowings, guarantees and contingent liabilities at the latest practicable date.",
+              "required": true,
+              "name_zh": "负债明细表",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.capex_plan",
+              "field_name": "Capital Expenditure Plan",
+              "type": "table",
+              "description": "Planned capex over the forecast horizon, broken down by category.",
+              "required": true,
+              "name_zh": "资本支出计划",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.financial_projections",
+              "field_name": "Financial Projections / Forecast",
+              "type": "table",
+              "description": "Projection model supporting any profit forecast disclosed in the prospectus.",
+              "required": true,
+              "name_zh": "财务预测",
+              "report_anchor": "§1.3"
+            },
+            {
+              "field_id": "issuer.fin.accounting_policies",
+              "field_name": "Significant Accounting Policies",
+              "type": "text",
+              "description": "Summary of significant accounting policies, critical estimates and judgements.",
+              "required": true,
+              "name_zh": "重要会计政策",
+              "report_anchor": "§1.3"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.directors_interests",
+          "category_name": "Directors and Interests",
+          "name_zh": "董事及权益",
+          "report_anchor": "§1.4(a)",
+          "fields": [
+            {
+              "field_id": "issuer.dir.director_cvs",
+              "field_name": "Director Curriculum Vitae",
+              "type": "table",
+              "description": "CVs for every director, senior manager and key technical/operational personnel.",
+              "required": true,
+              "name_zh": "董事履历",
+              "report_anchor": "§1.4(a)"
+            },
+            {
+              "field_id": "issuer.dir.director_questionnaires",
+              "field_name": "Director Questionnaires (D&O)",
+              "type": "list",
+              "description": "Completed D&O questionnaires and supporting background evidence.",
+              "required": true,
+              "name_zh": "董事问卷",
+              "report_anchor": "§1.4(a)"
+            },
+            {
+              "field_id": "issuer.dir.do_interests",
+              "field_name": "Directors' and Officers' Interests",
+              "type": "table",
+              "description": "Full disclosure of each director/officer's interests in shares, options and related entities.",
+              "required": true,
+              "name_zh": "董事及高管权益",
+              "report_anchor": "§1.4(a)"
+            },
+            {
+              "field_id": "issuer.dir.related_party_transactions",
+              "field_name": "Related Party Transactions Register",
+              "type": "table",
+              "description": "Schedule of related-party transactions during the track-record period.",
+              "required": true,
+              "name_zh": "关联方交易",
+              "report_anchor": "§1.4(a)"
+            },
+            {
+              "field_id": "issuer.dir.conflict_disclosures",
+              "field_name": "Conflict of Interest Disclosures",
+              "type": "list",
+              "description": "Signed conflict disclosures covering all competing businesses and outside directorships.",
+              "required": true,
+              "name_zh": "利益冲突披露",
+              "report_anchor": "§1.4(a)"
+            },
+            {
+              "field_id": "issuer.dir.resignation_letters",
+              "field_name": "Resignation / Appointment Letters",
+              "type": "list",
+              "description": "Appointment and resignation letters for directors during the track-record period.",
+              "required": true,
+              "name_zh": "董事辞任/委任函",
+              "report_anchor": "§1.4(a)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.intellectual_property",
+          "category_name": "Intellectual Property",
+          "name_zh": "知识产权",
+          "report_anchor": "§1.4(b)",
+          "fields": [
+            {
+              "field_id": "issuer.ip.patents",
+              "field_name": "Patent Register",
+              "type": "table",
+              "description": "Granted and pending patents with territory, status, and expiry.",
+              "required": true,
+              "name_zh": "专利清单",
+              "report_anchor": "§1.4(b)"
+            },
+            {
+              "field_id": "issuer.ip.trademarks",
+              "field_name": "Trademark Register",
+              "type": "table",
+              "description": "Registered and pending trademarks with class, territory and status.",
+              "required": true,
+              "name_zh": "商标清单",
+              "report_anchor": "§1.4(b)"
+            },
+            {
+              "field_id": "issuer.ip.copyrights",
+              "field_name": "Copyrighted Works",
+              "type": "list",
+              "description": "Software, content and other copyrighted material owned or licensed by the group.",
+              "required": true,
+              "name_zh": "版权作品",
+              "report_anchor": "§1.4(b)"
+            },
+            {
+              "field_id": "issuer.ip.licensing_agreements",
+              "field_name": "IP Licensing Agreements",
+              "type": "table",
+              "description": "In-licences and out-licences of material intellectual property.",
+              "required": true,
+              "name_zh": "知识产权许可协议",
+              "report_anchor": "§1.4(b)"
+            },
+            {
+              "field_id": "issuer.ip.ip_disputes",
+              "field_name": "IP Disputes and Litigation",
+              "type": "list",
+              "description": "Any pending or threatened IP litigation, oppositions or customs seizures.",
+              "required": true,
+              "name_zh": "知识产权纠纷",
+              "report_anchor": "§1.4(b)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.property",
+          "category_name": "Property and Premises",
+          "name_zh": "物业与场地",
+          "report_anchor": "§1.4(c)",
+          "fields": [
+            {
+              "field_id": "issuer.prop.property_list",
+              "field_name": "Property Register",
+              "type": "table",
+              "description": "All owned and leased properties with address, use, area, and status.",
+              "required": true,
+              "name_zh": "物业清单",
+              "report_anchor": "§1.4(c)"
+            },
+            {
+              "field_id": "issuer.prop.title_deeds",
+              "field_name": "Title Deeds and Land-Use Rights",
+              "type": "list",
+              "description": "Title deeds, land-use rights certificates and real-estate registration.",
+              "required": true,
+              "name_zh": "物业所有权/土地使用权证",
+              "report_anchor": "§1.4(c)"
+            },
+            {
+              "field_id": "issuer.prop.leases",
+              "field_name": "Lease Agreements",
+              "type": "table",
+              "description": "All material leases for the group's operating premises.",
+              "required": true,
+              "name_zh": "租赁合同",
+              "report_anchor": "§1.4(c)"
+            },
+            {
+              "field_id": "issuer.prop.valuation_reports",
+              "field_name": "Property Valuation Report(s)",
+              "type": "list",
+              "description": "Valuation report prepared by an independent qualified valuer (required where §2 trigger applies).",
+              "required": true,
+              "name_zh": "物业估值报告",
+              "report_anchor": "§1.4(c)"
+            },
+            {
+              "field_id": "issuer.prop.occupancy_permits",
+              "field_name": "Occupancy / Construction Permits",
+              "type": "list",
+              "description": "Occupancy permits and construction completion certificates.",
+              "required": true,
+              "name_zh": "入伙纸/建筑许可证",
+              "report_anchor": "§1.4(c)"
+            },
+            {
+              "field_id": "issuer.prop.environmental_compliance",
+              "field_name": "Environmental Compliance Documents",
+              "type": "list",
+              "description": "Environmental impact assessments, permits and regulator correspondence.",
+              "required": true,
+              "name_zh": "环保合规文件",
+              "report_anchor": "§1.4(c)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.litigation",
+          "category_name": "Litigation and Regulatory Correspondence",
+          "name_zh": "诉讼及监管函件",
+          "report_anchor": "§1.4(d)",
+          "fields": [
+            {
+              "field_id": "issuer.lit.ongoing_litigation",
+              "field_name": "Ongoing Litigation Register",
+              "type": "table",
+              "description": "Material pending litigation or arbitration the group is involved in.",
+              "required": true,
+              "name_zh": "在审诉讼",
+              "report_anchor": "§1.4(d)"
+            },
+            {
+              "field_id": "issuer.lit.historical_litigation",
+              "field_name": "Historical Litigation (3Y)",
+              "type": "table",
+              "description": "Concluded litigation during the track-record period with outcome and impact.",
+              "required": true,
+              "name_zh": "历史诉讼",
+              "report_anchor": "§1.4(d)"
+            },
+            {
+              "field_id": "issuer.lit.regulatory_inquiries",
+              "field_name": "Regulatory Inquiries and Investigations",
+              "type": "list",
+              "description": "Any open inquiries, investigations or enforcement actions from regulators.",
+              "required": true,
+              "name_zh": "监管查询及调查",
+              "report_anchor": "§1.4(d)"
+            },
+            {
+              "field_id": "issuer.lit.investigation_letters",
+              "field_name": "Investigation Correspondence",
+              "type": "list",
+              "description": "Letters exchanged with regulators during investigations.",
+              "required": true,
+              "name_zh": "调查函件",
+              "report_anchor": "§1.4(d)"
+            },
+            {
+              "field_id": "issuer.lit.settlement_agreements",
+              "field_name": "Settlement Agreements",
+              "type": "list",
+              "description": "Material settlement agreements arising from disputes or investigations.",
+              "required": true,
+              "name_zh": "和解协议",
+              "report_anchor": "§1.4(d)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.employment",
+          "category_name": "Employment and Human Resources",
+          "name_zh": "雇佣与人力资源",
+          "report_anchor": "§1.4(e)",
+          "fields": [
+            {
+              "field_id": "issuer.hr.employee_count",
+              "field_name": "Employee Headcount (3Y)",
+              "type": "table",
+              "description": "Total employees by function/region at each period-end over the track record.",
+              "required": true,
+              "name_zh": "员工总数",
+              "report_anchor": "§1.4(e)"
+            },
+            {
+              "field_id": "issuer.hr.key_contracts",
+              "field_name": "Key Employee Contracts",
+              "type": "list",
+              "description": "Service agreements for directors and senior management, including notice and non-compete terms.",
+              "required": true,
+              "name_zh": "关键员工合同",
+              "report_anchor": "§1.4(e)"
+            },
+            {
+              "field_id": "issuer.hr.pension_arrangements",
+              "field_name": "Pension Arrangements",
+              "type": "text",
+              "description": "MPF / pension scheme structure and contribution rates.",
+              "required": true,
+              "name_zh": "退休金安排",
+              "report_anchor": "§1.4(e)"
+            },
+            {
+              "field_id": "issuer.hr.labor_disputes",
+              "field_name": "Labor Disputes and Unionisation",
+              "type": "list",
+              "description": "Any material labor disputes, collective bargaining or industrial action.",
+              "required": true,
+              "name_zh": "劳动纠纷",
+              "report_anchor": "§1.4(e)"
+            },
+            {
+              "field_id": "issuer.hr.share_option_scheme",
+              "field_name": "Share Option / Incentive Schemes",
+              "type": "object",
+              "description": "Terms of pre-IPO and post-IPO share option / RSU schemes.",
+              "required": true,
+              "name_zh": "股份奖励计划",
+              "report_anchor": "§1.4(e)"
+            },
+            {
+              "field_id": "issuer.hr.employment_policies",
+              "field_name": "Employment Policies and Handbook",
+              "type": "text",
+              "description": "Employment policies, code of conduct and related procedures.",
+              "required": true,
+              "name_zh": "雇佣政策",
+              "report_anchor": "§1.4(e)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.insurance",
+          "category_name": "Insurance",
+          "name_zh": "保险",
+          "report_anchor": "§1.4(f)",
+          "fields": [
+            {
+              "field_id": "issuer.ins.policy_list",
+              "field_name": "Insurance Policy Register",
+              "type": "table",
+              "description": "List of all material insurance policies carried by the group.",
+              "required": true,
+              "name_zh": "保单清单",
+              "report_anchor": "§1.4(f)"
+            },
+            {
+              "field_id": "issuer.ins.coverage_summary",
+              "field_name": "Coverage Summary",
+              "type": "text",
+              "description": "Summary of insured risks, coverage limits and deductibles.",
+              "required": true,
+              "name_zh": "保障范围摘要",
+              "report_anchor": "§1.4(f)"
+            },
+            {
+              "field_id": "issuer.ins.claims_history",
+              "field_name": "Claims History (3Y)",
+              "type": "table",
+              "description": "Insurance claims made and paid during the track-record period.",
+              "required": true,
+              "name_zh": "索赔记录",
+              "report_anchor": "§1.4(f)"
+            },
+            {
+              "field_id": "issuer.ins.adequacy_assessment",
+              "field_name": "Adequacy Assessment",
+              "type": "text",
+              "description": "Directors' / sponsor's assessment that cover is adequate for the business.",
+              "required": true,
+              "name_zh": "充足性评估",
+              "report_anchor": "§1.4(f)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.regulatory_compliance",
+          "category_name": "Regulatory Compliance",
+          "name_zh": "监管合规",
+          "report_anchor": "§1.4(g)",
+          "fields": [
+            {
+              "field_id": "issuer.reg.licenses_held",
+              "field_name": "Licenses and Permits Register",
+              "type": "table",
+              "description": "All material operating licences and permits, with issuing authority and expiry.",
+              "required": true,
+              "name_zh": "持牌清单",
+              "report_anchor": "§1.4(g)"
+            },
+            {
+              "field_id": "issuer.reg.compliance_policies",
+              "field_name": "Compliance Policies",
+              "type": "list",
+              "description": "Key compliance policies (AML, sanctions, anti-competition, etc.).",
+              "required": true,
+              "name_zh": "合规政策",
+              "report_anchor": "§1.4(g)"
+            },
+            {
+              "field_id": "issuer.reg.prc_regulatory_letters",
+              "field_name": "PRC Regulatory Correspondence",
+              "type": "list",
+              "description": "Correspondence with PRC regulators (CSRC, CAC, MIIT, etc.) where applicable.",
+              "required": true,
+              "name_zh": "中国监管函件",
+              "report_anchor": "§1.4(g)"
+            },
+            {
+              "field_id": "issuer.reg.breaches_remediation",
+              "field_name": "Breaches and Remediation",
+              "type": "list",
+              "description": "Historical compliance breaches during the track-record period and remediation steps.",
+              "required": true,
+              "name_zh": "违规及整改",
+              "report_anchor": "§1.4(g)"
+            },
+            {
+              "field_id": "issuer.reg.anti_corruption_policy",
+              "field_name": "Anti-Corruption / Anti-Bribery Policy",
+              "type": "text",
+              "description": "Anti-corruption policy, training records and whistle-blowing channels.",
+              "required": true,
+              "name_zh": "反贪污政策",
+              "report_anchor": "§1.4(g)"
+            },
+            {
+              "field_id": "issuer.reg.data_privacy_compliance",
+              "field_name": "Data Privacy and Cybersecurity Compliance",
+              "type": "text",
+              "description": "Compliance with PDPO, PIPL, GDPR or equivalent data-privacy laws.",
+              "required": true,
+              "name_zh": "数据合规",
+              "report_anchor": "§1.4(g)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.tax",
+          "category_name": "Tax",
+          "name_zh": "税务",
+          "report_anchor": "§1.4(h)",
+          "fields": [
+            {
+              "field_id": "issuer.tax.residency",
+              "field_name": "Tax Residency Status",
+              "type": "text",
+              "description": "Tax residency of each group entity.",
+              "required": true,
+              "name_zh": "税务居民身份",
+              "report_anchor": "§1.4(h)"
+            },
+            {
+              "field_id": "issuer.tax.clearances",
+              "field_name": "Tax Clearance Certificates",
+              "type": "list",
+              "description": "Tax clearance certificates where obtained.",
+              "required": true,
+              "name_zh": "税务清缴证明",
+              "report_anchor": "§1.4(h)"
+            },
+            {
+              "field_id": "issuer.tax.disputes",
+              "field_name": "Unresolved Tax Disputes",
+              "type": "list",
+              "description": "Open tax audits or disputes at the latest practicable date.",
+              "required": true,
+              "name_zh": "未决税务争议",
+              "report_anchor": "§1.4(h)"
+            },
+            {
+              "field_id": "issuer.tax.transfer_pricing",
+              "field_name": "Transfer Pricing Documentation",
+              "type": "list",
+              "description": "Contemporaneous transfer pricing documentation for material inter-company flows.",
+              "required": true,
+              "name_zh": "转让定价文件",
+              "report_anchor": "§1.4(h)"
+            }
+          ]
+        },
+        {
+          "category_id": "issuer_materials.information_technology",
+          "category_name": "Information Technology",
+          "name_zh": "信息技术",
+          "report_anchor": "§1.4(i)",
+          "fields": [
+            {
+              "field_id": "issuer.it.core_systems",
+              "field_name": "Core IT Systems Inventory",
+              "type": "list",
+              "description": "Key ERP, CRM, MES and e-commerce systems that support the business.",
+              "required": true,
+              "name_zh": "核心系统清单",
+              "report_anchor": "§1.4(i)"
+            },
+            {
+              "field_id": "issuer.it.data_security_policy",
+              "field_name": "Data Security Policy",
+              "type": "text",
+              "description": "Information-security policy, access controls and incident-response procedures.",
+              "required": true,
+              "name_zh": "数据安全政策",
+              "report_anchor": "§1.4(i)"
+            },
+            {
+              "field_id": "issuer.it.cyber_incidents",
+              "field_name": "Cybersecurity Incident History (3Y)",
+              "type": "list",
+              "description": "Material cybersecurity incidents during the track-record period.",
+              "required": true,
+              "name_zh": "网络安全事件",
+              "report_anchor": "§1.4(i)"
+            },
+            {
+              "field_id": "issuer.it.infrastructure",
+              "field_name": "IT Infrastructure and Hosting",
+              "type": "text",
+              "description": "Data-centre locations, cloud providers and hosting model.",
+              "required": true,
+              "name_zh": "IT基础设施",
+              "report_anchor": "§1.4(i)"
+            },
+            {
+              "field_id": "issuer.it.outsourcing_contracts",
+              "field_name": "IT Outsourcing Contracts",
+              "type": "list",
+              "description": "Material outsourcing contracts for IT services and SaaS providers.",
+              "required": true,
+              "name_zh": "IT外包合同",
+              "report_anchor": "§1.4(i)"
+            }
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "field_id": "issuer.corp.certificate_of_incorporation",
+          "field_name": "Certificate of Incorporation",
+          "type": "string",
+          "description": "Original certificate evidencing the issuer's formation in its place of incorporation.",
+          "required": true,
+          "name_zh": "注册证书",
+          "evidence_source": "Company registry filing",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.business_registration",
+          "field_name": "Business Registration Certificate",
+          "type": "string",
+          "description": "Business registration certificate issued by the local tax authority.",
+          "required": true,
+          "name_zh": "商业登记证",
+          "evidence_source": "Inland Revenue Department / equivalent",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.articles_of_association",
+          "field_name": "Articles of Association (as amended)",
+          "type": "string",
+          "description": "Current articles including all amendments approved by shareholders.",
+          "required": true,
+          "name_zh": "公司章程",
+          "evidence_source": "Company secretary",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.statutory_books",
+          "field_name": "Statutory Books",
+          "type": "string",
+          "description": "Registers of members, directors, secretaries, charges and minute books.",
+          "required": true,
+          "name_zh": "法定簿册",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.board_minutes",
+          "field_name": "Board and Committee Minutes (3Y)",
+          "type": "table",
+          "description": "Board, audit/remuneration/nomination committee minutes covering the track-record period.",
+          "required": true,
+          "name_zh": "董事会纪要和决议",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.shareholder_register",
+          "field_name": "Register of Members",
+          "type": "string",
+          "description": "Current and historical register of shareholders.",
+          "required": true,
+          "name_zh": "股东名册",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.director_register",
+          "field_name": "Register of Directors",
+          "type": "string",
+          "description": "Current register of directors and company secretary.",
+          "required": true,
+          "name_zh": "董事名册",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.corp.share_transfer_history",
+          "field_name": "Share Transfer History",
+          "type": "table",
+          "description": "Complete record of share transfers, issuances, and reorganisations during the track-record period.",
+          "required": true,
+          "name_zh": "股权变动历史",
+          "report_anchor": "§1.1"
+        },
+        {
+          "field_id": "issuer.biz.business_scope",
+          "field_name": "Principal Business Scope",
+          "type": "text",
+          "description": "Description of the issuer's principal products and services as disclosed to regulators.",
+          "required": true,
+          "name_zh": "业务范围",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.business_model",
+          "field_name": "Business Model and Revenue Streams",
+          "type": "text",
+          "description": "How the issuer generates revenue, including pricing, distribution, and go-to-market.",
+          "required": true,
+          "name_zh": "业务模式",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.major_products",
+          "field_name": "Major Products or Services",
+          "type": "list",
+          "description": "Itemised list of principal products/services with revenue contribution.",
+          "required": true,
+          "name_zh": "主要产品或服务",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.supply_chain",
+          "field_name": "Supply Chain and Manufacturing Footprint",
+          "type": "text",
+          "description": "Key suppliers, manufacturing locations, and critical inputs.",
+          "required": true,
+          "name_zh": "供应链",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.customer_contracts",
+          "field_name": "Material Customer Contracts",
+          "type": "table",
+          "description": "Copies of contracts with the five largest customers and any customer exceeding 5% revenue.",
+          "required": true,
+          "name_zh": "重大客户合同",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.major_customers",
+          "field_name": "Top Five Customers (3Y)",
+          "type": "table",
+          "description": "Name, revenue, % of total, and length of relationship for each year.",
+          "required": true,
+          "name_zh": "前五大客户",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.major_suppliers",
+          "field_name": "Top Five Suppliers (3Y)",
+          "type": "table",
+          "description": "Name, spend, % of total, and length of relationship for each year.",
+          "required": true,
+          "name_zh": "前五大供应商",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.biz.geographic_distribution",
+          "field_name": "Geographic Distribution of Revenue",
+          "type": "table",
+          "description": "Revenue breakdown by geographic region across the track record.",
+          "required": true,
+          "name_zh": "地域分布",
+          "report_anchor": "§1.2"
+        },
+        {
+          "field_id": "issuer.fin.audited_accounts_3y",
+          "field_name": "Audited Consolidated Accounts (3 Years)",
+          "type": "table",
+          "description": "Audited consolidated statements for the full track-record period.",
+          "required": true,
+          "name_zh": "三年审计账目",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.interim_financials",
+          "field_name": "Interim Financial Statements",
+          "type": "table",
+          "description": "Most recent interim period reviewed by the reporting accountants.",
+          "required": true,
+          "name_zh": "中期财务报表",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.management_accounts",
+          "field_name": "Monthly Management Accounts",
+          "type": "table",
+          "description": "Monthly P&L/BS/CF used for stub-period cut-off testing.",
+          "required": true,
+          "name_zh": "月度管理账",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.tax_returns",
+          "field_name": "Tax Returns (3Y)",
+          "type": "table",
+          "description": "Filed tax returns across the track-record period for each reporting entity.",
+          "required": true,
+          "name_zh": "税务申报表",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.bank_statements",
+          "field_name": "Bank Statements and Facility Confirmations",
+          "type": "list",
+          "description": "Bank confirmations supporting the working capital and indebtedness statements.",
+          "required": true,
+          "name_zh": "银行对账单与授信函",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.working_capital_model",
+          "field_name": "Working Capital Model",
+          "type": "object",
+          "description": "12-month forward-looking working capital projection underpinning the sufficiency opinion.",
+          "required": true,
+          "name_zh": "营运资金模型",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.indebtedness_schedule",
+          "field_name": "Indebtedness Schedule",
+          "type": "table",
+          "description": "Schedule of all borrowings, guarantees and contingent liabilities at the latest practicable date.",
+          "required": true,
+          "name_zh": "负债明细表",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.capex_plan",
+          "field_name": "Capital Expenditure Plan",
+          "type": "table",
+          "description": "Planned capex over the forecast horizon, broken down by category.",
+          "required": true,
+          "name_zh": "资本支出计划",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.financial_projections",
+          "field_name": "Financial Projections / Forecast",
+          "type": "table",
+          "description": "Projection model supporting any profit forecast disclosed in the prospectus.",
+          "required": true,
+          "name_zh": "财务预测",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.fin.accounting_policies",
+          "field_name": "Significant Accounting Policies",
+          "type": "text",
+          "description": "Summary of significant accounting policies, critical estimates and judgements.",
+          "required": true,
+          "name_zh": "重要会计政策",
+          "report_anchor": "§1.3"
+        },
+        {
+          "field_id": "issuer.dir.director_cvs",
+          "field_name": "Director Curriculum Vitae",
+          "type": "table",
+          "description": "CVs for every director, senior manager and key technical/operational personnel.",
+          "required": true,
+          "name_zh": "董事履历",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.dir.director_questionnaires",
+          "field_name": "Director Questionnaires (D&O)",
+          "type": "list",
+          "description": "Completed D&O questionnaires and supporting background evidence.",
+          "required": true,
+          "name_zh": "董事问卷",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.dir.do_interests",
+          "field_name": "Directors' and Officers' Interests",
+          "type": "table",
+          "description": "Full disclosure of each director/officer's interests in shares, options and related entities.",
+          "required": true,
+          "name_zh": "董事及高管权益",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.dir.related_party_transactions",
+          "field_name": "Related Party Transactions Register",
+          "type": "table",
+          "description": "Schedule of related-party transactions during the track-record period.",
+          "required": true,
+          "name_zh": "关联方交易",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.dir.conflict_disclosures",
+          "field_name": "Conflict of Interest Disclosures",
+          "type": "list",
+          "description": "Signed conflict disclosures covering all competing businesses and outside directorships.",
+          "required": true,
+          "name_zh": "利益冲突披露",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.dir.resignation_letters",
+          "field_name": "Resignation / Appointment Letters",
+          "type": "list",
+          "description": "Appointment and resignation letters for directors during the track-record period.",
+          "required": true,
+          "name_zh": "董事辞任/委任函",
+          "report_anchor": "§1.4(a)"
+        },
+        {
+          "field_id": "issuer.ip.patents",
+          "field_name": "Patent Register",
+          "type": "table",
+          "description": "Granted and pending patents with territory, status, and expiry.",
+          "required": true,
+          "name_zh": "专利清单",
+          "report_anchor": "§1.4(b)"
+        },
+        {
+          "field_id": "issuer.ip.trademarks",
+          "field_name": "Trademark Register",
+          "type": "table",
+          "description": "Registered and pending trademarks with class, territory and status.",
+          "required": true,
+          "name_zh": "商标清单",
+          "report_anchor": "§1.4(b)"
+        },
+        {
+          "field_id": "issuer.ip.copyrights",
+          "field_name": "Copyrighted Works",
+          "type": "list",
+          "description": "Software, content and other copyrighted material owned or licensed by the group.",
+          "required": true,
+          "name_zh": "版权作品",
+          "report_anchor": "§1.4(b)"
+        },
+        {
+          "field_id": "issuer.ip.licensing_agreements",
+          "field_name": "IP Licensing Agreements",
+          "type": "table",
+          "description": "In-licences and out-licences of material intellectual property.",
+          "required": true,
+          "name_zh": "知识产权许可协议",
+          "report_anchor": "§1.4(b)"
+        },
+        {
+          "field_id": "issuer.ip.ip_disputes",
+          "field_name": "IP Disputes and Litigation",
+          "type": "list",
+          "description": "Any pending or threatened IP litigation, oppositions or customs seizures.",
+          "required": true,
+          "name_zh": "知识产权纠纷",
+          "report_anchor": "§1.4(b)"
+        },
+        {
+          "field_id": "issuer.prop.property_list",
+          "field_name": "Property Register",
+          "type": "table",
+          "description": "All owned and leased properties with address, use, area, and status.",
+          "required": true,
+          "name_zh": "物业清单",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.prop.title_deeds",
+          "field_name": "Title Deeds and Land-Use Rights",
+          "type": "list",
+          "description": "Title deeds, land-use rights certificates and real-estate registration.",
+          "required": true,
+          "name_zh": "物业所有权/土地使用权证",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.prop.leases",
+          "field_name": "Lease Agreements",
+          "type": "table",
+          "description": "All material leases for the group's operating premises.",
+          "required": true,
+          "name_zh": "租赁合同",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.prop.valuation_reports",
+          "field_name": "Property Valuation Report(s)",
+          "type": "list",
+          "description": "Valuation report prepared by an independent qualified valuer (required where §2 trigger applies).",
+          "required": true,
+          "name_zh": "物业估值报告",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.prop.occupancy_permits",
+          "field_name": "Occupancy / Construction Permits",
+          "type": "list",
+          "description": "Occupancy permits and construction completion certificates.",
+          "required": true,
+          "name_zh": "入伙纸/建筑许可证",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.prop.environmental_compliance",
+          "field_name": "Environmental Compliance Documents",
+          "type": "list",
+          "description": "Environmental impact assessments, permits and regulator correspondence.",
+          "required": true,
+          "name_zh": "环保合规文件",
+          "report_anchor": "§1.4(c)"
+        },
+        {
+          "field_id": "issuer.lit.ongoing_litigation",
+          "field_name": "Ongoing Litigation Register",
+          "type": "table",
+          "description": "Material pending litigation or arbitration the group is involved in.",
+          "required": true,
+          "name_zh": "在审诉讼",
+          "report_anchor": "§1.4(d)"
+        },
+        {
+          "field_id": "issuer.lit.historical_litigation",
+          "field_name": "Historical Litigation (3Y)",
+          "type": "table",
+          "description": "Concluded litigation during the track-record period with outcome and impact.",
+          "required": true,
+          "name_zh": "历史诉讼",
+          "report_anchor": "§1.4(d)"
+        },
+        {
+          "field_id": "issuer.lit.regulatory_inquiries",
+          "field_name": "Regulatory Inquiries and Investigations",
+          "type": "list",
+          "description": "Any open inquiries, investigations or enforcement actions from regulators.",
+          "required": true,
+          "name_zh": "监管查询及调查",
+          "report_anchor": "§1.4(d)"
+        },
+        {
+          "field_id": "issuer.lit.investigation_letters",
+          "field_name": "Investigation Correspondence",
+          "type": "list",
+          "description": "Letters exchanged with regulators during investigations.",
+          "required": true,
+          "name_zh": "调查函件",
+          "report_anchor": "§1.4(d)"
+        },
+        {
+          "field_id": "issuer.lit.settlement_agreements",
+          "field_name": "Settlement Agreements",
+          "type": "list",
+          "description": "Material settlement agreements arising from disputes or investigations.",
+          "required": true,
+          "name_zh": "和解协议",
+          "report_anchor": "§1.4(d)"
+        },
+        {
+          "field_id": "issuer.hr.employee_count",
+          "field_name": "Employee Headcount (3Y)",
+          "type": "table",
+          "description": "Total employees by function/region at each period-end over the track record.",
+          "required": true,
+          "name_zh": "员工总数",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.hr.key_contracts",
+          "field_name": "Key Employee Contracts",
+          "type": "list",
+          "description": "Service agreements for directors and senior management, including notice and non-compete terms.",
+          "required": true,
+          "name_zh": "关键员工合同",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.hr.pension_arrangements",
+          "field_name": "Pension Arrangements",
+          "type": "text",
+          "description": "MPF / pension scheme structure and contribution rates.",
+          "required": true,
+          "name_zh": "退休金安排",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.hr.labor_disputes",
+          "field_name": "Labor Disputes and Unionisation",
+          "type": "list",
+          "description": "Any material labor disputes, collective bargaining or industrial action.",
+          "required": true,
+          "name_zh": "劳动纠纷",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.hr.share_option_scheme",
+          "field_name": "Share Option / Incentive Schemes",
+          "type": "object",
+          "description": "Terms of pre-IPO and post-IPO share option / RSU schemes.",
+          "required": true,
+          "name_zh": "股份奖励计划",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.hr.employment_policies",
+          "field_name": "Employment Policies and Handbook",
+          "type": "text",
+          "description": "Employment policies, code of conduct and related procedures.",
+          "required": true,
+          "name_zh": "雇佣政策",
+          "report_anchor": "§1.4(e)"
+        },
+        {
+          "field_id": "issuer.ins.policy_list",
+          "field_name": "Insurance Policy Register",
+          "type": "table",
+          "description": "List of all material insurance policies carried by the group.",
+          "required": true,
+          "name_zh": "保单清单",
+          "report_anchor": "§1.4(f)"
+        },
+        {
+          "field_id": "issuer.ins.coverage_summary",
+          "field_name": "Coverage Summary",
+          "type": "text",
+          "description": "Summary of insured risks, coverage limits and deductibles.",
+          "required": true,
+          "name_zh": "保障范围摘要",
+          "report_anchor": "§1.4(f)"
+        },
+        {
+          "field_id": "issuer.ins.claims_history",
+          "field_name": "Claims History (3Y)",
+          "type": "table",
+          "description": "Insurance claims made and paid during the track-record period.",
+          "required": true,
+          "name_zh": "索赔记录",
+          "report_anchor": "§1.4(f)"
+        },
+        {
+          "field_id": "issuer.ins.adequacy_assessment",
+          "field_name": "Adequacy Assessment",
+          "type": "text",
+          "description": "Directors' / sponsor's assessment that cover is adequate for the business.",
+          "required": true,
+          "name_zh": "充足性评估",
+          "report_anchor": "§1.4(f)"
+        },
+        {
+          "field_id": "issuer.reg.licenses_held",
+          "field_name": "Licenses and Permits Register",
+          "type": "table",
+          "description": "All material operating licences and permits, with issuing authority and expiry.",
+          "required": true,
+          "name_zh": "持牌清单",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.reg.compliance_policies",
+          "field_name": "Compliance Policies",
+          "type": "list",
+          "description": "Key compliance policies (AML, sanctions, anti-competition, etc.).",
+          "required": true,
+          "name_zh": "合规政策",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.reg.prc_regulatory_letters",
+          "field_name": "PRC Regulatory Correspondence",
+          "type": "list",
+          "description": "Correspondence with PRC regulators (CSRC, CAC, MIIT, etc.) where applicable.",
+          "required": true,
+          "name_zh": "中国监管函件",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.reg.breaches_remediation",
+          "field_name": "Breaches and Remediation",
+          "type": "list",
+          "description": "Historical compliance breaches during the track-record period and remediation steps.",
+          "required": true,
+          "name_zh": "违规及整改",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.reg.anti_corruption_policy",
+          "field_name": "Anti-Corruption / Anti-Bribery Policy",
+          "type": "text",
+          "description": "Anti-corruption policy, training records and whistle-blowing channels.",
+          "required": true,
+          "name_zh": "反贪污政策",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.reg.data_privacy_compliance",
+          "field_name": "Data Privacy and Cybersecurity Compliance",
+          "type": "text",
+          "description": "Compliance with PDPO, PIPL, GDPR or equivalent data-privacy laws.",
+          "required": true,
+          "name_zh": "数据合规",
+          "report_anchor": "§1.4(g)"
+        },
+        {
+          "field_id": "issuer.tax.residency",
+          "field_name": "Tax Residency Status",
+          "type": "text",
+          "description": "Tax residency of each group entity.",
+          "required": true,
+          "name_zh": "税务居民身份",
+          "report_anchor": "§1.4(h)"
+        },
+        {
+          "field_id": "issuer.tax.clearances",
+          "field_name": "Tax Clearance Certificates",
+          "type": "list",
+          "description": "Tax clearance certificates where obtained.",
+          "required": true,
+          "name_zh": "税务清缴证明",
+          "report_anchor": "§1.4(h)"
+        },
+        {
+          "field_id": "issuer.tax.disputes",
+          "field_name": "Unresolved Tax Disputes",
+          "type": "list",
+          "description": "Open tax audits or disputes at the latest practicable date.",
+          "required": true,
+          "name_zh": "未决税务争议",
+          "report_anchor": "§1.4(h)"
+        },
+        {
+          "field_id": "issuer.tax.transfer_pricing",
+          "field_name": "Transfer Pricing Documentation",
+          "type": "list",
+          "description": "Contemporaneous transfer pricing documentation for material inter-company flows.",
+          "required": true,
+          "name_zh": "转让定价文件",
+          "report_anchor": "§1.4(h)"
+        },
+        {
+          "field_id": "issuer.it.core_systems",
+          "field_name": "Core IT Systems Inventory",
+          "type": "list",
+          "description": "Key ERP, CRM, MES and e-commerce systems that support the business.",
+          "required": true,
+          "name_zh": "核心系统清单",
+          "report_anchor": "§1.4(i)"
+        },
+        {
+          "field_id": "issuer.it.data_security_policy",
+          "field_name": "Data Security Policy",
+          "type": "text",
+          "description": "Information-security policy, access controls and incident-response procedures.",
+          "required": true,
+          "name_zh": "数据安全政策",
+          "report_anchor": "§1.4(i)"
+        },
+        {
+          "field_id": "issuer.it.cyber_incidents",
+          "field_name": "Cybersecurity Incident History (3Y)",
+          "type": "list",
+          "description": "Material cybersecurity incidents during the track-record period.",
+          "required": true,
+          "name_zh": "网络安全事件",
+          "report_anchor": "§1.4(i)"
+        },
+        {
+          "field_id": "issuer.it.infrastructure",
+          "field_name": "IT Infrastructure and Hosting",
+          "type": "text",
+          "description": "Data-centre locations, cloud providers and hosting model.",
+          "required": true,
+          "name_zh": "IT基础设施",
+          "report_anchor": "§1.4(i)"
+        },
+        {
+          "field_id": "issuer.it.outsourcing_contracts",
+          "field_name": "IT Outsourcing Contracts",
+          "type": "list",
+          "description": "Material outsourcing contracts for IT services and SaaS providers.",
+          "required": true,
+          "name_zh": "IT外包合同",
+          "report_anchor": "§1.4(i)"
+        }
+      ]
+    },
+    {
+      "category_id": "professional_deliverables",
+      "category_name": "Professional Party Deliverables",
+      "name_zh": "专业方交付物",
+      "report_anchor": "§2",
+      "description": "Deliverables produced by the sponsor, reporting accountants, legal counsel and property valuer.",
+      "fields": [
+        {
+          "field_id": "prof.sponsor.form_M107",
+          "field_name": "Form M107 (Sponsor's Declaration)",
+          "type": "string",
+          "description": "Sponsor's declaration of independence and compliance submitted to Exchange.",
+          "required": true,
+          "name_zh": "保荐人声明 M107",
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§2 / §6"
+        },
+        {
+          "field_id": "prof.sponsor.form_M108",
+          "field_name": "Form M108 (Sponsor's Undertaking)",
+          "type": "string",
+          "description": "Sponsor's undertaking to Exchange regarding continuing obligations.",
+          "required": true,
+          "name_zh": "保荐人承诺 M108",
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§2 / §6"
+        },
+        {
+          "field_id": "prof.sponsor.dd_memorandum",
+          "field_name": "Sponsor Due Diligence Memorandum",
+          "type": "text",
+          "description": "Consolidated due-diligence memorandum documenting business, legal, financial and operational DD.",
+          "required": true,
+          "name_zh": "保荐人尽调备忘录",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.sponsor.dd_workpapers",
+          "field_name": "Sponsor DD Workpapers",
+          "type": "list",
+          "description": "Indexed workpapers evidencing DD meetings, site visits, interviews and searches.",
+          "required": true,
+          "name_zh": "保荐人尽调工作底稿",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.sponsor.track_record_analysis",
+          "field_name": "Track-Record Period Analysis",
+          "type": "text",
+          "description": "Analysis of the track-record period including management representations and sample testing.",
+          "required": true,
+          "name_zh": "业绩记录期分析",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.accountants_report",
+          "field_name": "Accountants' Report (Long-Form)",
+          "type": "text",
+          "description": "Full accountants' report on historical financial information under Exchange App 1A.",
+          "required": true,
+          "name_zh": "会计师报告",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.working_capital_opinion",
+          "field_name": "Working Capital Sufficiency Opinion",
+          "type": "string",
+          "description": "Accountants' opinion on the adequacy of working capital for at least 12 months.",
+          "required": true,
+          "name_zh": "营运资金充足性意见",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.indebtedness_statement",
+          "field_name": "Indebtedness Statement",
+          "type": "string",
+          "description": "Statement of indebtedness at the latest practicable date for the prospectus.",
+          "required": true,
+          "name_zh": "负债声明",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.profit_forecast_memo",
+          "field_name": "Profit Forecast Memorandum",
+          "type": "string",
+          "description": "Accountants' examination of any profit forecast included in the prospectus.",
+          "required": false,
+          "name_zh": "盈利预测备忘录",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letters",
+          "field_name": "Comfort Letters (5 Types)",
+          "type": "list",
+          "description": "Comfort letters covering the long-form report, FIS, interim period, subsequent events and MD&A.",
+          "required": true,
+          "name_zh": "安慰函（5类）",
+          "enum": [
+            "accountants_report_long_form",
+            "comfort_letter_fis",
+            "comfort_letter_interim",
+            "comfort_letter_subsequent_events",
+            "comfort_letter_management_discussion"
+          ],
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letter_accountants_report_long_form",
+          "field_name": "Comfort Letter — Long-Form Accountants' Report",
+          "type": "string",
+          "description": "Comfort letter supporting the long-form historical financial information.",
+          "required": true,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letter_fis",
+          "field_name": "Comfort Letter — Financial Information Statement (FIS)",
+          "type": "string",
+          "description": "Comfort letter on the FIS cut-off, reconciliation and agreed-upon procedures.",
+          "required": true,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letter_interim",
+          "field_name": "Comfort Letter — Interim Period",
+          "type": "string",
+          "description": "Comfort letter covering the most recent reviewed interim period.",
+          "required": true,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letter_subsequent_events",
+          "field_name": "Comfort Letter — Subsequent Events (Bring-Down)",
+          "type": "string",
+          "description": "Bring-down comfort letter issued close to pricing on subsequent events.",
+          "required": true,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.ra.comfort_letter_management_discussion",
+          "field_name": "Comfort Letter — MD&A / Management Discussion",
+          "type": "string",
+          "description": "Comfort letter on figures circled in the Management Discussion & Analysis.",
+          "required": true,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.hk.corporate_opinion",
+          "field_name": "HK Counsel — Corporate Legal Opinion",
+          "type": "string",
+          "description": "HK counsel opinion on the due incorporation, good standing and corporate approvals.",
+          "required": true,
+          "name_zh": "香港法律意见（公司）",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.hk.litigation_opinion",
+          "field_name": "HK Counsel — Litigation Opinion",
+          "type": "string",
+          "description": "HK counsel opinion confirming the absence of material undisclosed litigation in HK.",
+          "required": true,
+          "name_zh": "香港法律意见（诉讼）",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.hk.verification_notes",
+          "field_name": "HK Counsel — Verification Notes",
+          "type": "list",
+          "description": "Verification notes evidencing every material statement in the prospectus.",
+          "required": true,
+          "name_zh": "核证笔记",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.offshore.incorporation_opinion",
+          "field_name": "Cayman / Bermuda Counsel — Incorporation Opinion",
+          "type": "string",
+          "description": "Counsel opinion on incorporation and capacity of the Cayman/Bermuda parent.",
+          "required": true,
+          "name_zh": "开曼/百慕大法律意见",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.prc.regulatory_opinion",
+          "field_name": "PRC Counsel — Regulatory Opinion",
+          "type": "string",
+          "description": "PRC counsel opinion on regulatory compliance, CSRC filing and industry approvals.",
+          "required": true,
+          "name_zh": "中国法律意见（监管）",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.prc.license_opinion",
+          "field_name": "PRC Counsel — License Opinion",
+          "type": "string",
+          "description": "PRC counsel opinion on validity of operating licences held by group entities.",
+          "required": true,
+          "name_zh": "中国法律意见（许可证）",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.prc.wfoe_vie_opinion",
+          "field_name": "PRC Counsel — WFOE / VIE Opinion",
+          "type": "string",
+          "description": "PRC counsel opinion on legality and enforceability of contractual / VIE arrangements.",
+          "required": false,
+          "name_zh": "中国法律意见（VIE/WFOE）",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.sponsor_counsel.disclosure_opinion",
+          "field_name": "Sponsor's / Underwriters' Counsel — Disclosure Opinion",
+          "type": "string",
+          "description": "Counsel opinion on completeness and accuracy of prospectus disclosure.",
+          "required": true,
+          "name_zh": "保荐人/包销商律师披露意见",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.legal.sponsor_counsel.10b5_letter",
+          "field_name": "Sponsor's Counsel — 10b-5 Disclosure Letter",
+          "type": "string",
+          "description": "Rule 10b-5 disclosure letter on US securities-law disclosure where a US tranche exists.",
+          "required": false,
+          "name_zh": "10b-5披露函",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.valuer.qualification",
+          "field_name": "Property Valuer Qualification",
+          "type": "string",
+          "description": "Qualification of the independent valuer.",
+          "required": true,
+          "name_zh": "估值师资质",
+          "enum": [
+            "RICS",
+            "HKIS",
+            "RICS+HKIS"
+          ],
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.valuer.valuation_report",
+          "field_name": "Property Valuation Report",
+          "type": "text",
+          "description": "Independent valuation report prepared by a qualified valuer.",
+          "required": false,
+          "name_zh": "物业估值报告",
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.valuer.trigger_threshold_pct",
+          "field_name": "Valuation Trigger Threshold (% of Total Assets)",
+          "type": "number",
+          "description": "Threshold above which an independent property valuation report is required.",
+          "required": true,
+          "name_zh": "估值触发阈值",
+          "example": 15,
+          "report_anchor": "§2"
+        },
+        {
+          "field_id": "prof.valuer.valuation_date_max_age_months",
+          "field_name": "Valuation Date — Max Age (Months)",
+          "type": "number",
+          "description": "Maximum permitted age of the valuation date relative to prospectus date.",
+          "required": true,
+          "name_zh": "估值日期最大账龄",
+          "example": 3,
+          "report_anchor": "§2"
+        }
+      ]
+    },
+    {
+      "category_id": "document_format_and_transmission",
+      "category_name": "Document Format and Transmission",
+      "name_zh": "格式与流转",
+      "report_anchor": "§3",
+      "fields": [
+        {
+          "field_id": "format.primary_draft_format",
+          "field_name": "Primary Draft Format",
+          "type": "string",
+          "description": "Primary format used to circulate working drafts.",
+          "required": true,
+          "example": "Word",
+          "enum": [
+            "Word",
+            "PDF"
+          ],
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.comment_tracking_format",
+          "field_name": "Comment / Tracking Format",
+          "type": "string",
+          "description": "Format used for tracked-changes / consolidated comments.",
+          "required": true,
+          "example": "Word_track_changes",
+          "enum": [
+            "PDF_markup",
+            "Word_track_changes"
+          ],
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.final_submission_format",
+          "field_name": "Final Exchange Submission Format",
+          "type": "string",
+          "description": "Format required for the final Exchange submission.",
+          "required": true,
+          "example": "Exchange_iFile_XBRL",
+          "enum": [
+            "Exchange_iFile_XBRL",
+            "PDF"
+          ],
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.bilingual_requirement",
+          "field_name": "Bilingual Requirement (EN + TC)",
+          "type": "boolean",
+          "description": "Whether both English and Traditional Chinese versions must be filed.",
+          "required": true,
+          "example": true,
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.redline_protocol",
+          "field_name": "Redline / Blackline Protocol",
+          "type": "text",
+          "description": "How redlines are generated, distributed and consolidated between rounds.",
+          "required": true,
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.clean_version_protocol",
+          "field_name": "Clean Version Protocol",
+          "type": "text",
+          "description": "How clean versions are prepared and numbered for Exchange submission.",
+          "required": true,
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.version_control_convention",
+          "field_name": "Version Control Convention",
+          "type": "text",
+          "description": "File-naming and versioning convention (e.g. v0.1, v1.0).",
+          "required": true,
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.vdr_vendor",
+          "field_name": "Virtual Data Room Vendor",
+          "type": "string",
+          "description": "Approved VDR vendor for DD materials.",
+          "required": true,
+          "example": "Datasite",
+          "enum": [
+            "Datasite",
+            "Intralinks",
+            "iDeals",
+            "Ansarada"
+          ],
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.secure_email_protocol",
+          "field_name": "Secure Email / Encryption Protocol",
+          "type": "text",
+          "description": "Encryption / password protocol for email transmission of sensitive drafts.",
+          "required": true,
+          "report_anchor": "§3"
+        },
+        {
+          "field_id": "format.physical_execution_copies",
+          "field_name": "Physical Execution / Signing Copies",
+          "type": "text",
+          "description": "How physical signature copies are coordinated across counterparties.",
+          "required": false,
+          "report_anchor": "§3"
+        }
+      ]
+    },
+    {
+      "category_id": "information_flow_path",
+      "category_name": "Information Flow and Timeline Anchors",
+      "name_zh": "信息流路径",
+      "report_anchor": "§4",
+      "fields": [
+        {
+          "field_id": "flow.kickoff_offset_listing_days",
+          "field_name": "Kickoff Offset (Days Before Listing)",
+          "type": "number",
+          "description": "Typical offset, in calendar days, of the all-hands kickoff relative to the target listing date.",
+          "required": true,
+          "example": -210,
+          "report_anchor": "§4"
+        },
+        {
+          "field_id": "flow.typical_draft_revisions_min",
+          "field_name": "Minimum Typical Draft Revisions",
+          "type": "number",
+          "description": "Empirical minimum number of full prospectus-draft revisions across the deal lifecycle.",
+          "required": true,
+          "example": 20,
+          "report_anchor": "§4"
+        },
+        {
+          "field_id": "flow.bilingual_typesetting_required",
+          "field_name": "Bilingual Typesetting Required",
+          "type": "boolean",
+          "description": "Whether printer must typeset English and Chinese versions in parallel.",
+          "required": true,
+          "example": true,
+          "report_anchor": "§4"
+        },
+        {
+          "field_id": "flow.verification_drafting_concurrent",
+          "field_name": "Verification Runs Concurrently With Drafting",
+          "type": "boolean",
+          "description": "Whether the verification workstream runs concurrently with drafting (vs. sequentially).",
+          "required": true,
+          "example": true,
+          "report_anchor": "§4"
+        },
+        {
+          "field_id": "flow.dd_rounds_min",
+          "field_name": "Minimum Due Diligence Rounds",
+          "type": "number",
+          "description": "Expected minimum number of formal DD rounds (business / legal / financial).",
+          "required": true,
+          "example": 3,
+          "report_anchor": "§4"
+        },
+        {
+          "field_id": "flow.printer_typesetting_offset_days",
+          "field_name": "Printer Typesetting Offset (Days Before PHIP)",
+          "type": "number",
+          "description": "Typical buffer between first printer typesetting round and PHIP filing.",
+          "required": true,
+          "example": -14,
+          "report_anchor": "§4"
+        }
+      ]
+    },
+    {
+      "category_id": "gatekeeping_documents",
+      "category_name": "Gatekeeping Documents (per Section)",
+      "name_zh": "门控文件",
+      "report_anchor": "§5",
+      "description": "Per-section gating documents that must be in the VDR before the corresponding prospectus section can be drafted.",
+      "fields": [
+        {
+          "field_id": "gate.cover.underwriting_agreement_draft",
+          "field_name": "Underwriting Agreement (Draft)",
+          "type": "string",
+          "description": "Signed draft supporting the Cover and Parties Involved sections.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.business.sponsor_dd_memorandum",
+          "field_name": "Sponsor DD Memorandum (Business)",
+          "type": "string",
+          "description": "Business-DD memorandum underpinning the Business section disclosures.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.financial.accountants_report",
+          "field_name": "Accountants' Report (Financial)",
+          "type": "string",
+          "description": "Long-form accountants' report underpinning the Financial Information section.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.risk.risk_matrix",
+          "field_name": "Risk Matrix Workbook",
+          "type": "string",
+          "description": "Sponsor-maintained risk matrix feeding the Risk Factors section.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.reg.prc_regulatory_opinion",
+          "field_name": "PRC Regulatory Opinion (Reg Overview)",
+          "type": "string",
+          "description": "PRC counsel regulatory opinion underpinning the Regulatory Overview section.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.industry.independent_industry_report",
+          "field_name": "Independent Industry Consultant Report",
+          "type": "string",
+          "description": "Independent industry report underpinning the Industry Overview section.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.connected.connected_transactions_memo",
+          "field_name": "Connected Transactions Memorandum",
+          "type": "string",
+          "description": "Memo covering continuing connected transactions and waivers.",
+          "required": true,
+          "report_anchor": "§5"
+        },
+        {
+          "field_id": "gate.vie.vie_structure_memo",
+          "field_name": "VIE Structure Memorandum",
+          "type": "string",
+          "description": "Memo describing the VIE / contractual arrangements, underpinning the VIE section.",
+          "required": true,
+          "report_anchor": "§5"
+        }
+      ]
+    },
+    {
+      "category_id": "regulatory_frameworks",
+      "category_name": "Regulatory Frameworks",
+      "name_zh": "监管框架",
+      "report_anchor": "§6",
+      "description": "Exchange regulatory instruments and SFC guidelines that govern prospectus production. Every field records whether the issuer / sponsor has evidenced compliance.",
+      "fields": [
+        {
+          "field_id": "reg.form_M105",
+          "field_name": "Exchange Form M105 (Sponsor Appointment)",
+          "type": "string",
+          "description": "Formal sponsor appointment filing with Exchange.",
+          "required": true,
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.form_M106",
+          "field_name": "Exchange Form M106 (Independent Sponsor Declaration)",
+          "type": "string",
+          "description": "Independent sponsor declaration (where applicable).",
+          "required": false,
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.form_M107",
+          "field_name": "Exchange Form M107 (Sponsor's Declaration on Filing)",
+          "type": "string",
+          "description": "Sponsor's declaration accompanying the A1 filing.",
+          "required": true,
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.form_M108",
+          "field_name": "Exchange Form M108 (Sponsor's Undertaking)",
+          "type": "string",
+          "description": "Sponsor's undertaking of continuing obligations.",
+          "required": true,
+          "evidence_source": "Sponsor to Exchange",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.GL21_10",
+          "field_name": "Exchange Guidance Letter GL21-10",
+          "type": "string",
+          "description": "Exchange guidance on financial-information disclosure.",
+          "required": true,
+          "evidence_source": "Exchange GL21-10",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.GL55_13",
+          "field_name": "Exchange Guidance Letter GL55-13",
+          "type": "string",
+          "description": "Exchange guidance on Waivers and Exemptions disclosure.",
+          "required": true,
+          "evidence_source": "Exchange GL55-13",
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.sponsor_dd_guidelines_3rd_ed",
+          "field_name": "HK Sponsor Due Diligence Guidelines (3rd Ed., March 2020)",
+          "type": "text",
+          "description": "SFC/Exchange Due Diligence Guidelines 3rd edition, March 2020 — required reference standard.",
+          "required": true,
+          "report_anchor": "§6"
+        },
+        {
+          "field_id": "reg.listing_rules_chapters",
+          "field_name": "Applicable Exchange Listing Rules Chapters",
+          "type": "list",
+          "description": "Chapters of the Exchange Listing Rules governing the listing (typically Ch. 7, 8, 11, 19A).",
+          "required": true,
+          "example": [
+            "Ch. 7",
+            "Ch. 8",
+            "Ch. 11",
+            "Ch. 19A"
+          ],
+          "report_anchor": "§6"
+        }
+      ]
+    }
+  ],
+  "field_count": 133,
+  "category_count": 6
+}

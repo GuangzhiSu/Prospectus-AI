@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prospectus-ai.local/contracts/v1/ai-result.schema.json",
+  "title": "Prospectus AI Result (AI Module → Platform)",
+  "description": "Written by the AI module when a job completes. The platform module reads this to update UI and export flows.",
+  "type": "object",
+  "required": ["contract_version", "job_id", "task", "status", "outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "job_id": { "type": "string" },
+    "task": { "type": "string", "enum": ["agent1", "agent2"] },
+    "status": { "type": "string", "enum": ["success", "error"] },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "message": { "type": "string" },
+        "detail": { "type": "string" }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "work_dir": { "type": "string" },
+        "agent1_manifest_path": { "type": "string" },
+        "text_chunks_path": { "type": "string" },
+        "fact_store_path": { "type": "string" },
+        "rag_chunks_path": { "type": "string" },
+        "combined_draft_path": { "type": "string" },
+        "section_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["section_id", "path"],
+            "properties": {
+              "section_id": { "type": "string" },
+              "path": { "type": "string" }
+            }
+          }
+        },
+        "bundle_artifacts": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Agent2 optional bundle paths: draft_clean.md, validation_report.md, etc."
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional counters (chunk counts, sections generated, duration_ms)."
+    }
+  }
+}

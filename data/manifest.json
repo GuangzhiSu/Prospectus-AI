@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "published_tag": "local-2026-05-20",
+  "description": "Large artifacts for Prospectus AI collaboration. Set PROSPECTUS_DATA_REMOTE then fetch, or use file:// paths after publish-local on your machine.",
+  "profiles": {
+    "minimal": {
+      "description": "Git-tracked contract JSON only (input_schema + crosswalk). No download.",
+      "artifacts": []
+    },
+    "kg-dev": {
+      "description": "KG structure, writing cards, and input records for pipeline dev / kg-view.",
+      "artifacts": [
+        "kg-structure",
+        "kg-writing",
+        "kg-inputs-bulk"
+      ]
+    },
+    "dev-full": {
+      "description": "Full internal dev: PDF corpus, complete prospectus_kg_output, sample issuer Excel.",
+      "artifacts": [
+        "prospectus-corpus",
+        "kg-output-full",
+        "data-samples"
+      ]
+    },
+    "sensetime-v3": {
+      "description": "SenseTime v3 issuer sample input + prospectus PDFs + analysis docs (additive; does NOT touch existing bundles)",
+      "artifacts": [
+        "sensetime-v3-sample"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "prospectus-corpus",
+      "description": "Exchange prospectus PDF corpus (team-internal)",
+      "pack_paths": [
+        "prospectus_corpus"
+      ],
+      "extract_to": "prospectus_corpus",
+      "extract_base": ".",
+      "archive": "bundles/prospectus_corpus.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_corpus.tar.zst",
+      "sha256": "0430befe59e055b76dc4db02b2b7e83262948b12bf9c73ce4ef745bca2f197f5",
+      "size_bytes": 781241448
+    },
+    {
+      "id": "kg-output-full",
+      "description": "Complete prospectus_kg_output tree",
+      "pack_paths": [
+        "prospectus_kg_output"
+      ],
+      "extract_to": "prospectus_kg_output",
+      "extract_base": ".",
+      "archive": "bundles/prospectus_kg_output.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/prospectus_kg_output.tar.zst",
+      "sha256": "e2d88662856dd044ef7badf928faf5fc99f8d90862687965c53c5651c856c591",
+      "size_bytes": 208024267
+    },
+    {
+      "id": "kg-structure",
+      "description": "Structural KG (docgraph.json, statistics)",
+      "pack_paths": [
+        "prospectus_kg_output/structure"
+      ],
+      "extract_to": "prospectus_kg_output/structure",
+      "extract_base": ".",
+      "archive": "bundles/kg_structure.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_structure.tar.zst",
+      "sha256": "63af85cf4d9d8101d5e8b7eeb69ea554684126ad171f1a2a2b3de7bd71050949",
+      "size_bytes": 604747
+    },
+    {
+      "id": "kg-writing",
+      "description": "Writing KG section cards",
+      "pack_paths": [
+        "prospectus_kg_output/writing"
+      ],
+      "extract_to": "prospectus_kg_output/writing",
+      "extract_base": ".",
+      "archive": "bundles/kg_writing.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_writing.tar.zst",
+      "sha256": "2ec4f29ab87657768dc1833e3e14f576745bfec7059c78c530c392f2dda548f1",
+      "size_bytes": 153482
+    },
+    {
+      "id": "kg-inputs-bulk",
+      "description": "Reverse-engineered records and raw extracts (not git-tracked schema)",
+      "pack_paths": [
+        "prospectus_kg_output/inputs/records",
+        "prospectus_kg_output/inputs/input_records",
+        "prospectus_kg_output/inputs/qwen_raw_extract_v2",
+        "prospectus_kg_output/native_docs"
+      ],
+      "extract_to": "prospectus_kg_output/inputs",
+      "extract_base": ".",
+      "archive": "bundles/kg_inputs_bulk.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "kg-dev"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/kg_inputs_bulk.tar.zst",
+      "sha256": "4be0e1183f4bcf28b9ca2c0d559c547c65f0778a910da59efbedeaf882326746",
+      "size_bytes": 143858027
+    },
+    {
+      "id": "data-samples",
+      "description": "Sample issuer Excel/JSON for Agent1 (optional)",
+      "pack_paths": [
+        "data"
+      ],
+      "extract_to": "data",
+      "extract_base": ".",
+      "archive": "bundles/data_samples.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "dev-full"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-20/data_samples.tar.zst",
+      "sha256": "5a839591d4f086a5d5e4a978718de54530c206c2a6e8e9bcb9e213081b30c632",
+      "size_bytes": 16297
+    },
+    {
+      "id": "sensetime-v3-sample",
+      "description": "SenseTime v3 issuer input (sensetime.json + compute_audit.json), EN/ZH prospectus PDFs, and SenseTime-specific analysis docs (REQUIREMENTS_MATRIX EN/ZH, GAP_ANALYSIS, business sample, real-value INPUT_SCHEMA sample, compute precheck).",
+      "pack_paths": [
+        "data/sensetime"
+      ],
+      "extract_to": "data/sensetime",
+      "extract_base": ".",
+      "archive": "bundles/sensetime_v3_sample.tar.zst",
+      "license": "team-internal",
+      "profiles": [
+        "sensetime-v3"
+      ],
+      "url": "${PROSPECTUS_DATA_REMOTE}/local-2026-05-27/sensetime_v3_sample.tar.zst",
+      "sha256": "499ed2b110315863c5c4c5f9a04930bab1912caed4d12d6d77545ddc7d1db99a",
+      "size_bytes": 12845554
+    }
+  ]
+}
