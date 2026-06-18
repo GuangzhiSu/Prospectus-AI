@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/agent1/clear-data": {},
+    "/api/agent1/files": {},
+    "/api/agent1/results": {},
+    "/api/agent1/run": {
+      "maxDuration": 300
+    },
+    "/api/agent1/section/[id]": {},
+    "/api/agent1/upload": {},
+    "/api/agent2/clear": {},
+    "/api/agent2/draft": {},
+    "/api/agent2/export/docx": {
+      "maxDuration": 60
+    },
+    "/api/agent2/run": {
+      "maxDuration": 1800
+    },
+    "/api/agent2/status": {
+      "maxDuration": 30
+    },
+    "/api/chat": {},
+    "/api/files": {},
+    "/api/models/download": {
+      "maxDuration": 600
+    },
+    "/api/models/status": {},
+    "/api/progress": {},
+    "/api/reset": {},
+    "/api/settings": {},
+    "/api/settings/test-llm": {},
+    "/api/system/gpu": {}
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.0",
+  "schema_name": "Schema B (per-section) \u2194 Schema A (gating docs) crosswalk",
+  "source": "docs/IPO_Input_Report_EN.docx (1).pdf \u00a75",
+  "description": "For each prospectus section defined in input_schema_sections.json, this file lists the Schema A gating documents / deliverables that must be available in the VDR before the section can be drafted. Used by Agent2 to (1) inject gating-doc context into the writer prompt and (2) surface [[AI: DD evidence needed]] tags when the corresponding fields are null in records/.",
+  "sections": {
+    "Cover": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft",
+        "prof.sponsor.form_M107",
+        "prof.sponsor.form_M108",
+        "reg.form_M105",
+        "reg.form_M107",
+        "reg.form_M108",
+        "issuer.corp.certificate_of_incorporation",
+        "issuer.corp.articles_of_association"
+      ],
+      "deliverables": [
+        "prof.legal.hk.corporate_opinion",
+        "prof.legal.offshore.incorporation_opinion"
+      ],
+      "report_anchor": "\u00a75 Cover"
+    },
+    "Contents": {
+      "gating_documents": [],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Contents"
+    },
+    "Summary": {
+      "gating_documents": [
+        "prof.sponsor.dd_memorandum",
+        "prof.ra.accountants_report",
+        "gate.business.sponsor_dd_memorandum"
+      ],
+      "deliverables": [
+        "prof.sponsor.track_record_analysis"
+      ],
+      "report_anchor": "\u00a75 Summary"
+    },
+    "Definitions": {
+      "gating_documents": [],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Definitions"
+    },
+    "Glossary_of_Technical_Terms": {
+      "gating_documents": [
+        "gate.industry.independent_industry_report"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Glossary"
+    },
+    "Forward_Looking_Statements": {
+      "gating_documents": [
+        "prof.ra.profit_forecast_memo"
+      ],
+      "deliverables": [
+        "prof.legal.sponsor_counsel.disclosure_opinion"
+      ],
+      "report_anchor": "\u00a75 FLS"
+    },
+    "Risk_Factors": {
+      "gating_documents": [
+        "gate.risk.risk_matrix",
+        "prof.sponsor.dd_memorandum",
+        "prof.legal.prc.regulatory_opinion"
+      ],
+      "deliverables": [
+        "prof.legal.hk.verification_notes"
+      ],
+      "report_anchor": "\u00a75 Risk Factors"
+    },
+    "Important_Notice": {
+      "gating_documents": [
+        "reg.sponsor_dd_guidelines_3rd_ed"
+      ],
+      "deliverables": [
+        "prof.legal.sponsor_counsel.disclosure_opinion"
+      ],
+      "report_anchor": "\u00a75 Important Notice"
+    },
+    "Expected_Timetable": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Timetable"
+    },
+    "Corporate_Information": {
+      "gating_documents": [
+        "issuer.corp.certificate_of_incorporation",
+        "issuer.corp.business_registration",
+        "issuer.corp.articles_of_association",
+        "issuer.corp.statutory_books",
+        "issuer.corp.director_register"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Corporate Info"
+    },
+    "Parties_Involved_in_the_Global_Offering": {
+      "gating_documents": [
+        "prof.sponsor.form_M107",
+        "prof.sponsor.form_M108",
+        "reg.form_M105"
+      ],
+      "deliverables": [
+        "prof.legal.hk.corporate_opinion"
+      ],
+      "report_anchor": "\u00a75 Parties"
+    },
+    "Prospectus_and_Global_Offering_Information": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Global Offering Info"
+    },
+    "Industry_Overview": {
+      "gating_documents": [
+        "gate.industry.independent_industry_report"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Industry"
+    },
+    "Regulatory_Overview": {
+      "gating_documents": [
+        "gate.reg.prc_regulatory_opinion",
+        "prof.legal.prc.regulatory_opinion",
+        "prof.legal.prc.license_opinion",
+        "issuer.reg.licenses_held",
+        "issuer.reg.prc_regulatory_letters",
+        "reg.GL21_10"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Reg Overview"
+    },
+    "History_Reorganization_Corporate_Structure": {
+      "gating_documents": [
+        "issuer.corp.share_transfer_history",
+        "issuer.corp.shareholder_register",
+        "issuer.corp.board_minutes"
+      ],
+      "deliverables": [
+        "prof.legal.hk.corporate_opinion",
+        "prof.legal.offshore.incorporation_opinion"
+      ],
+      "report_anchor": "\u00a75 History"
+    },
+    "Business": {
+      "gating_documents": [
+        "gate.business.sponsor_dd_memorandum",
+        "prof.sponsor.dd_memorandum",
+        "issuer.biz.business_scope",
+        "issuer.biz.business_model",
+        "issuer.biz.major_products",
+        "issuer.biz.major_customers",
+        "issuer.biz.major_suppliers",
+        "issuer.biz.supply_chain"
+      ],
+      "deliverables": [
+        "prof.legal.hk.verification_notes"
+      ],
+      "report_anchor": "\u00a75 Business"
+    },
+    "Contractual_Arrangements_VIE": {
+      "gating_documents": [
+        "gate.vie.vie_structure_memo",
+        "prof.legal.prc.wfoe_vie_opinion",
+        "prof.legal.prc.regulatory_opinion"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 VIE"
+    },
+    "Relationship_with_Controlling_Shareholders": {
+      "gating_documents": [
+        "issuer.dir.do_interests",
+        "issuer.dir.related_party_transactions",
+        "issuer.dir.conflict_disclosures"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Controlling Shareholders"
+    },
+    "Connected_Transactions": {
+      "gating_documents": [
+        "gate.connected.connected_transactions_memo",
+        "issuer.dir.related_party_transactions"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Connected Tx"
+    },
+    "Directors_and_Senior_Management": {
+      "gating_documents": [
+        "issuer.dir.director_cvs",
+        "issuer.dir.director_questionnaires",
+        "issuer.dir.do_interests",
+        "issuer.hr.key_contracts"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Directors"
+    },
+    "Substantial_Shareholders": {
+      "gating_documents": [
+        "issuer.corp.shareholder_register",
+        "issuer.dir.do_interests"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Substantial Shareholders"
+    },
+    "Share_Capital": {
+      "gating_documents": [
+        "issuer.corp.articles_of_association",
+        "issuer.corp.share_transfer_history",
+        "issuer.hr.share_option_scheme"
+      ],
+      "deliverables": [
+        "prof.legal.offshore.incorporation_opinion"
+      ],
+      "report_anchor": "\u00a75 Share Capital"
+    },
+    "Financial_Information": {
+      "gating_documents": [
+        "gate.financial.accountants_report",
+        "prof.ra.accountants_report",
+        "prof.ra.working_capital_opinion",
+        "prof.ra.indebtedness_statement",
+        "prof.ra.comfort_letter_accountants_report_long_form",
+        "prof.ra.comfort_letter_fis",
+        "prof.ra.comfort_letter_interim",
+        "prof.ra.comfort_letter_subsequent_events",
+        "prof.ra.comfort_letter_management_discussion",
+        "issuer.fin.audited_accounts_3y",
+        "issuer.fin.interim_financials",
+        "issuer.fin.working_capital_model",
+        "issuer.fin.indebtedness_schedule"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Financial Info"
+    },
+    "Future_Plans_and_Use_of_Proceeds": {
+      "gating_documents": [
+        "issuer.fin.capex_plan",
+        "issuer.fin.financial_projections"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Use of Proceeds"
+    },
+    "Cornerstone_Investors": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Cornerstone"
+    },
+    "Underwriting": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft"
+      ],
+      "deliverables": [
+        "prof.legal.sponsor_counsel.disclosure_opinion",
+        "prof.legal.sponsor_counsel.10b5_letter"
+      ],
+      "report_anchor": "\u00a75 Underwriting"
+    },
+    "Structure_of_the_Global_Offering": {
+      "gating_documents": [
+        "gate.cover.underwriting_agreement_draft"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Structure of GO"
+    },
+    "How_to_Apply_for_Hong_Kong_Offer_Shares": {
+      "gating_documents": [],
+      "deliverables": [],
+      "report_anchor": "\u00a75 How to Apply"
+    },
+    "Waivers_and_Exemptions": {
+      "gating_documents": [
+        "reg.GL55_13"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Waivers"
+    },
+    "Appendices": {
+      "gating_documents": [
+        "prof.ra.accountants_report",
+        "prof.valuer.valuation_report",
+        "issuer.prop.valuation_reports"
+      ],
+      "deliverables": [],
+      "report_anchor": "\u00a75 Appendices"
+    }
+  }
+}

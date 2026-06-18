@@ -1,0 +1,1759 @@
+{
+  "source": "prospectus_kg_output/writing/section_cards",
+  "description": "Per-section input schema derived from Stage 2 writing KG required_input_fields.",
+  "categories": [
+    {
+      "category_id": "section_Appendices",
+      "category_name": "Appendices",
+      "maps_to_sections": [
+        "Appendices"
+      ],
+      "function": "To include additional reports, financial information, and other documents that support the main prospectus content.",
+      "fields": [
+        {
+          "field_id": "Appendices.Auditor’s Name",
+          "field_name": "Auditor’s Name",
+          "type": "string",
+          "description": "Name of the auditing firm.",
+          "example": "PricewaterhouseCoopers"
+        },
+        {
+          "field_id": "Appendices.Date of Report",
+          "field_name": "Date of Report",
+          "type": "string",
+          "description": "Date the report was issued.",
+          "example": "December 7, 2021"
+        },
+        {
+          "field_id": "Appendices.Historical Financial Information",
+          "field_name": "Historical Financial Information",
+          "type": "string",
+          "description": "Consolidated financial statements and notes.",
+          "example": "Balance sheets, income statements, and notes for multiple periods."
+        },
+        {
+          "field_id": "Appendices.Pro Forma Adjustments",
+          "field_name": "Pro Forma Adjustments",
+          "type": "string",
+          "description": "Details of how the offering will affect the company’s financials.",
+          "example": "Impact on net tangible assets, earnings per share, etc."
+        },
+        {
+          "field_id": "Appendices.Significant Accounting Policies",
+          "field_name": "Significant Accounting Policies",
+          "type": "string",
+          "description": "Explanation of key accounting policies used.",
+          "example": "Impairment testing, revenue recognition, etc."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Business",
+      "category_name": "Business",
+      "maps_to_sections": [
+        "Business"
+      ],
+      "function": "Provides an overview of the issuer's business, including its mission, vision, core competencies, market position, and competitive landscape.",
+      "fields": [
+        {
+          "field_id": "Business.mission_statement",
+          "field_name": "mission_statement",
+          "type": "string",
+          "description": "The issuer's mission statement.",
+          "example": "To create a better AI-empowered future through innovation."
+        },
+        {
+          "field_id": "Business.vision_statement",
+          "field_name": "vision_statement",
+          "type": "string",
+          "description": "The issuer's vision statement.",
+          "example": "To advance the interconnection of the physical and digital worlds with artificial intelligence, driving sustainable productivity growth and seamless interactive experiences."
+        },
+        {
+          "field_id": "Business.core_products_services",
+          "field_name": "core_products_services",
+          "type": "list",
+          "description": "List of the issuer's core products or services.",
+          "example": [
+            "AI software platforms",
+            "computer vision technologies"
+          ]
+        },
+        {
+          "field_id": "Business.market_position",
+          "field_name": "market_position",
+          "type": "string",
+          "description": "Details on the issuer's market position, including market share and competitive advantages.",
+          "example": "Largest AI software company in Asia with a market share of 11% in China."
+        },
+        {
+          "field_id": "Business.competitors",
+          "field_name": "competitors",
+          "type": "list",
+          "description": "List of the issuer's main competitors.",
+          "example": [
+            "Company A",
+            "Company B"
+          ]
+        },
+        {
+          "field_id": "Business.regulatory_environment",
+          "field_name": "regulatory_environment",
+          "type": "string",
+          "description": "Description of the regulatory environment in which the issuer operates.",
+          "example": "Compliance with data protection regulations such as GDPR and CCPA."
+        },
+        {
+          "field_id": "Business.intellectual_property",
+          "field_name": "intellectual_property",
+          "type": "string",
+          "description": "Details on the issuer's intellectual property rights.",
+          "example": "Over 8,000 AI patents and patent applications."
+        },
+        {
+          "field_id": "Business.data_security_and_privacy",
+          "field_name": "data_security_and_privacy",
+          "type": "string",
+          "description": "Policies and practices related to data security and privacy.",
+          "example": "Encryption of processed data and data desensitization technologies."
+        },
+        {
+          "field_id": "Business.risk_factors",
+          "field_name": "risk_factors",
+          "type": "string",
+          "description": "Material risks that could affect the issuer's business, financial condition, or operating results.",
+          "example": "Risks related to data breaches and cybersecurity threats."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Connected_Transactions",
+      "category_name": "Connected_Transactions",
+      "maps_to_sections": [
+        "Connected_Transactions"
+      ],
+      "function": "Discloses ongoing transactions between the issuer and its connected persons, ensuring transparency and compliance with Exchange regulations.",
+      "fields": [
+        {
+          "field_id": "Connected_Transactions.connected_persons",
+          "field_name": "connected_persons",
+          "type": "string",
+          "description": "Names and details of the connected persons involved in the transactions.",
+          "example": "SoftBank SPV, WeWork HK, WeWork Abu Dhabi, ST Solutions Taiwan, JCV"
+        },
+        {
+          "field_id": "Connected_Transactions.transaction_details",
+          "field_name": "transaction_details",
+          "type": "string",
+          "description": "Specific details of the transactions, including parties involved, nature of the transactions, and amounts or terms.",
+          "example": "Providing customized image detection technology services to Inner Mongolia Yili Industrial Group Co., Ltd. for RMB 3,500,000 annually."
+        },
+        {
+          "field_id": "Connected_Transactions.waivers_and_exemptions",
+          "field_name": "waivers_and_exemptions",
+          "type": "string",
+          "description": "Details of any waivers or exemptions sought from the Listing Rules, including the rationale and conditions.",
+          "example": "Waiver from the announcement requirement under Rule 14A.35 for the Image Detection Technology Service Framework Agreement."
+        },
+        {
+          "field_id": "Connected_Transactions.review_process",
+          "field_name": "review_process",
+          "type": "string",
+          "description": "Description of the review and approval process for the transactions, including the roles of the board of directors and independent non-executive directors.",
+          "example": "The independent non-executive directors and auditors will review the transactions and confirm their fairness and reasonableness annually."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Contents",
+      "category_name": "Contents",
+      "maps_to_sections": [
+        "Contents"
+      ],
+      "function": "To outline the organization of the prospectus and guide readers to the relevant sections.",
+      "fields": [
+        {
+          "field_id": "Contents.expected_timetable",
+          "field_name": "expected_timetable",
+          "type": "string",
+          "description": "Key dates and milestones for the offering process.",
+          "example": "Application period: 1st January 2023 - 31st January 2023; Listing date: 1st February 2023"
+        },
+        {
+          "field_id": "Contents.summary",
+          "field_name": "summary",
+          "type": "string",
+          "description": "Brief overview of the company, its business, and the offering.",
+          "example": "Our company is a leading provider of AI solutions in the technology sector."
+        },
+        {
+          "field_id": "Contents.financial_information",
+          "field_name": "financial_information",
+          "type": "string",
+          "description": "Audited and unaudited financial statements and other financial data.",
+          "example": "Annual financial statements for the years ended 31 December 2021 and 2020."
+        },
+        {
+          "field_id": "Contents.future_plans_and_use_of_proceeds",
+          "field_name": "future_plans_and_use_of_proceeds",
+          "type": "string",
+          "description": "Detailed plans for the use of proceeds from the offering.",
+          "example": "Proceeds will be used to expand our R&D capabilities and market presence."
+        },
+        {
+          "field_id": "Contents.cornerstone_investors",
+          "field_name": "cornerstone_investors",
+          "type": "string",
+          "description": "Details of cornerstone investors and their commitments.",
+          "example": "Cornerstone investor A committed to invest $10 million in the offering."
+        },
+        {
+          "field_id": "Contents.underwriting",
+          "field_name": "underwriting",
+          "type": "string",
+          "description": "Information on underwriting arrangements and the role of underwriters.",
+          "example": "Underwriting agreement with XYZ Investment Bank."
+        },
+        {
+          "field_id": "Contents.structure_of_the_global_offering",
+          "field_name": "structure_of_the_global_offering",
+          "type": "string",
+          "description": "Description of the structure of the global offering, including the roles of various parties.",
+          "example": "The offering will be structured as a global offering with joint bookrunners and lead managers."
+        },
+        {
+          "field_id": "Contents.how_to_apply_for_hong_kong_offer_shares",
+          "field_name": "how_to_apply_for_hong_kong_offer_shares",
+          "type": "string",
+          "description": "Instructions on how to apply for the Hong Kong offer shares.",
+          "example": "Applications can be submitted online through the company’s website."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Contractual_Arrangements_VIE",
+      "category_name": "Contractual_Arrangements_VIE",
+      "maps_to_sections": [
+        "Contractual_Arrangements_VIE"
+      ],
+      "function": "To disclose the contractual arrangements between the Variable Interest Entity (VIE) and the WFOE, detailing how these arrangements allow the WFOE to control the VIE and consolidate its financial results.",
+      "fields": [
+        {
+          "field_id": "Contractual_Arrangements_VIE.VIE_WFOE_name",
+          "field_name": "VIE_WFOE_name",
+          "type": "string",
+          "description": "Name of the Variable Interest Entity (VIE) and the Wholly Foreign-Owned Enterprise (WFOE).",
+          "example": "Shanghai SenseTime Technology Development Co., Ltd."
+        },
+        {
+          "field_id": "Contractual_Arrangements_VIE.Relevant_businesses",
+          "field_name": "Relevant_businesses",
+          "type": "list",
+          "description": "List of businesses subject to foreign investment restrictions in the PRC.",
+          "example": [
+            "Value-added telecommunication service business"
+          ]
+        },
+        {
+          "field_id": "Contractual_Arrangements_VIE.Control_mechanisms",
+          "field_name": "Control_mechanisms",
+          "type": "string",
+          "description": "Detailed description of control mechanisms (e.g., equity pledges, exclusive call options).",
+          "example": "Jilin Yutai pledged their equity interest in Jiaxiang Interactive to Homeland PRC."
+        },
+        {
+          "field_id": "Contractual_Arrangements_VIE.Consolidation_basis",
+          "field_name": "Consolidation_basis",
+          "type": "string",
+          "description": "Explanation of the basis for consolidating the VIE’s financial results into the applicant’s financial statements.",
+          "example": "Services fee equals to Consolidated Affiliated Entities’ profit before tax, deducting any accumulated losses of Consolidated Affiliated Entities and its subsidiaries from the preceding fiscal year."
+        },
+        {
+          "field_id": "Contractual_Arrangements_VIE.Legal_advisory_opinion",
+          "field_name": "Legal_advisory_opinion",
+          "type": "string",
+          "description": "Opinion from the PRC legal advisor on the compliance of the VIE structure with PRC laws and regulations.",
+          "example": "Advised by the PRC Legal Advisor, a summary of our business/operation that is subject to foreign investment restriction..."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Cornerstone_Investors",
+      "category_name": "Cornerstone_Investors",
+      "maps_to_sections": [
+        "Cornerstone_Investors"
+      ],
+      "function": "To detail the cornerstone investors' commitment to purchasing shares at the offering price and the conditions under which the cornerstone placing can proceed.",
+      "fields": [
+        {
+          "field_id": "Cornerstone_Investors.cornerstone_investors_names",
+          "field_name": "cornerstone_investors_names",
+          "type": "string",
+          "description": "Names of the cornerstone investors.",
+          "example": "Guosen Securities (HK) Capital Co., Ltd., Macquarie Capital Limited"
+        },
+        {
+          "field_id": "Cornerstone_Investors.cornerstone_investment_amounts",
+          "field_name": "cornerstone_investment_amounts",
+          "type": "string",
+          "description": "Amounts of money to be invested by each cornerstone investor.",
+          "example": "US$450 million"
+        },
+        {
+          "field_id": "Cornerstone_Investors.cornerstone_investment_agreements",
+          "field_name": "cornerstone_investment_agreements",
+          "type": "string",
+          "description": "Details of the cornerstone investment agreements, including the subscription terms.",
+          "example": "Subscription for 879,605,000 Offer Shares at HK$3.99 per Offer Share"
+        },
+        {
+          "field_id": "Cornerstone_Investors.lock_up_period",
+          "field_name": "lock_up_period",
+          "type": "string",
+          "description": "Duration of the lock-up period for the cornerstone investors.",
+          "example": "Six months from the Listing Date"
+        },
+        {
+          "field_id": "Cornerstone_Investors.conditions_precedent",
+          "field_name": "conditions_precedent",
+          "type": "string",
+          "description": "List of conditions that must be met for the cornerstone placing to proceed.",
+          "example": "Regulatory approvals, pricing agreements, representations and warranties"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Corporate_Information",
+      "category_name": "Corporate_Information",
+      "maps_to_sections": [
+        "Corporate_Information"
+      ],
+      "function": "To provide essential corporate details and governance information for potential investors.",
+      "fields": [
+        {
+          "field_id": "Corporate_Information.registered_office_address",
+          "field_name": "registered_office_address",
+          "type": "string",
+          "description": "Address of the issuer's registered office.",
+          "example": "3-212 Governors Square, 23 Lime Tree Bay Avenue, P.O. Box 30746, Seven Mile Beach, Grand Cayman KY1-1203, Cayman Islands"
+        },
+        {
+          "field_id": "Corporate_Information.head_office_address",
+          "field_name": "head_office_address",
+          "type": "string",
+          "description": "Address of the issuer's head office in the PRC.",
+          "example": "No. 1900 Hongmei Road, Xuhui District, Shanghai 200233, PRC"
+        },
+        {
+          "field_id": "Corporate_Information.principal_place_of_business_hk",
+          "field_name": "principal_place_of_business_hk",
+          "type": "string",
+          "description": "Address of the issuer's principal place of business in Hong Kong.",
+          "example": "2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+        },
+        {
+          "field_id": "Corporate_Information.company_website",
+          "field_name": "company_website",
+          "type": "string",
+          "description": "URL of the issuer's official website.",
+          "example": "https://www.sensetime.com"
+        },
+        {
+          "field_id": "Corporate_Information.joint_company_secretaries",
+          "field_name": "joint_company_secretaries",
+          "type": "string",
+          "description": "Names and contact details of the joint company secretaries.",
+          "example": "Ms. Lin Jiemin (林潔敏), 2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+        },
+        {
+          "field_id": "Corporate_Information.authorized_representatives",
+          "field_name": "authorized_representatives",
+          "type": "string",
+          "description": "Names and contact details of authorized representatives.",
+          "example": "Mr. Xu Bing (徐冰), Flat A, 62/F, Luna Sky, The Cullinan, 1 Austin Road West, Tsim Sha Tsui, Kowloon, Hong Kong"
+        },
+        {
+          "field_id": "Corporate_Information.audit_committee_members",
+          "field_name": "audit_committee_members",
+          "type": "string",
+          "description": "Names and roles of members of the audit committee.",
+          "example": "Mr. Lyn Frank Yee Chon (林怡仲) (Chairperson), Ms. Fan Yuanyuan (范瑗瑗), Mr. Li Wei (厲偉)"
+        },
+        {
+          "field_id": "Corporate_Information.remuneration_and_evaluation_committee_members",
+          "field_name": "remuneration_and_evaluation_committee_members",
+          "type": "string",
+          "description": "Names and roles of members of the remuneration and evaluation committee.",
+          "example": "Mr. Li Wei (厲偉) (Chairperson), Mr. Lyn Frank Yee Chon (林怡仲), Dr. Xu Li (徐立)"
+        },
+        {
+          "field_id": "Corporate_Information.nomination_committee_members",
+          "field_name": "nomination_committee_members",
+          "type": "string",
+          "description": "Names and roles of members of the nomination committee.",
+          "example": "Mr. Li Wei (厲偉) (Chairperson), Dr. Xu Li (徐立), Prof. Xue Lan (薛瀾)"
+        },
+        {
+          "field_id": "Corporate_Information.strategy_committee_members",
+          "field_name": "strategy_committee_members",
+          "type": "string",
+          "description": "Names and roles of members of the strategy committee.",
+          "example": "Mr. Li Zhen (李真) (Chairman), Mr. Zhang Guangping (張廣平), Mr. Li Yi (李一)"
+        },
+        {
+          "field_id": "Corporate_Information.compliance_advisor",
+          "field_name": "compliance_advisor",
+          "type": "string",
+          "description": "Name and contact details of the compliance advisor.",
+          "example": "Haitong International Capital Limited, Suites 3001-3006 and 3015-3016, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+        },
+        {
+          "field_id": "Corporate_Information.share_registrars",
+          "field_name": "share_registrars",
+          "type": "string",
+          "description": "Names and contact details of the share registrars.",
+          "example": "Computershare Hong Kong Investor Services Limited, Shops 1712-1716, 17th Floor, Hopewell Centre, 183 Queen’s Road East, Wan Chai, Hong Kong"
+        },
+        {
+          "field_id": "Corporate_Information.principal_banks",
+          "field_name": "principal_banks",
+          "type": "string",
+          "description": "Names and addresses of the principal banks.",
+          "example": "China Construction Bank, No. 25, Finance Street, Xicheng District, Beijing, PRC"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Cover",
+      "category_name": "Cover",
+      "maps_to_sections": [
+        "Cover"
+      ],
+      "function": "To introduce the issuer, listing details, and key underwriters of the global offering.",
+      "fields": [
+        {
+          "field_id": "Cover.stock_code",
+          "field_name": "stock_code",
+          "type": "string",
+          "description": "The stock code assigned by the Hong Kong Stock Exchange.",
+          "example": "0020"
+        },
+        {
+          "field_id": "Cover.issuer_name_en",
+          "field_name": "issuer_name_en",
+          "type": "string",
+          "description": "The English name of the issuer.",
+          "example": "SenseTime Group Inc."
+        },
+        {
+          "field_id": "Cover.issuer_name_ch",
+          "field_name": "issuer_name_ch",
+          "type": "string",
+          "description": "The Chinese name of the issuer.",
+          "example": "感性科技有限公司"
+        },
+        {
+          "field_id": "Cover.corporate_structure",
+          "field_name": "corporate_structure",
+          "type": "string",
+          "description": "Details of the issuer’s corporate structure, especially if it includes weighted voting rights.",
+          "example": "a company controlled through weighted voting rights and incorporated in the Cayman Islands with limited liability"
+        },
+        {
+          "field_id": "Cover.key_underwriters",
+          "field_name": "key_underwriters",
+          "type": "list",
+          "description": "Names of the joint sponsors, global coordinators, bookrunners, and lead managers.",
+          "example": [
+            "Joint Sponsors",
+            "Joint Global Coordinators",
+            "Joint Bookrunners and Joint Lead Managers"
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "section_Definitions",
+      "category_name": "Definitions",
+      "maps_to_sections": [
+        "Definitions"
+      ],
+      "function": "To define key terms and acronyms used throughout the prospectus to ensure clarity and consistency.",
+      "fields": [
+        {
+          "field_id": "Definitions.Term",
+          "field_name": "Term",
+          "type": "string",
+          "description": "The term to be defined.",
+          "example": "affiliate"
+        },
+        {
+          "field_id": "Definitions.Definition",
+          "field_name": "Definition",
+          "type": "string",
+          "description": "The definition of the term.",
+          "example": "any other person, directly or indirectly, controlling or controlled by or under direct or indirect common control with such specified person"
+        },
+        {
+          "field_id": "Definitions.Acronym",
+          "field_name": "Acronym",
+          "type": "string",
+          "description": "The acronym to be expanded.",
+          "example": "CAC"
+        },
+        {
+          "field_id": "Definitions.Full Name",
+          "field_name": "Full Name",
+          "type": "string",
+          "description": "The full name of the entity or organization.",
+          "example": "Cyberspace Administration of China"
+        },
+        {
+          "field_id": "Definitions.Rounding Note",
+          "field_name": "Rounding Note",
+          "type": "string",
+          "description": "Note on rounding of figures and its impact.",
+          "example": "Figures shown as totals in certain tables may not be an arithmetic aggregation of the figures preceding them."
+        },
+        {
+          "field_id": "Definitions.Cross-Reference",
+          "field_name": "Cross-Reference",
+          "type": "string",
+          "description": "Section or part of the document where the term is further explained.",
+          "example": "Appendix III to this Prospectus"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Directors_and_Senior_Management",
+      "category_name": "Directors_and_Senior_Management",
+      "maps_to_sections": [
+        "Directors_and_Senior_Management"
+      ],
+      "function": "To provide details about the directors and senior management of the company, including their roles, responsibilities, and relationships.",
+      "fields": [
+        {
+          "field_id": "Directors_and_Senior_Management.director_name",
+          "field_name": "director_name",
+          "type": "string",
+          "description": "The full name of the director.",
+          "example": "Dr. Xu Li"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_age",
+          "field_name": "director_age",
+          "type": "string",
+          "description": "The age of the director.",
+          "example": "39"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_position",
+          "field_name": "director_position",
+          "type": "string",
+          "description": "The position held by the director in the company.",
+          "example": "Co-founder, executive Chairman of our Board, executive Director, chief executive officer and member of the remuneration committee and the nomination committee"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_join_date",
+          "field_name": "director_join_date",
+          "type": "string",
+          "description": "The date the director joined the company.",
+          "example": "March 2015"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_appointment_date",
+          "field_name": "director_appointment_date",
+          "type": "string",
+          "description": "The date the director was appointed as a director.",
+          "example": "December 15, 2015"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_roles",
+          "field_name": "director_roles",
+          "type": "string",
+          "description": "The roles and responsibilities of the director.",
+          "example": "Responsible for our Group’s vision strategy, business development and daily operations"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.director_relationships",
+          "field_name": "director_relationships",
+          "type": "string",
+          "description": "Any relationships between the director and other directors or senior management.",
+          "example": "Brother-in-law of Dr. Wang"
+        },
+        {
+          "field_id": "Directors_and_Senior_Management.remuneration_details",
+          "field_name": "remuneration_details",
+          "type": "string",
+          "description": "Details of the remuneration received by the director, including salaries, bonuses, and other benefits.",
+          "example": "RMB60,730,000"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Expected_Timetable",
+      "category_name": "Expected_Timetable",
+      "maps_to_sections": [
+        "Expected_Timetable"
+      ],
+      "function": "To outline the schedule of key events in the Hong Kong Public Offering.",
+      "fields": [
+        {
+          "field_id": "Expected_Timetable.commencement_date",
+          "field_name": "commencement_date",
+          "type": "string",
+          "description": "The date when the Hong Kong Public Offering starts.",
+          "example": "9:00 a.m. on Tuesday, December 7, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.deadline_for_electronic_applications",
+          "field_name": "deadline_for_electronic_applications",
+          "type": "string",
+          "description": "The last time electronic applications can be submitted.",
+          "example": "11:30 a.m. on Friday, December 10, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.opening_of_application_lists",
+          "field_name": "opening_of_application_lists",
+          "type": "string",
+          "description": "The time when application lists are made available.",
+          "example": "11:45 a.m. on Friday, December 10, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.deadline_for_payment_and_instructions",
+          "field_name": "deadline_for_payment_and_instructions",
+          "type": "string",
+          "description": "The last time payments for applications and instructions to HKSCC must be completed.",
+          "example": "12:00 noon on Friday, December 10, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.closing_of_application_lists",
+          "field_name": "closing_of_application_lists",
+          "type": "string",
+          "description": "The exact time when applications lists are closed.",
+          "example": "12:00 noon on Friday, December 10, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.price_determination_date",
+          "field_name": "price_determination_date",
+          "type": "string",
+          "description": "The date when the offer price is determined.",
+          "example": "Friday, December 10, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.announcement_of_offer_price",
+          "field_name": "announcement_of_offer_price",
+          "type": "string",
+          "description": "The date and method of announcing the offer price.",
+          "example": "Wednesday, December 16, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.results_of_allocations",
+          "field_name": "results_of_allocations",
+          "type": "string",
+          "description": "The date and method of releasing the results of allocations.",
+          "example": "Wednesday, December 16, 2021"
+        },
+        {
+          "field_id": "Expected_Timetable.dispatch_collection_of_share_certificates_refunds",
+          "field_name": "dispatch_collection_of_share_certificates_refunds",
+          "type": "string",
+          "description": "The date and method of dispatching or collecting share certificates and refunds.",
+          "example": "Or before such other date as notified by us as the date of dispatch/collection of Share certificates/e-Refund payment instructions/refund checks."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Financial_Information",
+      "category_name": "Financial_Information",
+      "maps_to_sections": [
+        "Financial_Information"
+      ],
+      "function": "To present the issuer's financial performance and position, along with relevant analysis and forward-looking statements.",
+      "fields": [
+        {
+          "field_id": "Financial_Information.issuer_name",
+          "field_name": "issuer_name",
+          "type": "string",
+          "description": "Name of the issuing entity.",
+          "example": "Tech Innovations Ltd."
+        },
+        {
+          "field_id": "Financial_Information.financial_years",
+          "field_name": "financial_years",
+          "type": "list",
+          "description": "List of financial years covered in the prospectus.",
+          "example": [
+            "2022",
+            "2023",
+            "2024"
+          ]
+        },
+        {
+          "field_id": "Financial_Information.revenue",
+          "field_name": "revenue",
+          "type": "list",
+          "description": "Annual revenue figures.",
+          "example": [
+            100000000,
+            120000000,
+            150000000
+          ]
+        },
+        {
+          "field_id": "Financial_Information.net_income",
+          "field_name": "net_income",
+          "type": "list",
+          "description": "Annual net income figures.",
+          "example": [
+            20000000,
+            25000000,
+            30000000
+          ]
+        },
+        {
+          "field_id": "Financial_Information.assets",
+          "field_name": "assets",
+          "type": "list",
+          "description": "Balance sheet assets at year-end.",
+          "example": [
+            200000000,
+            250000000,
+            300000000
+          ]
+        },
+        {
+          "field_id": "Financial_Information.liabilities",
+          "field_name": "liabilities",
+          "type": "list",
+          "description": "Balance sheet liabilities at year-end.",
+          "example": [
+            100000000,
+            120000000,
+            150000000
+          ]
+        },
+        {
+          "field_id": "Financial_Information.cash_flows",
+          "field_name": "cash_flows",
+          "type": "list",
+          "description": "Cash flow statement figures.",
+          "example": [
+            15000000,
+            20000000,
+            25000000
+          ]
+        },
+        {
+          "field_id": "Financial_Information.key_ratios",
+          "field_name": "key_ratios",
+          "type": "object",
+          "description": "Financial ratios like ROE, ROA, EPS, etc.",
+          "example": {
+            "ROE": [
+              15,
+              18,
+              20
+            ],
+            "ROA": [
+              10,
+              12,
+              15
+            ],
+            "EPS": [
+              2,
+              2.5,
+              3
+            ]
+          }
+        },
+        {
+          "field_id": "Financial_Information.segment_data",
+          "field_name": "segment_data",
+          "type": "list",
+          "description": "Revenue and profit breakdown by segments.",
+          "example": [
+            {
+              "segment": "Product A",
+              "revenue": [
+                30000000,
+                35000000,
+                40000000
+              ],
+              "profit": [
+                5000000,
+                6000000,
+                7000000
+              ]
+            }
+          ]
+        },
+        {
+          "field_id": "Financial_Information.risk_factors",
+          "field_name": "risk_factors",
+          "type": "list",
+          "description": "List of risk factors affecting the issuer.",
+          "example": [
+            "Market competition",
+            "Regulatory changes",
+            "Supply chain disruptions"
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "section_Forward_Looking_Statements",
+      "category_name": "Forward_Looking_Statements",
+      "maps_to_sections": [
+        "Forward_Looking_Statements"
+      ],
+      "function": "To disclose potential risks and uncertainties associated with forward-looking statements in the prospectus.",
+      "fields": [
+        {
+          "field_id": "Forward_Looking_Statements.forward-looking_statements",
+          "field_name": "forward-looking_statements",
+          "type": "string",
+          "description": "List of all forward-looking statements in the prospectus.",
+          "example": "We believe our revenue will grow by 20% next year."
+        },
+        {
+          "field_id": "Forward_Looking_Statements.risks_and_uncertainties",
+          "field_name": "risks_and_uncertainties",
+          "type": "string",
+          "description": "List of factors that could impact the accuracy of forward-looking statements.",
+          "example": "Economic downturn, regulatory changes, competition, etc."
+        },
+        {
+          "field_id": "Forward_Looking_Statements.disclaimer",
+          "field_name": "disclaimer",
+          "type": "string",
+          "description": "Text of the disclaimer to caution against relying on forward-looking statements.",
+          "example": "We do not undertake any obligation to update or revise any forward-looking statements."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Future_Plans_and_Use_of_Proceeds",
+      "category_name": "Future_Plans_and_Use_of_Proceeds",
+      "maps_to_sections": [
+        "Future_Plans_and_Use_of_Proceeds"
+      ],
+      "function": "Discloses how the company intends to use the proceeds from the offering and outlines the company's future plans.",
+      "fields": [
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Offer_Price",
+          "field_name": "Offer_Price",
+          "type": "string",
+          "description": "The price per share at which the shares are being offered.",
+          "example": "HK$3.92"
+        },
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Net_Proceeds",
+          "field_name": "Net_Proceeds",
+          "type": "string",
+          "description": "The total net proceeds from the offering, calculated after deducting underwriting commissions and other expenses.",
+          "example": "HK$5,655 million"
+        },
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Percentage_Allocation",
+          "field_name": "Percentage_Allocation",
+          "type": "string",
+          "description": "The percentage of net proceeds allocated to each use of proceeds.",
+          "example": "60.0%"
+        },
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Amount_Allocation",
+          "field_name": "Amount_Allocation",
+          "type": "string",
+          "description": "The specific amount of net proceeds allocated to each use of proceeds.",
+          "example": "HK$3,393 million"
+        },
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Purpose_Description",
+          "field_name": "Purpose_Description",
+          "type": "string",
+          "description": "A brief description of the purpose for which the proceeds will be used.",
+          "example": "Enhancing research and development capabilities"
+        },
+        {
+          "field_id": "Future_Plans_and_Use_of_Proceeds.Pro_Rata_Adjustment_Policy",
+          "field_name": "Pro_Rata_Adjustment_Policy",
+          "type": "string",
+          "description": "The policy for adjusting the use of proceeds if the actual net proceeds differ from the estimated amount.",
+          "example": "Adjust the use of proceeds on a pro rata basis."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Glossary_of_Technical_Terms",
+      "category_name": "Glossary_of_Technical_Terms",
+      "maps_to_sections": [
+        "Glossary_of_Technical_Terms"
+      ],
+      "function": "To define and explain technical terms used throughout the prospectus to ensure clarity and consistency.",
+      "fields": [
+        {
+          "field_id": "Glossary_of_Technical_Terms.term",
+          "field_name": "term",
+          "type": "string",
+          "description": "The technical term to be defined.",
+          "example": "AI"
+        },
+        {
+          "field_id": "Glossary_of_Technical_Terms.definition",
+          "field_name": "definition",
+          "type": "string",
+          "description": "A clear and concise definition of the term.",
+          "example": "Artificial intelligence, an area of computer science that focuses on machinery simulation of intelligence displayed by humans and other animals."
+        },
+        {
+          "field_id": "Glossary_of_Technical_Terms.context",
+          "field_name": "context",
+          "type": "string",
+          "description": "Any additional context or examples to clarify the term's usage.",
+          "example": "AI is used in our company to develop autonomous intelligent entities leveraging LLM technology."
+        },
+        {
+          "field_id": "Glossary_of_Technical_Terms.cross_reference",
+          "field_name": "cross_reference",
+          "type": "string",
+          "description": "Any related terms or sections that should be cross-referenced.",
+          "example": "See also 'AI Agent', 'AI Infrastructure'"
+        }
+      ]
+    },
+    {
+      "category_id": "section_History_Reorganization_Corporate_Structure",
+      "category_name": "History_Reorganization_Corporate_Structure",
+      "maps_to_sections": [
+        "History_Reorganization_Corporate_Structure"
+      ],
+      "function": "To provide a detailed account of the issuer's history, key milestones, reorganizations, and corporate structure, ensuring transparency and aiding investor understanding.",
+      "fields": [
+        {
+          "field_id": "History_Reorganization_Corporate_Structure.Company_Incorporation_Date",
+          "field_name": "Company_Incorporation_Date",
+          "type": "string",
+          "description": "The date the company was incorporated.",
+          "example": "October 15, 2014"
+        },
+        {
+          "field_id": "History_Reorganization_Corporate_Structure.Key_Milestones",
+          "field_name": "Key_Milestones",
+          "type": "string",
+          "description": "List of significant events and achievements in the company's history.",
+          "example": "2014 - Our Company was incorporated; 2015 - We started R&D on our deep learning training framework, SenseParrots."
+        },
+        {
+          "field_id": "History_Reorganization_Corporate_Structure.Corporate_Structure",
+          "field_name": "Corporate_Structure",
+          "type": "string",
+          "description": "Description of the current corporate structure, including ownership and subsidiaries.",
+          "example": "Our Company is the holding company of the Group with businesses conducted through its subsidiaries and the Consolidated Affiliated Entities."
+        },
+        {
+          "field_id": "History_Reorganization_Corporate_Structure.Reorganizations",
+          "field_name": "Reorganizations",
+          "type": "string",
+          "description": "Details of any significant corporate reorganizations, mergers, acquisitions, or divestitures.",
+          "example": "2019 - We co-founded China Augmented Reality Core Technology Industry Alliance."
+        },
+        {
+          "field_id": "History_Reorganization_Corporate_Structure.Cross_Border_Operations",
+          "field_name": "Cross_Border_Operations",
+          "type": "string",
+          "description": "Information on the issuer's operations and investments outside its home jurisdiction.",
+          "example": "Pursuant to Circular 37, promulgated by SAFE, a PRC resident must register with the local SAFE branch in connection with their contribution of offshore or domestic assets."
+        }
+      ]
+    },
+    {
+      "category_id": "section_How_to_Apply_for_Hong_Kong_Offer_Shares",
+      "category_name": "How_to_Apply_for_Hong_Kong_Offer_Shares",
+      "maps_to_sections": [
+        "How_to_Apply_for_Hong_Kong_Offer_Shares"
+      ],
+      "function": "Describes the process for investors to apply for Hong Kong Offer Shares using an electronic application process.",
+      "fields": [
+        {
+          "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.application_channels",
+          "field_name": "application_channels",
+          "type": "string",
+          "description": "List of application channels available for investors.",
+          "example": "HK eIPO White Form service, HKSCC EIPO channel"
+        },
+        {
+          "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.application_period_start_date",
+          "field_name": "application_period_start_date",
+          "type": "string",
+          "description": "Start date of the application period.",
+          "example": "2023-10-23"
+        },
+        {
+          "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.application_period_end_date",
+          "field_name": "application_period_end_date",
+          "type": "string",
+          "description": "End date of the application period.",
+          "example": "2023-10-28"
+        },
+        {
+          "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.payment_deadline",
+          "field_name": "payment_deadline",
+          "type": "string",
+          "description": "Deadline for completing full payment of application monies.",
+          "example": "2023-10-28T12:00:00+08:00"
+        },
+        {
+          "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.contact_information",
+          "field_name": "contact_information",
+          "type": "string",
+          "description": "Contact details for inquiries and support.",
+          "example": "+852 2862 8558, www.eipo.com.hk"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Important_Notice",
+      "category_name": "Important_Notice",
+      "maps_to_sections": [
+        "Important_Notice"
+      ],
+      "function": "To inform potential investors about the importance of seeking independent professional advice if they have doubts about the prospectus content.",
+      "fields": [
+        {
+          "field_id": "Important_Notice.issuer_name",
+          "field_name": "issuer_name",
+          "type": "string",
+          "description": "Name of the issuing company.",
+          "example": "SenseTime Group Inc."
+        },
+        {
+          "field_id": "Important_Notice.stock_code",
+          "field_name": "stock_code",
+          "type": "string",
+          "description": "Stock code assigned to the offer shares.",
+          "example": "0020"
+        },
+        {
+          "field_id": "Important_Notice.number_of_hk_offershares",
+          "field_name": "number_of_hk_offershares",
+          "type": "string",
+          "description": "Number of Hong Kong offer shares available for sale.",
+          "example": "150,000,000"
+        },
+        {
+          "field_id": "Important_Notice.maximum_offer_price",
+          "field_name": "maximum_offer_price",
+          "type": "string",
+          "description": "Maximum offer price per share, including fees and levies.",
+          "example": "HK$3.99 per Offer Share"
+        },
+        {
+          "field_id": "Important_Notice.minimum_application_amount",
+          "field_name": "minimum_application_amount",
+          "type": "string",
+          "description": "Minimum number of shares that can be applied for.",
+          "example": "1,000 Hong Kong Offer Shares"
+        },
+        {
+          "field_id": "Important_Notice.price_determination_date",
+          "field_name": "price_determination_date",
+          "type": "string",
+          "description": "Date when the offer price is expected to be determined.",
+          "example": "Price Determination Date"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Industry_Overview",
+      "category_name": "Industry_Overview",
+      "maps_to_sections": [
+        "Industry_Overview"
+      ],
+      "function": "To provide an overview of the industry in which the issuer operates, including relevant market data, trends, and competitive landscape.",
+      "fields": [
+        {
+          "field_id": "Industry_Overview.industry_name",
+          "field_name": "industry_name",
+          "type": "string",
+          "description": "Name of the industry in which the issuer operates.",
+          "example": "Artificial Intelligence"
+        },
+        {
+          "field_id": "Industry_Overview.market_size",
+          "field_name": "market_size",
+          "type": "string",
+          "description": "Current market size of the industry.",
+          "example": "USD 10 billion"
+        },
+        {
+          "field_id": "Industry_Overview.growth_rate",
+          "field_name": "growth_rate",
+          "type": "string",
+          "description": "Annual growth rate of the industry.",
+          "example": "15%"
+        },
+        {
+          "field_id": "Industry_Overview.projected_market_size",
+          "field_name": "projected_market_size",
+          "type": "string",
+          "description": "Projected market size of the industry in the next 5 years.",
+          "example": "USD 15 billion"
+        },
+        {
+          "field_id": "Industry_Overview.key_drivers",
+          "field_name": "key_drivers",
+          "type": "string",
+          "description": "Main factors driving industry growth.",
+          "example": "Advancements in AI technology, increased adoption of automation, regulatory support"
+        },
+        {
+          "field_id": "Industry_Overview.challenges",
+          "field_name": "challenges",
+          "type": "string",
+          "description": "Challenges faced by the industry.",
+          "example": "High initial investment costs, talent shortage, data privacy concerns"
+        },
+        {
+          "field_id": "Industry_Overview.major_competitors",
+          "field_name": "major_competitors",
+          "type": "string",
+          "description": "Names and market shares of major competitors.",
+          "example": "Company A (30%), Company B (25%), Company C (20%)"
+        },
+        {
+          "field_id": "Industry_Overview.regulatory_environment",
+          "field_name": "regulatory_environment",
+          "type": "string",
+          "description": "Relevant regulations and their impact on the industry.",
+          "example": "Data protection laws, patent regulations, industry-specific standards"
+        },
+        {
+          "field_id": "Industry_Overview.emerging_technologies",
+          "field_name": "emerging_technologies",
+          "type": "string",
+          "description": "Emerging technologies and their potential impact on the industry.",
+          "example": "Quantum computing, blockchain, edge computing"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Parties_Involved_in_the_Global_Offering",
+      "category_name": "Parties_Involved_in_the_Global_Offering",
+      "maps_to_sections": [
+        "Parties_Involved_in_the_Global_Offering"
+      ],
+      "function": "To disclose the key individuals and entities involved in the global offering process, including directors, parties involved, and their roles.",
+      "fields": [
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.director_name",
+          "field_name": "director_name",
+          "type": "string",
+          "description": "Full name of the director.",
+          "example": "Dr. Xu Li"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.director_address",
+          "field_name": "director_address",
+          "type": "string",
+          "description": "Physical address of the director.",
+          "example": "Flat A2, 1/F, Block A Grandview Tower, 130 Kennedy Road, Wan Chai, Hong Kong"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.director_nationality",
+          "field_name": "director_nationality",
+          "type": "string",
+          "description": "Nationality of the director.",
+          "example": "Chinese (Hong Kong)"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.director_role",
+          "field_name": "director_role",
+          "type": "string",
+          "description": "Role of the director within the company.",
+          "example": "Executive Director"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.joint_sponsor_name",
+          "field_name": "joint_sponsor_name",
+          "type": "string",
+          "description": "Name of the joint sponsor.",
+          "example": "China International Capital Corporation Hong Kong Securities Limited"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.joint_sponsor_address",
+          "field_name": "joint_sponsor_address",
+          "type": "string",
+          "description": "Physical address of the joint sponsor.",
+          "example": "29th Floor, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.legal_advisor_name",
+          "field_name": "legal_advisor_name",
+          "type": "string",
+          "description": "Name of the legal advisor.",
+          "example": "Clifford Chance"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.legal_advisor_address",
+          "field_name": "legal_advisor_address",
+          "type": "string",
+          "description": "Physical address of the legal advisor.",
+          "example": "27/F, Jardine House, One Connaught Place, Central, Hong Kong"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.reporting_accountant_name",
+          "field_name": "reporting_accountant_name",
+          "type": "string",
+          "description": "Name of the reporting accountant.",
+          "example": "PricewaterhouseCoopers"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.reporting_accountant_address",
+          "field_name": "reporting_accountant_address",
+          "type": "string",
+          "description": "Physical address of the reporting accountant.",
+          "example": "22/F, Prince’s Building, Central, Hong Kong"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.industry_consultant_name",
+          "field_name": "industry_consultant_name",
+          "type": "string",
+          "description": "Name of the industry consultant.",
+          "example": "Frost & Sullivan International Limited"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.industry_consultant_address",
+          "field_name": "industry_consultant_address",
+          "type": "string",
+          "description": "Physical address of the industry consultant.",
+          "example": "1706, One Exchange Square, 8 Connaught Place, Central, Hong Kong"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.receiving_bank_name",
+          "field_name": "receiving_bank_name",
+          "type": "string",
+          "description": "Name of the receiving bank.",
+          "example": "Bank of China (Hong Kong) Limited"
+        },
+        {
+          "field_id": "Parties_Involved_in_the_Global_Offering.receiving_bank_address",
+          "field_name": "receiving_bank_address",
+          "type": "string",
+          "description": "Physical address of the receiving bank.",
+          "example": "1 Garden Road, Hong Kong"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Prospectus_and_Global_Offering_Information",
+      "category_name": "Prospectus_and_Global_Offering_Information",
+      "maps_to_sections": [
+        "Prospectus_and_Global_Offering_Information"
+      ],
+      "function": "To detail the responsibilities of the directors, the structure and conditions of the global offering, and to ensure the accuracy and completeness of the prospectus.",
+      "fields": [
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.directors_responsibility_statement",
+          "field_name": "directors_responsibility_statement",
+          "type": "string",
+          "description": "Statement confirming the directors' responsibility for the contents of the prospectus.",
+          "example": "Our Directors, having made all reasonable enquiries, confirm that, to the best of their knowledge and belief, the information contained in this prospectus is accurate and complete in all material respects and not misleading or deceptive."
+        },
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.number_of_hong_kong_offer_shares",
+          "field_name": "number_of_hong_kong_offer_shares",
+          "type": "string",
+          "description": "Number of Hong Kong offer shares to be issued.",
+          "example": "70,612,000"
+        },
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.number_of_international_offer_shares",
+          "field_name": "number_of_international_offer_shares",
+          "type": "string",
+          "description": "Number of international offer shares to be issued.",
+          "example": "635,494,000"
+        },
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.underwriting_agreement_details",
+          "field_name": "underwriting_agreement_details",
+          "type": "string",
+          "description": "Details of the underwriting agreement, including the names of the underwriters and the terms of the agreement.",
+          "example": "The Hong Kong Offer Shares are offered solely on the basis of the information contained and representations made in this prospectus and the Application Forms and on the terms and subject to the conditions set out herein and therein."
+        },
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.exchange_rate_conversions",
+          "field_name": "exchange_rate_conversions",
+          "type": "string",
+          "description": "Exchange rate conversions for amounts denominated in different currencies.",
+          "example": "The translations between Renminbi and Hong Kong dollars were made at the rate of RMB0.78623 to HK$1.00."
+        },
+        {
+          "field_id": "Prospectus_and_Global_Offering_Information.language_precedence",
+          "field_name": "language_precedence",
+          "type": "string",
+          "description": "Precedence of the English version in case of inconsistencies with the Chinese translation.",
+          "example": "If there is any inconsistency between this prospectus and the Chinese translation of this prospectus, this prospectus shall prevail."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Regulatory_Overview",
+      "category_name": "Regulatory_Overview",
+      "maps_to_sections": [
+        "Regulatory_Overview"
+      ],
+      "function": "To summarize the key regulatory frameworks affecting the issuer's business in the PRC.",
+      "fields": [
+        {
+          "field_id": "Regulatory_Overview.latest_negative_list",
+          "field_name": "latest_negative_list",
+          "type": "string",
+          "description": "The most recent version of the Negative List for Foreign Investment Access.",
+          "example": "Special Administrative Measures (Negative List) for Foreign Investment Access (2020 Version)"
+        },
+        {
+          "field_id": "Regulatory_Overview.encouraged_industries_catalog",
+          "field_name": "encouraged_industries_catalog",
+          "type": "string",
+          "description": "The current version of the Catalog of Industries for Encouraging Foreign Investment.",
+          "example": "Catalog of Industries for Encouraging Foreign Investment (2020 Version)"
+        },
+        {
+          "field_id": "Regulatory_Overview.government_policies",
+          "field_name": "government_policies",
+          "type": "string",
+          "description": "Key government policies supporting the issuer's industry.",
+          "example": "Made in China 2025 Plan"
+        },
+        {
+          "field_id": "Regulatory_Overview.product_liability_laws",
+          "field_name": "product_liability_laws",
+          "type": "string",
+          "description": "Laws and regulations related to product liability and consumer protection.",
+          "example": "PRC Product Quality Law"
+        },
+        {
+          "field_id": "Regulatory_Overview.cross_border_transaction_regulations",
+          "field_name": "cross_border_transaction_regulations",
+          "type": "string",
+          "description": "Regulations governing cross-border transactions and foreign exchange controls.",
+          "example": "SAFE Circular 28"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Relationship_with_Controlling_Shareholders",
+      "category_name": "Relationship_with_Controlling_Shareholders",
+      "maps_to_sections": [
+        "Relationship_with_Controlling_Shareholders"
+      ],
+      "function": "To disclose the relationship between the company and its controlling shareholders, including their shareholdings, voting rights, and measures taken to manage conflicts of interest.",
+      "fields": [
+        {
+          "field_id": "Relationship_with_Controlling_Shareholders.controlling_shareholder_name",
+          "field_name": "controlling_shareholder_name",
+          "type": "string",
+          "description": "Name of the controlling shareholder.",
+          "example": "Prof. Tang"
+        },
+        {
+          "field_id": "Relationship_with_Controlling_Shareholders.controlling_shareholder_shareholding",
+          "field_name": "controlling_shareholder_shareholding",
+          "type": "string",
+          "description": "Percentage of shareholding by the controlling shareholder.",
+          "example": "26.43%"
+        },
+        {
+          "field_id": "Relationship_with_Controlling_Shareholders.voting_rights_details",
+          "field_name": "voting_rights_details",
+          "type": "string",
+          "description": "Details of the voting rights associated with different classes of shares.",
+          "example": "Each Class A Share has 10 votes per share, while each Class B Share has one vote per share."
+        },
+        {
+          "field_id": "Relationship_with_Controlling_Shareholders.concert_party_agreements",
+          "field_name": "concert_party_agreements",
+          "type": "string",
+          "description": "Details of any concert party agreements or similar arrangements.",
+          "example": "Agreement among Sinovation Ventures, Sinovation Ventures Yucheng, Mr. Wang Hua, Ms. Tao Ning, Ms. Lang Chunhui, and Mr. Zhang Ying."
+        },
+        {
+          "field_id": "Relationship_with_Controlling_Shareholders.internal_control_mechanisms",
+          "field_name": "internal_control_mechanisms",
+          "type": "string",
+          "description": "Description of internal control mechanisms to manage conflicts of interest.",
+          "example": "Annual review by independent non-executive directors."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Risk_Factors",
+      "category_name": "Risk_Factors",
+      "maps_to_sections": [
+        "Risk_Factors"
+      ],
+      "function": "To disclose material risks that could impact the issuer's business, financial condition, and results of operations, thereby enabling investors to make informed decisions.",
+      "fields": [
+        {
+          "field_id": "Risk_Factors.issuer_name",
+          "field_name": "issuer_name",
+          "type": "string",
+          "description": "Name of the issuing company.",
+          "example": "Tech Innovations Ltd."
+        },
+        {
+          "field_id": "Risk_Factors.latest_practicable_date",
+          "field_name": "latest_practicable_date",
+          "type": "string",
+          "description": "Date up to which the information in the risk factors section is current.",
+          "example": "31 December 2022"
+        },
+        {
+          "field_id": "Risk_Factors.industry_risks",
+          "field_name": "industry_risks",
+          "type": "list",
+          "description": "List of industry-specific risks faced by the issuer.",
+          "example": [
+            "Technological obsolescence",
+            "Competition from new entrants"
+          ]
+        },
+        {
+          "field_id": "Risk_Factors.operational_risks",
+          "field_name": "operational_risks",
+          "type": "list",
+          "description": "List of operational risks faced by the issuer.",
+          "example": [
+            "Supply chain disruptions",
+            "Cybersecurity threats"
+          ]
+        },
+        {
+          "field_id": "Risk_Factors.financial_risks",
+          "field_name": "financial_risks",
+          "type": "list",
+          "description": "List of financial risks faced by the issuer.",
+          "example": [
+            "Liquidity issues",
+            "Credit risks"
+          ]
+        },
+        {
+          "field_id": "Risk_Factors.regulatory_risks",
+          "field_name": "regulatory_risks",
+          "type": "list",
+          "description": "List of regulatory risks faced by the issuer.",
+          "example": [
+            "Compliance with data protection laws",
+            "Penalties for non-compliance"
+          ]
+        },
+        {
+          "field_id": "Risk_Factors.market_risks",
+          "field_name": "market_risks",
+          "type": "list",
+          "description": "List of market risks faced by the issuer.",
+          "example": [
+            "Fluctuations in exchange rates",
+            "Commodity price volatility"
+          ]
+        },
+        {
+          "field_id": "Risk_Factors.other_material_risks",
+          "field_name": "other_material_risks",
+          "type": "list",
+          "description": "Any other significant risks that are material to the issuer's business.",
+          "example": [
+            "Dependence on key suppliers",
+            "Risks associated with international operations"
+          ]
+        }
+      ]
+    },
+    {
+      "category_id": "section_Share_Capital",
+      "category_name": "Share_Capital",
+      "maps_to_sections": [
+        "Share_Capital"
+      ],
+      "function": "To describe the authorized and issued share capital of the company, including any changes due to the offering, and to detail the voting rights and repurchase mandates.",
+      "fields": [
+        {
+          "field_id": "Share_Capital.authorized_share_capital",
+          "field_name": "authorized_share_capital",
+          "type": "string",
+          "description": "Total number of shares the company is authorized to issue.",
+          "example": "500,000,000"
+        },
+        {
+          "field_id": "Share_Capital.issued_share_capital",
+          "field_name": "issued_share_capital",
+          "type": "string",
+          "description": "Number of shares that have been issued and the nominal value of these shares.",
+          "example": "100,000,000 shares with a nominal value of $0.001 each"
+        },
+        {
+          "field_id": "Share_Capital.share_capital_after_offering",
+          "field_name": "share_capital_after_offering",
+          "type": "string",
+          "description": "Breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares.",
+          "example": "122,323,870 Class A Shares, 14,835,491 Class B Shares, 7,219,000 Class A Shares to be issued"
+        },
+        {
+          "field_id": "Share_Capital.voting_rights_structure",
+          "field_name": "voting_rights_structure",
+          "type": "string",
+          "description": "Details of the voting rights structure, if applicable, including the ranking of shares and any special voting rights.",
+          "example": "Class A Shares rank equally with all other Class A Shares and Class B Shares rank below Class A Shares."
+        },
+        {
+          "field_id": "Share_Capital.repurchase_mandate_details",
+          "field_name": "repurchase_mandate_details",
+          "type": "string",
+          "description": "Details of any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates.",
+          "example": "Directors can repurchase up to 10% of the total number of shares in issue, excluding certain classes of shares."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Structure_of_the_Global_Offering",
+      "category_name": "Structure_of_the_Global_Offering",
+      "maps_to_sections": [
+        "Structure_of_the_Global_Offering"
+      ],
+      "function": "Describes the structure of the global offering, including the Hong Kong public offering and international placing, and the conditions for the offering to proceed.",
+      "fields": [
+        {
+          "field_id": "Structure_of_the_Global_Offering.joint_representatives",
+          "field_name": "joint_representatives",
+          "type": "string",
+          "description": "Names of the joint representatives for the global offering.",
+          "example": "China International Capital Corporation Hong Kong Securities Limited, Haitong International Securities Company Limited"
+        },
+        {
+          "field_id": "Structure_of_the_Global_Offering.number_of_hong_kong_shares",
+          "field_name": "number_of_hong_kong_shares",
+          "type": "string",
+          "description": "Number of Hong Kong public offering shares.",
+          "example": "150,000,000"
+        },
+        {
+          "field_id": "Structure_of_the_Global_Offering.number_of_international_shares",
+          "field_name": "number_of_international_shares",
+          "type": "string",
+          "description": "Number of international offering shares.",
+          "example": "1,350,000,000"
+        },
+        {
+          "field_id": "Structure_of_the_Global_Offering.price_determination_date",
+          "field_name": "price_determination_date",
+          "type": "string",
+          "description": "Date by which the offer price must be agreed upon.",
+          "example": "Thursday, December 16, 2021"
+        },
+        {
+          "field_id": "Structure_of_the_Global_Offering.over_allotment_option",
+          "field_name": "over_allotment_option",
+          "type": "string",
+          "description": "Details of the over-allotment option, if applicable.",
+          "example": "Up to 18,750,000 additional shares"
+        },
+        {
+          "field_id": "Structure_of_the_Global_Offering.share_dealing_start_date",
+          "field_name": "share_dealing_start_date",
+          "type": "string",
+          "description": "Date when share dealings are expected to commence.",
+          "example": "Friday, December 17, 2021"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Substantial_Shareholders",
+      "category_name": "Substantial_Shareholders",
+      "maps_to_sections": [
+        "Substantial_Shareholders"
+      ],
+      "function": "Discloses the identities and shareholdings of individuals or entities that hold 10% or more of the share capital of the company, providing transparency regarding significant ownership.",
+      "fields": [
+        {
+          "field_id": "Substantial_Shareholders.name_of_substantial_shareholder",
+          "field_name": "name_of_substantial_shareholder",
+          "type": "string",
+          "description": "The name of the substantial shareholder.",
+          "example": "Amind"
+        },
+        {
+          "field_id": "Substantial_Shareholders.capacity_nature_of_interest",
+          "field_name": "capacity_nature_of_interest",
+          "type": "string",
+          "description": "The nature of the interest held by the shareholder, e.g., beneficial interest, interest in a controlled corporation.",
+          "example": "Beneficial interest"
+        },
+        {
+          "field_id": "Substantial_Shareholders.number_and_class_of_shares_held",
+          "field_name": "number_and_class_of_shares_held",
+          "type": "string",
+          "description": "The number and class of shares held by the substantial shareholder.",
+          "example": "6,906,080,602 Class A Shares"
+        },
+        {
+          "field_id": "Substantial_Shareholders.approximate_percentage_of_shareholding_of_each_class_of_shares",
+          "field_name": "approximate_percentage_of_shareholding_of_each_class_of_shares",
+          "type": "string",
+          "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder.",
+          "example": "91.73%"
+        },
+        {
+          "field_id": "Substantial_Shareholders.approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
+          "field_name": "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
+          "type": "string",
+          "description": "The approximate percentage of the shareholding in the issued and outstanding share capital of the company.",
+          "example": "20.75%"
+        }
+      ]
+    },
+    {
+      "category_id": "section_Summary",
+      "category_name": "Summary",
+      "maps_to_sections": [
+        "Summary"
+      ],
+      "function": "To provide a high-level overview of the key aspects of the issuer and the offering, ensuring investors understand the core business, risks, and use of proceeds.",
+      "fields": [
+        {
+          "field_id": "Summary.Issuer Name",
+          "field_name": "Issuer Name",
+          "type": "string",
+          "description": "Name of the company issuing the shares.",
+          "example": "Amind Holdings Limited"
+        },
+        {
+          "field_id": "Summary.Business Overview",
+          "field_name": "Business Overview",
+          "type": "string",
+          "description": "Brief description of the issuer’s business, products, and services.",
+          "example": "Leading AI software company with a focus on computer vision technologies."
+        },
+        {
+          "field_id": "Summary.Market Position",
+          "field_name": "Market Position",
+          "type": "string",
+          "description": "Details on the issuer’s market position and competitive landscape.",
+          "example": "Largest AI software company in Asia, with a market share of 11% in China."
+        },
+        {
+          "field_id": "Summary.Risk Factors",
+          "field_name": "Risk Factors",
+          "type": "string",
+          "description": "Summary of the main risks associated with the investment.",
+          "example": "Risks related to technological obsolescence and regulatory changes."
+        },
+        {
+          "field_id": "Summary.Use of Proceeds",
+          "field_name": "Use of Proceeds",
+          "type": "string",
+          "description": "Description of how the proceeds from the offering will be used.",
+          "example": "Enhancing R&D capabilities, commercialization capabilities, and potential strategic investments."
+        },
+        {
+          "field_id": "Summary.Financial Highlights",
+          "field_name": "Financial Highlights",
+          "type": "string",
+          "description": "Key financial metrics, such as revenue, profit margins, and growth trends.",
+          "example": "Revenue of HK$1,000 million in the last fiscal year, with a 10% year-over-year growth."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Underwriting",
+      "category_name": "Underwriting",
+      "maps_to_sections": [
+        "Underwriting"
+      ],
+      "function": "To detail the underwriting arrangements for the Hong Kong Public Offering and International Offering, including the underwriters involved, the underwriting agreement, and the stabilizing activities.",
+      "fields": [
+        {
+          "field_id": "Underwriting.Underwriters",
+          "field_name": "Underwriters",
+          "type": "string",
+          "description": "Names and details of the underwriters involved in the offering.",
+          "example": "China International Capital Corporation Hong Kong Securities Limited"
+        },
+        {
+          "field_id": "Underwriting.Underwriting Agreement Date",
+          "field_name": "Underwriting Agreement Date",
+          "type": "string",
+          "description": "Date the underwriting agreement was signed.",
+          "example": "Monday, December 6, 2021"
+        },
+        {
+          "field_id": "Underwriting.Offer Price",
+          "field_name": "Offer Price",
+          "type": "string",
+          "description": "Price at which the shares will be offered to the public.",
+          "example": "HKD 10.00 per share"
+        },
+        {
+          "field_id": "Underwriting.Number of Offer Shares",
+          "field_name": "Number of Offer Shares",
+          "type": "string",
+          "description": "Total number of offer shares for the Hong Kong Public Offering and International Offering.",
+          "example": "150,000,000 Hong Kong Offer Shares and 1,350,000,000 International Offer Shares"
+        },
+        {
+          "field_id": "Underwriting.Over-allotment Option",
+          "field_name": "Over-allotment Option",
+          "type": "string",
+          "description": "Details of the over-allotment option, if applicable.",
+          "example": "The International Offering includes an over-allotment option for up to 20% additional shares."
+        }
+      ]
+    },
+    {
+      "category_id": "section_Waivers_and_Exemptions",
+      "category_name": "Waivers_and_Exemptions",
+      "maps_to_sections": [
+        "Waivers_and_Exemptions"
+      ],
+      "function": "To detail any waivers or exemptions obtained from the strict compliance with the Hong Kong Exchanges and Clearing Limited (Exchange) Listing Rules or other relevant ordinances.",
+      "fields": [
+        {
+          "field_id": "Waivers_and_Exemptions.waiver_date",
+          "field_name": "waiver_date",
+          "type": "string",
+          "description": "The date the waiver or exemption was granted by Exchange.",
+          "example": "2023-10-15"
+        },
+        {
+          "field_id": "Waivers_and_Exemptions.waiver_rule",
+          "field_name": "waiver_rule",
+          "type": "string",
+          "description": "The specific rule or ordinance being waived or exempted.",
+          "example": "Rule 8.17 of the Listing Rules"
+        },
+        {
+          "field_id": "Waivers_and_Exemptions.waiver_reason",
+          "field_name": "waiver_reason",
+          "type": "string",
+          "description": "The reason for seeking the waiver or exemption.",
+          "example": "Management presence in Hong Kong is impractical due to the company's operations in the PRC."
+        },
+        {
+          "field_id": "Waivers_and_Exemptions.waiver_expiration_date",
+          "field_name": "waiver_expiration_date",
+          "type": "string",
+          "description": "The expiration date of the waiver or exemption.",
+          "example": "2026-10-15"
+        },
+        {
+          "field_id": "Waivers_and_Exemptions.waiver_grantor",
+          "field_name": "waiver_grantor",
+          "type": "string",
+          "description": "The entity granting the waiver or exemption.",
+          "example": "The Stock Exchange"
+        }
+      ]
+    }
+  ]
+}

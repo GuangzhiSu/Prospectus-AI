@@ -1,0 +1,843 @@
+{
+    "company_profile": {
+      "company_name": "UBTECH ROBOTICS CORP LTD",
+      "company_chinese_name": "深圳市優必選科技股份有限公司",
+      "stock_code": "9880",
+      "legal_structure": "joint stock company incorporated in the PRC with limited liability",
+      "incorporation_jurisdiction": "PRC",
+      "headquarters_location": "Shenzhen, PRC",
+      "strategic_positioning": "smart service robotic products and services provider",
+      "branch_offices_count": 2,
+      "branch_offices": [
+        "Beijing branch",
+        "Baoan branch"
+      ],
+      "company_history_milestones": [
+        {
+          "year": 2016,
+          "event": "launched consumer-level robots and other hardware devices"
+        },
+        {
+          "year": 2017,
+          "event": "launched education smart robotic and general service smart robotic products and services"
+        },
+        {
+          "year": 2020,
+          "event": "launched logistics smart robotic products and services"
+        },
+        {
+          "year": 2022,
+          "event": "launched wellness and elderly care smart robotic products and services"
+        }
+      ]
+    },
+  
+    "corporate_structure": {
+      "operating_facilities_count": 7,
+      "subsidiaries": [
+        {
+          "name": "UBTECH (Shenzhen) Technology Co., Ltd.",
+          "ownership_pct": 100.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "UBTECH (Hebei) Technology Co., Ltd.",
+          "ownership_pct": 100.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "UBTECH (Hubei) Technology Co., Ltd.",
+          "ownership_pct": 100.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "Guizhou UBTECH Technology Co., Ltd.",
+          "ownership_pct": 100.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "Shanghai UBJ",
+          "ownership_pct": 87.53,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "Chaozhou UBTECH Education Technology Co., Ltd.",
+          "ownership_pct": 51.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "UBKang (Qingdao) Technology Co., Ltd.",
+          "ownership_pct": 80.0,
+          "country": "PRC",
+          "entity_type": "subsidiary"
+        },
+        {
+          "name": "Wuxi Uqi",
+          "ownership_pct": 36.22,
+          "country": "PRC",
+          "entity_type": "associate_or_non_wholly_owned_entity"
+        }
+      ]
+    },
+  
+    "business": {
+      "product_segments": [
+        "education smart robotic products and services",
+        "logistics smart robotic products and services",
+        "other sector-tailored smart robotic products and services",
+        "consumer-level robots and other hardware devices"
+      ],
+      "products": {
+        "education": [
+          "Yanshee",
+          "Alpha Mini (education)",
+          "uKit",
+          "Jimu series (education)",
+          "uCode",
+          "uPython"
+        ],
+        "logistics": [
+          "AGVs",
+          "AMRs",
+          "Wali Series",
+          "WMS",
+          "MES"
+        ],
+        "other_sector_tailored": [
+          "Cruzr series",
+          "Walker series",
+          "ADIBOT series"
+        ],
+        "consumer": [
+          "AiRROBO vacuum cleaner",
+          "AiRROBO cat litter box",
+          "Alpha Mini (non-education)"
+        ]
+      },
+      "revenue_model": [
+        "sale of education smart robotic products and services",
+        "sale of logistics smart robotic products and services",
+        "sale of other sector-tailored smart robotic products and services",
+        "sale of consumer-level robots and other hardware devices"
+      ],
+      "sales_model": [
+        "direct sales",
+        "self-operated online stores",
+        "distributors"
+      ],
+      "distribution_channels": [
+        "government educational bureaus",
+        "enterprise customers",
+        "self-operated online stores",
+        "distributors"
+      ],
+      "customer_acquisition_channels": [
+        "government procurement",
+        "enterprise direct sales",
+        "distributor sales",
+        "online sales"
+      ],
+      "direct_sales_and_online_store_revenue_ratio_min": 0.8,
+      "sales_regions": [
+        "PRC",
+        "United States",
+        "Japan",
+        "other overseas countries"
+      ],
+      "countries_served_count_min": 50,
+      "production_model": [
+        "in-house production facilities",
+        "contract manufacturers"
+      ],
+      "contract_manufactured_products": [
+        "humanoid Alpha Mini",
+        "smart robotic appliances"
+      ],
+      "supplier_types": [
+        "raw material providers",
+        "hardware providers",
+        "teaching support service subcontractors",
+        "contract manufacturing service providers"
+      ]
+    },
+  
+    "products_and_technology": {
+      "technology_architecture": [
+        "robotic motion planning and control technology",
+        "servo actuators",
+        "computer vision",
+        "voice interaction",
+        "SLAM and autonomous technology",
+        "visual servo operation and human-robot interaction",
+        "ROSA"
+      ],
+      "technology_platform": "Robot Operating System Application Framework (ROSA)",
+      "ai_capabilities": [
+        "computer vision",
+        "voice interaction",
+        "facial recognition",
+        "mapping",
+        "temperature measurement"
+      ],
+      "rd_focus_area": "core technologies utilized in humanoid robots",
+      "rd_team_size_min": 700,
+      "rd_team_start_year": 2012,
+      "patent_count_total_min": 1800,
+      "overseas_patent_count_min": 380,
+      "product_types_launched_count_min": 50,
+      "robotic_units_sold_cumulative_min": 760000,
+      "technology_awards": {
+        "national_level_awards": 2,
+        "provincial_level_awards": 4,
+        "international_level_awards": 1
+      }
+    },
+  
+    "customers": {
+      "customer_segments": [
+        "government educational bureaus",
+        "enterprise customers",
+        "distributors",
+        "consumers"
+      ],
+      "enterprise_group_customers_count_min": 900,
+      "customer_industry_distribution": [
+        "education",
+        "logistics and manufacturing",
+        "schools",
+        "hospitals",
+        "airports",
+        "train stations",
+        "shopping malls",
+        "banks",
+        "electrical substations"
+      ],
+      "customer_concentration": {
+        "top5_customer_revenue": [
+          {
+            "period": "FY2020",
+            "amount_rmb": 492600000,
+            "revenue_pct": 0.665
+          },
+          {
+            "period": "FY2021",
+            "amount_rmb": 426700000,
+            "revenue_pct": 0.522
+          },
+          {
+            "period": "FY2022",
+            "amount_rmb": 720900000,
+            "revenue_pct": 0.715
+          },
+          {
+            "period": "6M2023",
+            "amount_rmb": 116300000,
+            "revenue_pct": 0.445
+          }
+        ],
+        "largest_customer_revenue": [
+          {
+            "period": "FY2020",
+            "amount_rmb": 279700000,
+            "revenue_pct": 0.378
+          },
+          {
+            "period": "FY2021",
+            "amount_rmb": 175000000,
+            "revenue_pct": 0.214
+          },
+          {
+            "period": "FY2022",
+            "amount_rmb": 276600000,
+            "revenue_pct": 0.274
+          },
+          {
+            "period": "6M2023",
+            "amount_rmb": 71400000,
+            "revenue_pct": 0.274
+          }
+        ]
+      },
+      "major_order_examples": [
+        {
+          "period_reference": "6M2022",
+          "customer_region": "Shaoyang",
+          "order_amount_rmb": 66800000,
+          "units": 12010,
+          "order_type": "education smart robotic products"
+        }
+      ]
+    },
+  
+    "market": {
+      "target_market_size": {
+        "global_market_size_2022_usd": 23500000000,
+        "global_market_size_2028_usd": 62800000000,
+        "prc_market_size_2022_rmb": 51600000000,
+        "prc_market_size_2028_rmb": 183200000000
+      },
+      "market_growth_rate": {
+        "global_cagr_2022_2028": 0.178,
+        "prc_cagr_2022_2028": 0.235
+      },
+      "industry_trends": [
+        "low penetration of smart service robotics",
+        "rising demand for new energy vehicles",
+        "manufacturing transformation in China",
+        "increasing labor cost",
+        "government policy support",
+        "evolving technologies and product trends"
+      ]
+    },
+  
+    "competition": {
+      "market_position": {
+        "china_smart_service_robotics_rank_2022": 3,
+        "china_smart_service_robotics_market_share_2022": 0.028,
+        "china_education_robotics_rank_2022": 1,
+        "china_education_robotics_market_share_2022": 0.225
+      },
+      "competitive_advantages": [
+        "established provider of smart service robotic products and services in the PRC",
+        "self-developed full-stack technologies for smart robotics",
+        "successful commercialization grounded in core technologies utilized in humanoid robots across multiple use scenarios",
+        "China-based with overseas market presence and partnerships",
+        "experienced management team supported by dedicated industry professionals"
+      ],
+      "main_competitors": null
+    },
+  
+    "financials": {
+      "income_statement": [
+        {
+          "period": "FY2020",
+          "revenue_rmb": 740226000,
+          "net_loss_rmb": 707000000,
+          "gross_margin": 0.447,
+          "net_margin": -0.955,
+          "rd_expense_rmb": 428800000,
+          "rd_expense_ratio": 0.579,
+          "selling_marketing_expense_rmb": 313298000,
+          "selling_marketing_expense_ratio": 0.423,
+          "general_administrative_expense_rmb": 212061000
+        },
+        {
+          "period": "FY2021",
+          "revenue_rmb": 817230000,
+          "net_loss_rmb": 917500000,
+          "gross_margin": 0.313,
+          "net_margin": -1.123,
+          "rd_expense_rmb": 517100000,
+          "rd_expense_ratio": 0.633,
+          "selling_marketing_expense_rmb": 357607000,
+          "selling_marketing_expense_ratio": 0.438,
+          "general_administrative_expense_rmb": 325899000
+        },
+        {
+          "period": "FY2022",
+          "revenue_rmb": 1008272000,
+          "net_loss_rmb": 987400000,
+          "gross_margin": 0.292,
+          "net_margin": -0.979,
+          "rd_expense_rmb": 428300000,
+          "rd_expense_ratio": 0.425,
+          "selling_marketing_expense_rmb": 361023000,
+          "selling_marketing_expense_ratio": 0.358,
+          "general_administrative_expense_rmb": 398083000
+        },
+        {
+          "period": "6M2022",
+          "revenue_rmb": 283523000,
+          "net_loss_rmb": 515200000,
+          "gross_margin": 0.137,
+          "net_margin": -1.817,
+          "rd_expense_rmb": null,
+          "rd_expense_ratio": null,
+          "selling_marketing_expense_rmb": 171563000,
+          "selling_marketing_expense_ratio": 0.605,
+          "general_administrative_expense_rmb": 162461000
+        },
+        {
+          "period": "6M2023",
+          "revenue_rmb": 261139000,
+          "net_loss_rmb": 547900000,
+          "gross_margin": 0.202,
+          "net_margin": -2.098,
+          "rd_expense_rmb": 224300000,
+          "rd_expense_ratio": 0.859,
+          "selling_marketing_expense_rmb": 189848000,
+          "selling_marketing_expense_ratio": 0.727,
+          "general_administrative_expense_rmb": 177550000
+        }
+      ],
+      "balance_sheet": [
+        {
+          "date": "2020-12-31",
+          "inventories_rmb": 412800000,
+          "contract_liabilities_rmb": 91100000,
+          "net_current_assets_rmb": 281900000
+        },
+        {
+          "date": "2021-12-31",
+          "inventories_rmb": 426100000,
+          "contract_liabilities_rmb": 144200000,
+          "net_current_liabilities_rmb": 83300000
+        },
+        {
+          "date": "2022-12-31",
+          "inventories_rmb": 332700000,
+          "contract_liabilities_rmb": 84500000
+        },
+        {
+          "date": "2023-06-30",
+          "inventories_rmb": 416500000,
+          "contract_liabilities_rmb": 127100000
+        }
+      ],
+      "cash_flow": [
+        {
+          "period": "FY2020",
+          "net_cash_used_in_operating_activities_rmb": 602600000
+        },
+        {
+          "period": "FY2021",
+          "net_cash_used_in_operating_activities_rmb": 680700000
+        },
+        {
+          "period": "FY2022",
+          "net_cash_used_in_operating_activities_rmb": 543500000
+        },
+        {
+          "period": "6M2023",
+          "net_cash_used_in_operating_activities_rmb": 526500000
+        }
+      ],
+      "inventory_write_downs": [
+        {
+          "period": "FY2020",
+          "amount_rmb": 12600000
+        },
+        {
+          "period": "FY2021",
+          "amount_rmb": 1200000
+        },
+        {
+          "period": "FY2022",
+          "amount_rmb": 70600000
+        },
+        {
+          "period": "6M2023",
+          "amount_rmb": 2000000
+        }
+      ]
+    },
+  
+    "operating_metrics": {
+      "segment_revenue": [
+        {
+          "period": "FY2020",
+          "education_rmb": 612249000,
+          "logistics_rmb": 12690000,
+          "other_sector_tailored_rmb": 38598000,
+          "consumer_rmb": 62016000
+        },
+        {
+          "period": "FY2021",
+          "education_rmb": 461843000,
+          "logistics_rmb": 190786000,
+          "other_sector_tailored_rmb": 90245000,
+          "consumer_rmb": 67795000
+        },
+        {
+          "period": "FY2022",
+          "education_rmb": 516688000,
+          "logistics_rmb": 263437000,
+          "other_sector_tailored_rmb": 82418000,
+          "consumer_rmb": 132448000
+        },
+        {
+          "period": "6M2023",
+          "education_rmb": 75668000,
+          "logistics_rmb": 76801000,
+          "other_sector_tailored_rmb": 22246000,
+          "consumer_rmb": 85028000
+        }
+      ],
+      "segment_revenue_mix": [
+        {
+          "period": "FY2020",
+          "education_pct": 0.827,
+          "logistics_pct": 0.017,
+          "other_sector_tailored_pct": 0.052,
+          "consumer_pct": 0.084
+        },
+        {
+          "period": "FY2021",
+          "education_pct": 0.565,
+          "logistics_pct": 0.233,
+          "other_sector_tailored_pct": 0.11,
+          "consumer_pct": 0.083
+        },
+        {
+          "period": "FY2022",
+          "education_pct": 0.512,
+          "logistics_pct": 0.261,
+          "other_sector_tailored_pct": 0.082,
+          "consumer_pct": 0.131
+        },
+        {
+          "period": "6M2023",
+          "education_pct": 0.29,
+          "logistics_pct": 0.294,
+          "other_sector_tailored_pct": 0.085,
+          "consumer_pct": 0.326
+        }
+      ],
+      "education_hardware_and_software_metrics": [
+        {
+          "period": "FY2020",
+          "revenue_rmb": 403702000,
+          "asp_rmb_per_unit": 3150,
+          "sales_volume_k_units": 128
+        },
+        {
+          "period": "FY2021",
+          "revenue_rmb": 254654000,
+          "asp_rmb_per_unit": 3740,
+          "sales_volume_k_units": 68
+        },
+        {
+          "period": "FY2022",
+          "revenue_rmb": 279874000,
+          "asp_rmb_per_unit": 4702,
+          "sales_volume_k_units": 60
+        },
+        {
+          "period": "6M2022",
+          "revenue_rmb": 100601000,
+          "asp_rmb_per_unit": 4646,
+          "sales_volume_k_units": 22
+        },
+        {
+          "period": "6M2023",
+          "revenue_rmb": 16504000,
+          "asp_rmb_per_unit": 1312,
+          "sales_volume_k_units": 13
+        }
+      ],
+      "consumer_robot_metrics": [
+        {
+          "period": "FY2020",
+          "revenue_rmb": 59372000,
+          "asp_rmb_per_unit": 940,
+          "sales_volume_k_units": 63
+        },
+        {
+          "period": "FY2021",
+          "revenue_rmb": 65575000,
+          "asp_rmb_per_unit": 664,
+          "sales_volume_k_units": 99
+        },
+        {
+          "period": "FY2022",
+          "revenue_rmb": 131900000,
+          "asp_rmb_per_unit": 639,
+          "sales_volume_k_units": 206
+        },
+        {
+          "period": "6M2022",
+          "revenue_rmb": 45847000,
+          "asp_rmb_per_unit": 639,
+          "sales_volume_k_units": 72
+        },
+        {
+          "period": "6M2023",
+          "revenue_rmb": 83185000,
+          "asp_rmb_per_unit": 658,
+          "sales_volume_k_units": 126
+        }
+      ],
+      "general_service_robot_metrics": [
+        {
+          "period": "FY2020",
+          "revenue_rmb": 36297000,
+          "asp_rmb_per_unit": 86422,
+          "sales_volume_k_units": 0.4
+        },
+        {
+          "period": "FY2021",
+          "revenue_rmb": 77440000,
+          "asp_rmb_per_unit": 135385,
+          "sales_volume_k_units": 0.6
+        },
+        {
+          "period": "FY2022",
+          "revenue_rmb": 30569000,
+          "asp_rmb_per_unit": 29224,
+          "sales_volume_k_units": 1.0
+        },
+        {
+          "period": "6M2022",
+          "revenue_rmb": 9021000,
+          "asp_rmb_per_unit": 114186,
+          "sales_volume_k_units": 0.1
+        },
+        {
+          "period": "6M2023",
+          "revenue_rmb": 15003000,
+          "asp_rmb_per_unit": 60497,
+          "sales_volume_k_units": 0.2
+        }
+      ],
+      "logistics_revenue_generating_projects": [
+        {
+          "period": "6M2022",
+          "project_count": 9
+        },
+        {
+          "period": "6M2023",
+          "project_count": 24
+        }
+      ],
+      "enterprise_level_revenue_share": [
+        {
+          "period": "FY2020",
+          "revenue_pct": 0.896
+        },
+        {
+          "period": "FY2021",
+          "revenue_pct": 0.909
+        },
+        {
+          "period": "FY2022",
+          "revenue_pct": 0.855
+        },
+        {
+          "period": "6M2022",
+          "revenue_pct": 0.806
+        },
+        {
+          "period": "6M2023",
+          "revenue_pct": 0.669
+        }
+      ],
+      "education_plus_logistics_revenue_share": [
+        {
+          "period": "FY2020",
+          "revenue_pct": 0.844
+        },
+        {
+          "period": "FY2021",
+          "revenue_pct": 0.798
+        },
+        {
+          "period": "FY2022",
+          "revenue_pct": 0.773
+        },
+        {
+          "period": "6M2023",
+          "revenue_pct": 0.584
+        }
+      ],
+      "walker_revenue_share": [
+        {
+          "period": "FY2020",
+          "revenue_pct": 0.001
+        },
+        {
+          "period": "FY2021",
+          "revenue_pct": 0.011
+        },
+        {
+          "period": "FY2022",
+          "revenue_pct": 0.048
+        },
+        {
+          "period": "6M2023",
+          "revenue_pct": 0.009
+        }
+      ],
+      "saas_style_metrics_not_disclosed": {
+        "arr": null,
+        "arpu": null,
+        "mau": null,
+        "dau": null,
+        "customer_retention_rate": null,
+        "customer_acquisition_cost": null,
+        "lifetime_value": null,
+        "subscription_renewal_rate": null
+      }
+    },
+  
+    "risk_related_data": {
+      "customer_concentration": {
+        "top5_customer_revenue_pct_fy2022": 0.715,
+        "largest_customer_revenue_pct_fy2020": 0.378
+      },
+      "supplier_dependency": {
+        "top5_supplier_purchases": [
+          {
+            "period": "FY2020",
+            "amount_rmb": 144300000,
+            "cost_of_sales_pct": 0.352
+          },
+          {
+            "period": "FY2021",
+            "amount_rmb": 195000000,
+            "cost_of_sales_pct": 0.347
+          },
+          {
+            "period": "FY2022",
+            "amount_rmb": 188200000,
+            "cost_of_sales_pct": 0.263
+          },
+          {
+            "period": "6M2023",
+            "amount_rmb": 105800000,
+            "cost_of_sales_pct": 0.507
+          }
+        ],
+        "largest_supplier_purchases": [
+          {
+            "period": "FY2020",
+            "amount_rmb": 73900000,
+            "cost_of_sales_pct": 0.18
+          },
+          {
+            "period": "FY2021",
+            "amount_rmb": 93700000,
+            "cost_of_sales_pct": 0.167
+          },
+          {
+            "period": "FY2022",
+            "amount_rmb": 60500000,
+            "cost_of_sales_pct": 0.085
+          },
+          {
+            "period": "6M2023",
+            "amount_rmb": 44800000,
+            "cost_of_sales_pct": 0.215
+          }
+        ]
+      },
+      "inventory_risk": {
+        "inventories_2023_06_30_rmb": 416500000,
+        "inventory_write_down_fy2022_rmb": 70600000
+      },
+      "liquidity_risk": {
+        "net_current_liabilities_2021_12_31_rmb": 83300000,
+        "cash_and_cash_equivalents_decrease_2021_rmb": 348700000,
+        "trade_payables_increase_2021_rmb": 170100000,
+        "other_payables_and_accruals_increase_2021_rmb": 97800000,
+        "current_borrowings_increase_2021_rmb": 75700000
+      },
+      "technology_dependency": {
+        "rd_expense_ratio_6m2023": 0.859,
+        "full_stack_technology_dependency": true,
+        "humanoid_robot_rd_focus": true
+      },
+      "single_segment_dependency": {
+        "education_revenue_share_fy2020": 0.827,
+        "education_revenue_share_6m2023": 0.29
+      },
+      "regulatory_compliance_controls": {
+        "export_control_compliance_reviewed": true,
+        "customer_and_supplier_background_search_policy": true
+      }
+    },
+  
+    "management": {
+      "board_members": null,
+      "executive_team": null,
+      "founders": null,
+      "management_strength_summary": "experienced management team supported by dedicated industry professionals"
+    },
+  
+    "shareholders": {
+      "controlling_shareholders": [
+        "Mr. Zhou Jian",
+        "Shenzhen Sanciyuan",
+        "Mr. Xia Zuoquan",
+        "Mr. Xia Yongjun",
+        "Ms. Wang Lin",
+        "Shenzhen Evolution",
+        "Mr. Xiong Youjun",
+        "Shenzhen Zhineng Youxuan",
+        "Mr. Zhao Guoqun"
+      ],
+      "shareholding_platform_details": {
+        "Shenzhen_Sanciyuan": {
+          "Mr_Zhou_Jian": 0.73961,
+          "Mr_Xiong_Youjun": 0.04395,
+          "Ms_Wang_Lin": 0.04642,
+          "Mr_Deng_Peng": 0.17002
+        },
+        "Shenzhen_Zhineng_Youxuan": {
+          "Qianhai_Honghao": 0.08431,
+          "Shenzhen_Sunda": 0.0827,
+          "Golden_Kapok": 0.62474,
+          "Qianhai_Guangji": 0.20825
+        }
+      },
+      "incentive_shareholding_platform_exists": true,
+      "global_offering_new_shareholders_percentage": 0.027,
+      "cornerstone_investors": [
+        {
+          "name": "E-Town International Holding (Hong Kong) Co. Limited",
+          "investment_amount_rmb": 500000000,
+          "investment_amount_hkd_equivalent": 544850000,
+          "funding_source": "internal resources",
+          "shares_at_hkd_86": 6335450,
+          "shares_at_hkd_101": 5394550,
+          "shares_at_hkd_116": 4696950
+        }
+      ]
+    },
+  
+    "ipo_offering": {
+      "security_type": "H Shares",
+      "offering_shares": 11282000,
+      "hong_kong_offer_shares": 1128200,
+      "international_placing_shares": 10153800,
+      "over_allotment_option_shares": 1692300,
+      "over_allotment_option_percentage": 0.15,
+      "offering_price_range_hkd": {
+        "low": 86.0,
+        "high": 116.0
+      },
+      "nominal_value_per_share_rmb": 1.0,
+      "listing_exchange": "Main Board of The Stock Exchange of Hong Kong Limited",
+      "expected_listing_date": "2023-12-29",
+      "board_lot_size": 50,
+      "public_offer_application_amount_per_board_lot_max_hkd": 5858.50,
+      "fee_rates": {
+        "brokerage": 0.01,
+        "sfc_transaction_levy": 0.000027,
+        "afrc_transaction_levy": 0.0000015,
+        "stock_exchange_trading_fee": 0.0000565
+      },
+      "lockup_period_controlling_shareholders_months": 12,
+      "reallocation_thresholds_hk_public_offer": {
+        "reallocated_to_30_percent_offer_shares": 3384600,
+        "reallocated_to_40_percent_offer_shares": 4512800,
+        "reallocated_to_50_percent_offer_shares": 5641000,
+        "undersubscription_reallocation_to_20_percent_offer_shares": 2256400
+      },
+      "implied_gross_funds_raise_range_hkd": {
+        "low_end_before_overallotment": 970252000,
+        "high_end_before_overallotment": 1308712000
+      },
+      "use_of_proceeds": null,
+      "underwriters": [
+        "Guotai Junan Securities (Hong Kong) Limited",
+        "CITIC Securities",
+        "other overall coordinators / joint global coordinators / joint bookrunners / joint lead managers"
+      ]
+    }
+  }
