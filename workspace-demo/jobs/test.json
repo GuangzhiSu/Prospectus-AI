@@ -1,0 +1,11 @@
+{
+  "contract_version": "1.0",
+  "job_id": "test-validate",
+  "task": "agent1",
+  "inputs": {
+    "materials_dir": "/Users/yanzhouyang/Prospectus-AI-main (4)/Prospectus-AI-main/modular/workspace-demo/materials"
+  },
+  "outputs": {
+    "work_dir": "/Users/yanzhouyang/Prospectus-AI-main (4)/Prospectus-AI-main/modular/workspace-demo/agent1-output"
+  }
+}
