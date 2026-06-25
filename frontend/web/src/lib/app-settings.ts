@@ -146,10 +146,10 @@ function applyOpenAiCompatibleEnv(
  * Does not mutate the input object.
  */
 export function buildAgentProcessEnv(
-  base: NodeJS.ProcessEnv,
+  base: Record<string, string | undefined>,
   settings: AppSettings
 ): NodeJS.ProcessEnv {
-  const env = { ...base };
+  const env = { ...base } as NodeJS.ProcessEnv;
   const provider = settings.llmProvider;
   const meta = PROVIDER_UI[provider];
 
