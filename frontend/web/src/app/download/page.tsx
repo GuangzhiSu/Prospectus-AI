@@ -148,7 +148,7 @@ export default function DownloadPage() {
               </div>
               <p className="mt-3 min-h-12 text-sm leading-6 text-[#637064]">{asset.description}</p>
               <div className="mt-5 flex items-center justify-between border-t border-[#edf0eb] pt-4">
-                <span className="text-sm font-medium text-[#334139]">Installer package</span>
+                <span className="text-sm font-medium text-[#334139]">{asset.platform}</span>
                 <a
                   href={asset.downloadHref}
                   className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
