@@ -286,8 +286,14 @@ powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
 
 To build it in GitHub Actions, run the **Windows release bundle** workflow and enable `upload_to_release`. The workflow creates:
 
-- `dist/ProspectusAI-Setup-0.1.0.exe` - standard installer with Start Menu shortcut and optional desktop shortcut
+- `dist/ProspectusAI-Setup-0.1.0.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
 - `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
+
+The installed app includes **Settings -> Software updates**. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:
+
+1. Update `APP_VERSION` in `frontend/web/src/lib/app-version.ts`.
+2. Create/publish the matching GitHub Release tag.
+3. Run the **Windows release bundle** workflow with `release_tag` set to that version and `upload_to_release` enabled.
 
 ## Data and runtime paths
 

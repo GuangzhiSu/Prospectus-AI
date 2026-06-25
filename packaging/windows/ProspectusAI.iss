@@ -15,7 +15,7 @@
 
 #define MyAppName "Prospectus AI"
 #define MyAppPublisher "AI Prospectus"
-#define MyAppExeName "Open-Prospectus-UI.cmd"
+#define MyAppExeName "Prospectus AI.exe"
 
 [Setup]
 AppId={{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}}
@@ -44,6 +44,7 @@ Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\app.ico"
 Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\app.ico"; Tasks: desktopicon
+Name: "{group}\{#MyAppName} (Browser fallback)"; Filename: "{app}\Open-Prospectus-UI.cmd"; WorkingDir: "{app}"; IconFilename: "{app}\app.ico"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: unchecked

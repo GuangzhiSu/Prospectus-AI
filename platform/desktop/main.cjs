@@ -58,6 +58,25 @@ function waitForPort(port, host, timeoutMs) {
   });
 }
 
+function portIsFree(port, host) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once("error", () => resolve(false));
+    server.once("listening", () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port, host);
+  });
+}
+
+async function findAvailablePort(startPort) {
+  const first = Number.parseInt(String(startPort), 10) || 3000;
+  for (let port = first; port <= first + 99; port += 1) {
+    if (await portIsFree(port, "127.0.0.1")) return port;
+  }
+  throw new Error(`No free TCP port from ${first} to ${first + 99} on 127.0.0.1`);
+}
+
 function startNextStandalone(layout, port) {
   return new Promise((resolve, reject) => {
     const serverJs = path.join(layout.webRoot, "server.js");
@@ -68,6 +87,8 @@ function startNextStandalone(layout, port) {
     const env = {
       ...process.env,
       PROSPECTUS_ROOT: layout.prospectusRoot,
+      AGENT1_PYTHON: path.join(layout.prospectusRoot, "venv", "Scripts", "python.exe"),
+      PATH: `${path.join(layout.prospectusRoot, "venv", "Scripts")}${path.delimiter}${process.env.PATH || ""}`,
       PORT: String(port),
       HOSTNAME: "127.0.0.1",
       ELECTRON_RUN_AS_NODE: "1",
@@ -105,7 +126,7 @@ async function resolveStartUrl() {
   if (!layout) {
     return { url: null, startedServer: false, missingLayout: true };
   }
-  const port = DEFAULT_PORT;
+  const port = await findAvailablePort(DEFAULT_PORT);
   await startNextStandalone(layout, port);
   return { url: `http://127.0.0.1:${port}`, startedServer: true };
 }

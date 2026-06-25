@@ -25,6 +25,18 @@ type ModelStatus = { installed: boolean; path: string; mtimeMs?: number };
 
 type SettingsResp = MaskedAppSettings;
 
+type UpdateResp = {
+  ok: boolean;
+  currentVersion?: string;
+  latestVersion?: string;
+  latestTag?: string;
+  hasUpdate?: boolean;
+  releaseUrl?: string;
+  installerUrl?: string | null;
+  installerName?: string | null;
+  error?: string;
+};
+
 type FormState = {
   llmProvider: LlmProviderId;
   openaiApiKey: string;
@@ -116,6 +128,8 @@ export default function SettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ ok: boolean; text: string } | null>(null);
   const [testing, setTesting] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<UpdateResp | null>(null);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [form, setForm] = useState<FormState>(defaultForm);
 
   const activeMeta = PROVIDER_UI[form.llmProvider];
@@ -291,6 +305,25 @@ export default function SettingsPage() {
   function useDownloadedPath() {
     if (modelStatus?.path) {
       setForm((f) => ({ ...f, qwenModel: modelStatus.path }));
+    }
+  }
+
+  async function handleCheckUpdates() {
+    setCheckingUpdate(true);
+    setUpdateStatus(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/updates/check", { cache: "no-store" });
+      const data = (await res.json()) as UpdateResp;
+      setUpdateStatus(data);
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Update check failed");
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Update check failed";
+      setUpdateStatus({ ok: false, error: message });
+    } finally {
+      setCheckingUpdate(false);
     }
   }
 
@@ -525,6 +558,67 @@ export default function SettingsPage() {
             {error}
           </div>
         )}
+
+        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
+                Software updates
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Check GitHub Releases for a newer Prospectus AI installer.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={checkingUpdate}
+              onClick={() => void handleCheckUpdates()}
+              className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--background)] disabled:opacity-50"
+            >
+              {checkingUpdate ? "Checking…" : "Check for updates"}
+            </button>
+          </div>
+          {updateStatus && (
+            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 text-sm">
+              {updateStatus.ok ? (
+                <>
+                  <p className="font-medium">
+                    {updateStatus.hasUpdate
+                      ? `New version available: ${updateStatus.latestVersion}`
+                      : `You are up to date: ${updateStatus.currentVersion}`}
+                  </p>
+                  {updateStatus.hasUpdate && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {updateStatus.installerUrl && (
+                        <a
+                          href={updateStatus.installerUrl}
+                          className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white"
+                        >
+                          Download installer
+                        </a>
+                      )}
+                      {updateStatus.releaseUrl && (
+                        <a
+                          href={updateStatus.releaseUrl}
+                          className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]"
+                        >
+                          Open release notes
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  {updateStatus.hasUpdate && !updateStatus.installerUrl && (
+                    <p className="mt-2 text-amber-600">
+                      The latest release is available, but no Windows installer asset was found yet.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-amber-600">{updateStatus.error || "Update check failed"}</p>
+              )}
+            </div>
+          )}
+        </section>
 
         <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">

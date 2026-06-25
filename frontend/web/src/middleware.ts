@@ -10,6 +10,7 @@ const PROTECTED_API_PREFIXES = [
   "/api/reset",
   "/api/settings",
   "/api/system",
+  "/api/updates",
 ];
 
 function unauthorized() {

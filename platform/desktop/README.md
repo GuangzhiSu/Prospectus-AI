@@ -1,4 +1,4 @@
-# Prospectus AI — desktop (Electron)
+# Prospectus AI - desktop (Electron)
 
 This folder wraps the Next.js app in an **Electron** window and uses your **app icon** (`build/icon.png`).
 
@@ -21,30 +21,23 @@ This folder wraps the Next.js app in an **Electron** window and uses your **app 
 
 ## Packaged app + shortcuts (Windows)
 
-1. Build the **full install folder** (Next standalone + Python agents), e.g. on Windows:
+The normal Windows release path is the repo-level installer script:
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File packaging/windows/build.ps1
-   ```
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
+```
 
-   This produces something like `dist/ProspectusAI/` with `agent1.py`, `web/server.js`, etc.
+That script runs `packaging/windows/build-full-release.ps1`, which:
 
-2. Build the **installer** (desktop shortcut + Start Menu use your logo):
+- builds the Next.js standalone server
+- creates the Python runtime/venv for the AI agents
+- builds `platform/desktop` with Electron Builder
+- copies `Prospectus AI.exe` and its Electron support files into `dist/ProspectusAI/`
+- compiles the Inno Setup installer
 
-   ```bash
-   cd platform/desktop
-   npm install
-   npm run dist
-   ```
+The installed Start Menu and desktop shortcuts open `Prospectus AI.exe`. The older `Open-Prospectus-UI.cmd` browser launcher remains in the install folder as a fallback.
 
-   Output is under `platform/desktop/release/` (e.g. NSIS `.exe` installer on Windows).
-
-3. **Important:** The Electron app expects to run **next to** that full tree. After installing the Electron build:
-
-   - Either install/copy the contents of `dist/ProspectusAI/` into the same directory as the installed `Prospectus AI.exe`, **or**
-   - Copy the built `Prospectus AI.exe` (and its Electron companion files from `release/win-unpacked/` if you used `--dir`) **into** `dist/ProspectusAI/` so the same folder contains both `agent1.py` and `web/`.
-
-   The launcher looks for `agent1.py` and `web/server.js` in the **same directory as the executable**.
+The Electron executable expects to run next to `agent1.py` and `web/server.js`; the release scripts preserve that layout.
 
 ## Linux / macOS
 
@@ -53,4 +46,4 @@ This folder wraps the Next.js app in an **Electron** window and uses your **app 
 
 ## Icon
 
-Replace `build/icon.png` with your branding (square PNG, at least 512×512 recommended for installers).
+Replace `build/icon.png` with your branding (square PNG, at least 512x512 recommended for app windows). The Windows release script copies `frontend/web/src/app/favicon.ico` to `build/icon.ico` before packaging.

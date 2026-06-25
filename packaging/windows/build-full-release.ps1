@@ -151,6 +151,28 @@ Copy-Item -Force (Join-Path $PSScriptRoot "ensure-python-venv.bat") $Stage
 Copy-Item -Force (Join-Path $PSScriptRoot "Open-Prospectus-UI.cmd") $Stage
 Copy-Item -Force (Join-Path $RepoRoot "frontend\web\src\app\favicon.ico") (Join-Path $Stage "app.ico")
 
+# --- Electron desktop shell ---
+$DesktopDir = Join-Path $RepoRoot "platform\desktop"
+$DesktopRelease = Join-Path $DesktopDir "release"
+if (Test-Path $DesktopRelease) {
+    Remove-Item -Recurse -Force $DesktopRelease
+}
+Copy-Item -Force (Join-Path $RepoRoot "frontend\web\src\app\favicon.ico") (Join-Path $DesktopDir "build\icon.ico")
+Push-Location $DesktopDir
+if (Test-Path "package-lock.json") {
+    npm ci
+} else {
+    npm install --no-audit --no-fund
+}
+npm run pack -- --win --x64
+Pop-Location
+
+$ElectronUnpacked = Join-Path $DesktopRelease "win-unpacked"
+if (-not (Test-Path (Join-Path $ElectronUnpacked "Prospectus AI.exe"))) {
+    throw "Expected Electron desktop shell at $ElectronUnpacked\Prospectus AI.exe"
+}
+Copy-Item -Recurse -Force (Join-Path $ElectronUnpacked "*") $Stage
+
 $readme = @"
 Prospectus AI — Windows portable bundle
 ============================================
@@ -160,9 +182,10 @@ No separate Python install required for agents: venv\ contains dependencies.
 
 Start
 -----
-1. Double-click Open-Prospectus-UI.cmd, or install ProspectusAI-Setup-0.1.0.exe and use the shortcut
-2. Open http://127.0.0.1:3000 in your browser
-3. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
+1. Double-click Prospectus AI.exe, or install ProspectusAI-Setup-0.1.0.exe and use the shortcut
+2. The desktop window starts the local service and opens the app automatically
+3. If needed, use Open-Prospectus-UI.cmd as a browser fallback
+4. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
 
 GPU (optional)
 --------------
@@ -176,14 +199,14 @@ Troubleshooting
 
 --- 中文简要说明 ---
 无需单独安装 Node.js（已包含 node\node.exe）或系统 Python（Agent 使用本目录 venv）。
-双击 start-prospectus-ui.bat，浏览器打开 http://127.0.0.1:3000 即可。
+双击 Prospectus AI.exe 会自动启动本地服务并打开桌面窗口；也可用 Open-Prospectus-UI.cmd 作为浏览器备用入口。
 首次请在网页「Model & inference」里配置本地 Qwen 或 OpenAI 兼容 API。
 "@
 Set-Content -LiteralPath (Join-Path $Stage "README-Windows.txt") -Value $readme -Encoding UTF8
 
 Write-Host ""
 Write-Host "Done. Portable folder: $Stage"
-Write-Host "End users: double-click start-prospectus-ui.bat"
+Write-Host "End users: double-click Prospectus AI.exe"
 
 if (-not $SkipZip) {
     $distDir = Join-Path $RepoRoot "dist"
