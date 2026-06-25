@@ -29,6 +29,9 @@ const audiences = [
   "Compliance and disclosure teams",
 ];
 
+const contactHref =
+  "mailto:contact@ai-prospectus.com?subject=AI%20Prospectus%20demo%20request";
+
 function ArrowIcon() {
   return (
     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +72,7 @@ export default function HomePage() {
               Download
             </Link>
             <Link href="/workspace" className="border border-white/25 px-4 py-2 font-semibold hover:bg-white/10">
-              Launch workspace
+              Protected workspace
             </Link>
           </div>
         </nav>
@@ -98,9 +101,16 @@ export default function HomePage() {
                 href="/workspace"
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                Open workspace
+                Open protected workspace
                 <ArrowIcon />
               </Link>
+              <a
+                href={contactHref}
+                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Request demo
+                <ArrowIcon />
+              </a>
             </div>
           </div>
 
@@ -176,11 +186,45 @@ export default function HomePage() {
       </section>
 
       <section className="border-t border-[#d5ddd2] bg-white">
+        <div className="mx-auto grid max-w-7xl gap-8 border-b border-[#d5ddd2] px-6 py-12 md:grid-cols-[1fr_1fr]">
+          <div>
+            <h2 className="text-2xl font-semibold">From prospectus drafting to private document generation</h2>
+            <p className="mt-4 text-sm leading-6 text-[#637064]">
+              AI Prospectus is designed to grow beyond a single drafting template. The same modular structure can support
+              issuer questionnaires, diligence summaries, regulated filings, board papers, and other proprietary documents
+              where traceability and review discipline matter.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            <div className="border border-[#d5ddd2] p-4">
+              <p className="text-sm font-semibold">Demo and partnership enquiries</p>
+              <p className="mt-2 text-sm leading-6 text-[#637064]">
+                For pilots, sponsor-counsel workflows, or private deployment discussions, request a demo and include your
+                target document type.
+              </p>
+              <a href={contactHref} className="mt-4 inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white hover:bg-[#2b3a32]">
+                Request demo
+                <ArrowIcon />
+              </a>
+            </div>
+            <div className="border border-[#d5ddd2] p-4">
+              <p className="text-sm font-semibold">Source and releases</p>
+              <p className="mt-2 text-sm leading-6 text-[#637064]">
+                The public site links to GitHub releases for downloadable builds while the protected workspace remains
+                separate from the marketing surface.
+              </p>
+              <a href="https://github.com/GuangzhiSu/Prospectus-AI" className="mt-4 inline-flex h-10 items-center gap-2 border border-[#c9d2c7] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
+                View GitHub
+                <ArrowIcon />
+              </a>
+            </div>
+          </div>
+        </div>
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-6 py-10 md:flex-row md:items-center">
           <div>
-            <h2 className="text-xl font-semibold">Download the app or open the hosted workspace.</h2>
+            <h2 className="text-xl font-semibold">Download the app or request access to the workspace.</h2>
             <p className="mt-2 text-sm text-[#637064]">
-              Use the website for product discovery, then move to the workspace for controlled drafting.
+              Use the website for product discovery, then move to a protected workspace for controlled drafting.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -189,7 +233,7 @@ export default function HomePage() {
               Download app
             </Link>
             <Link href="/workspace" className="inline-flex h-11 items-center gap-2 border border-[#c9d2c7] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
-              Launch workspace
+              Protected workspace
               <ArrowIcon />
             </Link>
           </div>

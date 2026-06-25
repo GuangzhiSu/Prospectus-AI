@@ -21,9 +21,29 @@ const serif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Prospectus AI | Sponsor Counsel Drafting",
+  metadataBase: new URL("https://ai-prospectus.com"),
+  title: {
+    default: "AI Prospectus | Private AI document generation",
+    template: "%s | AI Prospectus",
+  },
   description:
-    "AI-assisted prospectus drafting — upload your data, review chapter coverage, export a Word draft.",
+    "Private AI document generation for legal, financial, and regulated drafting workflows.",
+  openGraph: {
+    title: "AI Prospectus",
+    description:
+      "Turn proprietary deal materials into structured evidence, regulated drafts, and exportable documents.",
+    url: "https://ai-prospectus.com",
+    siteName: "AI Prospectus",
+    images: [{ url: "/app-icon-512.png", width: 512, height: 512, alt: "AI Prospectus" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "AI Prospectus",
+    description:
+      "Private AI document generation for legal, financial, and regulated drafting workflows.",
+    images: ["/app-icon-512.png"],
+  },
   icons: {
     icon: "/app-icon.png",
     apple: "/app-icon.png",

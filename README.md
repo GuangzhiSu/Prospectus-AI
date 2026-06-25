@@ -166,6 +166,8 @@ npm install
 ```bash
 PROSPECTUS_ROOT=/path/to/prospectus-ui
 WORKSPACE_ROOT=workspace
+WORKSPACE_USER=admin
+WORKSPACE_PASSWORD=change-this-password
 AGENT1_PYTHON=/path/to/prospectus-ui/.venv/bin/python
 AGENT1_MODEL=Qwen/Qwen2.5-3B-Instruct
 AGENT1_USE_CPU=1
@@ -175,6 +177,7 @@ Notes:
 
 - `PROSPECTUS_ROOT` points to the repo root containing `ai-module/`, `frontend/`, and the other code modules
 - `WORKSPACE_ROOT` optionally points to the runtime workspace for uploads, inputs, RAG indexes, and generated outputs. Relative values such as `workspace` are resolved under `PROSPECTUS_ROOT`. If unset, the legacy repo-root paths are used.
+- `WORKSPACE_PASSWORD` enables Basic Auth for `/workspace` and operational API routes. `WORKSPACE_USER` defaults to `admin` when unset.
 - `AI_MODULE_ROOT` optionally overrides the default `PROSPECTUS_ROOT/ai-module` path
 - `AGENT1_PYTHON` is used by the web API when it launches both `ai-module/agent1.py` and `ai-module/agent2.py`
 - `AGENT1_MODEL` sets the default Qwen model used by the web flow
@@ -225,6 +228,8 @@ Examples:
 | ---------- | --------- | ------------- | --------- |
 | `PROSPECTUS_ROOT` | Web API | Repo root that contains `ai-module/`, `frontend/`, and the other code modules | auto-detect |
 | `WORKSPACE_ROOT` | Web API / AI CLI | Optional runtime workspace for `data/`, outputs, uploads, RAG indexes, and KG output | unset (repo root runtime paths) |
+| `WORKSPACE_USER` | Vercel middleware / web app | Basic Auth username for `/workspace` and operational API routes | `admin` |
+| `WORKSPACE_PASSWORD` | Vercel middleware / web app | Enables Basic Auth for `/workspace` and operational API routes when set | unset (protection disabled) |
 | `AI_MODULE_ROOT` | Web API | Optional override for the Python AI module directory | `PROSPECTUS_ROOT/ai-module` |
 | `AGENT1_PYTHON` | Web API | Python executable used to launch `ai-module/agent1.py` and `ai-module/agent2.py` | `python3` |
 | `AGENT1_MODEL` | Web API | Default Qwen model for Agent1 and Agent2 | `Qwen/Qwen2.5-3B-Instruct` in web API |
@@ -246,6 +251,31 @@ Examples:
 | `HF_EMBEDDING_MODEL` | Hugging Face embedding model for legacy route | `sentence-transformers/all-MiniLM-L6-v2` |
 | `HF_CHAT_MODEL` | Hugging Face chat model for legacy route | `HuggingFaceH4/zephyr-7b-beta` |
 | `LOCAL_LLM_URL` | Base URL for `platform/services/local-llm` when `RAG_PROVIDER=local` | `http://127.0.0.1:8000` |
+
+## Public site deployment
+
+The public marketing site is served from `frontend/web`:
+
+- `/` - product introduction
+- `/download` - app download / release page
+- `/workspace` - protected drafting workspace
+
+For Vercel Hobby, keep serverless `maxDuration` values at or below `300`. The current routes are capped accordingly.
+
+To protect the workspace in Vercel, add environment variables:
+
+```bash
+WORKSPACE_USER=admin
+WORKSPACE_PASSWORD=<strong password>
+```
+
+The middleware protects `/workspace` and operational API routes, while leaving `/`, `/download`, and `/api/download/*` public.
+
+Download buttons currently point to GitHub Releases. To publish installers, create a release such as `v0.1.0` and upload the local build artifacts from `dist/`:
+
+- `ProspectusAI.zip`
+- `ProspectusAI-windows-from-linux-20260510-1154.tar.gz`
+- `ProspectusAI-linux-x86_64-20260509-0311.tar.gz`
 
 ## Data and runtime paths
 
