@@ -2,11 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "AI Prospectus | Private AI document generation",
+  title: "AI Prospectus | 私有化 AI 文档生成",
   description:
-    "AI Prospectus helps legal and finance teams turn issuer materials into structured evidence, regulated drafts, and exportable documents.",
+    "AI Prospectus 帮助法律、投行与合规团队将专有材料转化为结构化证据、监管文档草稿与可导出的工作稿。",
   alternates: {
-    canonical: "/",
+    canonical: "/zh",
     languages: {
       en: "/",
       "zh-CN": "/zh",
@@ -16,24 +16,24 @@ export const metadata = {
 
 const workflow = [
   {
-    title: "Ingest proprietary materials",
-    text: "Upload issuer spreadsheets, JSON records, diligence outputs, and internal workpapers into a controlled drafting workspace.",
+    title: "接入专有材料",
+    text: "上传发行人表格、JSON 记录、尽调输出和内部工作底稿，进入受控的文档生成工作区。",
   },
   {
-    title: "Prepare evidence",
-    text: "Agent1 separates narrative text from structured facts, maps content to prospectus sections, and preserves source pointers.",
+    title: "整理证据与事实",
+    text: "Agent1 将叙述性文本和结构化事实分离，并映射到招股书章节，同时保留来源线索。",
   },
   {
-    title: "Generate regulated drafts",
-    text: "Agent2 drafts section-by-section with verification notes, missing-data flags, and Word export for professional review.",
+    title: "生成合规草稿",
+    text: "Agent2 按章节生成工作稿，附带核验提示、缺失信息标记，并支持导出 Word 供专业审阅。",
   },
 ];
 
 const audiences = [
-  "IPO sponsor counsel teams",
-  "Capital markets lawyers",
-  "Investment banking execution teams",
-  "Compliance and disclosure teams",
+  "IPO 保荐人律师团队",
+  "资本市场律师",
+  "投行执行团队",
+  "合规与披露团队",
 ];
 
 const contactHref =
@@ -55,7 +55,7 @@ function DownloadIcon() {
   );
 }
 
-export default function HomePage() {
+export default function ChineseHomePage() {
   return (
     <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
       <section className="relative overflow-hidden bg-[#111c18] text-white">
@@ -70,19 +70,19 @@ export default function HomePage() {
           />
         </div>
         <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/zh" className="flex items-center gap-3">
             <Image src="/app-icon.png" alt="AI Prospectus logo" width={36} height={36} />
             <span className="text-sm font-semibold">AI Prospectus</span>
           </Link>
           <div className="flex items-center gap-4 text-sm">
             <Link href="/download" className="hidden text-[#dce8df] hover:text-white sm:inline">
-              Download
+              下载
             </Link>
-            <Link href="/zh" className="hidden text-[#dce8df] hover:text-white sm:inline">
-              中文
+            <Link href="/" className="hidden text-[#dce8df] hover:text-white sm:inline">
+              English
             </Link>
             <Link href="/workspace" className="border border-white/25 px-4 py-2 font-semibold hover:bg-white/10">
-              Protected workspace
+              受保护工作区
             </Link>
           </div>
         </nav>
@@ -90,14 +90,14 @@ export default function HomePage() {
         <div className="relative mx-auto grid min-h-[640px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-16 pt-8 md:grid-cols-[1fr_430px]">
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase text-[#dce8df]">
-              Private AI for regulated document drafting
+              面向监管文档的私有化 AI 生成系统
             </div>
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
-              Turn proprietary deal materials into prospectus-ready drafts.
+              将专有交易材料转化为可审阅的招股书工作稿。
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#dce8df] md:text-lg">
-              AI Prospectus is a modular drafting system for sponsor-counsel workflows:
-              evidence preparation, section generation, verification notes, and Word export in one controlled workspace.
+              AI Prospectus 是面向保荐人律师与资本市场团队的模块化文档生成系统，
+              覆盖证据整理、章节生成、核验提示和 Word 导出，适合在受控工作流中处理敏感材料。
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -105,20 +105,20 @@ export default function HomePage() {
                 className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
               >
                 <DownloadIcon />
-                Download app
+                下载应用
               </Link>
               <Link
                 href="/workspace"
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                Open protected workspace
+                打开受保护工作区
                 <ArrowIcon />
               </Link>
               <a
                 href={contactHref}
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                Request demo
+                预约演示
                 <ArrowIcon />
               </a>
             </div>
@@ -128,8 +128,8 @@ export default function HomePage() {
             <div className="flex items-center gap-3 border-b border-[#d8ded6] pb-4">
               <Image src="/app-icon.png" alt="" width={44} height={44} />
               <div>
-                <p className="text-sm font-semibold">Disclosure drafting pipeline</p>
-                <p className="text-xs text-[#647064]">Evidence first, generation second</p>
+                <p className="text-sm font-semibold">披露文档生成管线</p>
+                <p className="text-xs text-[#647064]">先整理证据，再生成文本</p>
               </div>
             </div>
             <div className="mt-5 space-y-3">
@@ -152,11 +152,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <h2 className="text-2xl font-semibold">Built for proprietary document generation</h2>
+            <h2 className="text-2xl font-semibold">为专有化文档生成而设计</h2>
             <p className="mt-4 text-sm leading-6 text-[#637064]">
-              The project started with IPO prospectus drafting, but the architecture now separates the AI module,
-              frontend workspace, platform tools, knowledge module, and pipeline module so domain-specific drafting
-              workflows can evolve independently.
+              项目从 IPO 招股书起步，但架构已经拆分为 AI 模块、前端工作区、平台工具、知识模块和抽取管线。
+              这让不同领域的专业文档生成流程可以独立演进，而不必互相耦合。
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {audiences.map((item) => (
@@ -168,27 +167,27 @@ export default function HomePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="border border-[#d5ddd2] bg-white p-5">
-              <p className="text-sm font-semibold">Private data workflow</p>
+              <p className="text-sm font-semibold">私有数据工作流</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                Runtime files can stay in a local workspace while the codebase remains clean and modular.
+                运行时文件可以保留在本地工作区，代码结构则保持清晰、模块化。
               </p>
             </div>
             <div className="border border-[#d5ddd2] bg-white p-5">
-              <p className="text-sm font-semibold">Section-aware drafting</p>
+              <p className="text-sm font-semibold">章节感知生成</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                Requirements, evidence retrieval, verification, and output bundles are organized around disclosure sections.
+                章节要求、证据检索、核验流程和输出包都围绕披露章节组织。
               </p>
             </div>
             <div className="border border-[#d5ddd2] bg-white p-5">
-              <p className="text-sm font-semibold">Desktop-ready packaging</p>
+              <p className="text-sm font-semibold">桌面应用分发</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                Downloadable builds support internal review and distribution without exposing issuer files to a public SaaS.
+                可下载版本适合内部评审和分发，无需把发行人文件暴露到公开 SaaS。
               </p>
             </div>
             <div className="border border-[#d5ddd2] bg-white p-5">
-              <p className="text-sm font-semibold">Extensible modules</p>
+              <p className="text-sm font-semibold">可扩展模块</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                AI, frontend, platform, knowledge graph, resources, and extraction pipelines now have clear homes.
+                AI、前端、平台、知识图谱、资源和抽取管线都有清晰边界。
               </p>
             </div>
           </div>
@@ -198,33 +197,30 @@ export default function HomePage() {
       <section className="border-t border-[#d5ddd2] bg-white">
         <div className="mx-auto grid max-w-7xl gap-8 border-b border-[#d5ddd2] px-6 py-12 md:grid-cols-[1fr_1fr]">
           <div>
-            <h2 className="text-2xl font-semibold">From prospectus drafting to private document generation</h2>
+            <h2 className="text-2xl font-semibold">从招股书起步，延伸到专有化文档生成</h2>
             <p className="mt-4 text-sm leading-6 text-[#637064]">
-              AI Prospectus is designed to grow beyond a single drafting template. The same modular structure can support
-              issuer questionnaires, diligence summaries, regulated filings, board papers, and other proprietary documents
-              where traceability and review discipline matter.
+              同一套模块化结构可以支持发行人问卷、尽调摘要、监管申报文件、董事会材料和其他需要可追溯、
+              可审阅、可控输出的专有文档。
             </p>
           </div>
           <div className="grid gap-3">
             <div className="border border-[#d5ddd2] p-4">
-              <p className="text-sm font-semibold">Demo and partnership enquiries</p>
+              <p className="text-sm font-semibold">演示与合作咨询</p>
               <p className="mt-2 text-sm leading-6 text-[#637064]">
-                For pilots, sponsor-counsel workflows, or private deployment discussions, request a demo and include your
-                target document type.
+                如果你希望讨论试点、保荐人律师工作流或私有化部署，请预约演示，并说明目标文档类型。
               </p>
               <a href={contactHref} className="mt-4 inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white hover:bg-[#2b3a32]">
-                Request demo
+                预约演示
                 <ArrowIcon />
               </a>
             </div>
             <div className="border border-[#d5ddd2] p-4">
-              <p className="text-sm font-semibold">Source and releases</p>
+              <p className="text-sm font-semibold">源码与发布版本</p>
               <p className="mt-2 text-sm leading-6 text-[#637064]">
-                The public site links to GitHub releases for downloadable builds while the protected workspace remains
-                separate from the marketing surface.
+                官网下载入口连接 GitHub Releases；受保护工作区与对外展示页面分离。
               </p>
               <a href="https://github.com/GuangzhiSu/Prospectus-AI" className="mt-4 inline-flex h-10 items-center gap-2 border border-[#c9d2c7] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
-                View GitHub
+                查看 GitHub
                 <ArrowIcon />
               </a>
             </div>
@@ -232,18 +228,18 @@ export default function HomePage() {
         </div>
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-6 py-10 md:flex-row md:items-center">
           <div>
-            <h2 className="text-xl font-semibold">Download the app or request access to the workspace.</h2>
+            <h2 className="text-xl font-semibold">下载应用，或申请访问工作区。</h2>
             <p className="mt-2 text-sm text-[#637064]">
-              Use the website for product discovery, then move to a protected workspace for controlled drafting.
+              官网用于产品介绍；实际文档生成在受保护工作区中完成。
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link href="/download" className="inline-flex h-11 items-center gap-2 bg-[#17201b] px-5 text-sm font-semibold text-white hover:bg-[#2b3a32]">
               <DownloadIcon />
-              Download app
+              下载应用
             </Link>
             <Link href="/workspace" className="inline-flex h-11 items-center gap-2 border border-[#c9d2c7] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
-              Protected workspace
+              受保护工作区
               <ArrowIcon />
             </Link>
           </div>
