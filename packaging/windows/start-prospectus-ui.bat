@@ -58,6 +58,7 @@ if exist "%~dp0node\node.exe" (
 )
 echo PROSPECTUS_ROOT=%PROSPECTUS_ROOT%
 echo Starting http://%HOSTNAME%:%PORT%
+> "%~dp0prospectus-port.txt" echo %PORT%
 echo Open http://127.0.0.1:%PORT% in your browser. Close this window to stop.
 REM #region agent log
 powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $p=(Join-Path '%CD%' 'launcher-debug-581cd2.ndjson'); $j=@{sessionId='581cd2';runId='verify';hypothesisId='H4';location='start-prospectus-ui.bat:before_node';message='starting_node';timestamp=[int64]([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds());data=@{next_root='%NEXT_ROOT%';port='%PORT%'}}|ConvertTo-Json -Compress; Add-Content -LiteralPath $p -Value $j -Encoding utf8 } catch {}" 2>nul
