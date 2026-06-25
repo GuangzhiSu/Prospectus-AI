@@ -22,20 +22,6 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     recommended: true,
   },
   {
-    id: "windows-portable",
-    title: "Windows Portable",
-    platform: "Windows",
-    description: "Zip package with bundled Node and Python runtime; no installation required.",
-    href: `${RELEASE_BASE_URL}/ProspectusAI.zip`,
-  },
-  {
-    id: "windows-targz",
-    title: "Windows Archive",
-    platform: "Windows",
-    description: "Compressed Windows build for internal distribution mirrors.",
-    href: `${RELEASE_BASE_URL}/ProspectusAI-windows-from-linux-20260510-1154.tar.gz`,
-  },
-  {
     id: "linux",
     title: "Linux x86_64",
     platform: "Linux",
