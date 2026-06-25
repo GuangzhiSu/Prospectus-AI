@@ -14,6 +14,7 @@ const labels = {
     github: "GitHub",
     language: "中文",
     languageHref: "/zh",
+    downloadHref: "/download",
   },
   zh: {
     home: "主页",
@@ -22,6 +23,7 @@ const labels = {
     github: "GitHub",
     language: "English",
     languageHref: "/",
+    downloadHref: "/zh/download",
   },
 };
 
@@ -48,7 +50,7 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
           <Link href={homeHref} className={navClass(active === "home")}>
             {t.home}
           </Link>
-          <Link href="/download" className={navClass(active === "download")}>
+          <Link href={t.downloadHref} className={navClass(active === "download")}>
             {t.download}
           </Link>
           <Link href="/workspace" className={navClass(false)}>
