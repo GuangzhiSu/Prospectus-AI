@@ -15,6 +15,7 @@ const labels = {
     language: "中文",
     languageHref: "/zh",
     downloadHref: "/download",
+    workspaceHref: "/workspace",
   },
   zh: {
     home: "主页",
@@ -24,6 +25,7 @@ const labels = {
     language: "English",
     languageHref: "/",
     downloadHref: "/zh/download",
+    workspaceHref: "/zh/workspace",
   },
 };
 
@@ -53,7 +55,7 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
           <Link href={t.downloadHref} className={navClass(active === "download")}>
             {t.download}
           </Link>
-          <Link href="/workspace" className={navClass(false)}>
+          <Link href={t.workspaceHref} className={navClass(false)}>
             {t.workspace}
           </Link>
           <a

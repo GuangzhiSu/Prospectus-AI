@@ -43,6 +43,8 @@ function isProtectedPath(pathname: string) {
   return (
     pathname === "/workspace" ||
     pathname.startsWith("/workspace/") ||
+    pathname === "/zh/workspace" ||
+    pathname.startsWith("/zh/workspace/") ||
     PROTECTED_API_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
   );
 }
@@ -60,5 +62,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/workspace/:path*", "/api/:path*"],
+  matcher: ["/workspace/:path*", "/zh/workspace/:path*", "/api/:path*"],
 };
