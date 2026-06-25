@@ -28,9 +28,9 @@ resolve_node() {
 }
 
 NODE_BIN="$(resolve_node)"
-WEB_DIR="$REPO_ROOT/apps/web"
+WEB_DIR="$REPO_ROOT/frontend/web"
 if [[ ! -d "$WEB_DIR/node_modules" ]]; then
-  echo "ERROR: Run npm install in apps/web first." >&2
+  echo "ERROR: Run npm install in frontend/web first." >&2
   exit 1
 fi
 
@@ -41,7 +41,7 @@ echo "==> Building Next.js standalone (Linux build host; bundle excludes sharp n
 )
 
 STANDALONE="$WEB_DIR/.next/standalone"
-if [[ ! -f "$STANDALONE/apps/web/server.js" ]]; then
+if [[ ! -f "$STANDALONE/frontend/web/server.js" ]]; then
   echo "ERROR: Missing standalone server.js" >&2
   exit 1
 fi
@@ -49,7 +49,7 @@ fi
 echo "==> Staging $STAGE"
 rm -rf "$STAGE"
 mkdir -p "$STAGE/web"
-cp -a "$STANDALONE/apps/web/." "$STAGE/web/"
+cp -a "$STANDALONE/frontend/web/." "$STAGE/web/"
 # Standalone trace omits client chunks; without .next/static, /_next/static/* 404 and the UI is unstyled.
 mkdir -p "$STAGE/web/.next"
 cp -a "$WEB_DIR/.next/static" "$STAGE/web/.next/static"
@@ -57,12 +57,13 @@ mkdir -p "$STAGE/web/public"
 cp -a "$WEB_DIR/public/." "$STAGE/web/public/"
 
 ITEMS=(
-  agent1.py agent2.py llm_qwen.py llm_openai.py
-  requirements.txt agent2_section_requirements.json issuer_metadata.json
-  prospectus_graph scripts templates
+  ai-module/agent1.py ai-module/agent2.py ai-module/llm_qwen.py ai-module/llm_openai.py
+  ai-module/llm_anthropic.py ai-module/llm_providers.py ai-module/llm_sanitize.py ai-module/section_quality.py
+  ai-module/requirements.txt ai-module/prospectus_graph
+  agent2_section_requirements.json issuer_metadata.json scripts resources/templates
 )
 for i in "${ITEMS[@]}"; do
-  [[ -e "$REPO_ROOT/$i" ]] && cp -a "$REPO_ROOT/$i" "$STAGE/" || echo "WARN: missing $i" >&2
+  [[ -e "$REPO_ROOT/$i" ]] && cp -a "$REPO_ROOT/$i" "$STAGE/$(basename "$i")" || echo "WARN: missing $i" >&2
 done
 
 mkdir -p "$STAGE/prospectus_kg_output/inputs"
@@ -71,7 +72,7 @@ for f in input_schema.json input_schema_crosswalk.json; do
 done
 [[ -f "$REPO_ROOT/prospectus_kg_output/inputs/_coverage_vs_report.md" ]] && cp -a "$REPO_ROOT/prospectus_kg_output/inputs/_coverage_vs_report.md" "$STAGE/prospectus_kg_output/inputs/"
 
-grep -vE '^(#|$|[[:space:]]*torch)' "$REPO_ROOT/requirements.txt" | grep -v '^[[:space:]]*$' > "$STAGE/requirements-no-torch.txt" || true
+grep -vE '^(#|$|[[:space:]]*torch)' "$REPO_ROOT/ai-module/requirements.txt" | grep -v '^[[:space:]]*$' > "$STAGE/requirements-no-torch.txt" || true
 
 echo "==> Downloading Windows Node.js v$NODE_WIN_VER (x64)…"
 NODE_ZIP="/tmp/node-win-${NODE_WIN_VER}.zip"

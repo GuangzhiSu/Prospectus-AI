@@ -15,7 +15,7 @@ Any field whose record value is ``null`` is emitted as the literal string
 ``**DATA_MISSING**`` and surfaced in the returned ``FillResult.missing_fields``
 list so the driver can aggregate it in the manifest. No fabrication.
 
-See ``templates/native_docs/README.md`` for the field mapping.
+See ``resources/templates/native_docs/README.md`` for the field mapping.
 """
 
 from __future__ import annotations

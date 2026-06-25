@@ -5,15 +5,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+AI_MODULE = ROOT / "ai-module"
+for path in (ROOT, AI_MODULE):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from agent2 import SECTIONS, _section_body_from_file  # noqa: E402
 from section_quality import analyze_section_quality, quality_score  # noqa: E402
+
+
+def _workspace_default(name: str) -> str:
+    workspace_root = os.environ.get("WORKSPACE_ROOT", "").strip()
+    return str(Path(workspace_root) / name) if workspace_root else name
 
 
 def _section_file(out_path: Path, section_id: str) -> Path | None:
@@ -25,13 +33,15 @@ def _section_file(out_path: Path, section_id: str) -> Path | None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit section draft quality.")
-    parser.add_argument("--output-dir", default="agent2_output")
-    parser.add_argument("--rag-dir", default="agent1_output")
+    parser.add_argument("--output-dir", default=_workspace_default("agent2_output"))
+    parser.add_argument("--rag-dir", default=_workspace_default("agent1_output"))
     parser.add_argument("--json", action="store_true", help="Print JSON report")
     args = parser.parse_args()
 
-    out_path = (ROOT / args.output_dir).resolve()
-    manifest_path = (ROOT / args.rag_dir / "manifest.json").resolve()
+    output_arg = Path(args.output_dir)
+    rag_arg = Path(args.rag_dir)
+    out_path = (output_arg if output_arg.is_absolute() else ROOT / output_arg).resolve()
+    manifest_path = ((rag_arg if rag_arg.is_absolute() else ROOT / rag_arg) / "manifest.json").resolve()
 
     reports = []
     failed_gen: list[str] = []

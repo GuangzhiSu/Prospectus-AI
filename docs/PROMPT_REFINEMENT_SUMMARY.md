@@ -1,6 +1,6 @@
 # Prompt Refinement Summary
 
-This document summarizes the prompt refinements applied to the Prospectus AI project using the requirements from **cursor_prospectus_prompt_pack**. The goal was to align Agent1, Agent2, and all section requirements with Exchange sponsor-counsel drafting standards: compliance language, disclosure defensibility, and verifiability.
+This document summarizes the prompt refinements applied to the Prospectus AI project using the requirements from **resources/cursor_prospectus_prompt_pack**. The goal was to align Agent1, Agent2, and all section requirements with Exchange sponsor-counsel drafting standards: compliance language, disclosure defensibility, and verifiability.
 
 ---
 
@@ -8,10 +8,10 @@ This document summarizes the prompt refinements applied to the Prospectus AI pro
 
 Refinements were driven by:
 
-- **`cursor_prospectus_prompt_pack/.cursor/rules/00-prospectus-core.mdc`** — Core drafting constraints, primary objectives, AI tag schema, regime-sensitive logic, and prompt structure (Role, Objective, Inputs, Non-negotiables, etc.).
-- **`cursor_prospectus_prompt_pack/.cursor/rules/10-section-requirements.mdc`** — Detailed section-by-section requirements for each prospectus section.
-- **`cursor_prospectus_prompt_pack/.cursor/rules/20-validator.mdc`** — Validation philosophy, severity scale, and banned/controlled language (referenced for tone and constraints).
-- **`cursor_prospectus_prompt_pack/docs/prospectus_prompt_reference.md`** — Condensed reference for prompt design and tag usage.
+- **`resources/cursor_prospectus_prompt_pack/.cursor/rules/00-prospectus-core.mdc`** — Core drafting constraints, primary objectives, AI tag schema, regime-sensitive logic, and prompt structure (Role, Objective, Inputs, Non-negotiables, etc.).
+- **`resources/cursor_prospectus_prompt_pack/.cursor/rules/10-section-requirements.mdc`** — Detailed section-by-section requirements for each prospectus section.
+- **`resources/cursor_prospectus_prompt_pack/.cursor/rules/20-validator.mdc`** — Validation philosophy, severity scale, and banned/controlled language (referenced for tone and constraints).
+- **`resources/cursor_prospectus_prompt_pack/docs/prospectus_prompt_reference.md`** — Condensed reference for prompt design and tag usage.
 
 ---
 
@@ -134,4 +134,4 @@ No changes were made to:
 
 ---
 
-*Summary produced from refinements applied using cursor_prospectus_prompt_pack. Last updated: March 2025.*
+*Summary produced from refinements applied using resources/cursor_prospectus_prompt_pack. Last updated: March 2025.*

@@ -42,9 +42,9 @@ resolve_node() {
 NODE_BIN="$(resolve_node)"
 echo "Using node: $NODE_BIN ($("$NODE_BIN" -v))"
 
-WEB_DIR="$REPO_ROOT/apps/web"
+WEB_DIR="$REPO_ROOT/frontend/web"
 if [[ ! -d "$WEB_DIR/node_modules" ]]; then
-  echo "ERROR: $WEB_DIR/node_modules missing — run npm install in apps/web first." >&2
+  echo "ERROR: $WEB_DIR/node_modules missing — run npm install in frontend/web first." >&2
   exit 1
 fi
 
@@ -55,8 +55,8 @@ echo "==> Building Next.js standalone…"
 )
 
 STANDALONE="$WEB_DIR/.next/standalone"
-if [[ ! -f "$STANDALONE/apps/web/server.js" ]]; then
-  echo "ERROR: Expected $STANDALONE/apps/web/server.js after build." >&2
+if [[ ! -f "$STANDALONE/frontend/web/server.js" ]]; then
+  echo "ERROR: Expected $STANDALONE/frontend/web/server.js after build." >&2
   exit 1
 fi
 
@@ -66,21 +66,22 @@ mkdir -p "$STAGE"
 
 # Next standalone layout for monorepo: copy inner tree to web/
 mkdir -p "$STAGE/web"
-cp -a "$STANDALONE/apps/web/." "$STAGE/web/"
+cp -a "$STANDALONE/frontend/web/." "$STAGE/web/"
 mkdir -p "$STAGE/web/.next"
 cp -a "$WEB_DIR/.next/static" "$STAGE/web/.next/static"
 mkdir -p "$STAGE/web/public"
 cp -a "$WEB_DIR/public/." "$STAGE/web/public/"
 
 ITEMS=(
-  agent1.py agent2.py llm_qwen.py llm_openai.py
-  requirements.txt agent2_section_requirements.json issuer_metadata.json
-  prospectus_graph scripts templates
+  ai-module/agent1.py ai-module/agent2.py ai-module/llm_qwen.py ai-module/llm_openai.py
+  ai-module/llm_anthropic.py ai-module/llm_providers.py ai-module/llm_sanitize.py ai-module/section_quality.py
+  ai-module/requirements.txt ai-module/prospectus_graph
+  agent2_section_requirements.json issuer_metadata.json scripts resources/templates
 )
 for i in "${ITEMS[@]}"; do
   src="$REPO_ROOT/$i"
   if [[ -e "$src" ]]; then
-    cp -a "$src" "$STAGE/"
+    cp -a "$src" "$STAGE/$(basename "$i")"
   else
     echo "WARN: missing $src" >&2
   fi
@@ -110,7 +111,7 @@ source "$STAGE/venv/bin/activate"
 pip install --upgrade pip wheel setuptools
 
 REQ_NOTORCH="$STAGE/.requirements-no-torch.txt"
-grep -vE '^(#|$|[[:space:]]*torch)' "$REPO_ROOT/requirements.txt" | grep -v '^[[:space:]]*$' > "$REQ_NOTORCH" || true
+grep -vE '^(#|$|[[:space:]]*torch)' "$REPO_ROOT/ai-module/requirements.txt" | grep -v '^[[:space:]]*$' > "$REQ_NOTORCH" || true
 
 if [[ "$TORCH_CPU" == "1" ]]; then
   pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu

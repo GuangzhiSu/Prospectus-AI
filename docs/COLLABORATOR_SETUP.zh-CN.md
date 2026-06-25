@@ -51,7 +51,7 @@ python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
-cd apps/web
+cd frontend/web
 npm install
 cd ../..
 ```
@@ -172,7 +172,7 @@ python -m scripts.build_prospectus_kg --stages all --resume
 将路径改成你本机 **绝对路径**：
 
 ```bash
-cat > apps/web/.env.local << 'EOF'
+cat > frontend/web/.env.local << 'EOF'
 PROSPECTUS_ROOT=/你的绝对路径/prospectus-ui
 AGENT1_PYTHON=/你的绝对路径/prospectus-ui/.venv/bin/python
 AGENT1_MODEL=Qwen/Qwen2.5-3B-Instruct
@@ -221,14 +221,14 @@ prospectus-ui/
 │   └── …
 ├── data/                           # 示例 .xlsx（可有 README.md、manifest.json）
 ├── agent1.py
-├── apps/web/node_modules/
+├── frontend/web/node_modules/
 └── .venv/
 ```
 
 **不需要**、也不应提交到 Git 的目录（本地运行后才会有）：
 
 - `agent1_output/`、`agent2_output/`
-- `apps/web/.next/`
+- `frontend/web/.next/`
 
 ---
 

@@ -4,17 +4,25 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+AI_MODULE = ROOT / "ai-module"
+for path in (ROOT, AI_MODULE):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from agent2 import SECTIONS, _rebuild_all_sections, _section_body_from_file  # noqa: E402
 from llm_sanitize import still_contains_thinking, strip_model_reasoning  # noqa: E402
 from prospectus_graph.output_bundle import strip_verification_notes  # noqa: E402
+
+
+def _workspace_default(name: str) -> Path:
+    workspace_root = os.environ.get("WORKSPACE_ROOT", "").strip()
+    return Path(workspace_root) / name if workspace_root else ROOT / name
 
 
 def _section_id_from_path(path: Path) -> str | None:
@@ -99,8 +107,8 @@ def main() -> int:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=ROOT / "agent2_output",
-        help="agent2 output directory (default: ./agent2_output)",
+        default=_workspace_default("agent2_output"),
+        help="agent2 output directory (default: ./agent2_output, or $WORKSPACE_ROOT/agent2_output)",
     )
     parser.add_argument(
         "--dry-run",

@@ -31,17 +31,25 @@ echo "=========================================="
 echo "Prospectus Pipeline: agent1 → agent2"
 echo "=========================================="
 
+WORKSPACE_PREFIX="${WORKSPACE_ROOT:-}"
+DATA_DIR="${WORKSPACE_PREFIX:+$WORKSPACE_PREFIX/data}"
+DATA_DIR="${DATA_DIR:-data}"
+AGENT1_OUTPUT_DIR="${WORKSPACE_PREFIX:+$WORKSPACE_PREFIX/agent1_output}"
+AGENT1_OUTPUT_DIR="${AGENT1_OUTPUT_DIR:-agent1_output}"
+AGENT2_OUTPUT_DIR="${WORKSPACE_PREFIX:+$WORKSPACE_PREFIX/agent2_output}"
+AGENT2_OUTPUT_DIR="${AGENT2_OUTPUT_DIR:-agent2_output}"
+
 # 1. Check data
-if [[ ! -d "data" ]] || [[ -z "$(ls -A data/*.xlsx 2>/dev/null)" ]] && [[ -z "$(ls -A data/*.json 2>/dev/null)" ]]; then
-  echo "Error: No .xlsx or .json files in data/. Put Excel or JSON files there first."
+if [[ ! -d "$DATA_DIR" ]] || [[ -z "$(ls -A "$DATA_DIR"/*.xlsx 2>/dev/null)" ]] && [[ -z "$(ls -A "$DATA_DIR"/*.json 2>/dev/null)" ]]; then
+  echo "Error: No .xlsx or .json files in $DATA_DIR/. Put Excel or JSON files there first."
   exit 1
 fi
-echo "[OK] Found data files in data/"
+echo "[OK] Found data files in $DATA_DIR/"
 
 # 2. Install deps
 echo ""
 echo "Step 1: Installing dependencies..."
-pip install -q -r requirements.txt
+pip install -q -r ai-module/requirements.txt
 echo "[OK] Dependencies installed"
 
 # 3. Run agent1
@@ -49,21 +57,21 @@ echo ""
 echo "Step 2: Running agent1 (Excel + JSON → RAG chunks)..."
 AGENT1_OPTS=""
 [[ -n "$MODEL" ]] && AGENT1_OPTS="$AGENT1_OPTS --model $MODEL"
-python agent1.py $AGENT1_OPTS || { echo "Agent1 failed. Fix and re-run."; exit 1; }
-echo "[OK] agent1 done -> agent1_output/"
+python ai-module/agent1.py --data-dir "$DATA_DIR" --output-dir "$AGENT1_OUTPUT_DIR" $AGENT1_OPTS || { echo "Agent1 failed. Fix and re-run."; exit 1; }
+echo "[OK] agent1 done -> $AGENT1_OUTPUT_DIR/"
 
 # 4. Run agent2
 echo ""
 echo "Step 3: Running agent2 (RAG → prospectus sections)..."
 AGENT2_OPTS="--section $SECTIONS"
 [[ -n "$MODEL" ]] && AGENT2_OPTS="$AGENT2_OPTS --model $MODEL"
-python agent2.py $AGENT2_OPTS
-echo "[OK] agent2 done -> agent2_output/"
+python ai-module/agent2.py --rag-dir "$AGENT1_OUTPUT_DIR" --output-dir "$AGENT2_OUTPUT_DIR" $AGENT2_OPTS
+echo "[OK] agent2 done -> $AGENT2_OUTPUT_DIR/"
 
 echo ""
 echo "=========================================="
 echo "Done. Output:"
-echo "  - agent1_output/rag_chunks.jsonl"
-echo "  - agent2_output/section_*.md"
-echo "  - agent2_output/all_sections.md"
+echo "  - $AGENT1_OUTPUT_DIR/rag_chunks.jsonl"
+echo "  - $AGENT2_OUTPUT_DIR/section_*.md"
+echo "  - $AGENT2_OUTPUT_DIR/all_sections.md"
 echo "=========================================="

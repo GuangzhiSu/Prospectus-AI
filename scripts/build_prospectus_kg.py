@@ -161,7 +161,7 @@ def main() -> None:
     ap.add_argument("--pdf-dir", type=Path, default=Path("prospectus_corpus"))
     ap.add_argument(
         "--extracted-dir", type=Path,
-        default=Path("ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
+        default=Path("pipeline-module/ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
     )
     ap.add_argument("--sections-dir", type=Path, default=Path("prospectus_kg_output/sections_toc"))
     ap.add_argument("--structure-dir", type=Path, default=Path("prospectus_kg_output/structure"))

@@ -11,8 +11,10 @@ import traceback
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+AI_MODULE = ROOT / "ai-module"
+for path in (ROOT, AI_MODULE):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 from agent2 import (  # noqa: E402
     SECTIONS,
@@ -24,6 +26,11 @@ from section_quality import (  # noqa: E402
     analyze_section_quality,
     section_quality_ok,
 )
+
+
+def _workspace_default(name: str) -> str:
+    workspace_root = os.environ.get("WORKSPACE_ROOT", "").strip()
+    return str(Path(workspace_root) / name) if workspace_root else name
 
 
 def _load_settings_env() -> None:
@@ -109,8 +116,8 @@ def _quality_todo(out_path: Path, rag_path: Path) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Generate all Agent2 prospectus sections.")
-    parser.add_argument("--rag-dir", default="agent1_output")
-    parser.add_argument("--output-dir", default="agent2_output")
+    parser.add_argument("--rag-dir", default=_workspace_default("agent1_output"))
+    parser.add_argument("--output-dir", default=_workspace_default("agent2_output"))
     parser.add_argument("--max-retries", type=int, default=2)
     parser.add_argument("--max-revisions", type=int, default=1)
     parser.add_argument("--force-all", action="store_true", help="Regenerate every section")
@@ -123,8 +130,10 @@ def main() -> int:
     args = parser.parse_args()
 
     _load_settings_env()
-    out_path = (ROOT / args.output_dir).resolve()
-    rag_path = (ROOT / args.rag_dir).resolve()
+    output_arg = Path(args.output_dir)
+    rag_arg = Path(args.rag_dir)
+    out_path = (output_arg if output_arg.is_absolute() else ROOT / output_arg).resolve()
+    rag_path = (rag_arg if rag_arg.is_absolute() else ROOT / rag_arg).resolve()
     out_path.mkdir(parents=True, exist_ok=True)
 
     print(f"LLM_PROVIDER={os.environ.get('LLM_PROVIDER')}")

@@ -27,7 +27,7 @@ If you do **not** use the Linux script above, note: a **`dist/ProspectusAI` prod
 This repo runs as **Next.js + Python**: the web UI spawns `agent1.py` / `agent2.py` on the machine. The recommended consumer layout is:
 
 1. **Installer** (Inno Setup template: [`packaging/windows/ProspectusAI.iss`](../packaging/windows/ProspectusAI.iss)) copies:
-   - Next **standalone** output from `apps/web/.next/standalone/`
+   - Next **standalone** output from `frontend/web/.next/standalone/`
    - Python **venv** with dependencies from [`requirements.txt`](../requirements.txt) (CUDA or CPU PyTorch wheel chosen at install time)
    - Application files under `app/` (`agent1.py`, `agent2.py`, `llm_qwen.py`, `llm_openai.py`, `prospectus_graph/`, `scripts/`, etc.)
 
@@ -54,7 +54,7 @@ This repo runs as **Next.js + Python**: the web UI spawns `agent1.py` / `agent2.
    - **Stage only (no venv / no embedded Node):** [`packaging/windows/build.ps1`](../packaging/windows/build.ps1) — for custom installers; you supply Python and Node on target machines yourself.
 
 8. **Development: standalone start**
-   - From `apps/web` after `npm run build`:
+   - From `frontend/web` after `npm run build`:
    - `npm run start:standalone` — if `server.js` path differs, run `node` on the path printed by Next under `.next/standalone/`.
 
 ## Disk and memory

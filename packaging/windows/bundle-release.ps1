@@ -45,8 +45,8 @@ $RoboArgs = @(
     "/XF", "~$*",
     "/XD", ".git", "node_modules", "__pycache__", ".venv", "venv",
     "/XD", "uploads", "rag", "rag_raw", "agent1_output", "agent2_output", "prospectus_corpus", "prospectus_kg_output",
-    "/XD", "apps\web\.next", "apps\web\uploads", "apps\web\rag", "apps\web\rag_raw",
-    "/XD", "ipo_prospectus_pipeline\outputs", "dist"
+    "/XD", "frontend\web\.next", "frontend\web\uploads", "frontend\web\rag", "frontend\web\rag_raw",
+    "/XD", "pipeline-module\ipo_prospectus_pipeline\outputs", "pipeline-module\ipo_prospectus_pipeline\outputs_*", "dist"
 )
 & robocopy @RoboArgs | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE" }

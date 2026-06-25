@@ -5,7 +5,7 @@ CLI for prospectus_docgraph (stats, schema load, seed demo).
 Examples
 --------
   python scripts/docgraph_cli.py seed-stats
-  python scripts/docgraph_cli.py load-schema prospectus_docgraph/schema/data/default_schema.yaml
+  python scripts/docgraph_cli.py load-schema knowledge-module/prospectus_docgraph/schema/data/default_schema.yaml
 """
 
 from __future__ import annotations
@@ -17,6 +17,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_KNOWLEDGE_MODULE = _REPO_ROOT / "knowledge-module"
+if str(_KNOWLEDGE_MODULE) not in sys.path:
+    sys.path.insert(0, str(_KNOWLEDGE_MODULE))
 
 
 def cmd_seed_stats() -> None:

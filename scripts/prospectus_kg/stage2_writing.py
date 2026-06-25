@@ -28,7 +28,10 @@ import structlog
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, str(_REPO_ROOT / "ipo_prospectus_pipeline" / "src"))
+sys.path.insert(0, str(_REPO_ROOT / "pipeline-module" / "ipo_prospectus_pipeline" / "src"))
+_KNOWLEDGE_MODULE = _REPO_ROOT / "knowledge-module"
+if str(_KNOWLEDGE_MODULE) not in sys.path:
+    sys.path.insert(0, str(_KNOWLEDGE_MODULE))
 
 from prospectus_docgraph.graph.manager import GraphManager  # noqa: E402
 from prospectus_docgraph.models.nodes import SectionNode  # noqa: E402

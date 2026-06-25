@@ -28,7 +28,7 @@ cd prospectus-ui
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-cd apps/web && npm install && cd ../..
+cd frontend/web && npm install && cd ../..
 
 # Option A — remote artifacts (after maintainer published)
 export PROSPECTUS_DATA_REMOTE=s3://YOUR-BUCKET/prospectus-ai-data   # or team URL
@@ -40,7 +40,7 @@ python scripts/sync_data.py verify --profile dev-full
 ./scripts/ingest_data_bundle.sh /path/to/prospectus_kg_output.tar.zst
 
 # Web app
-cat > apps/web/.env.local << 'EOF'
+cat > frontend/web/.env.local << 'EOF'
 PROSPECTUS_ROOT=/absolute/path/to/prospectus-ui
 AGENT1_PYTHON=/absolute/path/to/prospectus-ui/.venv/bin/python
 AGENT1_MODEL=Qwen/Qwen2.5-3B-Instruct

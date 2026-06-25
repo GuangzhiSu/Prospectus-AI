@@ -27,12 +27,12 @@ Push-Location $RepoRoot
 Write-Host "Repo: $RepoRoot"
 
 # --- Next.js build ---
-Push-Location (Join-Path $RepoRoot "apps\web")
+Push-Location (Join-Path $RepoRoot "frontend\web")
 npm ci
 npm run build
-if (-not (Test-Path ".next\standalone\apps\web\server.js")) {
+if (-not (Test-Path ".next\standalone\frontend\web\server.js")) {
     Pop-Location
-    throw "Expected apps\web\.next\standalone\apps\web\server.js after next build."
+    throw "Expected frontend\web\.next\standalone\frontend\web\server.js after next build."
 }
 Pop-Location
 
@@ -44,8 +44,8 @@ if (Test-Path $Stage) {
 New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 
 Write-Host "Staging to $Stage"
-$StandaloneWeb = Join-Path $RepoRoot "apps\web\.next\standalone\apps\web"
-$WebDir = Join-Path $RepoRoot "apps\web"
+$StandaloneWeb = Join-Path $RepoRoot "frontend\web\.next\standalone\frontend\web"
+$WebDir = Join-Path $RepoRoot "frontend\web"
 $StageWeb = Join-Path $Stage "web"
 New-Item -ItemType Directory -Force -Path $StageWeb | Out-Null
 Copy-Item -Recurse -Force (Join-Path $StandaloneWeb "*") $StageWeb
@@ -57,14 +57,15 @@ New-Item -ItemType Directory -Force -Path $PubDst | Out-Null
 Copy-Item -Recurse -Force (Join-Path $WebDir "public\*") $PubDst
 
 $Items = @(
-    "agent1.py", "agent2.py", "llm_qwen.py", "llm_openai.py",
-    "requirements.txt", "agent2_section_requirements.json", "issuer_metadata.json",
-    "prospectus_graph", "scripts", "templates"
+    "ai-module\agent1.py", "ai-module\agent2.py", "ai-module\llm_qwen.py", "ai-module\llm_openai.py",
+    "ai-module\llm_anthropic.py", "ai-module\llm_providers.py", "ai-module\llm_sanitize.py", "ai-module\section_quality.py",
+    "ai-module\requirements.txt", "ai-module\prospectus_graph",
+    "agent2_section_requirements.json", "issuer_metadata.json", "scripts", "resources\templates"
 )
 foreach ($i in $Items) {
     $src = Join-Path $RepoRoot $i
     if (Test-Path $src) {
-        Copy-Item -Recurse -Force $src (Join-Path $Stage $i)
+        Copy-Item -Recurse -Force $src (Join-Path $Stage (Split-Path -Leaf $i))
     } else {
         Write-Warning "Missing $src"
     }
@@ -129,7 +130,7 @@ if (Get-Command py -ErrorAction SilentlyContinue) {
 $pip = Join-Path $Stage "venv\Scripts\pip.exe"
 & $pip install --upgrade pip wheel setuptools
 
-$reqPath = Join-Path $RepoRoot "requirements.txt"
+$reqPath = Join-Path $RepoRoot "ai-module\requirements.txt"
 $reqNoTorch = Join-Path $env:TEMP "req-notorch-$([Guid]::NewGuid().ToString('n')).txt"
 Get-Content -LiteralPath $reqPath -Encoding UTF8 |
     Where-Object { $_ -notmatch '^\s*#' -and $_ -notmatch '^\s*torch' -and $_.Trim() -ne '' } |

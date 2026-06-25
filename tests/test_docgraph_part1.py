@@ -45,8 +45,8 @@ def test_seed_count_matches_specs() -> None:
     mgr = seed_canonical_sections()
     secs = mgr.get_sections()
     assert len(secs) == len(CANONICAL_SECTION_SPECS)
-    assert secs[0].id == "Expected_Timetable"
-    assert secs[-1].id == "Appendices"
+    assert secs[0].id == "Cover"
+    assert secs[-1].id == "Back_Cover"
 
 
 def test_subsection_edge() -> None:

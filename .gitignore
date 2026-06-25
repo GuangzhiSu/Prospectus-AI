@@ -8,20 +8,20 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# Electron (apps/desktop)
-apps/desktop/release/
-apps/desktop/node_modules/
+# Electron (platform/desktop)
+platform/desktop/release/
+platform/desktop/node_modules/
 
-# Next.js (apps/web)
-apps/web/.next/
-apps/web/out/
-apps/web/build/
+# Next.js (frontend/web)
+frontend/web/.next/
+frontend/web/out/
+frontend/web/build/
 
-# Runtime / generated (apps/web)
-apps/web/uploads/
-apps/web/rag/
-apps/web/rag_raw/
-apps/web/.progress.json
+# Runtime / generated (frontend/web)
+frontend/web/uploads/
+frontend/web/rag/
+frontend/web/rag_raw/
+frontend/web/.progress.json
 
 # Legacy runtime at root (if app was run from root before reorg)
 .next/
@@ -29,6 +29,9 @@ uploads/
 rag/
 rag_raw/
 .progress.json
+
+# Optional runtime workspace (set WORKSPACE_ROOT=workspace)
+workspace/
 
 # Agent1 output (generated RAG chunks)
 agent1_output/
@@ -38,9 +41,9 @@ agent2_output/
 
 # IPO prospectus pipeline — run outputs (large extracted/sections JSON, JSONL, raw dumps).
 # We do not use a repo-wide *.json rule; that would untrack package.json, tsconfig.json,
-# agent2_section_requirements.json, apps/web/*.json, etc.
-ipo_prospectus_pipeline/outputs/
-ipo_prospectus_pipeline/outputs_*/
+# agent2_section_requirements.json, frontend/web/*.json, etc.
+pipeline-module/ipo_prospectus_pipeline/outputs/
+pipeline-module/ipo_prospectus_pipeline/outputs_*/
 
 # KG outputs — bulk ignored; contract JSON under inputs/ is tracked (see docs/COLLABORATION.md)
 prospectus_kg_output/*
@@ -73,15 +76,15 @@ docs/*.pdf
 *.onnx
 *.h5
 
-# Python (services/local-llm)
+# Python (platform/services/local-llm)
 .venv/
 **/__pycache__/
 *.py[cod]
 *.pyo
 .Python
-services/local-llm/.venv/
-services/local-llm/chroma/
-services/local-llm/rag_raw/
+platform/services/local-llm/.venv/
+platform/services/local-llm/chroma/
+platform/services/local-llm/rag_raw/
 
 # Env
 .env
@@ -89,6 +92,9 @@ services/local-llm/rag_raw/
 !.env.example
 
 # IDE / OS
+.cursor/
+.tools/
+logs/
 .DS_Store
 *.pem
 *.tsbuildinfo

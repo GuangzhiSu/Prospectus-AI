@@ -28,30 +28,24 @@ This makes the output more suitable as a sponsor-counsel working draft than as a
 
 ```text
 prospectus-ui/
-├── apps/
-│   └── web/                            # Next.js app (frontend + API routes)
-│       ├── src/
-│       │   ├── app/
-│       │   │   ├── api/                # agent1 (run, upload, files, clear-data, results, section/[id])
-│       │   │   │                       # agent2 (run, export/docx, status, clear, draft)
-│       │   │   │                       # reset, legacy chat/files/progress
-│       │   │   ├── agent1/page.tsx     # Standalone Agent1 UI
-│       │   │   ├── layout.tsx
-│       │   │   └── page.tsx            # Main Excel -> Agent1 -> Agent2 -> Export UI
-│       │   └── lib/
-│       │       ├── prospectus-root.ts
-│       │       └── rag.ts              # Legacy / optional RAG route
-│       ├── prospectus_section_prompts.json
-│       ├── package.json
-│       └── ...
-├── services/
-│   └── local-llm/                      # Optional FastAPI + Chroma service for legacy route
+├── ai-module/                          # Python AI runtime, isolated from the UI/platform code
+│   ├── agent1.py                       # Excel/JSON extraction → text_chunks + fact_store
+│   ├── agent2.py                       # LangGraph runner for section drafting
+│   ├── llm_qwen.py                     # Shared Qwen model loader / inference helpers
+│   ├── requirements.txt                # Python dependencies for Agent1/Agent2
+│   └── prospectus_graph/               # LangGraph state, retriever, verifier, graph
+├── frontend/
+│   └── web/                            # Next.js app (UI + current API route adapters)
+├── platform/
+│   ├── desktop/                        # Electron desktop shell
+│   └── services/local-llm/             # Optional FastAPI + Chroma service for legacy route
+├── knowledge-module/
+│   └── prospectus_docgraph/            # Document graph / structural KG tooling
+├── pipeline-module/
+│   └── ipo_prospectus_pipeline/        # Standalone IPO prospectus extraction pipeline
+├── resources/                          # Templates, prompt packs, canvases, legacy references
 ├── data/                               # Input Excel (.xlsx) or JSON (.json) for main workflow
-├── agent1.py                           # Excel/JSON extraction → text_chunks + fact_store
-├── agent2.py                           # LangGraph runner for section drafting
-├── llm_qwen.py                         # Shared Qwen model loader / inference helpers
 ├── agent2_section_requirements.json    # Section-by-section working draft instructions
-├── prospectus_graph/                   # LangGraph state, retriever, verifier, graph, timetable_template
 ├── run_full_pipeline.sh                # agent1 -> agent2 convenience script
 ├── docs/
 ├── README.md
@@ -64,7 +58,7 @@ See `docs/STRUCTURE.md` for additional repository notes, but read it with care b
 
 - **Node.js** 18+ for the web app
 - **npm** (or pnpm/yarn)
-- **Python** 3.10+ for `agent1.py`, `agent2.py`, and model inference
+- **Python** 3.10+ for `ai-module/agent1.py`, `ai-module/agent2.py`, and model inference
 - Enough disk space and network access for the first Hugging Face model download
 
 For the **main workflow** (Excel/JSON → Agent1 → Agent2), you do **not** need `OPENAI_API_KEY` or `HF_API_KEY`.
@@ -73,7 +67,7 @@ For the **legacy / optional document-RAG workflow**, you may still need:
 
 - `OPENAI_API_KEY` when `RAG_PROVIDER=openai`
 - `HF_API_KEY` when `RAG_PROVIDER=hf`
-- a running `services/local-llm` server when `RAG_PROVIDER=local`
+- a running `platform/services/local-llm` server when `RAG_PROVIDER=local`
 
 ## User guide: what lives where and how to get it
 
@@ -81,7 +75,7 @@ For the **legacy / optional document-RAG workflow**, you may still need:
 
 | Content | Where it lives | How you get it |
 |---------|----------------|----------------|
-| Application code (`apps/`, `agent1.py`, `scripts/`, …) | **GitHub** main repo | `git clone git@github.com:GuangzhiSu/Prospectus-AI.git` |
+| Application code (`frontend/`, `ai-module/`, `platform/`, `scripts/`, …) | **GitHub** main repo | `git clone git@github.com:GuangzhiSu/Prospectus-AI.git` |
 | KG contract JSON (`input_schema*.json`, crosswalk) | **GitHub** main repo | same clone (`prospectus_kg_output/inputs/`) |
 | Data manifest + checksums ([`data/manifest.json`](data/manifest.json)) | **GitHub** main repo | same clone |
 | PDF corpus `prospectus_corpus/` (~750 MB compressed) | **Codeup LFS** data repo | see [Fetch large files](#fetch-large-files-codeup) below |
@@ -107,14 +101,14 @@ English maintainer / return-workflow notes: **[docs/COLLABORATION.md](docs/COLLA
 
 1. **Clone code and install dependencies** (see [Quick start](#quick-start) below).
 2. **Fetch large files** from Codeup (requires Git LFS + Codeup access).
-3. **Configure** `apps/web/.env.local` with your absolute paths.
+3. **Configure** `frontend/web/.env.local` with your absolute paths.
 4. **Run** `npm run dev` from the repo root.
 
 ### Fetch large files (Codeup)
 
 Prerequisites: [Git LFS](https://git-lfs.com) installed (`git lfs install`), SSH key added to Codeup, access to the data repo above.
 
-From the **repo root** after `pip install -r requirements.txt`:
+From the **repo root** after `pip install -r ai-module/requirements.txt`:
 
 ```bash
 source .venv/bin/activate
@@ -157,20 +151,21 @@ python scripts/sync_data.py fetch --profile kg-dev
 cd /path/to/prospectus-ui
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r ai-module/requirements.txt
 ```
 
 2. Install web dependencies:
 
 ```bash
-cd /path/to/prospectus-ui/apps/web
+cd /path/to/prospectus-ui/frontend/web
 npm install
 ```
 
-3. Create `apps/web/.env.local` with the minimum settings needed by the web API:
+3. Create `frontend/web/.env.local` with the minimum settings needed by the web API:
 
 ```bash
 PROSPECTUS_ROOT=/path/to/prospectus-ui
+WORKSPACE_ROOT=workspace
 AGENT1_PYTHON=/path/to/prospectus-ui/.venv/bin/python
 AGENT1_MODEL=Qwen/Qwen2.5-3B-Instruct
 AGENT1_USE_CPU=1
@@ -178,8 +173,10 @@ AGENT1_USE_CPU=1
 
 Notes:
 
-- `PROSPECTUS_ROOT` points to the repo root containing `agent1.py`, `agent2.py`, `data/`, `agent1_output/`, and `agent2_output/`
-- `AGENT1_PYTHON` is used by the web API when it launches both `agent1.py` and `agent2.py`
+- `PROSPECTUS_ROOT` points to the repo root containing `ai-module/`, `frontend/`, and the other code modules
+- `WORKSPACE_ROOT` optionally points to the runtime workspace for uploads, inputs, RAG indexes, and generated outputs. Relative values such as `workspace` are resolved under `PROSPECTUS_ROOT`. If unset, the legacy repo-root paths are used.
+- `AI_MODULE_ROOT` optionally overrides the default `PROSPECTUS_ROOT/ai-module` path
+- `AGENT1_PYTHON` is used by the web API when it launches both `ai-module/agent1.py` and `ai-module/agent2.py`
 - `AGENT1_MODEL` sets the default Qwen model used by the web flow
 - `AGENT1_USE_CPU=1` is the safest default when CUDA is unavailable
 
@@ -199,13 +196,13 @@ npm run dev
 
 6. Review the outputs:
 
-- `agent1_output/` for summarized and grouped evidence (`text_chunks.jsonl`, `fact_store.jsonl`, `manifest.json`)
-- `agent2_output/section_*.md` for section drafts
-- `agent2_output/all_sections.md` for the combined draft
+- `agent1_output/` or `$WORKSPACE_ROOT/agent1_output/` for summarized and grouped evidence (`text_chunks.jsonl`, `fact_store.jsonl`, `manifest.json`)
+- `agent2_output/section_*.md` or `$WORKSPACE_ROOT/agent2_output/section_*.md` for section drafts
+- `agent2_output/all_sections.md` or `$WORKSPACE_ROOT/agent2_output/all_sections.md` for the combined draft
 
 ### Run the full pipeline from the command line
 
-Prerequisite: place your input `.xlsx` or `.json` files in `data/`.
+Prerequisite: place your input `.xlsx` or `.json` files in `data/`, or in `$WORKSPACE_ROOT/data/` when `WORKSPACE_ROOT` is set.
 
 ```bash
 cd /path/to/prospectus-ui
@@ -226,13 +223,15 @@ Examples:
 
 | Variable | Used by | Description | Default |
 | ---------- | --------- | ------------- | --------- |
-| `PROSPECTUS_ROOT` | Web API | Repo root that contains `agent1.py`, `agent2.py`, `data/`, and output dirs | auto-detect |
-| `AGENT1_PYTHON` | Web API | Python executable used to launch `agent1.py` and `agent2.py` | `python3` |
+| `PROSPECTUS_ROOT` | Web API | Repo root that contains `ai-module/`, `frontend/`, and the other code modules | auto-detect |
+| `WORKSPACE_ROOT` | Web API / AI CLI | Optional runtime workspace for `data/`, outputs, uploads, RAG indexes, and KG output | unset (repo root runtime paths) |
+| `AI_MODULE_ROOT` | Web API | Optional override for the Python AI module directory | `PROSPECTUS_ROOT/ai-module` |
+| `AGENT1_PYTHON` | Web API | Python executable used to launch `ai-module/agent1.py` and `ai-module/agent2.py` | `python3` |
 | `AGENT1_MODEL` | Web API | Default Qwen model for Agent1 and Agent2 | `Qwen/Qwen2.5-3B-Instruct` in web API |
-| `AGENT1_USE_CPU` | Web API / `llm_qwen.py` | Force CPU execution when set to `1` | unset |
+| `AGENT1_USE_CPU` | Web API / `ai-module/llm_qwen.py` | Force CPU execution when set to `1` | unset |
 | `AGENT1_CUDA_DEVICES` | Web API | Limit execution to specific CUDA device IDs | unset |
-| `AGENT1_USE_8BIT` | `llm_qwen.py` | Load text model in 8-bit mode when possible | unset |
-| `AGENT1_USE_4BIT` | `llm_qwen.py` | Load text model in 4-bit mode when possible | unset |
+| `AGENT1_USE_8BIT` | `ai-module/llm_qwen.py` | Load text model in 8-bit mode when possible | unset |
+| `AGENT1_USE_4BIT` | `ai-module/llm_qwen.py` | Load text model in 4-bit mode when possible | unset |
 
 ### Legacy / optional RAG variables
 
@@ -246,7 +245,7 @@ Examples:
 | `HF_API_KEY` | Required when `RAG_PROVIDER=hf` | - |
 | `HF_EMBEDDING_MODEL` | Hugging Face embedding model for legacy route | `sentence-transformers/all-MiniLM-L6-v2` |
 | `HF_CHAT_MODEL` | Hugging Face chat model for legacy route | `HuggingFaceH4/zephyr-7b-beta` |
-| `LOCAL_LLM_URL` | Base URL for `services/local-llm` when `RAG_PROVIDER=local` | `http://127.0.0.1:8000` |
+| `LOCAL_LLM_URL` | Base URL for `platform/services/local-llm` when `RAG_PROVIDER=local` | `http://127.0.0.1:8000` |
 
 ## Data and runtime paths
 
@@ -256,11 +255,21 @@ Examples:
 - `agent1_output/` - `text_chunks.jsonl` (narrative), `fact_store.jsonl` (structured facts), `rag_chunks.jsonl` (backward-compat merged view), `by_section/section_*.jsonl`, and `manifest.json`
 - `agent2_output/` - section markdown files (`section_*.md`) and combined draft (`all_sections.md`)
 
+Set `WORKSPACE_ROOT=workspace` to move those runtime paths under `workspace/`:
+
+- `workspace/data/`
+- `workspace/agent1_output/`
+- `workspace/agent2_output/`
+- `workspace/uploads/`
+- `workspace/rag/`
+- `workspace/rag_raw/`
+- `workspace/prospectus_kg_output/`
+
 ### Legacy / optional RAG workflow
 
-- `apps/web/uploads/` - uploaded files
-- `apps/web/rag/` - JSON document indices
-- `apps/web/.progress.json` - section generation progress for the older `/api/chat` route
+- `uploads/` - uploaded files
+- `rag/` and `rag_raw/` - JSON document indices and raw extracted text
+- `.progress.json` - section generation progress for the older `/api/chat` route
 
 These paths are ignored by git where appropriate.
 
@@ -277,9 +286,9 @@ These paths are ignored by git where appropriate.
 Example usage:
 
 ```bash
-pip install -r requirements.txt
-python agent1.py
-python agent1.py --model Qwen/Qwen2.5-3B-Instruct
+pip install -r ai-module/requirements.txt
+python ai-module/agent1.py
+python ai-module/agent1.py --model Qwen/Qwen2.5-3B-Instruct
 ```
 
 Outputs:
@@ -297,7 +306,7 @@ Outputs:
 - **Legacy** (when only `rag_chunks.jsonl` exists): Retriever → Section Writer → Verifier → Revision → Assembler
 - **Hybrid** (when `text_chunks.jsonl` and/or `fact_store.jsonl` exist): Retriever (semantic + fact filtering) → **Section Planner** → Section Writer → Verifier → Revision → Assembler
 
-The **Section Planner** (Hybrid mode only) prepares an evidence outline before drafting. The **Expected Timetable** section can be rendered from `fact_store` data via `prospectus_graph/timetable_template.py`.
+The **Section Planner** (Hybrid mode only) prepares an evidence outline before drafting. The **Expected Timetable** section can be rendered from `fact_store` data via `ai-module/prospectus_graph/timetable_template.py`.
 
 Current behavior:
 
@@ -315,11 +324,11 @@ Current behavior:
 Example usage:
 
 ```bash
-pip install -r requirements.txt
-python agent2.py --section Summary
-python agent2.py --section Summary Definitions Glossary
-python agent2.py --section all
-python agent2.py --section Summary --model Qwen/Qwen2.5-3B-Instruct
+pip install -r ai-module/requirements.txt
+python ai-module/agent2.py --section Summary
+python ai-module/agent2.py --section Summary Definitions Glossary
+python ai-module/agent2.py --section all
+python ai-module/agent2.py --section Summary --model Qwen/Qwen2.5-3B-Instruct
 ```
 
 Outputs:
@@ -352,14 +361,14 @@ Local mode: both `Agent1` and `Agent2` use Qwen through Hugging Face `transforme
 - You can pin CUDA devices with `AGENT1_CUDA_DEVICES=0` or similar
 - Quantized loading is available through `AGENT1_USE_8BIT=1` or `AGENT1_USE_4BIT=1` when supported
 
-Current code is wired for CUDA or CPU execution. Apple MPS is not explicitly configured in `llm_qwen.py`, so macOS users should expect CPU execution unless they adapt the model-loading path.
+Current code is wired for CUDA or CPU execution. Apple MPS is not explicitly configured in `ai-module/llm_qwen.py`, so macOS users should expect CPU execution unless they adapt the model-loading path.
 
 ## Legacy / optional local-LLM route
 
 The repo still includes an optional FastAPI service for the older document-RAG flow:
 
 ```bash
-cd services/local-llm
+cd platform/services/local-llm
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -369,7 +378,7 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 Then run the web app with:
 
 ```bash
-cd apps/web
+cd frontend/web
 RAG_PROVIDER=local npm run dev
 ```
 

@@ -9,7 +9,7 @@ Strategy
 2. Resolve each raw TOC title to a canonical section id via
    ``prospectus_docgraph.normalizer.TitleNormalizer``.
 3. Read back the associated page text from the already-extracted JSON in
-   ``ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted/<doc_id>.json`` if available,
+   ``pipeline-module/ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted/<doc_id>.json`` if available,
    otherwise re-extract on the fly (fallback path).
 4. Materialize subsections from level-2 TOC entries when present.
 5. Emit one JSON per document that mirrors ``prospectus_docgraph.parser.structure.ParsedDocument``
@@ -33,6 +33,9 @@ import structlog
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_KNOWLEDGE_MODULE = _REPO_ROOT / "knowledge-module"
+if str(_KNOWLEDGE_MODULE) not in sys.path:
+    sys.path.insert(0, str(_KNOWLEDGE_MODULE))
 
 from prospectus_docgraph.normalizer.title_normalizer import TitleNormalizer  # noqa: E402
 
@@ -300,7 +303,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "--extracted-dir",
         type=Path,
-        default=Path("ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
+        default=Path("pipeline-module/ipo_prospectus_pipeline/outputs_prospectus_qwen/extracted"),
     )
     ap.add_argument("--out-dir", type=Path, default=Path("prospectus_kg_output/sections_toc"))
     ap.add_argument("--limit", type=int, default=None)

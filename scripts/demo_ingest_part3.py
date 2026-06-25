@@ -12,6 +12,9 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_KNOWLEDGE_MODULE = _REPO_ROOT / "knowledge-module"
+if str(_KNOWLEDGE_MODULE) not in sys.path:
+    sys.path.insert(0, str(_KNOWLEDGE_MODULE))
 
 from prospectus_docgraph.ingestion import ProspectusIngestor
 from prospectus_docgraph.models.enums import GraphLayer

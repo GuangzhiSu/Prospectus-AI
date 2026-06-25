@@ -16,11 +16,11 @@ Push-Location $RepoRoot
 
 Write-Host "Repo: $RepoRoot"
 
-Push-Location (Join-Path $RepoRoot "apps\web")
+Push-Location (Join-Path $RepoRoot "frontend\web")
 npm ci
 npm run build
 if (-not (Test-Path ".next\standalone")) {
-    throw "apps/web/.next/standalone missing — check next.config output: standalone"
+    throw "frontend/web/.next/standalone missing — check next.config output: standalone"
 }
 Pop-Location
 
@@ -28,10 +28,10 @@ $Stage = Join-Path $RepoRoot $InstallRoot
 New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 
 Write-Host "Staging to $Stage"
-$StandaloneWeb = Join-Path $RepoRoot "apps\web\.next\standalone\apps\web"
-$WebDir = Join-Path $RepoRoot "apps\web"
+$StandaloneWeb = Join-Path $RepoRoot "frontend\web\.next\standalone\frontend\web"
+$WebDir = Join-Path $RepoRoot "frontend\web"
 if (-not (Test-Path (Join-Path $StandaloneWeb "server.js"))) {
-    throw "Missing $StandaloneWeb\server.js — run npm run build in apps\web first."
+    throw "Missing $StandaloneWeb\server.js — run npm run build in frontend\web first."
 }
 $StageWeb = Join-Path $Stage "web"
 New-Item -ItemType Directory -Force -Path $StageWeb | Out-Null
@@ -44,14 +44,15 @@ New-Item -ItemType Directory -Force -Path $PubDst | Out-Null
 Copy-Item -Recurse -Force (Join-Path $WebDir "public\*") $PubDst
 
 $Items = @(
-    "agent1.py", "agent2.py", "llm_qwen.py", "llm_openai.py",
-    "requirements.txt", "agent2_section_requirements.json", "issuer_metadata.json",
-    "prospectus_graph", "scripts", "templates"
+    "ai-module\agent1.py", "ai-module\agent2.py", "ai-module\llm_qwen.py", "ai-module\llm_openai.py",
+    "ai-module\llm_anthropic.py", "ai-module\llm_providers.py", "ai-module\llm_sanitize.py", "ai-module\section_quality.py",
+    "ai-module\requirements.txt", "ai-module\prospectus_graph",
+    "agent2_section_requirements.json", "issuer_metadata.json", "scripts", "resources\templates"
 )
 foreach ($i in $Items) {
     $src = Join-Path $RepoRoot $i
     if (Test-Path $src) {
-        Copy-Item -Recurse -Force $src (Join-Path $Stage $i)
+        Copy-Item -Recurse -Force $src (Join-Path $Stage (Split-Path -Leaf $i))
     }
 }
 

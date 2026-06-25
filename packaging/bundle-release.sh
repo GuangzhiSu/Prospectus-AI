@@ -29,11 +29,12 @@ rsync -a \
   --exclude='agent2_output' \
   --exclude='prospectus_corpus' \
   --exclude='prospectus_kg_output' \
-  --exclude='apps/web/.next' \
-  --exclude='apps/web/uploads' \
-  --exclude='apps/web/rag' \
-  --exclude='apps/web/rag_raw' \
-  --exclude='ipo_prospectus_pipeline/outputs' \
+  --exclude='frontend/web/.next' \
+  --exclude='frontend/web/uploads' \
+  --exclude='frontend/web/rag' \
+  --exclude='frontend/web/rag_raw' \
+  --exclude='pipeline-module/ipo_prospectus_pipeline/outputs' \
+  --exclude='pipeline-module/ipo_prospectus_pipeline/outputs_*' \
   --exclude='dist' \
   --exclude='.DS_Store' \
   --exclude='~$*' \
