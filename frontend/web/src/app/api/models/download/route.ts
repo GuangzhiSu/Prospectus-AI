@@ -6,7 +6,7 @@ import { getProspectusRoot } from "@/lib/prospectus-root";
 import { getDefaultLocalModelDir } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
-export const maxDuration = 600;
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   let repoId = "Qwen/Qwen3.5-4B";

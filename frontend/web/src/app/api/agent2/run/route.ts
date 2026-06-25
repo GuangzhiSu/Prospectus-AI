@@ -8,8 +8,8 @@ import { getAgentScriptPath, getProspectusRoot, workspacePaths } from "@/lib/pro
 import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
-/** Vercel Hobby: max 300s. Pro allows higher; local dev has no this cap. */
-export const maxDuration = 1800;
+/** Vercel Hobby allows max 300s. Longer local runs should use the desktop/server workflow. */
+export const maxDuration = 300;
 
 const SECTION_ORDER = [
   "ExpectedTimetable",
