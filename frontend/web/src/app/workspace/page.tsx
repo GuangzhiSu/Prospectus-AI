@@ -179,6 +179,11 @@ const STEPS = [
   { id: 4, label: "Export", short: "Export" },
 ];
 
+function sectionOrderIndex(sectionId: string | undefined) {
+  if (!sectionId) return -1;
+  return (SECTION_ORDER as readonly string[]).indexOf(sectionId);
+}
+
 export default function Page() {
   const [files, setFiles] = useState<DataFile[]>([]);
   const [results, setResults] = useState<{
@@ -355,7 +360,7 @@ export default function Page() {
         setSectionStream((prev) => applyStreamEvent(prev, ev));
         if (ev.type === "phase_start" || ev.type === "section_start") {
           setExpandedSectionId(ev.section_id);
-          const idx = SECTION_ORDER.indexOf(ev.section_id);
+          const idx = sectionOrderIndex(ev.section_id);
           if (idx >= 0) setGeneratingSectionIndex(idx);
         }
       }
@@ -388,7 +393,7 @@ export default function Page() {
       setGenerating(false);
       return;
     }
-    const firstIdx = SECTION_ORDER.indexOf(remaining[0]);
+    const firstIdx = sectionOrderIndex(remaining[0]);
     setGeneratingSectionIndex(firstIdx >= 0 ? firstIdx : 0);
     setSectionStream(null);
 
@@ -410,7 +415,7 @@ export default function Page() {
           setSectionStream((prev) => applyStreamEvent(prev, ev));
           if (ev.type === "phase_start" || ev.type === "section_start") {
             setExpandedSectionId(ev.section_id);
-            const idx = SECTION_ORDER.indexOf(ev.section_id);
+            const idx = sectionOrderIndex(ev.section_id);
             if (idx >= 0) setGeneratingSectionIndex(idx);
           }
         }
@@ -531,7 +536,7 @@ export default function Page() {
   const hasGapSections =
     missingSectionIds.length > 0 &&
     lastGeneratedIndex >= 0 &&
-    SECTION_ORDER.indexOf(missingSectionIds[0]) < lastGeneratedIndex;
+    sectionOrderIndex(missingSectionIds[0]) < lastGeneratedIndex;
   const currentStep = !files.length ? 1 : !manifest ? 2 : allSectionsDone ? 4 : 3;
   const generateAllLabel =
     generatedCount === 0 ? "Generate all" : `Remaining (${missingSectionIds.length})`;

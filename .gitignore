@@ -30,8 +30,8 @@ rag/
 rag_raw/
 .progress.json
 
-# Optional runtime workspace (set WORKSPACE_ROOT=workspace)
-workspace/
+# Optional runtime workspace at repo root (set WORKSPACE_ROOT=workspace)
+/workspace/
 
 # Agent1 output (generated RAG chunks)
 agent1_output/
