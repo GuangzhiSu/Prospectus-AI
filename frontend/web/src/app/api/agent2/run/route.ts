@@ -165,7 +165,7 @@ export async function POST(req: Request) {
 
     const python = process.env.AGENT1_PYTHON || "python3";
     const settings = await readSettings();
-    const env = {
+    const env: NodeJS.ProcessEnv = {
       ...buildAgentProcessEnv(process.env, settings),
       PYTHONUNBUFFERED: "1",
       AGENT2_STREAM: "1",
