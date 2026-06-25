@@ -7,7 +7,8 @@ export type DownloadAsset = {
   recommended?: boolean;
 };
 
-const RELEASES_URL = "https://github.com/GuangzhiSu/Prospectus-AI/releases";
+const RELEASE_BASE_URL =
+  "https://github.com/GuangzhiSu/Prospectus-AI/releases/download/0.1.0";
 
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   {
@@ -15,7 +16,7 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     title: "Windows Portable",
     platform: "Windows",
     description: "Portable package with bundled Node and Python runtime.",
-    href: RELEASES_URL,
+    href: `${RELEASE_BASE_URL}/ProspectusAI.zip`,
     recommended: true,
   },
   {
@@ -23,14 +24,14 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     title: "Windows Archive",
     platform: "Windows",
     description: "Compressed Windows build for internal distribution mirrors.",
-    href: RELEASES_URL,
+    href: `${RELEASE_BASE_URL}/ProspectusAI-windows-from-linux-20260510-1154.tar.gz`,
   },
   {
     id: "linux",
     title: "Linux x86_64",
     platform: "Linux",
     description: "Full Linux archive for workstation or server deployment.",
-    href: RELEASES_URL,
+    href: `${RELEASE_BASE_URL}/ProspectusAI-linux-x86_64-20260509-0311.tar.gz`,
   },
 ];
 

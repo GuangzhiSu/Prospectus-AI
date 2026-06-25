@@ -121,7 +121,7 @@ export default function DownloadPage() {
           <div>
             <h2 className="text-2xl font-semibold">Downloads</h2>
             <p className="mt-2 text-sm text-[#637064]">
-              Pick the package for your machine. Buttons redirect to the project release page until versioned installers are published.
+              Pick the package for your machine. Buttons download the published v0.1.0 release assets from GitHub.
             </p>
           </div>
           <Link href="/settings" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
