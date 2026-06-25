@@ -104,7 +104,7 @@ export default async function DownloadPage() {
                 </span>
               )}
               <Link
-                href="/"
+                href="/workspace"
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 Open web workspace
