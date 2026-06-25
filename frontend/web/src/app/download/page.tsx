@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { PublicNav } from "@/components/PublicNav";
 import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
 
 export const metadata = {
@@ -41,6 +42,7 @@ export default function DownloadPage() {
 
   return (
     <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
+      <PublicNav active="download" />
       <section className="relative overflow-hidden bg-[#16231d] text-white">
         <div className="absolute inset-0 opacity-20">
           <Image
@@ -52,7 +54,7 @@ export default function DownloadPage() {
             className="object-cover"
           />
         </div>
-        <div className="relative mx-auto grid min-h-[620px] max-w-7xl grid-cols-1 items-center gap-10 px-6 py-10 md:grid-cols-[1fr_420px]">
+        <div className="relative mx-auto grid min-h-[680px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-14 pt-28 md:grid-cols-[1fr_420px]">
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase text-[#dce8df]">
               Sponsor counsel drafting workspace

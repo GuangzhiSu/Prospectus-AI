@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { PublicNav } from "@/components/PublicNav";
+
 export const metadata = {
   title: "AI Prospectus | Private AI document generation",
   description:
@@ -58,6 +60,7 @@ function DownloadIcon() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
+      <PublicNav active="home" />
       <section className="relative overflow-hidden bg-[#111c18] text-white">
         <div className="absolute inset-0 opacity-18">
           <Image
@@ -69,25 +72,7 @@ export default function HomePage() {
             className="object-cover"
           />
         </div>
-        <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/app-icon.png" alt="AI Prospectus logo" width={36} height={36} />
-            <span className="text-sm font-semibold">AI Prospectus</span>
-          </Link>
-          <div className="flex items-center gap-4 text-sm">
-            <Link href="/download" className="hidden text-[#dce8df] hover:text-white sm:inline">
-              Download
-            </Link>
-            <Link href="/zh" className="hidden text-[#dce8df] hover:text-white sm:inline">
-              中文
-            </Link>
-            <Link href="/workspace" className="border border-white/25 px-4 py-2 font-semibold hover:bg-white/10">
-              Protected workspace
-            </Link>
-          </div>
-        </nav>
-
-        <div className="relative mx-auto grid min-h-[640px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-16 pt-8 md:grid-cols-[1fr_430px]">
+        <div className="relative mx-auto grid min-h-[700px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-16 pt-28 md:grid-cols-[1fr_430px]">
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase text-[#dce8df]">
               Private AI for regulated document drafting
