@@ -1,5 +1,6 @@
 // app/api/files/route.ts
 import { NextResponse } from "next/server";
+import path from "path";
 import fs from "fs/promises";
 import { workspacePaths } from "@/lib/prospectus-root";
 

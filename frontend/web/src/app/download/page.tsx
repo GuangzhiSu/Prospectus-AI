@@ -1,10 +1,7 @@
-import { promises as fs } from "fs";
 import Image from "next/image";
 import Link from "next/link";
-import path from "path";
 
 import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
-import { getProspectusRoot } from "@/lib/prospectus-root";
 
 export const metadata = {
   title: "Download Prospectus AI",
@@ -12,35 +9,14 @@ export const metadata = {
 };
 
 type DisplayAsset = DownloadAsset & {
-  href: string;
-  size: string;
-  available: boolean;
+  downloadHref: string;
 };
 
-function formatBytes(bytes: number) {
-  const units = ["B", "KB", "MB", "GB"];
-  let value = bytes;
-  let unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-  return `${value.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
-}
-
-async function getAssets(): Promise<DisplayAsset[]> {
-  const root = getProspectusRoot();
-  return Promise.all(
-    DOWNLOAD_ASSETS.map(async (asset) => {
-      const stat = await fs.stat(path.join(root, asset.filePath)).catch(() => null);
-      return {
-        ...asset,
-        href: `/api/download/${asset.id}`,
-        size: stat?.isFile() ? formatBytes(stat.size) : "Not built",
-        available: Boolean(stat?.isFile()),
-      };
-    })
-  );
+function getAssets(): DisplayAsset[] {
+  return DOWNLOAD_ASSETS.map((asset) => ({
+    ...asset,
+    downloadHref: `/api/download/${asset.id}`,
+  }));
 }
 
 function DownloadIcon() {
@@ -59,8 +35,8 @@ function ArrowIcon() {
   );
 }
 
-export default async function DownloadPage() {
-  const assets = await getAssets();
+export default function DownloadPage() {
+  const assets = getAssets();
   const recommended = assets.find((asset) => asset.recommended) ?? assets[0];
 
   return (
@@ -89,20 +65,13 @@ export default async function DownloadPage() {
               section drafts, verification notes, and Word exports.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              {recommended.available ? (
-                <a
-                  href={recommended.href}
-                  className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
-                >
-                  <DownloadIcon />
-                  Download for Windows
-                </a>
-              ) : (
-                <span className="inline-flex h-11 items-center gap-2 bg-[#d8ded6] px-5 text-sm font-semibold text-[#6d786d]">
-                  <DownloadIcon />
-                  Windows build unavailable
-                </span>
-              )}
+              <a
+                href={recommended.downloadHref}
+                className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
+              >
+                <DownloadIcon />
+                Download for Windows
+              </a>
               <Link
                 href="/workspace"
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -152,7 +121,7 @@ export default async function DownloadPage() {
           <div>
             <h2 className="text-2xl font-semibold">Downloads</h2>
             <p className="mt-2 text-sm text-[#637064]">
-              Pick the package for your machine. Buttons are backed by a local download API with a fixed allowlist.
+              Pick the package for your machine. Buttons redirect to the project release page until versioned installers are published.
             </p>
           </div>
           <Link href="/settings" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
@@ -179,20 +148,14 @@ export default async function DownloadPage() {
               </div>
               <p className="mt-3 min-h-12 text-sm leading-6 text-[#637064]">{asset.description}</p>
               <div className="mt-5 flex items-center justify-between border-t border-[#edf0eb] pt-4">
-                <span className="text-sm font-medium text-[#334139]">{asset.size}</span>
-                {asset.available ? (
-                  <a
-                    href={asset.href}
-                    className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
-                  >
-                    <DownloadIcon />
-                    Download
-                  </a>
-                ) : (
-                  <span className="inline-flex h-10 items-center gap-2 bg-[#d8ded6] px-4 text-sm font-semibold text-[#7a8478]">
-                    Not built
-                  </span>
-                )}
+                <span className="text-sm font-medium text-[#334139]">Release page</span>
+                <a
+                  href={asset.downloadHref}
+                  className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
+                >
+                  <DownloadIcon />
+                  Download
+                </a>
               </div>
             </article>
           ))}
