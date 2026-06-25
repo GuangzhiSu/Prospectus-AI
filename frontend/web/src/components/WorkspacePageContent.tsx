@@ -826,10 +826,10 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
 
       <div className="mx-auto max-w-[1800px] flex h-[calc(100vh-140px)]">
         {/* Left: Excel files */}
-        <aside className="w-72 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] p-4 overflow-auto">
+        <aside className="w-[360px] shrink-0 space-y-4 border-r border-[var(--border)] bg-[var(--surface)] p-4 overflow-auto">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">{t.filesTitle}</h2>
           <p className="text-xs text-[var(--muted)] mt-1">{t.filesSubtitle}</p>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -881,42 +881,42 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               </ul>
             )}
           </div>
-        </aside>
 
-        {/* Center: prepare data + review coverage */}
-        <main className="flex-1 flex flex-col overflow-auto min-w-0">
-          <div className="flex-1 overflow-auto p-6 space-y-6">
-            <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-              <h2 className="text-base font-semibold mb-1">{t.prepareTitle}</h2>
-              <p className="text-sm text-[var(--muted)] mb-4">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+            <h2 className="text-sm font-semibold mb-1">{t.prepareTitle}</h2>
+            <p className="text-xs leading-5 text-[var(--muted)] mb-3">
                 {t.prepareDescription}
-              </p>
-              <button
-                onClick={handleRunAgent1}
-                disabled={running || files.length === 0}
-                className="rounded-lg bg-[var(--foreground)] text-white px-5 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-              >
-                {running ? t.working : t.prepareButton}
-              </button>
-            </section>
+            </p>
+            <button
+              onClick={handleRunAgent1}
+              disabled={running || files.length === 0}
+              className="w-full rounded-lg bg-[var(--foreground)] text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+            >
+              {running ? t.working : t.prepareButton}
+            </button>
+          </section>
 
-            <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-              <h2 className="text-base font-semibold mb-1">{t.statusTitle}</h2>
-              <p className="text-sm text-[var(--muted)] mb-4">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold mb-1">{t.statusTitle}</h2>
+                <p className="text-xs leading-5 text-[var(--muted)]">
                 {t.statusDescription}
-              </p>
+                </p>
+              </div>
               <button
                 onClick={fetchResults}
-                className="text-xs rounded-lg border border-[var(--border)] px-2 py-1 hover:bg-[var(--background)] mb-4"
+                className="shrink-0 text-xs rounded-lg border border-[var(--border)] px-2 py-1 hover:bg-[var(--surface)]"
               >
                 {t.refresh}
               </button>
-              {!manifest ? (
-                <div className="rounded-lg border-2 border-dashed border-[var(--border)] p-6 text-sm text-[var(--muted)] text-center">
+            </div>
+            {!manifest ? (
+                <div className="mt-3 rounded-lg border-2 border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--muted)]">
                   {t.noResults}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="mt-3 space-y-4">
                   <div className="rounded-lg border border-[var(--success)]/40 bg-[var(--success-bg)] p-4">
                     <p className="text-sm text-[var(--success)] font-medium">
                       {t.ready}
@@ -954,11 +954,10 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 </div>
               )}
             </section>
-          </div>
-        </main>
+        </aside>
 
         {/* Right: Draft */}
-        <aside className="w-[520px] shrink-0 border-l border-[var(--border)] bg-[var(--surface)] flex flex-col overflow-hidden">
+        <main className="flex-1 min-w-0 bg-[var(--surface)] flex flex-col overflow-hidden">
           <div className="shrink-0 px-5 py-4 border-b border-[var(--border)]">
             <div className="flex justify-between items-start">
               <div>
@@ -978,6 +977,78 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               )}
             </div>
           </div>
+          {manifest && (
+            <div className="shrink-0 border-b border-[var(--border)] bg-[var(--background)] px-5 py-4">
+              {generating ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-[var(--accent)] font-medium">
+                    {generatingSectionIndex >= 0
+                      ? t.generatingSection(generatingSectionIndex + 1, SECTION_ORDER.length)
+                      : `${t.generating}…`}
+                  </p>
+                  <p className="text-xs text-[var(--muted)]">
+                    {t.finalOnly}
+                  </p>
+                </div>
+              ) : allSectionsDone ? (
+                <p className="text-sm text-[var(--foreground)]">
+                  {t.allDone}
+                </p>
+              ) : (
+                <>
+                  <p className="text-sm text-[var(--foreground)] mb-3">
+                    {generatedCount === 0
+                      ? t.generateAllSections
+                      : t.sectionsComplete(generatedCount, SECTION_ORDER.length)}
+                    {missingSectionIds.length > 0 && generatedCount > 0 && (
+                      <>
+                        {" "}
+                        {hasGapSections
+                          ? t.missingWithGaps(missingSectionIds.length, lastGeneratedIndex + 1)
+                          : t.remainingSections(missingSectionIds.length)}
+                      </>
+                    )}
+                  </p>
+                  {agent2Status && !agent2Status.ok && (
+                    <div className="mb-3 rounded-lg border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
+                      <p className="font-medium text-[var(--warning)]">{t.setupIssue}</p>
+                      <p className="mt-1 text-[var(--muted)]">{agent2Status.spawn || t.backendSetup}</p>
+                      <button onClick={fetchAgent2Status} className="mt-2 text-[var(--accent)] hover:underline">{t.recheck}</button>
+                    </div>
+                  )}
+                  {agent2Status?.ok && agent2Status.hint && (
+                    <p className="text-xs text-[var(--muted)] mb-3">{agent2Status.hint}</p>
+                  )}
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <button
+                      onClick={handleGenerateAllSequential}
+                      disabled={generating}
+                      className="rounded-lg bg-[var(--accent)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-50"
+                    >
+                      {generateAllLabel}
+                    </button>
+                    {missingSectionIds.length > 0 && generatedCount > 0 && (
+                      <button
+                        onClick={handleGenerateNext}
+                        disabled={generating}
+                        className="rounded-lg border-2 border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10"
+                      >
+                        {nextMissingLabel}
+                      </button>
+                    )}
+                    <button
+                      onClick={fetchAgent2Status}
+                      disabled={generating}
+                      className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:bg-[var(--surface)] disabled:opacity-50"
+                      title={t.checkSetupTitle}
+                    >
+                      {t.checkSetup}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <div className="flex-1 overflow-auto px-4 py-3">
             <div className="space-y-2">
               {SECTION_ORDER.map((sectionId, index) => {
@@ -1134,79 +1205,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             </div>
           </div>
 
-          {manifest && (
-            <div className="mt-4 rounded-xl border-2 border-[var(--accent)]/30 bg-[var(--accent)]/5 p-4 shrink-0">
-              {generating ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-[var(--accent)] font-medium">
-                    {generatingSectionIndex >= 0
-                      ? t.generatingSection(generatingSectionIndex + 1, SECTION_ORDER.length)
-                      : `${t.generating}…`}
-                  </p>
-                  <p className="text-xs text-[var(--muted)]">
-                    {t.finalOnly}
-                  </p>
-                </div>
-              ) : allSectionsDone ? (
-                <p className="text-sm text-[var(--foreground)]">
-                  {t.allDone}
-                </p>
-              ) : (
-                <>
-                  <p className="text-sm text-[var(--foreground)] mb-3">
-                    {generatedCount === 0
-                      ? t.generateAllSections
-                      : t.sectionsComplete(generatedCount, SECTION_ORDER.length)}
-                    {missingSectionIds.length > 0 && generatedCount > 0 && (
-                      <>
-                        {" "}
-                        {hasGapSections
-                          ? t.missingWithGaps(missingSectionIds.length, lastGeneratedIndex + 1)
-                          : t.remainingSections(missingSectionIds.length)}
-                      </>
-                    )}
-                  </p>
-                  {agent2Status && !agent2Status.ok && (
-                    <div className="mb-3 rounded-lg border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
-                      <p className="font-medium text-[var(--warning)]">{t.setupIssue}</p>
-                      <p className="mt-1 text-[var(--muted)]">{agent2Status.spawn || t.backendSetup}</p>
-                      <button onClick={fetchAgent2Status} className="mt-2 text-[var(--accent)] hover:underline">{t.recheck}</button>
-                    </div>
-                  )}
-                  {agent2Status?.ok && agent2Status.hint && (
-                    <p className="text-xs text-[var(--muted)] mb-3">{agent2Status.hint}</p>
-                  )}
-                  <div className="flex gap-2 flex-wrap items-center">
-                    <button
-                      onClick={handleGenerateAllSequential}
-                      disabled={generating}
-                      className="rounded-lg bg-[var(--accent)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-50"
-                    >
-                      {generateAllLabel}
-                    </button>
-                    {missingSectionIds.length > 0 && generatedCount > 0 && (
-                      <button
-                        onClick={handleGenerateNext}
-                        disabled={generating}
-                        className="rounded-lg border-2 border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10"
-                      >
-                        {nextMissingLabel}
-                      </button>
-                    )}
-                    <button
-                      onClick={fetchAgent2Status}
-                      disabled={generating}
-                      className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:bg-[var(--background)] disabled:opacity-50"
-                      title={t.checkSetupTitle}
-                    >
-                      {t.checkSetup}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </aside>
+        </main>
       </div>
     </div>
   );
