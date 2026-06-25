@@ -18,7 +18,7 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     platform: "Windows",
     description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
     href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.0.exe`,
-    fallbackHref: `${RELEASE_BASE_URL}/ProspectusAI.zip`,
+    fallbackHref: `${RELEASE_BASE_URL}/ProspectusAI-windows-x86_64.zip`,
     recommended: true,
   },
   {
