@@ -13,11 +13,18 @@ const RELEASE_BASE_URL =
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   {
     id: "windows",
+    title: "Windows Installer",
+    platform: "Windows",
+    description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
+    href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.0.exe`,
+    recommended: true,
+  },
+  {
+    id: "windows-portable",
     title: "Windows Portable",
     platform: "Windows",
-    description: "Portable package with bundled Node and Python runtime.",
+    description: "Zip package with bundled Node and Python runtime; no installation required.",
     href: `${RELEASE_BASE_URL}/ProspectusAI.zip`,
-    recommended: true,
   },
   {
     id: "windows-targz",

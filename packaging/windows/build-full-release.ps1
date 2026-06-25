@@ -149,6 +149,7 @@ Remove-Item -Force $reqNoTorch -ErrorAction SilentlyContinue
 Copy-Item -Force (Join-Path $PSScriptRoot "start-prospectus-ui.bat") $Stage
 Copy-Item -Force (Join-Path $PSScriptRoot "ensure-python-venv.bat") $Stage
 Copy-Item -Force (Join-Path $PSScriptRoot "Open-Prospectus-UI.cmd") $Stage
+Copy-Item -Force (Join-Path $RepoRoot "frontend\web\src\app\favicon.ico") (Join-Path $Stage "app.ico")
 
 $readme = @"
 Prospectus AI — Windows portable bundle
@@ -159,7 +160,7 @@ No separate Python install required for agents: venv\ contains dependencies.
 
 Start
 -----
-1. Double-click start-prospectus-ui.bat
+1. Double-click Open-Prospectus-UI.cmd, or install ProspectusAI-Setup-0.1.0.exe and use the shortcut
 2. Open http://127.0.0.1:3000 in your browser
 3. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
 

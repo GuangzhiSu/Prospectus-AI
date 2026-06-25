@@ -1,10 +1,23 @@
-# Builds the full Windows portable bundle (embedded Node + venv + Next standalone).
+# Builds the full Windows portable bundle and installer (embedded Node + venv + Next standalone).
 # Linux-produced dist/ProspectusAI is NOT usable on Windows (wrong Python/venv + native modules).
 
-name: Windows portable bundle
+name: Windows release bundle
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "GitHub release tag to upload to, for example 0.1.0"
+        required: false
+        default: "0.1.0"
+      upload_to_release:
+        description: "Upload build outputs to the GitHub release"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 concurrency:
   group: windows-portable-${{ github.ref }}
@@ -34,7 +47,21 @@ jobs:
       - name: Build bundle (PowerShell)
         shell: pwsh
         run: |
-          & "${{ github.workspace }}/packaging/windows/build-full-release.ps1"
+          & "${{ github.workspace }}/packaging/windows/build-full-release.ps1" -SkipZip
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          & "${{ github.workspace }}/packaging/windows/build-installer.ps1" -SkipStage -Version "${{ inputs.release_tag }}"
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "${{ github.workspace }}/dist/ProspectusAI/*" -DestinationPath "${{ github.workspace }}/dist/ProspectusAI-windows-x86_64.zip" -CompressionLevel Optimal
 
       - name: List dist output
         shell: pwsh
@@ -44,6 +71,26 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ProspectusAI-windows-portable
-          path: dist/ProspectusAI-windows-*.zip
+          path: dist/ProspectusAI-windows-x86_64.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProspectusAI-windows-installer
+          path: dist/ProspectusAI-Setup-${{ inputs.release_tag }}.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload to GitHub Release
+        if: ${{ inputs.upload_to_release }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          gh release upload "$env:RELEASE_TAG" `
+            "${{ github.workspace }}/dist/ProspectusAI-Setup-${{ inputs.release_tag }}.exe" `
+            "${{ github.workspace }}/dist/ProspectusAI-windows-x86_64.zip" `
+            --clobber

@@ -5,7 +5,7 @@ import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
 
 export const metadata = {
   title: "Download Prospectus AI",
-  description: "Download portable builds of Prospectus AI for Windows and Linux.",
+  description: "Download Prospectus AI installers and portable builds for Windows and Linux.",
 };
 
 type DisplayAsset = DownloadAsset & {
@@ -70,7 +70,7 @@ export default function DownloadPage() {
                 className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
               >
                 <DownloadIcon />
-                Download for Windows
+                Download Windows installer
               </a>
               <Link
                 href="/workspace"
@@ -87,7 +87,7 @@ export default function DownloadPage() {
               <Image src="/app-icon.png" alt="Prospectus AI icon" width={44} height={44} />
               <div>
                 <p className="text-sm font-semibold">Current release</p>
-                <p className="text-xs text-[#647064]">Portable builds from local distribution package</p>
+                <p className="text-xs text-[#647064]">Installer and portable builds from GitHub Releases</p>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
@@ -108,7 +108,7 @@ export default function DownloadPage() {
               <p className="text-xs font-semibold uppercase text-[#6b735f]">Included</p>
               <ul className="mt-3 space-y-2 text-sm text-[#334139]">
                 <li>Isolated AI module and web workspace</li>
-                <li>Windows launch scripts and bundled runtime package</li>
+                <li>Windows installer with Start Menu and desktop shortcuts</li>
                 <li>Local file workflow for confidential issuer materials</li>
               </ul>
             </div>
@@ -130,7 +130,7 @@ export default function DownloadPage() {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           {assets.map((asset) => (
             <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
@@ -180,7 +180,7 @@ export default function DownloadPage() {
           <div className="md:border-l md:border-[#d5ddd2] md:pl-5">
             <p className="text-sm font-semibold">Deployment</p>
             <p className="mt-2 text-sm leading-6 text-[#637064]">
-              Use the web workspace for development or download a portable build for distribution.
+              Use the web workspace for development or download the Windows installer for distribution.
             </p>
           </div>
         </div>

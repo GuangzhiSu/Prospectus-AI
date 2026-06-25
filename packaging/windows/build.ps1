@@ -78,6 +78,8 @@ if (Test-Path $cov) {
 }
 
 Copy-Item -Force (Join-Path $PSScriptRoot "start-prospectus-ui.bat") $Stage
+Copy-Item -Force (Join-Path $PSScriptRoot "Open-Prospectus-UI.cmd") $Stage
+Copy-Item -Force (Join-Path $RepoRoot "frontend\web\src\app\favicon.ico") (Join-Path $Stage "app.ico")
 
 Write-Host "Done. PROSPECTUS_ROOT = install folder (agent1.py + slim prospectus_kg_output/inputs for crosswalk)."
 

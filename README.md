@@ -271,11 +271,23 @@ WORKSPACE_PASSWORD=<strong password>
 
 The middleware protects `/workspace` and operational API routes, while leaving `/`, `/download`, and `/api/download/*` public.
 
-Download buttons currently point to GitHub Releases. To publish installers, create a release such as `v0.1.0` and upload the local build artifacts from `dist/`:
+Download buttons currently point to GitHub Releases. The recommended Windows button points to a real installer:
 
+- `ProspectusAI-Setup-0.1.0.exe`
 - `ProspectusAI.zip`
 - `ProspectusAI-windows-from-linux-20260510-1154.tar.gz`
 - `ProspectusAI-linux-x86_64-20260509-0311.tar.gz`
+
+To create the Windows installer locally, run this on a Windows machine with Node.js, Python 3.11, and Inno Setup 6:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
+```
+
+To build it in GitHub Actions, run the **Windows release bundle** workflow and enable `upload_to_release`. The workflow creates:
+
+- `dist/ProspectusAI-Setup-0.1.0.exe` - standard installer with Start Menu shortcut and optional desktop shortcut
+- `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
 
 ## Data and runtime paths
 
