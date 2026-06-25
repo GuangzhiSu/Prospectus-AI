@@ -701,10 +701,10 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     : t.nextMissing();
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="min-h-screen bg-[#eef3f8] text-[var(--foreground)]">
       {/* Header + Pipeline stepper */}
-      <header className="sticky top-0 z-10 border-b border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <div className="mx-auto max-w-[1800px] px-4 py-4">
+      <header className="sticky top-0 z-10 border-b border-[#d8e0ea] bg-white/95 shadow-sm backdrop-blur">
+        <div className="mx-auto max-w-[1900px] px-5 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-lg font-bold text-[var(--foreground)]">
@@ -752,7 +752,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 <button
                   onClick={handleStartOver}
                   disabled={generating || running}
-                  className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-50"
+                  className="rounded-md border border-[#d5dde8] bg-white px-3 py-2 text-sm text-[var(--muted)] hover:bg-[#f6f8fb] hover:text-[var(--foreground)] disabled:opacity-50"
                   title={t.startOverTitle}
                 >
                   {t.startOver}
@@ -763,7 +763,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 <button
                   onClick={handleExportDocx}
                   disabled={exporting}
-                  className="flex items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-2 rounded-md bg-[#172033] px-4 py-2 text-sm font-medium text-white hover:bg-[#253149] disabled:opacity-50 transition-colors"
                 >
                   {exporting ? (
                     <>
@@ -793,14 +793,14 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               return (
                 <React.Fragment key={s.id}>
                   <div
-                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm ${
-                      active ? "bg-[var(--accent)]/10 text-[var(--accent)] font-medium" : ""
+                    className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${
+                      active ? "bg-[#e7f3fb] text-[#0369a1] font-medium" : ""
                     } ${done && !active ? "text-[var(--success)]" : ""}`}
                   >
                     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                       done ? "bg-[var(--success)] text-white" :
-                      active ? "bg-[var(--accent)] text-white" :
-                      "bg-[var(--border)] text-[var(--muted)]"
+                      active ? "bg-[#0369a1] text-white" :
+                      "bg-[#dbe3ee] text-[var(--muted)]"
                     }`}>
                       {done ? "✓" : s.id}
                     </span>
@@ -817,16 +817,16 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
       </header>
 
       {error && (
-        <div className="mx-auto max-w-[1800px] px-4 pt-3">
+        <div className="mx-auto max-w-[1900px] px-5 pt-3">
           <div className="rounded-lg border border-[var(--error)]/30 bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
             {error}
           </div>
         </div>
       )}
 
-      <div className="mx-auto max-w-[1800px] flex h-[calc(100vh-140px)]">
+      <div className="mx-auto flex h-[calc(100vh-140px)] max-w-[1900px] gap-4 px-5 py-4">
         {/* Left: Excel files */}
-        <aside className="w-[360px] shrink-0 space-y-4 border-r border-[var(--border)] bg-[var(--surface)] p-4 overflow-auto">
+        <aside className="w-[360px] shrink-0 space-y-4 overflow-auto rounded-lg border border-[#d8e0ea] bg-white p-4 shadow-sm">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">{t.filesTitle}</h2>
           <p className="text-xs text-[var(--muted)] mt-1">{t.filesSubtitle}</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -844,13 +844,13 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium hover:bg-[var(--background)] disabled:opacity-50 transition-colors"
+              className="rounded-md border border-[#d5dde8] bg-white px-3 py-2 text-sm font-medium hover:bg-[#f6f8fb] disabled:opacity-50 transition-colors"
             >
               {uploading ? t.uploading : t.uploadButton}
             </button>
             <button
               onClick={fetchFiles}
-              className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm hover:bg-[var(--background)]"
+              className="rounded-md border border-[#d5dde8] px-3 py-2 text-sm hover:bg-[#f6f8fb]"
             >
               {t.refresh}
             </button>
@@ -858,7 +858,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               <button
                 onClick={handleClearData}
                 disabled={uploading || running || generating}
-                className="rounded-lg border border-[var(--error)]/40 px-3 py-2 text-sm text-[var(--error)] hover:bg-[var(--error-bg)] disabled:opacity-50"
+                className="rounded-md border border-[var(--error)]/40 px-3 py-2 text-sm text-[var(--error)] hover:bg-[var(--error-bg)] disabled:opacity-50"
                 title={t.removeAllTitle}
               >
                 {t.removeAll}
@@ -867,11 +867,11 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
           </div>
           <div className="mt-4">
             {files.length === 0 ? (
-              <div className="rounded-lg border-2 border-dashed border-[var(--border)] p-4 text-center text-sm text-[var(--muted)]">
+              <div className="rounded-md border-2 border-dashed border-[#d5dde8] bg-[#f8fafc] p-4 text-center text-sm text-[var(--muted)]">
                 {t.noFiles}
               </div>
             ) : (
-              <ul className="space-y-2 rounded-lg border border-[var(--border)] p-3">
+              <ul className="space-y-2 rounded-md border border-[#d5dde8] bg-[#f8fafc] p-3">
                 {files.map((f) => (
                   <li key={f.name} className="flex justify-between text-xs">
                     <span className="truncate font-medium">{f.name}</span>
@@ -882,42 +882,42 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             )}
           </div>
 
-          <section className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+          <section className="rounded-lg border border-[#d5dde8] bg-[#f8fafc] p-4">
             <h2 className="text-sm font-semibold mb-1">{t.prepareTitle}</h2>
             <p className="text-xs leading-5 text-[var(--muted)] mb-3">
-                {t.prepareDescription}
+              {t.prepareDescription}
             </p>
             <button
               onClick={handleRunAgent1}
               disabled={running || files.length === 0}
-              className="w-full rounded-lg bg-[var(--foreground)] text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+              className="w-full rounded-md bg-[#172033] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#253149] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {running ? t.working : t.prepareButton}
             </button>
           </section>
 
-          <section className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+          <section className="rounded-lg border border-[#d5dde8] bg-[#f8fafc] p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold mb-1">{t.statusTitle}</h2>
                 <p className="text-xs leading-5 text-[var(--muted)]">
-                {t.statusDescription}
+                  {t.statusDescription}
                 </p>
               </div>
               <button
                 onClick={fetchResults}
-                className="shrink-0 text-xs rounded-lg border border-[var(--border)] px-2 py-1 hover:bg-[var(--surface)]"
+                className="shrink-0 rounded-md border border-[#d5dde8] px-2 py-1 text-xs hover:bg-white"
               >
                 {t.refresh}
               </button>
             </div>
             {!manifest ? (
-                <div className="mt-3 rounded-lg border-2 border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--muted)]">
-                  {t.noResults}
-                </div>
-              ) : (
+              <div className="mt-3 rounded-md border-2 border-dashed border-[#d5dde8] bg-white p-4 text-center text-xs text-[var(--muted)]">
+                {t.noResults}
+              </div>
+            ) : (
                 <div className="mt-3 space-y-4">
-                  <div className="rounded-lg border border-[var(--success)]/40 bg-[var(--success-bg)] p-4">
+                  <div className="rounded-md border border-[var(--success)]/40 bg-[var(--success-bg)] p-4">
                     <p className="text-sm text-[var(--success)] font-medium">
                       {t.ready}
                     </p>
@@ -935,7 +935,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                       <h3 className="mb-2 text-xs font-semibold text-[var(--muted)]">{t.dataQuality}</h3>
                       <ul className="space-y-2">
                         {qualityFlags.map((f, i) => (
-                          <li key={i} className="rounded-lg border border-[var(--border)] p-3 text-sm">
+                          <li key={i} className="rounded-md border border-[#d5dde8] bg-white p-3 text-sm">
                             <span className={`font-medium ${
                               f.severity === "high" ? "text-[var(--error)]" :
                               f.severity === "medium" ? "text-[var(--warning)]" : "text-[var(--muted)]"
@@ -957,8 +957,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
         </aside>
 
         {/* Right: Draft */}
-        <main className="flex-1 min-w-0 bg-[var(--surface)] flex flex-col overflow-hidden">
-          <div className="shrink-0 px-5 py-4 border-b border-[var(--border)]">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#d8e0ea] bg-white shadow-sm">
+          <div className="shrink-0 border-b border-[#d8e0ea] px-5 py-4">
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-base font-semibold text-[var(--foreground)]">{t.draftTitle}</h2>
@@ -970,7 +970,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 <button
                   onClick={handleClearAll}
                   disabled={generating}
-                  className="text-sm rounded-lg border border-[var(--error)]/40 px-3 py-1.5 text-[var(--error)] hover:bg-[var(--error-bg)] disabled:opacity-50 transition-colors"
+                  className="rounded-md border border-[var(--error)]/40 px-3 py-1.5 text-sm text-[var(--error)] hover:bg-[var(--error-bg)] disabled:opacity-50 transition-colors"
                 >
                   {t.clearAll}
                 </button>
@@ -978,7 +978,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             </div>
           </div>
           {manifest && (
-            <div className="shrink-0 border-b border-[var(--border)] bg-[var(--background)] px-5 py-4">
+            <div className="shrink-0 border-b border-[#d8e0ea] bg-[#f8fafc] px-5 py-4">
               {generating ? (
                 <div className="space-y-2">
                   <p className="text-sm text-[var(--accent)] font-medium">
@@ -1010,7 +1010,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     )}
                   </p>
                   {agent2Status && !agent2Status.ok && (
-                    <div className="mb-3 rounded-lg border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
+                    <div className="mb-3 rounded-md border border-[var(--warning)]/50 bg-[var(--warning)]/10 px-3 py-2 text-xs">
                       <p className="font-medium text-[var(--warning)]">{t.setupIssue}</p>
                       <p className="mt-1 text-[var(--muted)]">{agent2Status.spawn || t.backendSetup}</p>
                       <button onClick={fetchAgent2Status} className="mt-2 text-[var(--accent)] hover:underline">{t.recheck}</button>
@@ -1023,7 +1023,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     <button
                       onClick={handleGenerateAllSequential}
                       disabled={generating}
-                      className="rounded-lg bg-[var(--accent)] text-white px-4 py-2 text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-50"
+                      className="rounded-md bg-[#0369a1] px-4 py-2 text-sm font-medium text-white hover:bg-[#075985] disabled:opacity-50"
                     >
                       {generateAllLabel}
                     </button>
@@ -1031,7 +1031,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                       <button
                         onClick={handleGenerateNext}
                         disabled={generating}
-                        className="rounded-lg border-2 border-[var(--accent)] px-4 py-2 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10"
+                        className="rounded-md border-2 border-[#0369a1] px-4 py-2 text-sm font-medium text-[#0369a1] hover:bg-[#e7f3fb]"
                       >
                         {nextMissingLabel}
                       </button>
@@ -1039,7 +1039,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     <button
                       onClick={fetchAgent2Status}
                       disabled={generating}
-                      className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs text-[var(--muted)] hover:bg-[var(--surface)] disabled:opacity-50"
+                      className="rounded-md border border-[#d5dde8] px-3 py-2 text-xs text-[var(--muted)] hover:bg-white disabled:opacity-50"
                       title={t.checkSetupTitle}
                     >
                       {t.checkSetup}
@@ -1049,7 +1049,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               )}
             </div>
           )}
-          <div className="flex-1 overflow-auto px-4 py-3">
+          <div className="flex-1 overflow-auto bg-white px-5 py-4">
             <div className="space-y-2">
               {SECTION_ORDER.map((sectionId, index) => {
                 const name = SECTION_NAMES[sectionId];
@@ -1096,12 +1096,12 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 return (
                   <div
                     key={sectionId}
-                    className={`rounded-xl border transition-colors ${
+                    className={`rounded-lg border transition-colors ${
                       isInProgress
-                        ? "border-[var(--accent)]/50 bg-[var(--accent)]/5"
+                        ? "border-[#38bdf8] bg-[#eff8ff]"
                         : isGenerated
-                          ? "border-[var(--success)]/30 bg-[var(--success-bg)]/30"
-                          : "border-dashed border-[var(--border)] bg-[var(--background)]/30"
+                          ? "border-[var(--success)]/30 bg-[var(--success-bg)]/40"
+                          : "border-dashed border-[#d5dde8] bg-[#f8fafc]"
                     }`}
                   >
                     <div
