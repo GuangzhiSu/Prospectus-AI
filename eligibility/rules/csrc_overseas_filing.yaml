@@ -1,0 +1,69 @@
+ruleset: CSRC_Overseas_Listing_Filing
+ruleset_name: CSRC overseas issuance and listing filing
+version: 0.2.0-draft
+# Structured stub: loadable, rules present but evaluated:false. These conditions
+# are largely procedural / qualitative (filing obligation, prohibited
+# circumstances, data and cybersecurity review) and will be routed via the soft
+# engine; no quantitative thresholds are asserted here.
+in_regression_baseline: false
+# Official English title of the regulation; Chinese original kept only in this
+# source_ref parenthetical, never in any emitted status or label.
+source_ref: >-
+  CSRC Trial Administrative Measures for the Overseas Issuance and Listing of
+  Securities by Domestic Enterprises
+  (境内企业境外发行证券和上市管理试行办法), effective 2023-03-31
+
+gates:
+  - id: csrc_filing_obligation
+    title: "Overseas listing filing made with the CSRC"
+    rule_ref: "Trial Administrative Measures, Article 13"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "procedural filing condition; to be assessed via the soft engine once wired"
+    requirement:
+      all_of:
+        - check:
+            id: filing_submitted
+            metric: "CSRC overseas listing filing submitted"
+            input_path: "regulatory_legal.csrc_overseas_listing_filing_submitted"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2023-03-31"
+            effective_from_verified: false
+
+  - id: csrc_no_prohibited_circumstances
+    title: "No circumstances prohibiting overseas issuance and listing"
+    rule_ref: "Trial Administrative Measures, Article 8"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "qualitative negative-list assessment; soft engine"
+    requirement:
+      all_of:
+        - check:
+            id: no_prohibited_circumstances
+            metric: "Issuer is free of the prohibited circumstances listed in Article 8"
+            input_path: "regulatory_legal.csrc_no_prohibited_circumstances"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2023-03-31"
+            effective_from_verified: false
+
+  - id: csrc_data_security_review
+    title: "Data and cybersecurity review obligations addressed"
+    rule_ref: "Trial Administrative Measures, Article 8 and related cybersecurity rules"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "qualitative cross-regulator review; soft engine"
+    requirement:
+      all_of:
+        - check:
+            id: data_security_review_addressed
+            metric: "Applicable data and cybersecurity review obligations addressed"
+            input_path: "regulatory_legal.data_security_review_addressed"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2023-03-31"
+            effective_from_verified: false

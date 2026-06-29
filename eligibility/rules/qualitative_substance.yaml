@@ -1,0 +1,125 @@
+ruleset: HKEX_Qualitative_Substance
+ruleset_name: Substantive listing gates (soft layer)
+ruleset_type: qualitative_signals
+layer: soft
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: "HKEX Main Board Listing Rules (suitability, connected transactions, competing interests, sponsor due diligence) and HKEX guidance"
+# These are NOT bright-line pass/fail. Each is a SIGNAL that triggers heightened
+# scrutiny and expert/LLM judgment. The engine emits a flagged finding with
+# severity and provenance -- never a verdict. All requires_llm: true, all
+# evaluated: false. provenance_verified = rule/GL anchor checked against source;
+# signal_level_verified = the trigger level is a rule (true) vs a heuristic probe
+# (false). Neither implies human sign-off for client use.
+
+gates:
+  - id: customer_concentration
+    condition: "Material revenue reliance on a small number of customers"
+    trigger_signal: { metric: single_customer_revenue_pct, signal_level: 0.30, bright_line: false }
+    secondary_metric: top5_customer_revenue_pct
+    substantive_concern: "Business sustainability/independence under suitability (Rule 8.04) -- not a disclosure-format issue"
+    disclosed_in_section: ["Business -- Customers", "Risk Factors", "Financial Information (MD&A)"]
+    severity: high
+    remediation_path: "Robust analysis: is reliance an industry norm? is it mitigable? customer relationship stability, switching costs, diversification plan"
+    rule_ref: "MB 8.04 (GEM 11.06)"
+    guidance_ref: "HKEX-GL68-13; HKEX-GL68-13A; Guide for New Listing Applicants Ch.1 (material reliance on a Relevant Counterparty)"
+    provenance_verified: true
+    signal_level_verified: false
+    requires_llm: true
+    evaluated: false
+
+  - id: supplier_concentration
+    condition: "Material reliance on a small number of suppliers / single-source inputs"
+    trigger_signal: { metric: single_supplier_cost_pct, signal_level: 0.30, bright_line: false }
+    substantive_concern: "Operational sustainability under suitability (Rule 8.04); weight depends on substitutability of inputs"
+    disclosed_in_section: ["Business -- Suppliers", "Risk Factors"]
+    severity: medium
+    remediation_path: "Show substitutability / readily available alternatives at similar price, or justify as industry norm"
+    rule_ref: "MB 8.04 (GEM 11.06)"
+    guidance_ref: "Guide for New Listing Applicants Ch.1 (material reliance on a Relevant Counterparty)"
+    provenance_verified: true
+    signal_level_verified: false
+    requires_llm: true
+    evaluated: false
+
+  - id: connected_transactions_independence
+    condition: "Revenue/operations dependence on controlling-shareholder-controlled entities"
+    trigger_signal: { metric: connected_revenue_pct, signal_level: 0.30, bright_line: false }
+    substantive_concern: "Ability to operate independently of the controlling shareholder (suitability, Rule 8.04) -- distinct from CT disclosure compliance"
+    compliance_overlay: "Continuing connected transactions: annual caps, INED review, independent shareholder approval (Chapter 14A)"
+    disclosed_in_section: ["Connected Transactions", "Relationship with Controlling Shareholder", "Business -- Independence"]
+    severity: high
+    remediation_path: "Demonstrate business/operational/financial independence; reduce or cap connected revenue; establish standalone capability"
+    rule_ref: "MB Chapter 14A (GEM Ch 20); MB 8.04 for independence"
+    guidance_ref: "Guide for New Listing Applicants Ch.3.9"
+    provenance_verified: true
+    signal_level_verified: false
+    requires_llm: true
+    evaluated: false
+
+  - id: competing_business
+    condition: "Controlling shareholder or directors engaged in business competing with the applicant"
+    trigger_signal: { metric: competing_business_exists, signal_level: present, bright_line: false }
+    substantive_concern: "Business delineation and suitability; risk to independence and minority interests"
+    disclosed_in_section: ["Relationship with Controlling Shareholder", "Business", "Directors & Senior Management"]
+    severity: high
+    remediation_path: "Clear business delineation; deed of non-competition (market practice); independent operational capability"
+    rule_ref: "MB 8.10 (disclosure of competing interests); MB 8.04"
+    guidance_ref: "deed of non-competition is market practice, not a Listing Rule"
+    provenance_verified: true
+    signal_level_verified: true
+    requires_llm: true
+    evaluated: false
+
+  - id: financial_internal_controls
+    condition: "Internal control deficiencies, restatements, or financial irregularities in the track record period"
+    trigger_signal: { metric: identified_control_deficiencies, signal_level: present, bright_line: false }
+    substantive_concern: "Reliability of financials and management competence (suitability); sponsor due-diligence finding"
+    disclosed_in_section: ["Risk Factors", "Financial Information", "Directors & Senior Management"]
+    severity: medium_high
+    remediation_path: "Rectification, remediation timeline, control enhancement, reporting-accountant comfort"
+    rule_ref: "MB Chapter 3A (sponsor due diligence); Practice Note 21"
+    guidance_ref: "needs_human_verify -- confirm the specific internal-controls guidance letter ref before client use"
+    provenance_verified: false
+    signal_level_verified: true
+    requires_llm: true
+    evaluated: false
+
+  - id: equity_clarity_wvr_preipo
+    condition: "Unclear/complex ownership; WVR structure; pre-IPO investments with special rights or short-dated lock-ups"
+    trigger_signal: { metric: has_wvr_OR_preipo_special_rights, signal_level: present, bright_line: false }
+    substantive_concern: "WVR eligibility & investor protection (Ch 8A); pre-IPO special rights must terminate at listing; ownership continuity"
+    cross_ref: "WVR >=10% economic interest is a QUANT gate (8A.12) in the hard engine -- do not duplicate here; this gate covers the qualitative independence/special-rights judgments"
+    disclosed_in_section: ["History & Development", "Share Capital", "Substantial Shareholders", "Relationship with Controlling Shareholder"]
+    severity: high
+    remediation_path: "Terminate/convert special rights at listing; clarify ownership; confirm ownership continuity period"
+    rule_ref: "MB Chapter 8A (WVR); ownership-continuity limbs of 8.05"
+    guidance_ref: "needs_human_verify -- pre-IPO investment guidance (likely HKEX-GL43-12 / GL44-12); confirm refs before client use"
+    provenance_verified: false
+    signal_level_verified: true
+    requires_llm: true
+    evaluated: false
+
+  # The one concrete Rule 8.04 leaf signal. Multi-factor "Target Company" / shell
+  # pattern under GL68-13A -- expert/LLM judgment, NOT bright-line. The overall
+  # 8.04 suitability synthesis is the roll-up of triggered signals (see report
+  # 'suitability_synthesis'), not a sibling gate with its own trigger.
+  - id: shell_company_pattern
+    condition: "Shell-company / GL68-13A 'Target Company' characteristics"
+    trigger_signal: { metric: shell_company_factor_pattern, signal_level: multi_factor, bright_line: false }
+    factors:
+      - "Small market capitalisation"
+      - "Only marginally meets the listing eligibility requirements"
+      - "Listing proceeds disproportionate to listing expenses"
+      - "Pure trading business with high customer concentration"
+      - "Asset-light with assets mostly liquid"
+    substantive_concern: "Suitability for listing (Rule 8.04): whether the applicant is a genuine business or exhibits shell / Target Company characteristics"
+    disclosed_in_section: ["Business", "Use of Proceeds", "Financial Information", "Risk Factors"]
+    severity: high
+    remediation_path: "Demonstrate genuine commercial rationale and substance; address each factor; show proceeds use proportionate to a real business need"
+    rule_ref: "MB 8.04"
+    guidance_ref: "HKEX-GL68-13A"
+    provenance_verified: true
+    signal_level_verified: false
+    requires_llm: true
+    evaluated: false

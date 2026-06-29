@@ -1,0 +1,45 @@
+ruleset: HKEX_Chapter_18A_Biotech
+ruleset_name: HKEX Chapter 18A biotech companies
+version: 0.2.0-draft
+# Structured stub: schema-valid and loadable, rules present but evaluated:false.
+# No biotech fixture in this phase. All thresholds threshold_verified:false.
+in_regression_baseline: false
+source_ref: "HKEX Main Board Listing Rules, Chapter 18A (biotech companies)"
+
+gates:
+  - id: ch18a_market_cap
+    title: "Biotech applicant expected market capitalisation"
+    rule_ref: "Main Board Listing Rule 18A.03(2)"
+    effective_from: "2018-04-30"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no biotech fixture this phase; thresholds pending source verification"
+    requirement:
+      all_of:
+        - check:
+            id: biotech_market_cap
+            metric: "Expected market capitalisation at listing"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 1500, unit: "HKD million" }
+            threshold_verified: false
+            effective_from: "2018-04-30"
+            effective_from_verified: false
+
+  - id: ch18a_core_product_lead
+    title: "At least one core product beyond the concept stage"
+    rule_ref: "Main Board Listing Rule 18A.03(1)"
+    effective_from: "2018-04-30"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "qualitative regulatory milestone; to be routed via the soft engine once wired"
+    requirement:
+      all_of:
+        - check:
+            id: core_product_beyond_concept
+            metric: "Core product has passed the concept stage (regulatory milestone)"
+            input_path: "rd_ip.core_product_beyond_concept_stage"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2018-04-30"
+            effective_from_verified: false

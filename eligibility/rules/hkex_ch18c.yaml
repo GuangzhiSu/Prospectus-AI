@@ -1,0 +1,282 @@
+ruleset: HKEX_Chapter_18C_Specialist_Technology
+ruleset_name: HKEX Chapter 18C specialist technology companies
+version: 0.2.0-draft
+# Complete, loadable ruleset. Every gate is evaluated:false -- there is no
+# Chapter 18C fixture this phase (the SenseTime case predates Chapter 18C) -- so
+# the ruleset stays OUT of the regression baseline. Numeric thresholds were
+# checked against the rulebook (threshold_verified:true); qualitative gates carry
+# requires_llm:true and are routed to the soft engine. No human sign-off.
+in_regression_baseline: false
+source_ref: "HKEX Main Board Listing Rules, Chapter 18C (specialist technology companies)"
+
+# The market-cap gates model the 2024 temporary reduction as a CONDITIONAL
+# OVERRIDE, not a plain effective_from: the reduced threshold applies only when
+# BOTH run-profile dates fall in the window. If either date is null the engine
+# returns INDETERMINATE for that gate (it cannot choose base vs reduced).
+# Profile dates required: intended_application_date, expected_listing_date.
+
+gates:
+  - id: ch18c_commercial_revenue
+    title: "Commercial company minimum revenue"
+    rule_ref: "Main Board Listing Rule 18C.03(4)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: commercial_segment_revenue
+            metric: "Revenue from the specialist technology segment, most recent audited financial year"
+            input_path: "financials.specialist_technology_segment_revenue[period={latest_audited_fy}]"
+            operator: ">="
+            threshold: { value: 250, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 18C.03(4)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_commercial_market_cap
+    title: "Commercial company expected market capitalisation"
+    rule_ref: "Main Board Listing Rule 18C.03(3)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: commercial_market_cap
+            metric: "Expected market capitalisation at listing (commercial company)"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 6000, unit: "HKD million" }
+            conditional_override:
+              threshold: { value: 4000, unit: "HKD million" }
+              source: "SFC/HKEX joint announcement 23 Aug 2024 (temporary reduction)"
+              when_all:
+                - { profile_field: intended_application_date, operator: "<=", value: "2027-08-31" }
+                - { profile_field: expected_listing_date, operator: ">=", value: "2024-09-01" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 18C.03(3); temporary reduction per SFC/HKEX 23 Aug 2024"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_precommercial_market_cap
+    title: "Pre-commercial company expected market capitalisation"
+    rule_ref: "Main Board Listing Rule 18C.03(3)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase; pre-commercial company has no revenue requirement"
+    requirement:
+      all_of:
+        - check:
+            id: precommercial_market_cap
+            metric: "Expected market capitalisation at listing (pre-commercial company)"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 10000, unit: "HKD million" }
+            conditional_override:
+              threshold: { value: 8000, unit: "HKD million" }
+              source: "SFC/HKEX joint announcement 23 Aug 2024 (temporary reduction)"
+              when_all:
+                - { profile_field: intended_application_date, operator: "<=", value: "2027-08-31" }
+                - { profile_field: expected_listing_date, operator: ">=", value: "2024-09-01" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 18C.03(3); temporary reduction per SFC/HKEX 23 Aug 2024"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_rd_period
+    title: "Research and development period"
+    rule_ref: "Main Board Listing Rule 18C.04(1)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: rd_years_on_specialist_technology_products
+            metric: "Financial years engaged in R&D of the Specialist Technology Product(s) prior to listing"
+            input_path: "rd_ip.years_of_rd_on_specialist_technology_products"
+            operator: ">="
+            threshold: { value: 3, unit: "financial years" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 18C.04(1)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_rd_expenditure_ratio
+    title: "Research and development expenditure ratio"
+    rule_ref: "Main Board Listing Rule 18C.04(2)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase; tiered R&D ratio with a 2-of-3-years and aggregate application-period test"
+    requirement:
+      all_of:
+        - check:
+            id: rd_expenditure_ratio_2of3_and_aggregate
+            metric: "R&D expenditure on Specialist Technology Product(s) as a percentage of total operating expenditure"
+            # Custom read-only operator. Tier is selected from company_type
+            # (run profile) and, for pre-commercial companies, the revenue band.
+            # Per-year ratios and the aggregate are RESOLVED inputs; the engine
+            # never computes the ratio. Application-period rule 18C.04(3) is the
+            # pass condition: tier met yearly for >= min_years_meeting of three
+            # years AND on aggregate.
+            operator: rd_ratio_tiered
+            company_type_field: company_type
+            revenue_path: "financials.income_statement[period={latest_audited_fy}].revenue"
+            by_year_path: "rd_ip.rd_ratio_by_year"
+            aggregate_path: "rd_ip.rd_ratio_3y_aggregate"
+            min_years_meeting: 2
+            tiers:
+              commercial: { value: 15, unit: "%" }
+              pre_commercial_mid: { value: 30, unit: "%" }
+              pre_commercial_low: { value: 50, unit: "%" }
+            revenue_band_bounds: { low: 150, mid_high: 250, unit: "HKD million" }
+            application_period_note: "The applicable ratio must be met on a yearly basis for at least two of the three financial years prior to listing AND on an aggregate basis over all three (Rule 18C.04(3)). rd_ratio_by_year[] and rd_ratio_3y_aggregate are resolved inputs; eligibility never derives them."
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 18C.04(2)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_operating_track_record_and_continuity
+    title: "Operating history and management / ownership continuity"
+    rule_ref: "Main Board Listing Rule 18C.05"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    requires_llm: true
+    stub_reason: "qualitative: >=3 financial years of operation under substantially the same management, plus ownership continuity and control for the 12 months before application; routed to the soft engine"
+    requirement:
+      all_of:
+        - check:
+            id: operating_history_and_continuity_met
+            metric: "At least 3 financial years of operation under substantially the same management; ownership continuity and control for the 12 months before application"
+            input_path: "company_legal_entity.operating_track_record_and_ownership_continuity_met"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_minimum_free_float
+    title: "Minimum free float at listing"
+    rule_ref: "Main Board Chapter 18C (minimum free float)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: free_float_at_listing
+            metric: "Expected market value of securities in public hands at listing"
+            input_path: "offering_use_of_proceeds.free_float_market_value_at_listing"
+            operator: ">="
+            threshold: { value: 600, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook Chapter 18C (minimum free float)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_independent_price_setting_investors
+    title: "Allocation to Independent Price Setting Investors"
+    rule_ref: "Main Board Chapter 18C (independent price setting investors)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    requires_llm: true
+    stub_reason: "the >=50% allocation is numeric, but identifying eligible Independent Price Setting Investors is qualitative; routed to the soft engine"
+    requirement:
+      all_of:
+        - check:
+            id: ipo_pct_to_independent_price_setting_investors
+            metric: "Percentage of IPO shares allocated to Independent Price Setting Investors (Institutional Professional Investors, or investors with AUM / portfolio >= HK$1,000M)"
+            input_path: "offering_use_of_proceeds.pct_ipo_shares_to_independent_price_setting_investors"
+            operator: ">="
+            threshold: { value: 50, unit: "%" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook Chapter 18C (independent price setting investors)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            guidance_note: "Independent Price Setting Investor = an Institutional Professional Investor, or an investor with assets under management / an investment portfolio of >= HK$1,000M. Eligibility is a qualitative determination."
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_controlling_shareholder_lockup_commercial
+    title: "Controlling shareholder lock-up (commercial company)"
+    rule_ref: "Main Board Chapter 18C (controlling shareholder lock-up)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: controlling_shareholder_lockup_months_commercial
+            metric: "Controlling shareholder lock-up period (commercial company)"
+            input_path: "offering_use_of_proceeds.controlling_shareholder_lockup_months"
+            operator: ">="
+            threshold: { value: 12, unit: "months" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook Chapter 18C (controlling shareholder lock-up)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_controlling_shareholder_lockup_precommercial
+    title: "Controlling shareholder lock-up (pre-commercial company)"
+    rule_ref: "Main Board Chapter 18C (controlling shareholder lock-up)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    stub_reason: "no Chapter 18C fixture this phase"
+    requirement:
+      all_of:
+        - check:
+            id: controlling_shareholder_lockup_months_precommercial
+            metric: "Controlling shareholder lock-up period (pre-commercial company)"
+            input_path: "offering_use_of_proceeds.controlling_shareholder_lockup_months"
+            operator: ">="
+            threshold: { value: 24, unit: "months" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook Chapter 18C (controlling shareholder lock-up)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2023-03-31"
+            effective_from_verified: true
+
+  - id: ch18c_sophisticated_independent_investors
+    title: "Meaningful investment from Sophisticated Independent Investors"
+    rule_ref: "Main Board Chapter 18C (sophisticated independent investors)"
+    effective_from: "2023-03-31"
+    evaluated: false
+    human_signoff: false
+    requires_llm: true
+    stub_reason: "qualitative: meaningful investment from at least one Sophisticated Independent Investor, retained at IPO; routed to the soft engine"
+    requirement:
+      all_of:
+        - check:
+            id: sophisticated_independent_investor_retained
+            metric: "Meaningful investment from at least one Sophisticated Independent Investor, retained at the time of the IPO"
+            input_path: "company_legal_entity.sophisticated_independent_investor_meaningful_investment_retained"
+            operator: "is_true"
+            threshold_verified: false
+            effective_from: "2023-03-31"
+            effective_from_verified: true

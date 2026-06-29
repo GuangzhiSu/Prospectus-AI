@@ -1,0 +1,103 @@
+ruleset: HKEX_Chapter_8A_WVR
+ruleset_name: HKEX Chapter 8A weighted voting rights eligibility
+version: 0.2.0-draft
+in_regression_baseline: true
+source_ref: "HKEX Main Board Listing Rules, Chapter 8A (weighted voting rights)"
+pending_consultation: "2026-03-13 -- HKEX Phase 1 Listing Framework Competitiveness Review proposes lowering WVR market-cap thresholds for mid-cap new-economy companies (NOT yet effective). Current thresholds (40,000M; 10,000M + 1,000M revenue) remain the active values."
+
+# Quantitative subset of Chapter 8A only. Qualitative WVR conditions (innovative
+# company character, contribution of beneficiaries, sunset and safeguards) are
+# routed to the soft engine, not evaluated here. See hkex_main_board.yaml for the
+# threshold_verified / effective_from_verified / human_signoff model.
+
+gates:
+  - id: wvr_market_cap_test
+    title: "WVR applicant expected market capitalisation"
+    rule_ref: "Main Board Listing Rule 8A.06"
+    effective_from: "2018-04-30"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      any_of:
+        - check:
+            id: market_cap_40bn
+            metric: "Expected market capitalisation at listing"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 40000, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8A.06"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2018-04-30"
+            effective_from_verified: false
+            date_note: "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+        - all_of:
+            - check:
+                id: market_cap_10bn
+                metric: "Expected market capitalisation at listing"
+                input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+                operator: ">="
+                threshold: { value: 10000, unit: "HKD million" }
+                threshold_verified: true
+                verified_against: "Main Board Listing Rule 8A.06"
+                verified_on: "2026-06-29"
+                verified_by: cc_websearch
+                effective_from: "2018-04-30"
+                effective_from_verified: false
+                date_note: "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+            - check:
+                id: revenue_1bn
+                metric: "Revenue, most recent audited financial year"
+                input_path: "financials.income_statement[period={latest_audited_fy}].revenue"
+                operator: ">="
+                threshold: { value: 1000, unit: "HKD million" }
+                threshold_verified: true
+                verified_against: "Main Board Listing Rule 8A.06"
+                verified_on: "2026-06-29"
+                verified_by: cc_websearch
+                effective_from: "2018-04-30"
+                effective_from_verified: false
+                date_note: "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+
+  - id: wvr_beneficiary_economic_interest
+    title: "Aggregate economic interest of WVR beneficiaries"
+    # Corrected: the >=10% underlying economic interest floor is Rule 8A.12, not
+    # 8A.13 (8A.13 restricts increasing the WVR proportion after listing).
+    rule_ref: "Main Board Listing Rule 8A.12"
+    effective_from: "2018-04-30"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: beneficiary_aggregate_ownership
+            metric: "Aggregate underlying economic interest of WVR beneficiaries at listing"
+            input_path: "company_legal_entity.dwvr.aggregate_wvr_beneficiaries.total_ownership_pct"
+            operator: ">="
+            threshold: { value: 10, unit: "%" }
+            threshold_verified: true
+            verified_against: "HKEX Rulebook 8A.12"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            guidance_note: "Floor is 10%; ceiling 50%. The Exchange may accept a lower minimum case-by-case if the absolute dollar amount is very large (e.g. expected mcap > HK$80bn) -- Note to Rule 8A.12."
+            effective_from: "2018-04-30"
+            effective_from_verified: false
+
+  - id: wvr_structure_present
+    title: "Weighted voting rights structure disclosed"
+    rule_ref: "Main Board Listing Rule 8A.07"
+    effective_from: "2018-04-30"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: structure_disclosed
+            metric: "WVR structure effectiveness disclosed in issuer input"
+            input_path: "company_legal_entity.dwvr.structure_effective"
+            operator: "exists"
+            # Presence condition, not a numeric threshold.
+            threshold_verified: false
+            effective_from: "2018-04-30"
+            effective_from_verified: false

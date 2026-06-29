@@ -1,0 +1,214 @@
+ruleset: HKEX_Main_Board
+ruleset_name: HKEX Main Board financial eligibility tests
+version: 0.2.0-draft
+in_regression_baseline: true
+source_ref: "HKEX Main Board Listing Rules, Chapter 8 (Rule 8.05)"
+
+# Verification model (two independent flags, never conflated):
+#   threshold_verified      : the numeric value was checked against the primary
+#                             rulebook. It does NOT mean a qualified human
+#                             approved it for client use -- that is human_signoff.
+#   effective_from_verified : the effective date was checked against a source.
+#   human_signoff           : a qualified human approved the rule for client use.
+#                             Open (false) on every gate in this phase.
+# Provenance for a checked value: verified_against / verified_on / verified_by.
+#
+# Path variables (supplied per run via the profile) keep these rules
+# issuer-agnostic; the engine substitutes them into input_path.
+#   latest_audited_fy : period key of the most recent audited financial year
+#   prior_fy_1        : the financial year before latest_audited_fy
+#   prior_fy_2        : the financial year before prior_fy_1
+
+gates:
+  - id: mb_8051_profit_test
+    title: "Profit test"
+    rule_ref: "Main Board Listing Rule 8.05(1)"
+    # Governing date for filtering: the current numeric form of the profit test
+    # is binding from 1 Jan 2022. The market-cap component carries its own
+    # (earlier) verified effective date at the check level.
+    effective_from: "2022-01-01"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: profit_recent_year
+            metric: "Profit attributable to owners, most recent audited year"
+            input_path: "financials.income_statement[period={latest_audited_fy}].profit_attributable_to_owners"
+            operator: ">="
+            threshold: { value: 35, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(1)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2022-01-01"
+            effective_from_verified: true
+        - check:
+            id: profit_two_preceding_years
+            metric: "Aggregate profit attributable to owners, two preceding years"
+            input_path: "financials.profit_attributable_to_owners_aggregate_two_preceding_years"
+            operator: ">="
+            threshold: { value: 45, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(1)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2022-01-01"
+            effective_from_verified: true
+        - check:
+            id: profit_three_year_aggregate
+            metric: "Aggregate profit attributable to owners, track record period"
+            input_path: "financials.profit_attributable_to_owners_aggregate_track_record"
+            operator: ">="
+            threshold: { value: 80, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(1)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2022-01-01"
+            effective_from_verified: true
+        - check:
+            id: market_cap_at_listing
+            metric: "Expected market capitalisation at listing"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 500, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(1); minimum market capitalisation Rule 8.09(2)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            # Min market cap rose HK$200M -> HK$500M effective 15 Feb 2018
+            # (HKEX Nov-2020 Main Board Profit Requirement consultation paper).
+            effective_from: "2018-02-15"
+            effective_from_verified: true
+
+  - id: mb_8052_market_cap_revenue_cashflow_test
+    title: "Market capitalisation / revenue / cash flow test"
+    rule_ref: "Main Board Listing Rule 8.05(2)"
+    # Conservative lower-bound placeholder; see date_note on each check.
+    effective_from: "2004-03-31"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: market_cap_at_listing
+            metric: "Expected market capitalisation at listing"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 2000, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(2)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+        - check:
+            id: revenue_recent_year
+            metric: "Revenue, most recent audited financial year"
+            input_path: "financials.income_statement[period={latest_audited_fy}].revenue"
+            operator: ">="
+            threshold: { value: 500, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(2)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+        - check:
+            id: operating_cashflow_track_record
+            metric: "Aggregate operating cash flow, track record period"
+            input_path: "financials.operating_cash_flow_aggregate_track_record"
+            operator: ">="
+            threshold: { value: 100, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(2)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+
+  - id: mb_8053_market_cap_revenue_test
+    title: "Market capitalisation / revenue test"
+    rule_ref: "Main Board Listing Rule 8.05(3)"
+    effective_from: "2004-03-31"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: market_cap_at_listing
+            metric: "Expected market capitalisation at listing"
+            input_path: "offering_use_of_proceeds.market_capitalisation_at_listing"
+            operator: ">="
+            threshold: { value: 4000, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(3)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+        - check:
+            id: revenue_recent_year
+            metric: "Revenue, most recent audited financial year"
+            input_path: "financials.income_statement[period={latest_audited_fy}].revenue"
+            operator: ">="
+            threshold: { value: 500, unit: "HKD million" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(3)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+
+  # Continuity limbs common to the 8.05 pathways. Bright-line HARD gates (not soft
+  # signals): they hard-evaluate PASS/SHORTFALL/MISSING_INPUT and never route to
+  # the soft engine. Inputs are CompanyProfile fields (profile_field); null ->
+  # MISSING_INPUT.
+  - id: mb_management_continuity
+    title: "Management continuity"
+    rule_ref: "Main Board Listing Rule 8.05(2)(b) / 8.05(3)(b)"
+    effective_from: "2004-03-31"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: management_continuity_years
+            metric: "Years of management continuity (substantially the same management)"
+            profile_field: management_continuity_years
+            operator: ">="
+            threshold: { value: 3, unit: "financial years" }
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(2)(b) / 8.05(3)(b); profit test 8.05(1)(b) 'substantially the same management'"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "continuity limbs are long-standing and predate 2018; exact introduction date not yet verified."
+
+  - id: mb_ownership_continuity
+    title: "Ownership continuity and control"
+    rule_ref: "Main Board Listing Rule 8.05(2)(c) / 8.05(3)(c)"
+    effective_from: "2004-03-31"
+    evaluated: true
+    human_signoff: false
+    requirement:
+      all_of:
+        - check:
+            id: ownership_continuity_recent_audited_fy
+            metric: "Ownership continuity and control for at least the most recent audited financial year"
+            profile_field: ownership_continuity_recent_audited_fy
+            operator: "is_true"
+            threshold_verified: true
+            verified_against: "Main Board Listing Rule 8.05(2)(c) / 8.05(3)(c)"
+            verified_on: "2026-06-29"
+            verified_by: cc_websearch
+            effective_from: "2004-03-31"
+            effective_from_verified: false
+            date_note: "continuity limbs are long-standing and predate 2018; exact introduction date not yet verified."

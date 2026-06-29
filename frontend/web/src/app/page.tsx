@@ -38,6 +38,21 @@ const audiences = [
   "Compliance and disclosure teams",
 ];
 
+const ecosystemProducts = [
+  {
+    title: "Prospectus generation",
+    text: "Turn prepared issuer evidence into section drafts, verification notes, and Word exports for professional review.",
+    href: "/workspace",
+    cta: "Open workspace",
+  },
+  {
+    title: "Listing eligibility diagnostic",
+    text: "Run a separate listing-pathway diagnosis that surfaces met criteria, shortfalls, missing inputs, and indeterminate checks before drafting.",
+    href: "/eligibility",
+    cta: "Explore diagnostic",
+  },
+];
+
 const contactHref =
   "mailto:contact@ai-prospectus.com?subject=AI%20Prospectus%20demo%20request";
 
@@ -137,11 +152,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <h2 className="text-2xl font-semibold">Built for proprietary document generation</h2>
+            <h2 className="text-2xl font-semibold">Built as a regulated-finance product ecosystem</h2>
             <p className="mt-4 text-sm leading-6 text-[#637064]">
-              The project started with IPO prospectus drafting, but the architecture now separates the AI module,
-              frontend workspace, platform tools, knowledge module, and pipeline module so domain-specific drafting
-              workflows can evolve independently.
+              The project started with IPO prospectus drafting, and now also includes a standalone listing-eligibility
+              diagnostic. They serve adjacent moments in the deal lifecycle while keeping product workflows independent.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {audiences.map((item) => (
@@ -176,6 +190,33 @@ export default function HomePage() {
                 AI, frontend, platform, knowledge graph, resources, and extraction pipelines now have clear homes.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-[#d5ddd2] bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-semibold">Two products, one capital-markets context</h2>
+            <p className="mt-4 text-sm leading-6 text-[#637064]">
+              Use eligibility diagnosis to understand listing-pathway gaps. Use prospectus generation when evidence is
+              ready for drafting. The modules can sit in one ecosystem without being merged into one workflow.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {ecosystemProducts.map((product) => (
+              <div key={product.title} className="border border-[#d5ddd2] p-5">
+                <p className="text-lg font-semibold">{product.title}</p>
+                <p className="mt-3 text-sm leading-6 text-[#637064]">{product.text}</p>
+                <Link
+                  href={product.href}
+                  className="mt-5 inline-flex h-10 items-center gap-2 border border-[#c9d2c7] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]"
+                >
+                  {product.cta}
+                  <ArrowIcon />
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>

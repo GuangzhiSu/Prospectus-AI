@@ -1,0 +1,31 @@
+{
+  "_note": "Hand-authored synthetic fixture. Contains NO real-company data. Built to exercise all four evaluation statuses (PASS, SHORTFALL, MISSING_INPUT, INDETERMINATE), including one currency-conversion case that flips with the FX profile.",
+  "schema_version": "v3",
+  "issuer_id": "SYNTHETIC_TESTCO",
+  "financials": {
+    "income_statement": [
+      {
+        "period": "FY2024",
+        "revenue": { "value": 600, "unit": "RMB million" },
+        "profit_attributable_to_owners": { "value": 20, "unit": "HKD million" }
+      },
+      {
+        "period": "FY2023",
+        "revenue": { "value": 480, "unit": "RMB million" }
+      }
+    ],
+    "profit_attributable_to_owners_aggregate_track_record": { "value": 120, "unit": "HKD million" },
+    "operating_cash_flow_aggregate_track_record": { "value": 150, "unit": "HKD million" }
+  },
+  "offering_use_of_proceeds": {
+    "market_capitalisation_at_listing": null
+  },
+  "company_legal_entity": {
+    "dwvr": {
+      "structure_effective": "effective upon completion of the global offering",
+      "aggregate_wvr_beneficiaries": {
+        "total_ownership_pct": 15
+      }
+    }
+  }
+}

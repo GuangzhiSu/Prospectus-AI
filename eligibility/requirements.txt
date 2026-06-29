@@ -1,0 +1,34 @@
+# Prospectus pipeline: agent1 + agent2 + llm_qwen (Qwen via Hugging Face)
+# Python 3.10+
+
+# Agent1: Excel → RAG chunks
+pandas>=2.0
+openpyxl>=3.1
+
+# Agent2 + LangGraph + llm_qwen: orchestration + Qwen (Hugging Face)
+langgraph
+transformers>=4.45.0
+torch>=2.0.0
+accelerate>=0.30.0
+
+# Optional cloud backend for Agent2 / Agent1 table summary (OpenAI-compatible API)
+openai>=1.40.0
+
+# First-run model download (Windows installer / settings UI)
+huggingface_hub>=0.24.0
+
+# Data collaboration bundles (scripts/sync_data.py, pack_data_bundle.sh)
+zstandard>=0.22.0
+
+# Hybrid retriever: semantic search over text chunks
+sentence-transformers>=2.2.0
+
+# Export to Word + DOCX ingest (agent1) + native-doc templates
+python-docx>=1.0
+
+# PDF ingest (agent1) + slicing (reverse_engineer_slice) + stage3 text extract
+pymupdf>=1.24
+
+# Listing-eligibility diagnostic (eligibility/): versioned rule configs in YAML.
+# Hard engine is pure deterministic Python; no ML dependency.
+PyYAML>=6.0
