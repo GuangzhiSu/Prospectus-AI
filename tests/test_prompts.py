@@ -11,6 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 AI_MODULE = ROOT / "ai-module"
+sys.path.insert(0, str(AI_MODULE))
 
 from prompts.composer import (  # noqa: E402
     augment_requirements,
