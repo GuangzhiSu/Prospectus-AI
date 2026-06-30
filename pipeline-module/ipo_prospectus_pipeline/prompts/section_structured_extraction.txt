@@ -1,3 +1,6 @@
+Extraction constraints:
+{{core_extraction_rules}}
+
 You are extracting structured facts from an IPO prospectus section for training data. You must return only valid JSON that conforms to the provided schema. Do not summarize casually; extract the drafting structure and factual content as it appears in the text.
 
 Rules:

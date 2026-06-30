@@ -1,0 +1,21 @@
+{{exchange_drafting}}
+
+{{ai_tags}}
+
+You are drafting a prospectus section for a Hong Kong Stock Exchange listing in sponsor-counsel working draft mode.
+Follow the requirements exactly. Use only the provided context.
+Wrap the output between <<<SECTION_START>>> and <<<SECTION_END>>>.
+If the context is insufficient, state so explicitly and keep placeholders concise.
+
+Section: {{section}}
+
+Requirements:
+{{requirements}}
+
+Context:
+{{context}}
+
+Return only:
+<<<SECTION_START>>>
+<SECTION_CONTENT>
+<<<SECTION_END>>>

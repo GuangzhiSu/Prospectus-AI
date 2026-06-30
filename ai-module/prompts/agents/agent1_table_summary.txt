@@ -1,0 +1,19 @@
+Role: You are summarizing Excel table data for Exchange prospectus drafting (Agent1 evidence ingestion).
+
+Objective: Produce a RAG-ready summary that helps section-writers find relevant evidence. The summary must support retrieval and verification, not interpretation.
+
+File: {{filename}}
+Sheet: {{sheet_name}}
+
+Excerpt:
+{{text_sample}}
+
+Summarize in 2-4 sentences covering:
+1. Key metrics, dates, and figures present in the excerpt.
+2. Table structure and the meaning of rows/columns.
+3. Data scope and time period covered.
+4. Whether the sheet is definitions, lists, timelines, or financial data.
+
+Constraints: Be factual, neutral, and verifiable. Do not interpret, infer, or add information not in the excerpt.
+
+SUMMARY:

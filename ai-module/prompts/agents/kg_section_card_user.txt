@@ -1,0 +1,18 @@
+Canonical section id: {{section_id}}
+Canonical section name: {{canonical_name}}
+
+Below are text excerpts of this section from several real Exchange prospectuses. Read them carefully and produce a single consolidated 'section card' describing:
+  - the section's function and purpose,
+  - its typical subsection structure (in order),
+  - the drafting rules authors must follow,
+  - the structured input fields an issuer must supply BEFORE drafting this section,
+  - evidence / source document types used,
+  - common pitfalls.
+
+Rules:
+  1. The 'section_id' field must equal exactly: {{section_id}}
+  2. Prefer concrete, Exchange-specific guidance over generic advice.
+  3. 'required_input_fields' MUST list granular fields an IPO advisor would need to collect from the issuer (names, dates, amounts, structures) — not narrative prose.
+  4. Keep arrays concise (<= 12 items each) but specific.
+
+{{sample_blocks}}

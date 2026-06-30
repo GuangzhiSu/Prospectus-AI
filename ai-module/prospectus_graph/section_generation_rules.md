@@ -1,4 +1,8 @@
-# Section-specific rules (front-loaded for generation)
+# Section-specific rules (DEPRECATED — migrated to generation_rules.json)
+
+> **Note:** Runtime Agent2 now loads per-section rules from
+> [`ai-module/prompts/sections/generation_rules.json`](../../prompts/sections/generation_rules.json).
+> This file is kept for historical reference only.
 
 These rules apply **before** narrative drafting. The model must not violate them; gaps → `DATA_MISSING` or `COUNSEL_INPUT_REQUIRED`, not invented prose.
 

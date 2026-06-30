@@ -4,7 +4,7 @@
 
 | Path | Role |
 |------|------|
-| `ai-module/` | Agent1/Agent2 Python runtime, LLM providers, Agent2 graph |
+| `ai-module/` | Agent1/Agent2 Python runtime, LLM providers, Agent2 graph, unified `prompts/` package |
 | `frontend/web/` | Next.js UI and current HTTP API route adapters |
 | `platform/` | Desktop shell and optional local services |
 | `knowledge-module/` | `prospectus_docgraph` structural document graph tooling |
@@ -37,10 +37,23 @@ Single Next.js app that provides both the **frontend** and the **backend API** u
 
 | Path | Role |
 |------|------|
-| `prospectus_section_prompts.json` | Section titles and requirements; drives the list of sections to generate |
+| `prospectus_section_prompts.json` | Legacy RAG section list (generated from SSOT via `scripts/export_legacy_section_prompts.py`) |
+| `prompts/legacy_writer_system.txt` | Legacy RAG system prompt (exported from `ai-module/prompts/core/`) |
 | `uploads/` | Uploaded PDF/DOCX (runtime) |
 | `rag/` | RAG index (JSON per document) when not using local LLM |
 | `.progress.json` | Current generation progress (runtime) |
+
+## ai-module/prompts — Unified prompt package
+
+| Path | Role |
+|------|------|
+| `prompts/composer.py` | Assembles Layer 1–3 prompts for Agent1/Agent2 and legacy RAG |
+| `prompts/sections/requirements.json` | Canonical section requirements (SSOT) |
+| `prompts/sections/generation_rules.json` | Per-section pre-draft rules |
+| `prompts/core/` | Global Exchange drafting constraints and AI tag schema |
+| `prompts/agents/` | Role templates (planner, writer, verifier, revision, Agent1, legacy) |
+
+See [`docs/PROMPT_ARCHITECTURE.md`](PROMPT_ARCHITECTURE.md) for maintenance workflow.
 
 ## platform/services/local-llm — Optional Python backend
 

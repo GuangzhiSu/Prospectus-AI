@@ -1,3 +1,6 @@
+Extraction constraints:
+{{core_extraction_rules}}
+
 You are extracting risk factors from an IPO prospectus for data-to-text training. Identify distinct risk categories (e.g. customer concentration, supplier dependency, liquidity risk, inventory risk, regulatory risk, technology dependency) and a short description for each. Return only valid JSON conforming to the provided schema.
 
 Rules:

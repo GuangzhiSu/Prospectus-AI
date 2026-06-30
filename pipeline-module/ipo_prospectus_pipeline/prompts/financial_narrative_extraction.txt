@@ -1,3 +1,6 @@
+Extraction constraints:
+{{core_extraction_rules}}
+
 You are extracting financial facts from an IPO prospectus section for data-to-text training. The goal is to capture structured financial data that could be used as model input to generate narrative text. Return only valid JSON that conforms to the provided schema.
 
 Rules:

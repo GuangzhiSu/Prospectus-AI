@@ -184,9 +184,9 @@ def main() -> None:
     ap.add_argument(
         "--agent2-requirements",
         type=Path,
-        default=Path("agent2_section_requirements.json"),
+        default=Path("ai-module/prompts/sections/requirements.json"),
         help=(
-            "Stage 4: path to the hand-authored agent2_section_requirements.json. "
+            "Stage 4: path to the hand-authored agent2 section requirements file. "
             "KG-derived fields (kg_function, kg_required_input_fields, ...) are "
             "merged in-place; a .bak backup is kept. Pass '-' to skip."
         ),
