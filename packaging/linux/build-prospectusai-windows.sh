@@ -59,8 +59,8 @@ cp -a "$WEB_DIR/public/." "$STAGE/web/public/"
 ITEMS=(
   ai-module/agent1.py ai-module/agent2.py ai-module/llm_qwen.py ai-module/llm_openai.py
   ai-module/llm_anthropic.py ai-module/llm_providers.py ai-module/llm_sanitize.py ai-module/section_quality.py
-  ai-module/requirements.txt ai-module/prospectus_graph
-  agent2_section_requirements.json issuer_metadata.json scripts resources/templates
+  ai-module/requirements.txt ai-module/prospectus_graph ai-module/prompts
+  issuer_metadata.json scripts resources/templates
 )
 for i in "${ITEMS[@]}"; do
   [[ -e "$REPO_ROOT/$i" ]] && cp -a "$REPO_ROOT/$i" "$STAGE/$(basename "$i")" || echo "WARN: missing $i" >&2

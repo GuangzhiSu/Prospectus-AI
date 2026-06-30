@@ -9,7 +9,7 @@ The repo currently contains two document-generation paths:
 1. **Main workflow in active use**: `Excel/JSON -> Agent1 -> Agent2 -> Export`
    - Upload `.xlsx` or `.json` files in the web UI
    - `Agent1` extracts and summarizes sheets/data into dual retrieval stores (text chunks + fact store), and groups them into A-H evidence buckets
-   - `Agent2` drafts section-by-section sponsor-counsel working drafts using `agent2_section_requirements.json`
+   - `Agent2` drafts section-by-section sponsor-counsel working drafts using `ai-module/prompts/sections/requirements.json`
    - Export combined draft to Word (.docx) via the web UI
 2. **Legacy / optional workflow retained in the repo**: `PDF/DOCX/XLSX -> /api/chat -> rag.ts`
    - This older route still exists for experimentation and local-LLM testing
@@ -33,7 +33,8 @@ prospectus-ui/
 │   ├── agent2.py                       # LangGraph runner for section drafting
 │   ├── llm_qwen.py                     # Shared Qwen model loader / inference helpers
 │   ├── requirements.txt                # Python dependencies for Agent1/Agent2
-│   └── prospectus_graph/               # LangGraph state, retriever, verifier, graph
+│   ├── prospectus_graph/               # LangGraph state, retriever, verifier, graph
+│   └── prompts/                        # Unified prompt templates + section requirements SSOT
 ├── frontend/
 │   └── web/                            # Next.js app (UI + current API route adapters)
 ├── platform/
@@ -45,7 +46,7 @@ prospectus-ui/
 │   └── ipo_prospectus_pipeline/        # Standalone IPO prospectus extraction pipeline
 ├── resources/                          # Templates, prompt packs, canvases, legacy references
 ├── data/                               # Input Excel (.xlsx) or JSON (.json) for main workflow
-├── agent2_section_requirements.json    # Section-by-section working draft instructions
+├── ai-module/prompts/sections/requirements.json  # Section-by-section working draft instructions (SSOT)
 ├── run_full_pipeline.sh                # agent1 -> agent2 convenience script
 ├── docs/
 ├── README.md
@@ -349,7 +350,7 @@ Outputs:
 
 ## Agent2
 
-`Agent2` consumes `Agent1` output and runs a LangGraph pipeline using `agent2_section_requirements.json`. It supports two retrieval modes:
+`Agent2` consumes `Agent1` output and runs a LangGraph pipeline using `ai-module/prompts/sections/requirements.json`. It supports two retrieval modes:
 
 - **Legacy** (when only `rag_chunks.jsonl` exists): Retriever → Section Writer → Verifier → Revision → Assembler
 - **Hybrid** (when `text_chunks.jsonl` and/or `fact_store.jsonl` exist): Retriever (semantic + fact filtering) → **Section Planner** → Section Writer → Verifier → Revision → Assembler

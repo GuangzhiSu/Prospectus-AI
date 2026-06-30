@@ -116,6 +116,18 @@ DEFAULT_MODEL = "Qwen/Qwen3.5-4B"
 def load_section_requirements(requirements_path: Path) -> dict[str, dict]:
     """Load section requirements from JSON."""
     if not requirements_path.exists():
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "Section requirements file not found: %s", requirements_path
+        )
         return {}
     with open(requirements_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    if not data:
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "Section requirements file is empty: %s", requirements_path
+        )
+    return data

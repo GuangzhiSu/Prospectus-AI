@@ -38,21 +38,6 @@ const audiences = [
   "合规与披露团队",
 ];
 
-const ecosystemProducts = [
-  {
-    title: "招股书生成",
-    text: "将已整理的发行人证据转化为章节草稿、核验提示和 Word 工作稿，供专业团队审阅。",
-    href: "/zh/workspace",
-    cta: "打开工作区",
-  },
-  {
-    title: "上市诊断",
-    text: "在起草前独立检查上市路径，呈现已满足、短板、缺输入和不可判断事项。",
-    href: "/zh/eligibility",
-    cta: "查看诊断模块",
-  },
-];
-
 const contactHref =
   "mailto:contact@ai-prospectus.com?subject=AI%20Prospectus%20demo%20request";
 
@@ -152,10 +137,10 @@ export default function ChineseHomePage() {
       <section className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <h2 className="text-2xl font-semibold">作为监管金融产品生态来设计</h2>
+            <h2 className="text-2xl font-semibold">为专有化文档生成而设计</h2>
             <p className="mt-4 text-sm leading-6 text-[#637064]">
-              项目从 IPO 招股书生成起步，现在也包含独立的上市条件诊断模块。两者服务交易生命周期中相邻的环节，
-              但产品流程保持分离。
+              项目从 IPO 招股书起步，但架构已经拆分为 AI 模块、前端工作区、平台工具、知识模块和抽取管线。
+              这让不同领域的专业文档生成流程可以独立演进，而不必互相耦合。
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {audiences.map((item) => (
@@ -190,33 +175,6 @@ export default function ChineseHomePage() {
                 AI、前端、平台、知识图谱、资源和抽取管线都有清晰边界。
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-[#d5ddd2] bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl font-semibold">一个资本市场语境，两条产品线</h2>
-            <p className="mt-4 text-sm leading-6 text-[#637064]">
-              上市诊断用于理解上市路径缺口；招股书生成用于在证据准备好后进入文档起草。
-              两个模块可以在同一个生态中并列存在，而不必合并成一个流程。
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {ecosystemProducts.map((product) => (
-              <div key={product.title} className="border border-[#d5ddd2] p-5">
-                <p className="text-lg font-semibold">{product.title}</p>
-                <p className="mt-3 text-sm leading-6 text-[#637064]">{product.text}</p>
-                <Link
-                  href={product.href}
-                  className="mt-5 inline-flex h-10 items-center gap-2 border border-[#c9d2c7] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]"
-                >
-                  {product.cta}
-                  <ArrowIcon />
-                </Link>
-              </div>
-            ))}
           </div>
         </div>
       </section>

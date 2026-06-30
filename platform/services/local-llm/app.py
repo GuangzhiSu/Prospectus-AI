@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
 import os
+import sys
+from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -21,6 +23,10 @@ CHUNK_SIZE = int(os.getenv("LOCAL_CHUNK_SIZE", "1200"))
 CHUNK_OVERLAP = int(os.getenv("LOCAL_CHUNK_OVERLAP", "200"))
 RAW_DIR = os.getenv("LOCAL_RAW_DIR", "rag_raw")
 
+_AI_MODULE = Path(__file__).resolve().parents[3] / "ai-module"
+if _AI_MODULE.is_dir() and str(_AI_MODULE) not in sys.path:
+    sys.path.insert(0, str(_AI_MODULE))
+
 app = FastAPI()
 
 
@@ -36,14 +42,12 @@ class DraftSectionRequest(BaseModel):
 
 
 def build_prompt(requirements: str, context: str, section: str) -> str:
-    return (
-        "You are drafting a prospectus section. Follow the requirements exactly. "
-        "Use only the provided context. Output only the section content.\n"
-        "Return ONLY between <<<SECTION_START>>> and <<<SECTION_END>>>.\n\n"
-        f"Section: {section}\n\n"
-        f"Requirements:\n{requirements}\n\n"
-        f"Context:\n{context}\n\n"
-        # "Return only:\n<<<SECTION_START>>>\n<<<SECTION_END>>>"
+    from prompts.composer import compose_legacy_writer
+
+    return compose_legacy_writer(
+        section=section,
+        requirements=requirements,
+        context=context,
     )
 
 

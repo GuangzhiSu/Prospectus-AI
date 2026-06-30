@@ -39,6 +39,13 @@ if str(_REPO_ROOT) not in sys.path:
 log = structlog.get_logger()
 
 
+def _default_agent2_requirements_path() -> Path:
+    canonical = _REPO_ROOT / "ai-module" / "prompts" / "sections" / "requirements.json"
+    if canonical.is_file():
+        return canonical
+    return _REPO_ROOT / "agent2_section_requirements.json"
+
+
 # Map Stage-2 canonical section IDs (snake_case, derived from TOC) to the
 # CamelCase IDs used by the hand-authored ``agent2_section_requirements.json``.
 # Sections that only exist in Stage 2 (e.g. Cornerstone_Investors) are added to
@@ -285,9 +292,8 @@ def run(
     )
     log.info("wrote_agent_requirements", path=str(req_path))
 
-    # 4. Merge KG fields into the repo-root agent2_section_requirements.json so
-    #    agent2.py picks up the content-grounded schema at runtime. Hand-authored
-    #    ``requirements`` text is preserved untouched.
+    # 4. Merge KG fields into the canonical agent2 requirements JSON so agent2 picks
+    #    up content-grounded schema at runtime. Hand-authored ``requirements`` preserved.
     merge_info: dict[str, Any] = {"skipped": True}
     if agent2_requirements_path is not None and section_cards:
         merge_info = _merge_into_agent2(section_cards, agent2_requirements_path)
@@ -329,7 +335,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "--agent2-requirements",
         type=Path,
-        default=Path("agent2_section_requirements.json"),
+        default=_default_agent2_requirements_path(),
         help=(
             "Path to the hand-authored agent2 requirements file; KG-derived fields "
             "are merged in-place (a .bak copy is kept). Pass empty string to skip."

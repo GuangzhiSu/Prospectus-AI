@@ -28,6 +28,9 @@ import structlog
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
+_AI_MODULE = _REPO_ROOT / "ai-module"
+if str(_AI_MODULE) not in sys.path:
+    sys.path.insert(0, str(_AI_MODULE))
 sys.path.insert(0, str(_REPO_ROOT / "pipeline-module" / "ipo_prospectus_pipeline" / "src"))
 _KNOWLEDGE_MODULE = _REPO_ROOT / "knowledge-module"
 if str(_KNOWLEDGE_MODULE) not in sys.path:
@@ -154,12 +157,8 @@ def _build_messages(
     samples: list[dict[str, Any]],
     chars_per_sample: int,
 ) -> list[dict[str, Any]]:
-    sys_msg = (
-        "You are a senior Hong Kong IPO legal draftsperson. You are analyzing real Exchange prospectus "
-        "filings to build a knowledge card for one canonical section so that a drafting agent can "
-        "later author a new section of the same type for a different issuer. "
-        "You MUST reply with a single valid JSON object conforming to the provided schema."
-    )
+    from prompts.composer import compose_kg_section_card_messages
+
     sample_blocks = []
     for i, s in enumerate(samples, 1):
         block = (
@@ -168,24 +167,10 @@ def _build_messages(
             f"{_truncate(s['text'], chars_per_sample)}"
         )
         sample_blocks.append(block)
-    user_msg = (
-        f"Canonical section id: {section_id}\n"
-        f"Canonical section name: {canonical_name}\n\n"
-        "Below are text excerpts of this section from several real Exchange prospectuses. "
-        "Read them carefully and produce a single consolidated 'section card' describing:\n"
-        "  - the section's function and purpose,\n"
-        "  - its typical subsection structure (in order),\n"
-        "  - the drafting rules authors must follow,\n"
-        "  - the structured input fields an issuer must supply BEFORE drafting this section,\n"
-        "  - evidence / source document types used,\n"
-        "  - common pitfalls.\n\n"
-        "Rules:\n"
-        "  1. The 'section_id' field must equal exactly: " + section_id + "\n"
-        "  2. Prefer concrete, Exchange-specific guidance over generic advice.\n"
-        "  3. 'required_input_fields' MUST list granular fields an IPO advisor would need to collect "
-        "from the issuer (names, dates, amounts, structures) — not narrative prose.\n"
-        "  4. Keep arrays concise (<= 12 items each) but specific.\n\n"
-        + "\n\n".join(sample_blocks)
+    sys_msg, user_msg = compose_kg_section_card_messages(
+        section_id=section_id,
+        canonical_name=canonical_name,
+        sample_blocks="\n\n".join(sample_blocks),
     )
     return [
         {"role": "system", "content": sys_msg},

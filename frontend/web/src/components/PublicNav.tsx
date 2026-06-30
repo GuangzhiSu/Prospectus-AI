@@ -2,32 +2,28 @@ import Image from "next/image";
 import Link from "next/link";
 
 type PublicNavProps = {
-  active: "home" | "download" | "eligibility";
+  active: "home" | "download";
   locale?: "en" | "zh";
 };
 
 const labels = {
   en: {
     home: "Main",
-    eligibility: "Eligibility",
     download: "Download",
     workspace: "Workspace",
     github: "GitHub",
     language: "中文",
     languageHref: "/zh",
-    eligibilityHref: "/eligibility",
     downloadHref: "/download",
     workspaceHref: "/workspace",
   },
   zh: {
     home: "主页",
-    eligibility: "上市诊断",
     download: "下载",
     workspace: "工作区",
     github: "GitHub",
     language: "English",
     languageHref: "/",
-    eligibilityHref: "/zh/eligibility",
     downloadHref: "/zh/download",
     workspaceHref: "/zh/workspace",
   },
@@ -55,9 +51,6 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
         <div className="flex items-center gap-1 overflow-x-auto">
           <Link href={homeHref} className={navClass(active === "home")}>
             {t.home}
-          </Link>
-          <Link href={t.eligibilityHref} className={navClass(active === "eligibility")}>
-            {t.eligibility}
           </Link>
           <Link href={t.downloadHref} className={navClass(active === "download")}>
             {t.download}

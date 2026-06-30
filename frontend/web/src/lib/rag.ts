@@ -32,6 +32,34 @@ const WORKSPACE_PATHS = workspacePaths();
 const RAG_DIR = WORKSPACE_PATHS.rag;
 const RAW_DIR = WORKSPACE_PATHS.ragRaw;
 
+let cachedLegacyWriterSystem: string | null = null;
+
+async function legacyWriterSystemPrompt(): Promise<string> {
+  if (cachedLegacyWriterSystem) {
+    return cachedLegacyWriterSystem;
+  }
+  const candidates = [
+    path.join(process.cwd(), "prompts", "legacy_writer_system.txt"),
+    path.join(process.cwd(), "frontend", "web", "prompts", "legacy_writer_system.txt"),
+  ];
+  for (const candidate of candidates) {
+    try {
+      const text = (await fs.readFile(candidate, "utf8")).trim();
+      if (text) {
+        cachedLegacyWriterSystem = text;
+        return text;
+      }
+    } catch {
+      // try next candidate
+    }
+  }
+  cachedLegacyWriterSystem =
+    "You are drafting a prospectus section for a Hong Kong Stock Exchange listing in sponsor-counsel working draft mode. " +
+    "Follow the requirements exactly. Use only the provided context. " +
+    "Wrap the output between <<<SECTION_START>>> and <<<SECTION_END>>>.";
+  return cachedLegacyWriterSystem;
+}
+
 const HF_API_URL = "https://router.huggingface.co/hf-inference/models";
 
 function ragProvider(): string {
@@ -499,12 +527,9 @@ export async function generateSectionDraft(
   const context = buildPlainContext(topChunks);
   const startMarker = "<<<SECTION_START>>>";
   const endMarker = "<<<SECTION_END>>>";
+  const systemPrompt = await legacyWriterSystemPrompt();
   const answer = await completeChat({
-    system:
-      "You are drafting a prospectus section. Follow the requirements exactly. " +
-      "Use only the provided context. " +
-      `Wrap the output between ${startMarker} and ${endMarker}. ` +
-      "If the context is insufficient, say so explicitly and keep placeholders concise.",
+    system: systemPrompt,
     user:
       `Section: ${sectionTitle}\n\n` +
       `Requirements:\n${requirementText}\n\n` +

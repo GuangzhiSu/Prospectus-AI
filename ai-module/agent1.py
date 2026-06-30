@@ -458,14 +458,15 @@ def summarize_table_with_qwen(
     if os.environ.get("AGENT1_SKIP_TABLE_LLM") == "1":
         return f"Table: {filename} / {sheet_name}"
 
-    prompt = (
-        "Summarize this Excel table in 2-4 sentences for Exchange prospectus drafting. "
-        "Be factual.\n\n"
-        f"File: {filename}\nSheet: {sheet_name}\n\nExcerpt:\n{text_sample[:2500]}\n\nSUMMARY:"
-    )
     try:
         from llm_providers import run_chat
+        from prompts.composer import compose_agent1_table_summary
 
+        prompt = compose_agent1_table_summary(
+            text_sample=text_sample,
+            filename=filename,
+            sheet_name=sheet_name,
+        )
         out = run_chat(prompt, model_name=model_name, max_new_tokens=256)
         return out.strip() or f"Table: {filename} / {sheet_name}"
     except Exception:
