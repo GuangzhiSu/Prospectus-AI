@@ -6,47 +6,48 @@ import { PublicNav } from "@/components/PublicNav";
 type Locale = "en" | "zh";
 
 const contactHref =
-  "mailto:contact@ai-prospectus.com?subject=Listing%20eligibility%20diagnostic%20demo";
+  "mailto:contact@ai-prospectus.com?subject=IPO%20Diagnostic%20demo";
 
 const copy = {
   en: {
-    navLocale: "en",
-    eyebrow: "Listing pathway diagnostic",
-    title: "IPO eligibility diagnosis before drafting starts.",
+    eyebrow: "IPO Diagnostic",
+    title: "Diagnose IPO readiness before prospectus drafting starts.",
     description:
-      "A standalone rule engine for checking issuer inputs against listing pathway criteria. It reports pass, shortfall, missing input, indeterminate, and not evaluated items without issuing a listing verdict.",
+      "A standalone deterministic rules engine for checking issuer inputs against listing pathway criteria. It reports rule-linked status, missing evidence, and review-required qualitative issues without issuing a listing verdict.",
     primaryCta: "Request diagnostic demo",
-    ecosystemCta: "Back to ecosystem",
-    panelTitle: "Diagnostic snapshot",
-    panelSubtitle: "Rule-linked status, not an approval decision",
+    secondaryCta: "Open drafting workspace",
+    overviewCta: "Back to overview",
+    panelTitle: "Diagnostic status model",
+    panelSubtitle: "Rule-linked analysis, not an approval decision",
     metrics: [
-      ["Hard gates", "Quantitative thresholds"],
-      ["Soft signals", "Qualitative probes"],
-      ["Output", "Report and audit trail"],
+      ["Hard rules", "Quantitative thresholds"],
+      ["Soft signals", "Expert review queue"],
+      ["Output", "Gap report and audit trail"],
     ],
     statuses: [
-      ["PASS", "Converted value is present and meets the threshold."],
-      ["SHORTFALL", "Converted value is present but falls below the threshold."],
-      ["MISSING_INPUT", "Required issuer or profile input is absent."],
-      ["INDETERMINATE", "A value exists but cannot be compared, often because FX or dates are missing."],
-      ["NOT_EVALUATED", "Rule exists but is intentionally deferred, usually for qualitative assessment."],
+      ["PASS", "Required value is present and meets the modeled threshold."],
+      ["SHORTFALL", "Required value is present but below the modeled threshold."],
+      ["MISSING_INPUT", "Issuer profile, financial, date, or FX input is absent."],
+      ["INDETERMINATE", "A value exists but cannot be compared under current inputs."],
+      ["REVIEW_REQUIRED", "Qualitative signal needs professional judgment before reliance."],
+      ["DEFERRED_REVIEW", "Rule area is tracked but intentionally deferred from deterministic scoring."],
     ],
     sections: [
       {
-        title: "Separated from prospectus generation",
-        text: "Eligibility diagnosis sits beside the drafting product. It can inform deal planning and data requests, but it does not enter the Agent1 or Agent2 drafting path.",
+        title: "Independent from drafting",
+        text: "IPO Diagnostic sits beside Prospectus Drafting. It informs project planning and evidence requests, but it does not enter the Agent1 or Agent2 generation path.",
       },
       {
         title: "Deterministic hard engine",
-        text: "Quantitative gates read versioned YAML rules and explicit issuer/profile inputs. The hard path does not call an LLM or fabricate financial values.",
+        text: "Quantitative gates read versioned rules and explicit issuer/profile inputs. The hard path does not call an LLM or fabricate financial values.",
       },
       {
-        title: "Soft layer prepared for review",
-        text: "Qualitative signals such as suitability, concentration, independence, continuity, and WVR clarity are modeled as separate soft gates for later retrieval and expert review.",
+        title: "Review-aware soft layer",
+        text: "Suitability, concentration, independence, continuity, WVR clarity, and specialist-technology factors are separated for expert review.",
       },
       {
         title: "Audit-first reporting",
-        text: "Reports preserve rule references, threshold provenance, effective-date checks, and human signoff flags so reviewers can see what was checked and what remains open.",
+        text: "Reports preserve rule references, threshold provenance, effective-date checks, missing inputs, and human signoff flags.",
       },
     ],
     pathwaysTitle: "Covered listing pathways",
@@ -57,51 +58,52 @@ const copy = {
       "Chapter 18A biotech and CSRC overseas filing stubs",
       "Qualitative substance signals for suitability review",
     ],
-    productRelationTitle: "One ecosystem, two products",
-    productRelationText:
-      "The drafting workspace turns prepared evidence into prospectus sections. The eligibility diagnostic examines whether issuer data is ready for listing-pathway analysis. They share the same regulated-finance context while keeping their workflows independent.",
+    relationTitle: "One IPO ecosystem, two product lines",
+    relationText:
+      "The diagnostic module answers whether issuer inputs are ready for listing-pathway analysis. The drafting workspace turns prepared evidence into prospectus sections. They are related through the IPO workflow while remaining operationally separate.",
     footerTitle: "Use diagnosis before document generation.",
     footerText:
       "Start with listing-pathway gaps, then move to evidence preparation and drafting when the deal team has the required inputs.",
   },
   zh: {
-    navLocale: "zh",
-    eyebrow: "公司上市路径诊断",
-    title: "在招股书起草前，先看发行人上市条件缺口。",
+    eyebrow: "上市诊断",
+    title: "在招股书起草前，先完成 IPO 准备度诊断。",
     description:
-      "这是独立于招股书生成的规则诊断引擎，用发行人输入和上市规则路径做比对，输出满足、短板、缺输入、不可判断和暂不评价事项；它不作上市裁定，也不给通过/不通过结论。",
+      "这是独立的确定性规则引擎，用发行人输入对照上市路径要求，输出规则状态、缺失证据和需要专业复核的定性事项；它不作上市裁定，也不给监管审批结论。",
     primaryCta: "预约诊断演示",
-    ecosystemCta: "返回生态首页",
-    panelTitle: "诊断快照",
-    panelSubtitle: "规则口径状态，不是审批结论",
+    secondaryCta: "打开起草工作台",
+    overviewCta: "返回产品概览",
+    panelTitle: "诊断状态模型",
+    panelSubtitle: "规则关联分析，不是审批结论",
     metrics: [
-      ["硬性门槛", "量化阈值判断"],
-      ["软性信号", "定性事项探针"],
-      ["输出物", "报告与审计轨迹"],
+      ["硬性规则", "量化阈值"],
+      ["软性信号", "专家复核队列"],
+      ["输出物", "缺口报告与审计轨迹"],
     ],
     statuses: [
-      ["PASS", "数值存在，并达到规则阈值。"],
-      ["SHORTFALL", "数值存在，但低于规则阈值。"],
-      ["MISSING_INPUT", "发行人或运行档案中缺少必要输入。"],
-      ["INDETERMINATE", "数值存在但暂不能比较，常见原因是缺少汇率或日期。"],
-      ["NOT_EVALUATED", "规则已建模但本阶段有意暂不评价，通常用于定性事项。"],
+      ["PASS", "必要数值存在，并达到已建模阈值。"],
+      ["SHORTFALL", "必要数值存在，但低于已建模阈值。"],
+      ["MISSING_INPUT", "缺少发行人档案、财务、日期或汇率输入。"],
+      ["INDETERMINATE", "数值存在，但在当前输入下无法比较。"],
+      ["REVIEW_REQUIRED", "定性信号需要专业判断后才能依赖。"],
+      ["DEFERRED_REVIEW", "规则领域已跟踪，但有意不纳入确定性评分。"],
     ],
     sections: [
       {
-        title: "与招股书生成分离",
-        text: "上市诊断是招股书生成旁边的一条独立产品线。它可以服务项目规划和资料清单，但不进入 Agent1/Agent2 起草链路。",
+        title: "与起草产品独立",
+        text: "上市诊断位于招股书生成旁边。它服务项目规划和证据请求，但不进入 Agent1 或 Agent2 生成链路。",
       },
       {
         title: "确定性的硬规则引擎",
-        text: "量化门槛来自版本化 YAML 规则和明确的发行人/档案输入。硬规则路径不调用 LLM，也不自行编造财务计算结果。",
+        text: "量化门槛来自版本化规则和明确的发行人/档案输入。硬规则路径不调用 LLM，也不自行编造财务数值。",
       },
       {
-        title: "为专业复核准备的软性层",
-        text: "适格性、客户/供应商集中度、独立性、业务持续性和 WVR 清晰度等定性事项被放在单独软性层，便于后续接入检索和专家复核。",
+        title: "面向复核的软性层",
+        text: "适格性、集中度、独立性、业务持续性、WVR 清晰度和特专科技因素会被单独放入专家复核队列。",
       },
       {
-        title: "以审计轨迹为先",
-        text: "报告保留规则引用、阈值来源、有效日期核验和人工签署标记，让审阅者知道哪些已检查，哪些仍需补充。",
+        title: "审计轨迹优先",
+        text: "报告保留规则引用、阈值来源、有效日期核验、缺失输入和人工签署标记。",
       },
     ],
     pathwaysTitle: "覆盖的上市路径",
@@ -112,32 +114,35 @@ const copy = {
       "第 18A 章生物科技公司与中国证监会境外上市备案结构化占位",
       "围绕适格性复核的定性实质信号",
     ],
-    productRelationTitle: "一个生态，两条产品线",
-    productRelationText:
-      "招股书工作区把已整理证据转化为章节草稿；上市诊断模块检查发行人数据是否足以支持上市路径分析。两者处在同一个监管金融生态里，但工作流保持独立。",
+    relationTitle: "一个 IPO 生态，两条产品线",
+    relationText:
+      "上市诊断回答发行人输入是否足以支持上市路径分析；招股书工作台把已准备证据转化为招股书章节。两者由 IPO 项目流程连接，但操作上保持独立。",
     footerTitle: "先诊断，再生成文档。",
     footerText:
       "先看上市路径缺口，再在资料足够时进入证据整理和招股书起草。",
   },
-} satisfies Record<Locale, {
-  navLocale: Locale;
-  eyebrow: string;
-  title: string;
-  description: string;
-  primaryCta: string;
-  ecosystemCta: string;
-  panelTitle: string;
-  panelSubtitle: string;
-  metrics: Array<[string, string]>;
-  statuses: Array<[string, string]>;
-  sections: Array<{ title: string; text: string }>;
-  pathwaysTitle: string;
-  pathways: string[];
-  productRelationTitle: string;
-  productRelationText: string;
-  footerTitle: string;
-  footerText: string;
-}>;
+} satisfies Record<
+  Locale,
+  {
+    eyebrow: string;
+    title: string;
+    description: string;
+    primaryCta: string;
+    secondaryCta: string;
+    overviewCta: string;
+    panelTitle: string;
+    panelSubtitle: string;
+    metrics: Array<[string, string]>;
+    statuses: Array<[string, string]>;
+    sections: Array<{ title: string; text: string }>;
+    pathwaysTitle: string;
+    pathways: string[];
+    relationTitle: string;
+    relationText: string;
+    footerTitle: string;
+    footerText: string;
+  }
+>;
 
 function ArrowIcon() {
   return (
@@ -157,11 +162,14 @@ function CheckIcon() {
 
 export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
   const t = copy[locale];
-  const homeHref = locale === "zh" ? "/zh" : "/";
+  const href = {
+    overview: locale === "zh" ? "/zh" : "/",
+    workspace: locale === "zh" ? "/zh/workspace" : "/workspace",
+  };
 
   return (
-    <main className="min-h-screen bg-[#f7f7f2] text-[#171d1b]">
-      <PublicNav active="eligibility" locale={t.navLocale} />
+    <main className="min-h-screen bg-[#f7f8f2] text-[#17201b]">
+      <PublicNav active="diagnostic" locale={locale} />
 
       <section className="relative overflow-hidden bg-[#18201e] text-white">
         <div className="absolute inset-0 opacity-[0.14]">
@@ -175,18 +183,16 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">{t.title}</h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#dfe9e4] md:text-lg">{t.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href={contactHref}
-                className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
-              >
+              <a href={contactHref} className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]">
                 {t.primaryCta}
                 <ArrowIcon />
               </a>
-              <Link
-                href={homeHref}
-                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                {t.ecosystemCta}
+              <Link href={href.workspace} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
+                {t.secondaryCta}
+                <ArrowIcon />
+              </Link>
+              <Link href={href.overview} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
+                {t.overviewCta}
                 <ArrowIcon />
               </Link>
             </div>
@@ -210,7 +216,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
             </div>
             <div className="mt-5 space-y-2">
               {t.statuses.map(([status, detail]) => (
-                <div key={status} className="grid grid-cols-[120px_1fr] gap-3 border border-[#dde5da] bg-white px-3 py-2">
+                <div key={status} className="grid grid-cols-[132px_1fr] gap-3 border border-[#dde5da] bg-white px-3 py-2">
                   <p className="font-mono text-xs font-semibold text-[#0f766e]">{status}</p>
                   <p className="text-xs leading-5 text-[#647064]">{detail}</p>
                 </div>
@@ -235,7 +241,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
         <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-[0.8fr_1.2fr]">
           <div>
             <h2 className="text-2xl font-semibold">{t.pathwaysTitle}</h2>
-            <p className="mt-4 text-sm leading-6 text-[#637064]">{t.productRelationText}</p>
+            <p className="mt-4 text-sm leading-6 text-[#637064]">{t.relationText}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {t.pathways.map((item) => (
@@ -252,16 +258,13 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
 
       <section className="mx-auto grid max-w-7xl gap-8 px-6 py-14 md:grid-cols-[1fr_1fr]">
         <div>
-          <h2 className="text-2xl font-semibold">{t.productRelationTitle}</h2>
-          <p className="mt-4 text-sm leading-6 text-[#637064]">{t.productRelationText}</p>
+          <h2 className="text-2xl font-semibold">{t.relationTitle}</h2>
+          <p className="mt-4 text-sm leading-6 text-[#637064]">{t.relationText}</p>
         </div>
         <div className="border border-[#d5ddd2] bg-[#17201b] p-5 text-white">
           <p className="text-lg font-semibold">{t.footerTitle}</p>
           <p className="mt-3 text-sm leading-6 text-[#dfe9e4]">{t.footerText}</p>
-          <a
-            href={contactHref}
-            className="mt-5 inline-flex h-10 items-center gap-2 bg-[#f2c14e] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#ffd36b]"
-          >
+          <a href={contactHref} className="mt-5 inline-flex h-10 items-center gap-2 bg-[#f2c14e] px-4 text-sm font-semibold text-[#17201b] hover:bg-[#ffd36b]">
             {t.primaryCta}
             <ArrowIcon />
           </a>

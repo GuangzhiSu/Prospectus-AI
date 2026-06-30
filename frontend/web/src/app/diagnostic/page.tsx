@@ -13,6 +13,6 @@ export const metadata = {
   },
 };
 
-export default function EligibilityPage() {
+export default function DiagnosticPage() {
   return <EligibilityPageContent locale="en" />;
 }

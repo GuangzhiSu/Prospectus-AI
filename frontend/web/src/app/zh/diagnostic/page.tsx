@@ -13,6 +13,6 @@ export const metadata = {
   },
 };
 
-export default function ChineseEligibilityPage() {
+export default function ChineseDiagnosticPage() {
   return <EligibilityPageContent locale="zh" />;
 }
