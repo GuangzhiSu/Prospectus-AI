@@ -71,10 +71,15 @@ mkdir -p "$STAGE/web/.next"
 cp -a "$WEB_DIR/.next/static" "$STAGE/web/.next/static"
 mkdir -p "$STAGE/web/public"
 cp -a "$WEB_DIR/public/." "$STAGE/web/public/"
+if [[ -d "$WEB_DIR/prompts" ]]; then
+  mkdir -p "$STAGE/web/prompts"
+  cp -a "$WEB_DIR/prompts/." "$STAGE/web/prompts/"
+fi
 
 ITEMS=(
-  ai-module/agent1.py ai-module/agent2.py ai-module/llm_qwen.py ai-module/llm_openai.py
-  ai-module/llm_anthropic.py ai-module/llm_providers.py ai-module/llm_sanitize.py ai-module/section_quality.py
+  ai-module/agent1.py ai-module/agent2.py ai-module/agent2_stream.py
+  ai-module/llm_qwen.py ai-module/llm_openai.py ai-module/llm_anthropic.py
+  ai-module/llm_providers.py ai-module/llm_sanitize.py ai-module/section_quality.py
   ai-module/requirements.txt ai-module/prospectus_graph ai-module/prompts
   issuer_metadata.json scripts resources/templates
 )

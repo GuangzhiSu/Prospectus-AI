@@ -14,6 +14,7 @@
     "desktop:pack": "npm run pack --prefix platform/desktop",
     "desktop:dist": "npm run dist --prefix platform/desktop",
     "pack:linux": "bash packaging/linux/build-full-release.sh",
+    "pack:mac": "bash packaging/mac/build-full-release.sh",
     "pack:windows-dist": "bash packaging/linux/build-prospectusai-windows.sh",
     "pack:windows": "echo 'Native Windows build (optional): powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1'"
   }

@@ -39,10 +39,17 @@ The installed Start Menu and desktop shortcuts open `Prospectus AI.exe`. The old
 
 The Electron executable expects to run next to `agent1.py` and `web/server.js`; the release scripts preserve that layout.
 
-## Linux / macOS
+Packaged desktop apps open **`/workspace`** (the drafting UI) instead of the public marketing homepage. Override with `PROSPECTUS_ELECTRON_ENTRY=/other/path` when starting Electron.
 
-- `npm run dist` in `platform/desktop` can produce `AppImage` or `dmg` when run on those OSes.
-- Use the same rule: keep `agent1.py` and `web/` beside the app (matching your platform packaging layout).
+## macOS DMG
+
+From the repo root:
+
+```bash
+npm run pack:mac
+```
+
+See [`packaging/mac/README.md`](../../packaging/mac/README.md) for build requirements and distribution notes.
 
 ## Icon
 

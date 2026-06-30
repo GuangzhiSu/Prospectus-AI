@@ -73,7 +73,7 @@ const WORKSPACE_COPY = {
       assembler: "Saving section",
       template: "Rendering template",
     } as Record<string, string>,
-    steps: ["Upload materials", "Run IPO diagnostic", "Prepare evidence", "Draft sections", "Review & export"],
+    steps: ["Upload", "Prepare data", "Draft sections", "Export"],
     setupVerifyFailed: "Could not verify generation setup.",
     uploadFailed: "Upload failed",
     runFailed: "Run failed",
@@ -86,11 +86,8 @@ const WORKSPACE_COPY = {
     generateAll: "Generate all",
     remaining: (n: number) => `Remaining (${n})`,
     nextMissing: (name?: string) => (name ? `Next missing: ${name}` : "Next missing"),
-    title: "AI Prospectus Workspace",
-    subtitle: "Private IPO workflow for diagnostic context, evidence, drafting, review, and export",
-    project: "Project: Demo Issuer",
-    mode: "Mode: Local · Qwen/Qwen3.5-4B",
-    privateStatus: "Status: Private workspace",
+    title: "Prospectus AI",
+    subtitle: "From your files to prospectus sections — draft, refine, export",
     productSite: "Product site",
     kgView: "Knowledge Graph web view",
     downloadApp: "Download app",
@@ -109,20 +106,14 @@ const WORKSPACE_COPY = {
     removeAll: "Remove all",
     removeAllTitle: "Remove all uploaded files, upload new documents",
     noFiles: "No .xlsx or .json files yet",
-    diagnosticTitle: "Step 2: Run IPO diagnostic",
-    diagnosticDescription:
-      "Use the standalone diagnostic module to surface listing-pathway gaps before drafting. It remains separate from generation.",
-    diagnosticButton: "Open IPO Diagnostic",
-    diagnosticReady: "Diagnostic ready when issuer materials are uploaded.",
-    diagnosticWaiting: "Upload issuer materials before relying on diagnostic context.",
-    prepareTitle: "Step 3: Prepare evidence",
+    prepareTitle: "Step 1: Prepare your data",
     prepareDescription:
-      "We read your spreadsheets or JSON and organize evidence for each prospectus chapter. Large Excel files may take several minutes.",
+      "We read your spreadsheets or JSON and organize them for each prospectus chapter. Large Excel files may take several minutes.",
     working: "Working…",
-    prepareButton: "Prepare evidence",
-    statusTitle: "Evidence status",
-    statusDescription: "Confirms your files are processed and you can move on to section drafting.",
-    noResults: "No results yet. Prepare evidence after uploading files.",
+    prepareButton: "Prepare data",
+    statusTitle: "Step 2: Status",
+    statusDescription: "Confirms your files are processed and you can move on to drafting.",
+    noResults: "No results yet. Use Step 1 after uploading files.",
     ready: "Ready to draft",
     readyDescription: "Generate and edit your prospectus in the panel on the right.",
     filesFromUpload: (n: number) => `${n} file${n === 1 ? "" : "s"} from your upload`,
@@ -135,11 +126,6 @@ const WORKSPACE_COPY = {
     missing: "Missing — not generated",
     thinDraft: "Thin draft — regenerate recommended",
     pending: "Pending",
-    sectionStatusComplete: "Complete",
-    sectionStatusRunning: "Running",
-    sectionStatusMissing: "Missing input",
-    sectionStatusThin: "Review required",
-    sectionStatusPending: "Pending",
     modify: "Modify",
     modificationPlaceholder: "Modification instructions…",
     regenerating: "Regenerating…",
@@ -159,21 +145,6 @@ const WORKSPACE_COPY = {
     recheck: "Re-check",
     checkSetup: "Check setup",
     checkSetupTitle: "Verify the drafting backend is ready",
-    reviewTitle: "Evidence & review",
-    reviewSubtitle: "Section context, source coverage, missing inputs, and export readiness.",
-    reviewRequired: "Review required",
-    selectedSection: "Selected section",
-    sourceFilesTitle: "Source files",
-    noSources: "Source coverage appears after evidence preparation.",
-    missingInputsTitle: "Missing inputs",
-    noMissingInputs: "No section-specific missing input request is currently surfaced.",
-    qualityFlagsTitle: "Quality flags",
-    noQualityFlags: "No quality flags returned from evidence preparation.",
-    exportReadinessTitle: "Export readiness",
-    exportReady: "All sections are complete. Word export is available.",
-    exportBlocked: "Export locked",
-    exportBlockedHint: "Complete all prospectus sections before exporting a review draft.",
-    reviewWaiting: "Prepare evidence to populate the review panel.",
   },
   zh: {
     emptyDraft: "# 招股书草稿\n\n（生成后的招股书内容会显示在这里。）\n",
@@ -186,7 +157,7 @@ const WORKSPACE_COPY = {
       assembler: "保存章节",
       template: "渲染模板",
     } as Record<string, string>,
-    steps: ["上传材料", "运行上市诊断", "准备证据", "生成章节", "复核与导出"],
+    steps: ["上传", "整理数据", "生成章节", "导出"],
     setupVerifyFailed: "无法验证生成环境。",
     uploadFailed: "上传失败",
     runFailed: "运行失败",
@@ -199,11 +170,8 @@ const WORKSPACE_COPY = {
     generateAll: "生成全部",
     remaining: (n: number) => `剩余 ${n} 节`,
     nextMissing: (name?: string) => (name ? `下一节：${name}` : "下一节"),
-    title: "AI Prospectus 工作台",
-    subtitle: "面向诊断语境、证据、起草、复核和导出的私有 IPO 工作流",
-    project: "项目：Demo Issuer",
-    mode: "模式：Local · Qwen/Qwen3.5-4B",
-    privateStatus: "状态：私有工作台",
+    title: "Prospectus AI",
+    subtitle: "从文件到招股书章节：起草、修改、导出",
     productSite: "产品主页",
     kgView: "知识图谱视图",
     downloadApp: "下载应用",
@@ -222,19 +190,13 @@ const WORKSPACE_COPY = {
     removeAll: "全部移除",
     removeAllTitle: "删除所有上传文件，重新上传新文档",
     noFiles: "还没有 .xlsx 或 .json 文件",
-    diagnosticTitle: "步骤 2：运行上市诊断",
-    diagnosticDescription:
-      "使用独立诊断模块在起草前发现上市路径缺口。它与招股书生成保持分离。",
-    diagnosticButton: "打开上市诊断",
-    diagnosticReady: "上传发行人材料后即可使用诊断语境。",
-    diagnosticWaiting: "请先上传发行人材料，再依赖诊断语境。",
-    prepareTitle: "步骤 3：准备证据",
-    prepareDescription: "系统会读取表格或 JSON，并按招股书章节组织证据。大型 Excel 文件可能需要几分钟。",
+    prepareTitle: "步骤 1：整理数据",
+    prepareDescription: "系统会读取表格或 JSON，并按招股书章节组织材料。大型 Excel 文件可能需要几分钟。",
     working: "处理中…",
-    prepareButton: "准备证据",
-    statusTitle: "证据状态",
-    statusDescription: "确认文件已经处理完成，可以进入章节起草阶段。",
-    noResults: "还没有结果。上传文件后请先准备证据。",
+    prepareButton: "整理数据",
+    statusTitle: "步骤 2：状态",
+    statusDescription: "确认文件已经处理完成，可以进入起草阶段。",
+    noResults: "还没有结果。请先上传文件并运行步骤 1。",
     ready: "可以开始起草",
     readyDescription: "在右侧面板生成和编辑招股书内容。",
     filesFromUpload: (n: number) => `来自本次上传的 ${n} 个文件`,
@@ -247,11 +209,6 @@ const WORKSPACE_COPY = {
     missing: "缺失 — 尚未生成",
     thinDraft: "草稿较薄 — 建议重新生成",
     pending: "待生成",
-    sectionStatusComplete: "已完成",
-    sectionStatusRunning: "生成中",
-    sectionStatusMissing: "缺输入",
-    sectionStatusThin: "需复核",
-    sectionStatusPending: "待处理",
     modify: "修改",
     modificationPlaceholder: "请输入修改要求…",
     regenerating: "重新生成中…",
@@ -271,21 +228,6 @@ const WORKSPACE_COPY = {
     recheck: "重新检查",
     checkSetup: "检查环境",
     checkSetupTitle: "确认起草后端已准备好",
-    reviewTitle: "证据与复核",
-    reviewSubtitle: "章节语境、来源覆盖、缺失输入和导出准备度。",
-    reviewRequired: "需复核",
-    selectedSection: "当前章节",
-    sourceFilesTitle: "来源文件",
-    noSources: "准备证据后会显示来源覆盖。",
-    missingInputsTitle: "缺失输入",
-    noMissingInputs: "当前未显示该章节的缺失输入请求。",
-    qualityFlagsTitle: "质量标记",
-    noQualityFlags: "证据准备暂未返回质量标记。",
-    exportReadinessTitle: "导出准备度",
-    exportReady: "所有章节已完成，可以导出 Word。",
-    exportBlocked: "导出已锁定",
-    exportBlockedHint: "请先完成全部招股书章节，再导出审阅稿。",
-    reviewWaiting: "准备证据后会填充复核面板。",
   },
 };
 
@@ -464,7 +406,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     } catch {
       // keep current draft
     }
-  }, [t.emptyDraft]);
+  }, []);
 
   useEffect(() => {
     fetchFiles();
@@ -484,7 +426,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     } catch {
       setAgent2Status({ ok: false, hint: t.setupVerifyFailed });
     }
-  }, [t.setupVerifyFailed]);
+  }, []);
 
   useEffect(() => {
     const m = results?.manifest ?? results?.classification;
@@ -745,63 +687,24 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     results?.manifest?.data_quality_flags ??
     results?.classification?.data_quality_flags ??
     [];
-  const missingInformationRequests =
-    results?.manifest?.missing_information_requests ??
-    results?.classification?.missing_information_requests ??
-    [];
   const hasDraft = draftMd && draftMd.includes("## ") && draftMd !== t.emptyDraft;
   const allSectionsDone = hasDraft && missingSectionIds.length === 0;
   const hasGapSections =
     missingSectionIds.length > 0 &&
     lastGeneratedIndex >= 0 &&
     sectionOrderIndex(missingSectionIds[0]) < lastGeneratedIndex;
-  const currentStep = !files.length ? 1 : !manifest ? 3 : allSectionsDone ? 5 : 4;
+  const currentStep = !files.length ? 1 : !manifest ? 2 : allSectionsDone ? 4 : 3;
   const generateAllLabel =
     generatedCount === 0 ? t.generateAll : t.remaining(missingSectionIds.length);
   const nextMissingSectionId = missingSectionIds[0];
   const nextMissingLabel = nextMissingSectionId
     ? t.nextMissing(SECTION_NAMES[nextMissingSectionId])
     : t.nextMissing();
-  const diagnosticHref = locale === "zh" ? "/zh/diagnostic" : "/diagnostic";
-  const firstContentSectionId = SECTION_ORDER.find((sid) =>
-    sectionHasContent(parsedSections[sid])
-  );
-  const reviewSectionId =
-    expandedSectionId ||
-    sectionStream?.sectionId ||
-    nextMissingSectionId ||
-    firstContentSectionId ||
-    SECTION_ORDER[0];
-  const reviewSectionName = SECTION_NAMES[reviewSectionId] ?? reviewSectionId;
-  const reviewSectionKey = reviewSectionId.toLowerCase();
-  const reviewSectionLabel = reviewSectionName.toLowerCase();
-  const sectionMissingRequests = missingInformationRequests.filter((request) => {
-    const sectionLabel = String(request.section || "").toLowerCase();
-    if (!sectionLabel) return true;
-    return (
-      sectionLabel.includes(reviewSectionKey) ||
-      sectionLabel.includes(reviewSectionLabel) ||
-      reviewSectionLabel.includes(sectionLabel)
-    );
-  });
-  const reviewMissingRequests =
-    sectionMissingRequests.length > 0
-      ? sectionMissingRequests
-      : missingInformationRequests.slice(0, 3);
-  const reviewSourceFiles =
-    Array.isArray(sourceFiles) && sourceFiles.length > 0
-      ? sourceFiles
-      : files.map((file) => file.name);
-  const reviewSectionComplete = sectionIsComplete(
-    parsedSections[reviewSectionId],
-    reviewSectionId
-  );
-  const reviewSectionHasDraft = sectionHasContent(parsedSections[reviewSectionId]);
 
   return (
-    <div className="min-h-screen bg-[#f7f8f2] text-[var(--foreground)]">
+    <div className="min-h-screen bg-[#eef3f8] text-[var(--foreground)]">
       {/* Header + Pipeline stepper */}
-      <header className="sticky top-0 z-10 border-b border-[#d5ddd2] bg-white/95 shadow-sm backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-[#d8e0ea] bg-white/95 shadow-sm backdrop-blur">
         <div className="mx-auto max-w-[1900px] px-5 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -811,49 +714,38 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               <p className="text-sm text-[var(--muted)] mt-0.5">
                 {t.subtitle}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                <span className="border border-[#d5ddd2] bg-[#f7f8f2] px-2.5 py-1 font-semibold text-[#334139]">
-                  {t.project}
-                </span>
-                <span className="border border-[#d5ddd2] bg-[#eef3ec] px-2.5 py-1 font-semibold text-[#0f766e]">
-                  {t.mode}
-                </span>
-                <span className="border border-[#d5ddd2] bg-[#fff8e1] px-2.5 py-1 font-semibold text-[#8a5a00]">
-                  {t.privateStatus}
-                </span>
-              </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                 <AppBackendStatus />
                 <Link
-                  href={locale === "zh" ? "/zh" : "/"}
+                  href="/"
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.productSite}
                 </Link>
-                <Link
+                <a
                   href="/kg-view"
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.kgView}
-                </Link>
-                <Link
-                  href={locale === "zh" ? "/zh/download" : "/download"}
+                </a>
+                <a
+                  href="/download"
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.downloadApp}
-                </Link>
-                <Link
+                </a>
+                <a
                   href="/settings"
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.settings}
-                </Link>
-                <Link
+                </a>
+                <a
                   href={locale === "zh" ? "/workspace" : "/zh/workspace"}
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.zhWorkspace}
-                </Link>
+                </a>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -867,10 +759,11 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                   {t.startOver}
                 </button>
               )}
+              {hasDraft && (
               <div className="flex flex-col gap-1">
                 <button
                   onClick={handleExportDocx}
-                  disabled={exporting || !allSectionsDone}
+                  disabled={exporting}
                   className="flex items-center gap-2 rounded-md bg-[#172033] px-4 py-2 text-sm font-medium text-white hover:bg-[#253149] disabled:opacity-50 transition-colors"
                 >
                   {exporting ? (
@@ -890,27 +783,25 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 {exporting && (
                   <p className="text-xs text-[var(--muted)]">{t.buildingWord}</p>
                 )}
-                {!exporting && !allSectionsDone && (
-                  <p className="max-w-48 text-xs text-[var(--muted)]">{t.exportBlockedHint}</p>
-                )}
               </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
             {steps.map((s, i) => {
-              const done = currentStep > s.id;
+              const done = currentStep > s.id || (s.id === 3 && manifest);
               const active = currentStep === s.id;
               return (
                 <React.Fragment key={s.id}>
                   <div
                     className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${
-                      active ? "bg-[#e8f3ef] text-[#0f766e] font-medium" : ""
+                      active ? "bg-[#e7f3fb] text-[#0369a1] font-medium" : ""
                     } ${done && !active ? "text-[var(--success)]" : ""}`}
                   >
                     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                       done ? "bg-[var(--success)] text-white" :
-                      active ? "bg-[#0f766e] text-white" :
-                      "bg-[#dde5da] text-[var(--muted)]"
+                      active ? "bg-[#0369a1] text-white" :
+                      "bg-[#dbe3ee] text-[var(--muted)]"
                     }`}>
                       {done ? "✓" : s.id}
                     </span>
@@ -934,9 +825,9 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
         </div>
       )}
 
-      <div className="mx-auto flex min-h-[calc(100vh-180px)] max-w-[1900px] flex-col gap-4 px-5 py-4 xl:flex-row">
+      <div className="mx-auto flex h-[calc(100vh-140px)] max-w-[1900px] gap-4 px-5 py-4">
         {/* Left: Excel files */}
-        <aside className="w-full shrink-0 space-y-4 overflow-auto rounded-lg border border-[#d5ddd2] bg-white p-4 shadow-sm xl:max-h-[calc(100vh-200px)] xl:w-[340px]">
+        <aside className="w-[360px] shrink-0 space-y-4 overflow-auto rounded-lg border border-[#d8e0ea] bg-white p-4 shadow-sm">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">{t.filesTitle}</h2>
           <p className="text-xs text-[var(--muted)] mt-1">{t.filesSubtitle}</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -991,22 +882,6 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               </ul>
             )}
           </div>
-
-          <section className="rounded-lg border border-[#d5ddd2] bg-[#fffaf0] p-4">
-            <h2 className="text-sm font-semibold mb-1">{t.diagnosticTitle}</h2>
-            <p className="text-xs leading-5 text-[var(--muted)] mb-3">
-              {t.diagnosticDescription}
-            </p>
-            <div className="mb-3 border border-[#ead6a0] bg-white px-3 py-2 text-xs text-[#6b4c12]">
-              {files.length > 0 ? t.diagnosticReady : t.diagnosticWaiting}
-            </div>
-            <Link
-              href={diagnosticHref}
-              className="inline-flex w-full items-center justify-center rounded-md border border-[#c9a84b] bg-[#f2c14e] px-4 py-2.5 text-sm font-semibold text-[#17201b] hover:bg-[#ffd36b]"
-            >
-              {t.diagnosticButton}
-            </Link>
-          </section>
 
           <section className="rounded-lg border border-[#d5dde8] bg-[#f8fafc] p-4">
             <h2 className="text-sm font-semibold mb-1">{t.prepareTitle}</h2>
@@ -1083,8 +958,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
         </aside>
 
         {/* Right: Draft */}
-        <main className="flex min-h-[640px] min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#d5ddd2] bg-white shadow-sm xl:flex-[1.2]">
-          <div className="shrink-0 border-b border-[#d5ddd2] px-5 py-4">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#d8e0ea] bg-white shadow-sm">
+          <div className="shrink-0 border-b border-[#d8e0ea] px-5 py-4">
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-base font-semibold text-[var(--foreground)]">{t.draftTitle}</h2>
@@ -1104,7 +979,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             </div>
           </div>
           {manifest && (
-            <div className="shrink-0 border-b border-[#d5ddd2] bg-[#f8fafc] px-5 py-4">
+            <div className="shrink-0 border-b border-[#d8e0ea] bg-[#f8fafc] px-5 py-4">
               {generating ? (
                 <div className="space-y-2">
                   <p className="text-sm text-[var(--accent)] font-medium">
@@ -1149,7 +1024,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     <button
                       onClick={handleGenerateAllSequential}
                       disabled={generating}
-                      className="rounded-md bg-[#0f766e] px-4 py-2 text-sm font-medium text-white hover:bg-[#115e59] disabled:opacity-50"
+                      className="rounded-md bg-[#0369a1] px-4 py-2 text-sm font-medium text-white hover:bg-[#075985] disabled:opacity-50"
                     >
                       {generateAllLabel}
                     </button>
@@ -1157,7 +1032,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                       <button
                         onClick={handleGenerateNext}
                         disabled={generating}
-                        className="rounded-md border-2 border-[#0f766e] px-4 py-2 text-sm font-medium text-[#0f766e] hover:bg-[#e8f3ef]"
+                        className="rounded-md border-2 border-[#0369a1] px-4 py-2 text-sm font-medium text-[#0369a1] hover:bg-[#e7f3fb]"
                       >
                         {nextMissingLabel}
                       </button>
@@ -1218,44 +1093,26 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 const preview = previewRaw
                   ? previewRaw.slice(0, 120) + (previewRaw.length > 120 ? "…" : "")
                   : null;
-                const statusLabel = isInProgress
-                  ? t.sectionStatusRunning
-                  : isGenerated
-                    ? t.sectionStatusComplete
-                    : isMissingGap
-                      ? t.sectionStatusMissing
-                      : isThinDraft
-                        ? t.sectionStatusThin
-                        : t.sectionStatusPending;
-                const statusClass = isInProgress
-                  ? "bg-[#e8f3ef] text-[#0f766e]"
-                  : isGenerated
-                    ? "bg-[var(--success-bg)] text-[var(--success)]"
-                    : isMissingGap
-                      ? "bg-[var(--warning-bg)] text-[var(--warning)]"
-                      : isThinDraft
-                        ? "bg-[#fffaf0] text-[#6b4c12]"
-                        : "bg-white text-[var(--muted)]";
 
                 return (
                   <div
                     key={sectionId}
                     className={`rounded-lg border transition-colors ${
                       isInProgress
-                        ? "border-[#0f766e] bg-[#e8f3ef]"
+                        ? "border-[#38bdf8] bg-[#eff8ff]"
                         : isGenerated
                           ? "border-[var(--success)]/30 bg-[var(--success-bg)]/40"
                           : "border-dashed border-[#d5dde8] bg-[#f8fafc]"
                     }`}
                   >
                     <div
-                      className={`flex items-start gap-3 px-4 py-3 select-none ${isInProgress ? "cursor-default" : "cursor-pointer"}`}
-                      onClick={() => {
-                        if (isModifying || isInProgress) return;
-                        setExpandedSectionId((id) =>
-                          isGenerated && id === sectionId ? null : sectionId
-                        );
-                      }}
+                      className={`flex items-start gap-3 px-4 py-3 select-none ${isGenerated || isInProgress ? "cursor-pointer" : "cursor-default"}`}
+                      onClick={() =>
+                        !isModifying &&
+                        !isInProgress &&
+                        isGenerated &&
+                        setExpandedSectionId((id) => (id === sectionId ? null : sectionId))
+                      }
                     >
                       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--foreground)]/8 text-xs font-semibold text-[var(--foreground)]">
                         {index + 1}
@@ -1280,12 +1137,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                           <div className="text-xs text-[var(--muted)] mt-1 line-clamp-2">{preview}</div>
                         )}
                       </div>
-                      <div className="flex shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                        <span className={`px-2 py-1 text-xs font-semibold ${statusClass}`}>
-                          {statusLabel}
-                        </span>
-                        {isGenerated && !isModifying && !isInProgress && (
-                          <>
+                      {isGenerated && !isModifying && !isInProgress && (
+                        <div className="flex shrink-0 gap-2" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleModifySection(sectionId)}
                             className="text-xs rounded-lg border border-[var(--border)] px-2.5 py-1.5 hover:bg-[var(--background)] transition-colors"
@@ -1297,9 +1150,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                           </span>
-                          </>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                     {isExpanded && (
                       <div className="px-4 pb-4 pt-0 border-t border-[var(--border)]/50 mt-0">
@@ -1355,137 +1207,6 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
           </div>
 
         </main>
-
-        <aside className="w-full shrink-0 space-y-4 overflow-auto rounded-lg border border-[#d5ddd2] bg-white p-4 shadow-sm xl:max-h-[calc(100vh-200px)] xl:w-[360px]">
-          <div>
-            <h2 className="text-sm font-semibold text-[var(--foreground)]">{t.reviewTitle}</h2>
-            <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t.reviewSubtitle}</p>
-          </div>
-
-          {!manifest ? (
-            <div className="rounded-md border-2 border-dashed border-[#d5dde8] bg-[#f8fafc] p-4 text-sm text-[var(--muted)]">
-              {t.reviewWaiting}
-            </div>
-          ) : (
-            <>
-              <section className="rounded-lg border border-[#d5dde8] bg-[#f8fafc] p-4">
-                <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.selectedSection}</p>
-                <div className="mt-2 flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--foreground)]">{reviewSectionName}</p>
-                    <p className="mt-1 text-xs text-[var(--muted)]">
-                      {reviewSectionHasDraft
-                        ? t.sectionsComplete(reviewSectionComplete ? 1 : 0, 1)
-                        : t.sectionStatusPending}
-                    </p>
-                  </div>
-                  <span
-                    className={`shrink-0 px-2 py-1 text-xs font-semibold ${
-                      reviewSectionComplete
-                        ? "bg-[var(--success-bg)] text-[var(--success)]"
-                        : reviewSectionHasDraft
-                          ? "bg-[var(--warning-bg)] text-[var(--warning)]"
-                          : "bg-white text-[var(--muted)]"
-                    }`}
-                  >
-                    {reviewSectionComplete
-                      ? t.sectionStatusComplete
-                      : reviewSectionHasDraft
-                        ? t.sectionStatusThin
-                        : t.sectionStatusPending}
-                  </span>
-                </div>
-              </section>
-
-              <section className="rounded-lg border border-[#d5dde8] bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.sourceFilesTitle}</p>
-                {reviewSourceFiles.length > 0 ? (
-                  <ul className="mt-3 space-y-2">
-                    {reviewSourceFiles.slice(0, 5).map((file) => (
-                      <li key={file} className="truncate border border-[#edf0eb] bg-[#f8fafc] px-3 py-2 text-xs text-[var(--foreground)]">
-                        {file}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-3 text-xs leading-5 text-[var(--muted)]">{t.noSources}</p>
-                )}
-              </section>
-
-              <section className="rounded-lg border border-[#d5dde8] bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.missingInputsTitle}</p>
-                {reviewMissingRequests.length > 0 ? (
-                  <ul className="mt-3 space-y-3">
-                    {reviewMissingRequests.slice(0, 3).map((request, index) => (
-                      <li key={`${request.section}-${index}`} className="border border-[#ead6a0] bg-[#fffaf0] p-3 text-xs">
-                        <p className="font-semibold text-[#6b4c12]">
-                          {request.section || t.reviewRequired}
-                        </p>
-                        {request.missing_items && request.missing_items.length > 0 && (
-                          <ul className="mt-2 space-y-1 text-[#6b4c12]">
-                            {request.missing_items.slice(0, 3).map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
-                        )}
-                        {request.why_needed_for_prospectus && (
-                          <p className="mt-2 leading-5 text-[var(--muted)]">
-                            {request.why_needed_for_prospectus}
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-3 text-xs leading-5 text-[var(--muted)]">{t.noMissingInputs}</p>
-                )}
-              </section>
-
-              <section className="rounded-lg border border-[#d5dde8] bg-white p-4">
-                <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.qualityFlagsTitle}</p>
-                {qualityFlags.length > 0 ? (
-                  <ul className="mt-3 space-y-2">
-                    {qualityFlags.slice(0, 4).map((flag, index) => (
-                      <li key={`${flag.issue}-${index}`} className="border border-[#edf0eb] bg-[#f8fafc] p-3 text-xs">
-                        <span className={`font-semibold ${
-                          flag.severity === "high"
-                            ? "text-[var(--error)]"
-                            : flag.severity === "medium"
-                              ? "text-[var(--warning)]"
-                              : "text-[var(--muted)]"
-                        }`}>
-                          {flag.severity}:
-                        </span>{" "}
-                        <span>{flag.issue}</span>
-                        {flag.suggested_fix && (
-                          <p className="mt-1 leading-5 text-[var(--muted)]">{t.suggestion}: {flag.suggested_fix}</p>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-3 text-xs leading-5 text-[var(--muted)]">{t.noQualityFlags}</p>
-                )}
-              </section>
-
-              <section className={`rounded-lg border p-4 ${
-                allSectionsDone
-                  ? "border-[var(--success)]/40 bg-[var(--success-bg)]"
-                  : "border-[#ead6a0] bg-[#fffaf0]"
-              }`}>
-                <p className="text-xs font-semibold uppercase text-[var(--muted)]">{t.exportReadinessTitle}</p>
-                <p className={`mt-2 text-sm font-semibold ${
-                  allSectionsDone ? "text-[var(--success)]" : "text-[#6b4c12]"
-                }`}>
-                  {allSectionsDone ? t.exportReady : t.exportBlocked}
-                </p>
-                {!allSectionsDone && (
-                  <p className="mt-2 text-xs leading-5 text-[var(--muted)]">{t.exportBlockedHint}</p>
-                )}
-              </section>
-            </>
-          )}
-        </aside>
       </div>
     </div>
   );

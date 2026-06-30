@@ -55,12 +55,19 @@ Copy-Item -Recurse -Force (Join-Path $WebDir ".next\static") (Join-Path $NextDir
 $PubDst = Join-Path $StageWeb "public"
 New-Item -ItemType Directory -Force -Path $PubDst | Out-Null
 Copy-Item -Recurse -Force (Join-Path $WebDir "public\*") $PubDst
+$WebPrompts = Join-Path $WebDir "prompts"
+if (Test-Path $WebPrompts) {
+    $PromptsDst = Join-Path $StageWeb "prompts"
+    New-Item -ItemType Directory -Force -Path $PromptsDst | Out-Null
+    Copy-Item -Recurse -Force (Join-Path $WebPrompts "*") $PromptsDst
+}
 
 $Items = @(
-    "ai-module\agent1.py", "ai-module\agent2.py", "ai-module\llm_qwen.py", "ai-module\llm_openai.py",
-    "ai-module\llm_anthropic.py", "ai-module\llm_providers.py", "ai-module\llm_sanitize.py", "ai-module\section_quality.py",
-    "ai-module\requirements.txt", "ai-module\prospectus_graph",
-    "agent2_section_requirements.json", "issuer_metadata.json", "scripts", "resources\templates"
+    "ai-module\agent1.py", "ai-module\agent2.py", "ai-module\agent2_stream.py",
+    "ai-module\llm_qwen.py", "ai-module\llm_openai.py", "ai-module\llm_anthropic.py",
+    "ai-module\llm_providers.py", "ai-module\llm_sanitize.py", "ai-module\section_quality.py",
+    "ai-module\requirements.txt", "ai-module\prospectus_graph", "ai-module\prompts",
+    "issuer_metadata.json", "scripts", "resources\templates"
 )
 foreach ($i in $Items) {
     $src = Join-Path $RepoRoot $i
