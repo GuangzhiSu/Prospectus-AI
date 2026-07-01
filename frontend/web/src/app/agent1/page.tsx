@@ -219,7 +219,7 @@ export default function Agent1Page() {
         <header className="flex items-center justify-between mb-8">
           <div>
             <Link
-              href="/"
+              href="/workspace"
               className="text-sm text-neutral-500 hover:text-neutral-700"
             >
               ← Back to Prospectus

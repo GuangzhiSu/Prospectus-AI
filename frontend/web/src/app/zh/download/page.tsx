@@ -1,9 +1,8 @@
 import { DownloadPageContent } from "@/components/DownloadPageContent";
 
 export const metadata = {
-  title: "下载 AI Prospectus",
-  description:
-    "下载私有化 AI Prospectus 工作台，用于受控上市诊断、证据整理、招股书起草、复核和导出流程。",
+  title: "下载 Prospectus AI",
+  description: "下载 Prospectus AI 的 Windows 安装包和 Linux 发布版本。",
 };
 
 export default function ChineseDownloadPage() {

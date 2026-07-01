@@ -60,7 +60,7 @@ function KgExplorerMissing({ docgraphPath }: { docgraphPath: string }) {
         <p className="text-sm text-[var(--muted)]">
           Use the main workspace to run Agent1 → Agent2; the graph tree is for development and QA.
         </p>
-        <Link href="/" className="text-sm text-[var(--accent)] hover:underline">
+        <Link href="/workspace" className="text-sm text-[var(--accent)] hover:underline">
           ← Back to drafting workspace
         </Link>
       </div>
@@ -233,7 +233,7 @@ export default async function KgViewPage() {
             expand.
           </p>
           <div className="mt-2">
-            <Link href="/" className="text-xs text-[var(--accent)] hover:underline">
+            <Link href="/workspace" className="text-xs text-[var(--accent)] hover:underline">
               ← Back to drafting workspace
             </Link>
           </div>
