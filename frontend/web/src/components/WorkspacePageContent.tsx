@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { SectionMarkdown } from "@/components/SectionMarkdown";
 import { AppBackendStatus } from "@/components/AppBackendStatus";
+import { isDesktopShell } from "@/lib/desktop-app";
 import {
   countGeneratedSections,
   getLastGeneratedIndex,
@@ -365,7 +366,12 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(null);
   const [sectionStream, setSectionStream] = useState<SectionStreamState | null>(null);
   const [draftMd, setDraftMd] = useState<string>(t.emptyDraft);
+  const [desktopShell, setDesktopShell] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setDesktopShell(isDesktopShell());
+  }, []);
 
   const fetchFiles = useCallback(async () => {
     try {
@@ -716,23 +722,27 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                 <AppBackendStatus />
-                <Link
-                  href="/"
-                  className="text-[var(--accent)] hover:underline"
-                >
-                  {t.productSite}
-                </Link>
+                {!desktopShell && (
+                  <>
+                    <Link
+                      href="/"
+                      className="text-[var(--accent)] hover:underline"
+                    >
+                      {t.productSite}
+                    </Link>
+                    <a
+                      href="/download"
+                      className="text-[var(--accent)] hover:underline"
+                    >
+                      {t.downloadApp}
+                    </a>
+                  </>
+                )}
                 <a
                   href="/kg-view"
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.kgView}
-                </a>
-                <a
-                  href="/download"
-                  className="text-[var(--accent)] hover:underline"
-                >
-                  {t.downloadApp}
                 </a>
                 <a
                   href="/settings"

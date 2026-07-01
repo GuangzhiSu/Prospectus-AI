@@ -18,6 +18,34 @@ const DEFAULT_PORT = process.env.PROSPECTUS_PORT || "3000";
 /** Desktop app opens the drafting workspace, not the public marketing homepage. */
 const APP_ENTRY_PATH = process.env.PROSPECTUS_ELECTRON_ENTRY || "/workspace";
 
+/** Marketing routes that should never load inside the desktop shell. */
+const DESKTOP_MARKETING_REDIRECTS = {
+  "/": "/workspace",
+  "/zh": "/zh/workspace",
+  "/download": "/workspace",
+  "/zh/download": "/zh/workspace",
+  "/eligibility": "/workspace",
+  "/zh/eligibility": "/zh/workspace",
+};
+
+function redirectDesktopMarketingNavigation(event, navigationUrl) {
+  try {
+    const url = new URL(navigationUrl);
+    const destination = DESKTOP_MARKETING_REDIRECTS[url.pathname];
+    if (!destination || !mainWindow || mainWindow.isDestroyed()) return;
+    event.preventDefault();
+    mainWindow.loadURL(`${url.origin}${destination}`);
+  } catch {
+    // Ignore malformed URLs.
+  }
+}
+
+function attachDesktopNavigationGuards(webContents) {
+  webContents.on("will-navigate", (event, url) => {
+    redirectDesktopMarketingNavigation(event, url);
+  });
+}
+
 let serverChild = null;
 let mainWindow = null;
 
@@ -245,6 +273,7 @@ async function createWindow() {
   });
 
   mainWindow.once("ready-to-show", () => mainWindow.show());
+  attachDesktopNavigationGuards(mainWindow.webContents);
 
   try {
     await mainWindow.loadURL(url);
