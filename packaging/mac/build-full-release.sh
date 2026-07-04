@@ -272,6 +272,12 @@ PY
 
 ensure_mac_icon "$ICON_PNG"
 
+# Ship the one-click installer/fixer inside the DMG (referenced by
+# dmg.contents in electron-builder.mac.json, path relative to platform/desktop).
+INSTALL_CMD="$REPO_ROOT/packaging/mac/install-prospectus.command"
+cp -f "$INSTALL_CMD" "$DESKTOP_DIR/build/install-prospectus.command"
+chmod +x "$DESKTOP_DIR/build/install-prospectus.command"
+
 DESKTOP_RELEASE="$DESKTOP_DIR/release"
 rm -rf "$DESKTOP_RELEASE"
 (
@@ -330,18 +336,24 @@ cat > "$STAGE/README-Mac.txt" << 'EOF'
 Prospectus AI — macOS install (DMG)
 ===================================
 
-Install
--------
+Install (recommended)
+---------------------
 1. Open the .dmg file
-2. Drag "Prospectus AI" to the Applications folder
-3. Open Prospectus AI from Applications or Launchpad
-4. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
+2. Double-click "双击安装 Install.command" inside the DMG window.
+   It copies the app to Applications, removes the macOS quarantine flag
+   (which otherwise causes a bogus "app is damaged" dialog), and launches the app.
+   - If macOS blocks the script: right-click it → Open → Open.
+   - On macOS 15+ you may instead need to approve it once under
+     System Settings → Privacy & Security → "Open Anyway".
+3. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
 
-First launch / Gatekeeper
--------------------------
-macOS may block unsigned apps. If the app will not open:
-  - Right-click Prospectus AI in Applications → Open → Open
-  - Or run in Terminal: xattr -cr "/Applications/Prospectus AI.app"
+Manual install (alternative)
+----------------------------
+1. Drag "Prospectus AI" to the Applications folder
+2. The app is not notarized by Apple, so macOS will report it as "damaged".
+   Fix it by running in Terminal:
+     xattr -cr "/Applications/Prospectus AI.app"
+3. Open Prospectus AI from Applications or Launchpad
 
 Your documents and uploads are stored in:
   ~/Library/Application Support/Prospectus AI/
@@ -351,9 +363,17 @@ GPU / Apple Silicon
 This bundle uses CPU PyTorch by default. Cloud API backends work out of the box.
 
 --- 中文简要说明 ---
-打开 .dmg → 将 Prospectus AI 拖到「应用程序」→ 从启动台打开。
-首次请在网页「Model & inference」里配置 API。
-若无法打开，请右键应用 → 打开，或执行 xattr -cr "/Applications/Prospectus AI.app"。
+推荐安装方式：
+1. 打开 .dmg
+2. 双击窗口里的「双击安装 Install.command」→ 自动安装到「应用程序」、
+   解除 macOS 隔离限制（否则会误报「文件已损坏」）并启动应用。
+   - 如果脚本被系统拦截：右键该文件 → 打开 → 打开。
+   - macOS 15 及以上：如仍被拦截，去「系统设置 → 隐私与安全性」点「仍要打开」。
+3. 首次使用请在「Model & inference」里配置 API。
+
+手动安装（备选）：将 app 拖到「应用程序」后，在终端执行：
+  xattr -cr "/Applications/Prospectus AI.app"
+再从启动台打开。提示「文件已损坏」是因为应用未经 Apple 公证，并非真的损坏。
 EOF
 
 if [[ "$SKIP_ZIP" != "1" ]]; then

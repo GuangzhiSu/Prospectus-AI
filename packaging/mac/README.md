@@ -25,17 +25,20 @@ Output:
 ## What end users do
 
 1. Download and open **`ProspectusAI-mac-*.dmg`**
-2. Drag **Prospectus AI** to **Applications**
-3. Launch from Applications or Launchpad
-4. Configure **Model & inference** in the web UI
+2. Double-click **`双击安装 Install.command`** inside the DMG window — it copies the app to Applications, clears the quarantine attribute, and launches the app
+3. Configure **Model & inference** in the web UI
 
-If macOS blocks the app (unsigned):
+If macOS blocks the `.command` script itself: right-click it → **Open** → **Open** (on macOS 15+, approve it under **System Settings → Privacy & Security → Open Anyway**).
+
+### Why the "app is damaged" dialog appears
+
+The app is **not code-signed / notarized** (no Apple Developer account). Any Mac that downloads the DMG tags it with the `com.apple.quarantine` attribute, and Gatekeeper reports unsigned quarantined apps as "damaged". The installer script fixes this by running:
 
 ```bash
 xattr -cr "/Applications/Prospectus AI.app"
 ```
 
-Or right-click the app → **Open** → **Open**.
+Users who prefer manual install can drag the app to Applications and run the command above in Terminal. The proper long-term fix is signing + notarization with an Apple Developer ID certificate.
 
 User data (uploads, drafts, progress) is stored in:
 

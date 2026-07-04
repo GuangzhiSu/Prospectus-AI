@@ -25,18 +25,25 @@
     "title": "Prospectus AI ${version}",
     "window": {
       "width": 540,
-      "height": 380
+      "height": 420
     },
     "contents": [
       {
         "x": 130,
-        "y": 180
+        "y": 160
       },
       {
         "x": 410,
-        "y": 180,
+        "y": 160,
         "type": "link",
         "path": "/Applications"
+      },
+      {
+        "x": 270,
+        "y": 310,
+        "type": "file",
+        "path": "build/install-prospectus.command",
+        "name": "双击安装 Install.command"
       }
     ]
   }
