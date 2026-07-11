@@ -5,11 +5,17 @@ export type DownloadAsset = {
   description: string;
   href: string;
   fallbackHref?: string;
+  dynamicAssetPattern?: string;
   recommended?: boolean;
 };
 
 const RELEASE_BASE_URL =
   "https://github.com/GuangzhiSu/Prospectus-AI/releases/download/0.1.0";
+const RELEASE_PAGE_URL =
+  "https://github.com/GuangzhiSu/Prospectus-AI/releases/tag/0.1.0";
+
+export const RELEASE_API_URL =
+  "https://api.github.com/repos/GuangzhiSu/Prospectus-AI/releases/tags/0.1.0";
 
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   {
@@ -20,6 +26,15 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.0.exe`,
     fallbackHref: `${RELEASE_BASE_URL}/ProspectusAI-windows-x86_64.zip`,
     recommended: true,
+  },
+  {
+    id: "macos",
+    title: "macOS DMG",
+    platform: "macOS",
+    description: "Standalone DMG for Apple Silicon or Intel Macs.",
+    href: RELEASE_PAGE_URL,
+    fallbackHref: RELEASE_PAGE_URL,
+    dynamicAssetPattern: "^ProspectusAI-mac-(arm64|x64)-.*\\.dmg$",
   },
   {
     id: "linux",

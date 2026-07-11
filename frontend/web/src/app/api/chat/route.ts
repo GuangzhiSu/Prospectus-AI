@@ -135,9 +135,10 @@ async function handleChatPost(req: Request) {
             originalName: f.name,
             mime: type || "",
           });
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "Index failed";
           indexErrors.push(
-            `${f.name}: ${err?.message ? String(err.message) : "Index failed"}`
+            `${f.name}: ${msg}`
           );
         }
       }
@@ -193,9 +194,10 @@ async function handleChatPost(req: Request) {
           const text = await res.text();
           indexErrors.push(`local ingest: ${text}`);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "failed";
         indexErrors.push(
-          `local ingest: ${err?.message ? String(err.message) : "failed"}`
+          `local ingest: ${msg}`
         );
       }
     }
@@ -346,8 +348,9 @@ async function handleChatPost(req: Request) {
       assistant_message,
       stored_files,
     });
-  } catch (err: any) {
-    return new NextResponse(err?.message ? String(err.message) : "Server error", {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return new NextResponse(msg, {
       status: 500,
     });
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PROVIDER_UI, type LlmProviderId } from "@/lib/llm-provider-config";
 
 type SettingsSummary = {
@@ -30,30 +30,34 @@ function modelForProvider(s: SettingsSummary): string {
 export function AppBackendStatus() {
   const [settings, setSettings] = useState<SettingsSummary | null>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/settings");
-      const data = (await res.json()) as SettingsSummary & { error?: string };
-      if (data.error) {
-        setSettings(null);
-        return;
-      }
-      setSettings({
-        llmProvider: data.llmProvider || "qwen_local",
-        openaiModel: data.openaiModel,
-        deepseekModel: data.deepseekModel,
-        dashscopeModel: data.dashscopeModel,
-        anthropicModel: data.anthropicModel,
-        qwenModel: data.qwenModel,
-      });
-    } catch {
-      setSettings(null);
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
-  }, [load]);
+    let active = true;
+
+    fetch("/api/settings")
+      .then((res) => res.json() as Promise<SettingsSummary & { error?: string }>)
+      .then((data) => {
+        if (!active) return;
+        if (data.error) {
+          setSettings(null);
+          return;
+        }
+        setSettings({
+          llmProvider: data.llmProvider || "qwen_local",
+          openaiModel: data.openaiModel,
+          deepseekModel: data.deepseekModel,
+          dashscopeModel: data.dashscopeModel,
+          anthropicModel: data.anthropicModel,
+          qwenModel: data.qwenModel,
+        });
+      })
+      .catch(() => {
+        if (active) setSettings(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (!settings) return null;
 

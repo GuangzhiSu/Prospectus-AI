@@ -33,8 +33,9 @@ export async function GET() {
 
     items.sort((a, b) => (a.lastModified < b.lastModified ? 1 : -1));
     return NextResponse.json({ items });
-  } catch (err: any) {
-    return new NextResponse(err?.message ? String(err.message) : "Server error", {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return new NextResponse(msg, {
       status: 500,
     });
   }

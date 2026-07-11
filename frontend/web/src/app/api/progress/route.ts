@@ -33,8 +33,9 @@ export async function GET() {
     } catch {
       return NextResponse.json({ status: "idle", completed: 0, total });
     }
-  } catch (err: any) {
-    return new NextResponse(err?.message ? String(err.message) : "Server error", {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Server error";
+    return new NextResponse(msg, {
       status: 500,
     });
   }

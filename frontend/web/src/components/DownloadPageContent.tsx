@@ -6,6 +6,7 @@ import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
 
 type DisplayAsset = DownloadAsset & {
   downloadHref: string;
+  actionLabel: string;
 };
 
 type DownloadCopy = {
@@ -27,6 +28,7 @@ type DownloadCopy = {
   settingsCta: string;
   recommended: string;
   downloadButton: string;
+  viewReleaseButton: string;
   footerTitle: string;
   footerDescription: string;
   workflowTitle: string;
@@ -41,6 +43,11 @@ const assetLabels = {
       title: "Windows Installer",
       description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
     },
+    macos: {
+      title: "macOS DMG",
+      description:
+        "Standalone Mac app package. If the DMG is still being published, the button opens the release page.",
+    },
     linux: {
       title: "Linux x86_64",
       description: "Full Linux archive for workstation or server deployment.",
@@ -50,6 +57,10 @@ const assetLabels = {
     windows: {
       title: "Windows 安装包",
       description: "标准安装程序，会创建开始菜单快捷方式，并可选择创建桌面快捷方式。",
+    },
+    macos: {
+      title: "macOS DMG",
+      description: "适用于 Apple Silicon 或 Intel Mac 的独立应用包；若 DMG 尚在发布中，按钮会打开发布页。",
     },
     linux: {
       title: "Linux x86_64",
@@ -65,7 +76,7 @@ const copy = {
     title: "Prospectus AI",
     description:
       "A desktop-ready AI workspace for transforming issuer files into prospectus evidence, section drafts, verification notes, and Word exports.",
-    primaryCta: "Download Windows installer",
+    primaryCta: "View desktop downloads",
     workspaceCta: "Open web workspace",
     releaseTitle: "Current release",
     releaseDescription: "Installer and release builds from GitHub Releases",
@@ -75,22 +86,23 @@ const copy = {
     includedTitle: "Included",
     included: [
       "Isolated AI module and web workspace",
-      "Windows installer with Start Menu and desktop shortcuts",
+      "Windows installer, macOS DMG workflow, and Linux archive options",
       "Local file workflow for confidential issuer materials",
     ],
     downloadsTitle: "Downloads",
     downloadsDescription:
-      "Pick the package for your machine. Buttons download the published v0.1.0 release assets from GitHub.",
+      "Pick the package for your machine. Buttons resolve the published v0.1.0 release assets from GitHub.",
     settingsCta: "Configure model settings",
     recommended: "Recommended",
     downloadButton: "Download",
+    viewReleaseButton: "View release",
     footerTitle: "Designed for controlled drafting",
     footerDescription:
       "The app keeps the main workflow local: upload issuer materials, prepare evidence, generate sections, then export a Word draft for review.",
     workflowTitle: "Workflow",
     workflowText: "Data upload, Agent1 evidence preparation, Agent2 section drafting, and DOCX export.",
     deploymentTitle: "Deployment",
-    deploymentText: "Use the web workspace for development or download the Windows installer for distribution.",
+    deploymentText: "Use the web workspace for development or download the desktop package for distribution.",
   },
   zh: {
     navLocale: "zh",
@@ -98,7 +110,7 @@ const copy = {
     title: "Prospectus AI",
     description:
       "面向桌面端的 AI 工作区，可将发行人文件转化为招股书证据、章节草稿、核验提示和 Word 工作稿。",
-    primaryCta: "下载 Windows 安装包",
+    primaryCta: "查看桌面端下载",
     workspaceCta: "打开网页工作区",
     releaseTitle: "当前版本",
     releaseDescription: "安装包和发布文件来自 GitHub Releases",
@@ -108,21 +120,22 @@ const copy = {
     includedTitle: "包含内容",
     included: [
       "独立 AI 模块与网页工作区",
-      "带开始菜单和桌面快捷方式的 Windows 安装包",
+      "Windows 安装包、macOS DMG 流程和 Linux 压缩包选项",
       "适合敏感发行人材料的本地文件工作流",
     ],
     downloadsTitle: "下载",
-    downloadsDescription: "选择适合你机器的版本。按钮会下载 GitHub 上发布的 v0.1.0 文件。",
+    downloadsDescription: "选择适合你机器的版本。按钮会解析 GitHub 上发布的 v0.1.0 文件。",
     settingsCta: "配置模型设置",
     recommended: "推荐",
     downloadButton: "下载",
+    viewReleaseButton: "查看发布页",
     footerTitle: "为受控起草流程而设计",
     footerDescription:
       "应用将核心流程保留在本地：上传发行人材料、整理证据、生成章节，然后导出 Word 草稿供审阅。",
     workflowTitle: "工作流",
     workflowText: "数据上传、Agent1 证据整理、Agent2 章节起草和 DOCX 导出。",
     deploymentTitle: "部署",
-    deploymentText: "开发时可使用网页工作区；分发时建议下载 Windows 安装包。",
+    deploymentText: "开发时可使用网页工作区；分发时可下载对应桌面端安装包。",
   },
 } satisfies Record<"en" | "zh", DownloadCopy>;
 
@@ -133,6 +146,7 @@ function getAssets(locale: "en" | "zh"): DisplayAsset[] {
     title: labels[asset.id as keyof typeof labels]?.title || asset.title,
     description: labels[asset.id as keyof typeof labels]?.description || asset.description,
     downloadHref: `/api/download/${asset.id}`,
+    actionLabel: asset.dynamicAssetPattern ? copy[locale].viewReleaseButton : copy[locale].downloadButton,
   }));
 }
 
@@ -155,7 +169,6 @@ function ArrowIcon() {
 export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" }) {
   const t = copy[locale];
   const assets = getAssets(locale);
-  const recommended = assets.find((asset) => asset.recommended) ?? assets[0];
 
   return (
     <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
@@ -184,7 +197,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href={recommended.downloadHref}
+                href="#downloads"
                 className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
               >
                 <DownloadIcon />
@@ -234,7 +247,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-14">
+      <section id="downloads" className="mx-auto max-w-7xl px-6 py-14">
         <div className="mb-6 flex flex-col justify-between gap-3 border-b border-[#d5ddd2] pb-5 md:flex-row md:items-end">
           <div>
             <h2 className="text-2xl font-semibold">{t.downloadsTitle}</h2>
@@ -246,7 +259,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           {assets.map((asset) => (
             <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
@@ -270,7 +283,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
                   className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
                 >
                   <DownloadIcon />
-                  {t.downloadButton}
+                  {asset.actionLabel}
                 </a>
               </div>
             </article>
