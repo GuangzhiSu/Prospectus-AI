@@ -7,11 +7,13 @@ heightened scrutiny and expert / LLM judgment. They are defined declaratively in
 ``rules/qualitative_substance.yaml`` (a ``layer: soft`` ruleset) and surfaced
 here as flagged findings carrying severity and provenance -- never a verdict.
 
-This phase ships the structure and a typed interface so an LLM plus retrieval
-backend can be wired in later. Every finding is ``NOT_EVALUATED`` and every gate
-is ``requires_llm: true``. This module is isolated from the hard engine: the hard
-engine never imports it (an import-isolation test enforces that), and no LLM is
-called here.
+This is the third AI boundary in the broader system: structured fields do not
+need AI, document/table extraction uses Agent1 + LLM upstream, hard threshold
+comparison deliberately avoids AI, and these qualitative signals require LLM +
+retrieval once wired. This phase ships the structure and a typed interface only.
+Every finding is ``NOT_EVALUATED`` and every gate is ``requires_llm: true``.
+This module is isolated from the hard engine: the hard engine never imports it
+(an import-isolation test enforces that), and no LLM is called here yet.
 """
 from __future__ import annotations
 

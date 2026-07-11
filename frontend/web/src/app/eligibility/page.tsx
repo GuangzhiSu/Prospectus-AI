@@ -1,14 +1,14 @@
 import { EligibilityPageContent } from "@/components/EligibilityPageContent";
 
 export const metadata = {
-  title: "Listing Eligibility Diagnostic | AI Prospectus",
+  title: "IPO Diagnostic | AI Prospectus",
   description:
-    "Standalone listing eligibility diagnosis for issuer inputs, listing pathway rules, report statuses, and audit trails.",
+    "IPO diagnostic architecture showing AI extraction, CompanyProfile handoff, deterministic hard-rule comparison, soft-signal review, and audit trails.",
   alternates: {
-    canonical: "/eligibility",
+    canonical: "/diagnostic",
     languages: {
-      en: "/eligibility",
-      "zh-CN": "/zh/eligibility",
+      en: "/diagnostic",
+      "zh-CN": "/zh/diagnostic",
     },
   },
 };

@@ -1,9 +1,12 @@
 """Hard eligibility engine -- pure deterministic Python. No LLM, ever.
 
-The engine reads already-resolved issuer values through the read-only resolver
-and compares them to versioned thresholds taken from the rule configs. It
-produces, per check, exactly one of four evaluation statuses and never renders
-an eligible / not-eligible verdict (that is out of scope by design):
+This file is only the hard comparison stage of the diagnostic workflow. Upstream
+AI extraction may read documents / financial statements / tables and normalize
+facts into a resolved issuer input / CompanyProfile. Once values reach this
+engine, the engine reads them through the read-only resolver and compares them
+to versioned thresholds taken from the rule configs. It produces, per check,
+exactly one of four evaluation statuses and never renders an eligible /
+not-eligible verdict (that is out of scope by design):
 
     PASS           converted value present and meets the threshold
     SHORTFALL      converted value present but below the threshold

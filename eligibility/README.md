@@ -5,22 +5,43 @@ which quantitative criteria are **met / fall short / lack inputs / cannot be
 determined**, each tied to a cited rule reference. It **never** decides whether
 an issuer can or cannot list and renders **no verdict or recommendation**.
 
-It is a standalone deterministic engine, sibling to `compute_module.py`: it
-reads a v3 issuer-input JSON (e.g. `data/sensetime.json`) and writes a report.
-It does not modify the input and is not part of the Agent1 / Agent2 generation
-path.
+Important boundary: the module is not "AI-free"; only the hard threshold
+comparison is intentionally AI-free. The full diagnostic workflow is split into
+stages:
 
-## Two physically separated engines
+1. **Input / extraction stage** — fills a resolved issuer input /
+   `CompanyProfile`.
+   * Structured fields can be entered directly and do not need AI.
+   * Uploaded documents, financial statements, and tables require AI extraction
+     (Agent1 + LLM) to normalize facts into the same `CompanyProfile`.
+2. **Hard judgment stage** — `engine.py` reads resolved values and compares them
+   against versioned thresholds. This stage deliberately never calls an LLM.
+3. **Soft signal stage** — qualitative signals such as concentration,
+   connected-party independence, internal controls, WVR / pre-IPO clarity, and
+   shell-company pattern require LLM + retrieval. The interface exists in
+   `soft.py`; this phase returns deferred review findings until wired.
 
-| | Hard engine (`engine.py`) | Soft engine (`soft.py`) |
-|---|---|---|
-| Decides | quantitative thresholds (profit, revenue, market cap, WVR economic interest, …) | qualitative conditions (suitability, customer/supplier concentration, independence, continuity) |
-| Implementation | pure deterministic Python | typed interface + **stubs only** this phase |
-| Calls an LLM | **never** | will, once wired; currently returns `NOT_EVALUATED` |
+That separation is the design: upload format changes how `CompanyProfile` gets
+filled, not how the downstream hard rule logic behaves.
+
+## AI boundary and engines
+
+| Stage | Component | Uses AI | Role |
+|---|---|---:|---|
+| Structured-field input | future form / profile editor | No | User-entered values flow directly into `CompanyProfile`. |
+| Document / table extraction | Agent1 + LLM | Yes | Extract facts from issuer files and normalize them into `CompanyProfile`. |
+| Hard engine | `engine.py` | **No, by design** | Compare resolved values to rulebook thresholds. |
+| Soft engine | `soft.py` | Yes, once wired | Assess qualitative signals with retrieval + LLM; currently deferred. |
 
 The hard engine never imports the soft engine, and `import eligibility` /
 `import eligibility.engine` pull in no LLM or inference library. This is enforced
 by `tests/test_no_llm_in_hard_path.py`.
+
+Why the hard engine avoids AI: profit thresholds, revenue thresholds, market-cap
+gates, continuity years, and FX-gated comparisons are deterministic numerical
+checks. Letting an LLM "judge" them risks fabricated values, mixed-up rule limbs,
+and non-repeatable output. Values must be resolved before the hard engine runs;
+if they are absent, the result is `MISSING_INPUT`, not a guess.
 
 ## Statuses
 
@@ -30,7 +51,7 @@ by `tests/test_no_llm_in_hard_path.py`.
 | `SHORTFALL` | converted value present but below the threshold |
 | `MISSING_INPUT` | the value itself is null / absent / not resolved upstream |
 | `INDETERMINATE` | value present but cannot be compared because the currency conversion is missing |
-| `NOT_EVALUATED` | rule authored but intentionally not evaluated this phase (e.g. Chapter 18C) |
+| `NOT_EVALUATED` | internal marker: rule authored but intentionally not evaluated this phase; product UI may surface this as deferred review |
 
 `MISSING_INPUT` and `INDETERMINATE` are deliberately distinct: a null field is
 not the same as a field that exists but cannot yet be compared. The engine never
@@ -79,10 +100,10 @@ pre-IPO clarity. Each carries a `trigger_signal`, `severity`, `substantive_conce
 rule / guidance anchor was checked) and `signal_level_verified` (the trigger level
 is a rule, vs a heuristic probe like the 30% concentration level). These are
 loaded only via `load_soft_layer()` and surfaced through the soft engine as
-flagged `NOT_EVALUATED` findings with severity and provenance — **never a
-verdict**; the hard `load_all()` and hard engine never touch them. The signal
-probe against issuer data is deferred to when the LLM + retrieval backend is
-wired.
+flagged `NOT_EVALUATED` / deferred-review findings with severity and provenance
+— **never a verdict**; the hard `load_all()` and hard engine never touch them.
+The signal probe against issuer data is deferred to when the LLM + retrieval
+backend is wired.
 
 Rule 8.04 **suitability** is handled two ways: (1) a `shell_company_pattern` leaf
 signal (GL68-13A multi-factor "Target Company" pattern — `requires_llm`,

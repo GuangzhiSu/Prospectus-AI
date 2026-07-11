@@ -7,8 +7,12 @@ cannot list.
 
 Two physically separated engines:
 
+* input / extraction stage: structured fields can be supplied directly; uploaded
+  documents, financial statements, and tables are normalized upstream by Agent1 +
+  LLM into a resolved issuer input / CompanyProfile.
 * hard engine (``engine``): pure deterministic Python over versioned thresholds;
-  never calls an LLM and never imports the soft module.
+  never calls an LLM and never imports the soft module. This is intentional
+  anti-hallucination discipline, not proof that the overall workflow avoids AI.
 * soft engine (``soft``): a typed interface plus stubs for the qualitative
   conditions that will later use an LLM and retrieval; every condition currently
   returns ``NOT_EVALUATED``.

@@ -3,12 +3,12 @@ import { EligibilityPageContent } from "@/components/EligibilityPageContent";
 export const metadata = {
   title: "上市诊断 | AI Prospectus",
   description:
-    "独立的公司上市条件诊断模块，用发行人输入和上市规则路径生成规则状态、缺口和审计轨迹。",
+    "上市诊断架构：AI 抽取、CompanyProfile 汇入、确定性硬规则比对、软信号复核和审计轨迹。",
   alternates: {
-    canonical: "/zh/eligibility",
+    canonical: "/zh/diagnostic",
     languages: {
-      en: "/eligibility",
-      "zh-CN": "/zh/eligibility",
+      en: "/diagnostic",
+      "zh-CN": "/zh/diagnostic",
     },
   },
 };

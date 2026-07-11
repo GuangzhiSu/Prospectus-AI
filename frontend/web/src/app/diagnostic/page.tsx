@@ -3,7 +3,7 @@ import { EligibilityPageContent } from "@/components/EligibilityPageContent";
 export const metadata = {
   title: "IPO Diagnostic | AI Prospectus",
   description:
-    "Standalone IPO readiness diagnosis for issuer inputs, listing pathway rules, review-required signals, and audit trails.",
+    "IPO diagnostic architecture showing AI extraction, CompanyProfile handoff, deterministic hard-rule comparison, soft-signal review, and audit trails.",
   alternates: {
     canonical: "/diagnostic",
     languages: {

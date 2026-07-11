@@ -33,6 +33,48 @@ DISCLAIMER = (
     "(human_signoff: false everywhere)."
 )
 
+AI_BOUNDARY = {
+    "structured_field_input": {
+        "uses_ai": False,
+        "component": "profile form / CompanyProfile editor",
+        "role": (
+            "Issuer supplies resolved fields such as profit, revenue, market cap, "
+            "FX rate, continuity years, WVR ownership, and key dates directly."
+        ),
+    },
+    "document_table_extraction": {
+        "uses_ai": True,
+        "component": "Agent1 + LLM",
+        "role": (
+            "Issuer documents, financial statements, and spreadsheets are read "
+            "and normalized into the same resolved issuer input / CompanyProfile."
+        ),
+    },
+    "hard_threshold_engine": {
+        "uses_ai": False,
+        "component": "eligibility.engine",
+        "role": (
+            "Resolved values are compared against versioned rule thresholds. "
+            "This stage deliberately avoids LLM calls so outputs are auditable, "
+            "reproducible, and regression-testable."
+        ),
+    },
+    "soft_signal_layer": {
+        "uses_ai": True,
+        "component": "eligibility.soft + retrieval backend",
+        "status": "modeled; LLM/retrieval wiring pending",
+        "signals": [
+            "customer_concentration",
+            "supplier_concentration",
+            "connected_transactions_independence",
+            "competing_business",
+            "financial_internal_controls",
+            "equity_clarity_wvr_preipo",
+            "shell_company_pattern",
+        ],
+    },
+}
+
 
 def _suitability_synthesis(findings: list[dict]) -> dict:
     """Roll up overall Rule 8.04 suitability from the substantive signals.
@@ -146,6 +188,7 @@ def build_report(
         "report_type": "listing_eligibility_diagnostic",
         "schema": "eligibility.report.v1",
         "disclaimer": DISCLAIMER,
+        "ai_boundary": AI_BOUNDARY,
         "verdict": None,
         "issuer_id": issuer_id,
         "generated_at": generated_at,
@@ -188,6 +231,12 @@ def render_scorecard(report: dict) -> str:
     lines.append(f"FX rate to HKD: {fx if fx is not None else 'not supplied'}")
     lines.append("")
     lines.append(DISCLAIMER)
+    lines.append("")
+    lines.append(
+        "AI boundary: Agent1 + LLM may extract issuer facts into CompanyProfile; "
+        "the hard threshold engine intentionally uses no AI; soft signals are "
+        "modeled for future LLM/retrieval review."
+    )
     lines.append("")
     for block in report["rulesets"]:
         tv = "thresholds verified vs rulebook" if block["all_thresholds_verified"] \

@@ -4,11 +4,13 @@
     python -m eligibility --in data/sensetime.json --profile profile.json \
         --out eligibility/outputs/report.json --audit eligibility/outputs/audit.json
 
-The diagnostic reads an issuer input JSON, never modifies it, and writes an
-English diagnostic report plus a provenance audit trail. It renders no verdict.
-``--profile`` supplies the FX rate (``fx_rate_to_hkd``) and ``path_vars`` (e.g.
-which period is the latest audited financial year); both default to empty so
-that gates needing them surface MISSING_INPUT / INDETERMINATE honestly.
+The diagnostic reads an already-resolved issuer input / CompanyProfile JSON,
+never modifies it, and writes an English diagnostic report plus a provenance
+audit trail. Upstream Agent1 + LLM may extract those values from documents; this
+CLI is the deterministic comparison stage and renders no verdict. ``--profile``
+supplies the FX rate (``fx_rate_to_hkd``) and ``path_vars`` (e.g. which period is
+the latest audited financial year); both default to empty so that gates needing
+them surface MISSING_INPUT / INDETERMINATE honestly.
 """
 from __future__ import annotations
 
@@ -61,6 +63,7 @@ def _build_audit(report: dict) -> dict:
         "report_type": "listing_eligibility_diagnostic_audit",
         "generated_at": report["generated_at"],
         "issuer_id": report["issuer_id"],
+        "ai_boundary": report.get("ai_boundary"),
         "fx_profile": report["fx_profile"],
         "path_vars": report["path_vars"],
         "provenance": trail,
@@ -72,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="eligibility",
         description=(
-            "Listing-eligibility diagnostic (deterministic hard gates). "
+            "Listing-eligibility diagnostic (AI extraction upstream, deterministic hard gates here). "
             "Reports met / shortfall / missing-input / indeterminate per "
             "pathway against cited rule references. Renders no verdict."
         ),
