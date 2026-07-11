@@ -14,7 +14,7 @@ const copy = {
     title: "AI extracts facts. Deterministic rules compare thresholds.",
     description:
       "The diagnostic module is not 'AI-free'. It is intentionally split: AI is used where issuer documents must be read and normalized into CompanyProfile; the hard rule engine then compares resolved values against listing thresholds without an LLM.",
-    primaryCta: "Open workspace",
+    primaryCta: "Open diagnostic workspace",
     secondaryCta: "Request diagnostic demo",
     overviewCta: "Back to overview",
     panelTitle: "Where AI is used",
@@ -88,7 +88,7 @@ const copy = {
     title: "AI 负责抽取事实，确定性规则负责比较阈值。",
     description:
       "这个模块不是“完全没用 AI”。它是故意拆成两段：当发行人上传档案、财报、统计表时，用 AI 抽取并归一化到 CompanyProfile；之后硬规则引擎只拿已解析值和上市阈值比较，不让 LLM 参与判定。",
-    primaryCta: "打开工作台",
+    primaryCta: "打开诊断工作台",
     secondaryCta: "预约诊断演示",
     overviewCta: "返回产品概览",
     panelTitle: "AI 用在哪里",
@@ -228,7 +228,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
   const t = copy[locale];
   const href = {
     overview: locale === "zh" ? "/zh" : "/",
-    workspace: locale === "zh" ? "/zh/workspace" : "/workspace",
+    workspace: locale === "zh" ? "/zh/diagnostic/workspace" : "/diagnostic/workspace",
   };
 
   return (
