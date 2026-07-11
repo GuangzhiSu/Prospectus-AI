@@ -110,6 +110,58 @@
       "Omitting important steps in the process.",
       "Not providing sufficient detail for each step.",
       "Failing to cross-reference with other sections."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Transaction execution timetable generated from transaction timetable data; the LLM must not guess dates or times.",
+    "mandatory_subsections": [
+      "Mandatory events: Hong Kong Public Offering commences",
+      "Latest time for completing electronic applications; latest time for payment; latest time for giving electronic application instructions to HKSCC",
+      "Application lists open; application lists close",
+      "Expected Price Determination Date; announcement of Offer Price",
+      "Announcement of level of applications in Hong Kong Public Offering; announcement of level of indications of interest in International Offering; announcement of basis of allocation; availability of allotment results",
+      "Dispatch or deposit of share certificates into CCASS; dispatch of refund cheques / e-refund payment instructions",
+      "Expected commencement of dealings on the Stock Exchange",
+      "Mandatory notes: all dates and times refer to Hong Kong local time; website information does not form part of the Prospectus; application list opening/closing may be affected by typhoon, black rainstorm or Extreme Conditions; share certificates become valid only if Global Offering becomes unconditional and termination rights are not exercised; trading before receipt or validation of share certificates is at investors' own risk; refund arrangements for unsuccessful or partially successful applications"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "has_downward_offer_price_adjustment",
+        "rules": [
+          "Include expected announcement date for offer price reduction."
+        ]
+      },
+      {
+        "when": "has_offer_size_adjustment_option",
+        "rules": [
+          "Include disclosure cross-reference if it affects allocation/proceeds."
+        ]
+      },
+      {
+        "when": "uses_fini_eapp",
+        "rules": [
+          "Use electronic application deadlines only; do not include physical form lodging deadlines."
+        ]
+      },
+      {
+        "when": "not uses_fini_eapp",
+        "rules": [
+          "Include latest time to lodge White/Yellow forms if physical application forms apply."
+        ]
+      }
+    ],
+    "cross_reference_rules": [
+      "Cross-reference Structure of Global Offering and How to Apply where timetable items depend on offering mechanics."
+    ],
+    "negative_rules": [
+      "Do not infer dates, times, websites, telephone numbers or application channels.",
+      "Use [●] and a missing-input flag if timetable data is incomplete."
+    ],
+    "validation_checklist": [
+      "Timetable dates are internally consistent (each event's date/time is not earlier than its predecessor).",
+      "Offer Price and application mechanics match Cover, Structure of Global Offering and How to Apply."
     ]
   },
   "Contents": {
@@ -256,6 +308,26 @@
       "Omitting important financial information or misrepresenting data.",
       "Neglecting to update information that is outdated or incorrect.",
       "Failing to properly cross-reference important information."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": false,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Navigation table for the whole prospectus, reflecting the final section order including appendices and conditional special sections.",
+    "mandatory_subsections": [
+      "Mandatory order template: Expected Timetable; Contents; Summary; Definitions; Glossary of Technical Terms; Forward-looking Statements; Risk Factors; Waivers and Exemptions; Information about this Prospectus and the Global Offering; Directors and Parties Involved in the Global Offering; Corporate Information; Industry Overview; Regulatory Overview; History, Reorganization and Corporate Structure; Business; Contractual Arrangements (if applicable); Connected Transactions; Directors and Senior Management; Relationship with Controlling Shareholders; Substantial Shareholders; Cornerstone Investors (if applicable); Share Capital; Financial Information; Future Plans and Use of Proceeds; Underwriting; Structure of the Global Offering; How to Apply for Hong Kong Offer Shares; Appendix I — Accountants' Report; Appendix II — Unaudited Pro Forma Financial Information; Appendix III — Summary of Constitution and Cayman Islands Company Law and Taxation; Appendix IV — Statutory and General Information; Appendix V — Documents Delivered to Registrar and Available for Inspection / Display"
+    ],
+    "drafting_sequence": [
+      "Use exact final section titles.",
+      "Include page references or placeholders."
+    ],
+    "negative_rules": [
+      "Do not omit appendices.",
+      "Do not omit special sections triggered by WVR, Chapter 18C, VIE, Contractual Arrangements, Cornerstone Investors or Connected Transactions.",
+      "Do not fabricate page numbers — mark DATA_MISSING per line if pagination unknown."
+    ],
+    "validation_checklist": [
+      "Every listed title matches the final section titles exactly."
     ]
   },
   "Summary": {
@@ -338,6 +410,82 @@
       "Including outdated or incorrect financial information.",
       "Neglecting to highlight key risks that could impact the investment.",
       "Providing too much detail that distracts from the overall summary."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Condense the entire prospectus into an investor-facing overview without introducing information not disclosed elsewhere. It is not a shortened Business section: it concentrates business, industry, risks, financials, special listing structures and use of proceeds at the front of the document.",
+    "mandatory_subsections": [
+      "Mandatory opening: this summary aims to give an overview of the information contained in the Prospectus; it does not contain all information that may be important to investors; investors should read the whole Prospectus before deciding to invest and read Risk Factors carefully; if Chapter 18C / Pre-Commercial / WVR applies, include upfront caution here",
+      "1. Overview — company identity; founding/origin if material; core business; industry position; operating geography; key market ranking with source",
+      "2. Products / services / business lines — principal product families; platforms or services; product timeline if important; business model overview",
+      "3. Revenue model — revenue streams; monetization mechanism; accounting recognition summary if complex; revenue breakdown by nature/product/geography where available",
+      "4. Key operating data — select core metrics linked to business model; define each metric or cross-reference Glossary; disclose Track Record Period trend; disclose limitations of metrics",
+      "5. Industry and competitive landscape — market size; CAGR/forecast; ranking and market share; source and basis",
+      "6. Competitive strengths — 4-7 bullet headings; must be supported in Business",
+      "7. Strategies — 3-6 bullet headings; connect to Business and Use of Proceeds",
+      "8. R&D / technology / IP / operating capabilities — include only if material to issuer model",
+      "9. Customers and suppliers — top customer concentration; top five customer concentration; top supplier concentration; Directors / 5% shareholders interest confirmation",
+      "10. Legal proceedings / regulatory events — include if material; summarize claim, exposure, management view and risk cross-reference",
+      "11. Risk factors summary — issuer-specific key risks; cross-reference full Risk Factors",
+      "12. Summary historical financial information — selected income statement; selected financial position; selected cash flow; non-IFRS measures and reconciliation if used; key ratios",
+      "13. Business sustainability / loss-making discussion — required if loss-making, net liabilities, operating cash outflow or pre-commercial",
+      "14. Special structure disclosures — WVR structure and beneficiaries; Contractual Arrangement / VIE; Controlling Shareholders; Chapter 18C / Pre-Commercial status; goodwill / intangible assets if material; dividend policy; use of proceeds; listing expenses"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Include model suite and modalities; product/model timeline; AI-native products and Open Platform.",
+          "Include cumulative users, MAU, paying users, Open Platform customers.",
+          "Include R&D team and R&D expenses; compute/inference/model efficiency metrics if material.",
+          "Include AI safety, data compliance and IP litigation if material."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_software",
+        "rules": [
+          "Include AI infrastructure; number of commercialized models; computing capacity.",
+          "Include vertical software platforms; customer verticals and customer count.",
+          "Include non-IFRS adjusted losses and business sustainability if loss-making."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Include licensed IPs and proprietary IPs; launched games, operated games and pipeline.",
+          "Include gross billings, MAU, MPU, ARPPU and paying conversion rate.",
+          "Include revenue-sharing fund flow; goodwill and intangible assets if material."
+        ]
+      }
+    ],
+    "evidence_requirements": [
+      "Every claim must be traceable to a later section.",
+      "Rankings require industry consultant source, metric, geography and period.",
+      "Financial figures must match Appendix I (Accountants' Report) and Financial Information.",
+      "Operating metrics must match Business and Glossary."
+    ],
+    "cross_reference_rules": [
+      "Cross-reference full Risk Factors from the risk summary.",
+      "Special structure disclosures must reconcile with Share Capital, Contractual Arrangements and Controlling Shareholders sections."
+    ],
+    "negative_rules": [
+      "Summary must not introduce new information that does not appear in later sections.",
+      "Do not include promotional or unqualified forward-looking claims."
+    ],
+    "validation_checklist": [
+      "Summary financial tables match Financial Information and the Accountants' Report.",
+      "Summary claims exist in Business / Industry Overview / Financial Information.",
+      "Summary key risks appear in the full Risk Factors section.",
+      "WVR / Chapter 18C wording matches Cover and Share Capital."
+    ],
+    "source_registry": [
+      "Business",
+      "Industry Overview",
+      "Financial Information",
+      "Risk Factors",
+      "Share Capital"
     ]
   },
   "Definitions": {
@@ -422,6 +570,26 @@
       "Using inconsistent formatting for definitions.",
       "Failing to expand acronyms on first use.",
       "Including outdated or incorrect definitions."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Controls legal and transaction terminology across the entire prospectus.",
+    "mandatory_subsections": [
+      "Required categories: Company and Group entities; Directors, senior management and shareholders; Controlling Shareholders and WVR beneficiaries; offering-related parties; regulators and exchanges; offering mechanics; share classes and share capital terms; Listing Rules / Companies Ordinance / SFO terms; underwriting terms; corporate documents; industry consultant and professional advisers; jurisdictions and laws; financial periods and reporting terms"
+    ],
+    "drafting_sequence": [
+      "Defined term in quotation marks, followed by a precise meaning.",
+      "Sort alphabetically unless precedent requires otherwise."
+    ],
+    "negative_rules": [
+      "No circular definitions.",
+      "No inconsistent singular/plural usage.",
+      "Legal terms only — technical/industry terms belong in the Glossary."
+    ],
+    "validation_checklist": [
+      "Definitions match usage in Cover, Summary, Share Capital, Substantial Shareholders, Underwriting, Structure of Global Offering and Appendices."
     ]
   },
   "Glossary": {
@@ -486,6 +654,42 @@
       "Inconsistent definitions across the prospectus.",
       "Lack of cross-references to related terms or sections.",
       "Failure to update definitions if the meaning changes post-filing."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Explains industry, technical and operating metric terms to investors. Legal terms belong in Definitions, not the Glossary.",
+    "drafting_sequence": [
+      "Include only technical, operational, industry or product-specific terms, explained in plain English.",
+      "Define metrics before they appear in Summary, Business or Financial Information.",
+      "For operating metrics, specify calculation method, period basis and limitation."
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Define: gross billings; MAU; MPU; ARPPU; paying user conversion rate; IP; IP-based game; publishing channel; game developer; virtual currency; virtual item; Player Relation Period."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Define: artificial intelligence; foundation model; large language model; multi-modal model; token; API; inference; training; Mixture-of-Experts; agent; context window; Open Platform; MAU; paying user; cumulative user."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_software",
+        "rules": [
+          "Define: artificial intelligence; foundation model; large language model; token; API; inference; training; MAU; paying user; cumulative user."
+        ]
+      }
+    ],
+    "negative_rules": [
+      "No duplicate legal definitions from Definitions."
+    ],
+    "validation_checklist": [
+      "Every operating metric used in Summary/Business/Financial Information is defined here (or in Definitions)."
     ]
   },
   "ForwardLooking": {
@@ -550,6 +754,25 @@
       "Neglecting to discuss significant risks and uncertainties.",
       "Not providing a clear disclaimer.",
       "Failing to update the section if there are changes in the company's situation."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": false,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Cautionary legal disclaimer for projections, strategy, plans, market forecasts and future expectations.",
+    "mandatory_subsections": [
+      "Identify words indicating forward-looking statements: expect, believe, plan, intend, estimate, project, anticipate, may, will, should, etc.",
+      "State forward-looking statements are based on current expectations and assumptions.",
+      "State actual results may differ materially.",
+      "Identify sources of uncertainty: business, industry, market, regulatory, macroeconomic, financing and offering risks.",
+      "Cross-reference Risk Factors.",
+      "State no obligation to update except as required by law or Listing Rules."
+    ],
+    "negative_rules": [
+      "Do not include new business claims or projections here — this section is purely cautionary."
+    ],
+    "validation_checklist": [
+      "Contains the Risk Factors cross-reference and the no-obligation-to-update statement."
     ]
   },
   "RiskFactors": {
@@ -669,6 +892,86 @@
       "Not updating the section with the latest information available.",
       "Failing to cross-reference relevant sections of the prospectus.",
       "Omitting important details that could affect the reader's understanding of the risks."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Issuer-specific risk disclosure, not generic boilerplate. Each risk item must show risk trigger -> issuer exposure -> risk mechanism -> investor impact.",
+    "mandatory_subsections": [
+      "Mandatory opening: investors should read the entire Prospectus carefully; occurrence of any risks may materially and adversely affect business, financial condition, results of operations, prospects and share price; investors may lose all or part of investment; unknown or currently immaterial risks may also harm the Group; if Chapter 18C / Pre-Commercial / WVR applies, add specific upfront risk warning",
+      "Risk group order 1: Risks relating to business and industry",
+      "Risk group order 2: Risks relating to products, technology, R&D, data, IP and compliance",
+      "Risk group order 3: Risks relating to customers, suppliers, partners and channels",
+      "Risk group order 4: Risks relating to financial condition, profitability, liquidity and need for funding",
+      "Risk group order 5: Risks relating to regulatory environment and licenses",
+      "Risk group order 6: Risks relating to Contractual Arrangements / VIE, if applicable",
+      "Risk group order 7: Risks relating to WVR, if applicable",
+      "Risk group order 8: Risks relating to PRC / overseas / sanctions / geopolitics, if applicable",
+      "Risk group order 9: Risks relating to the Global Offering and listed securities"
+    ],
+    "drafting_sequence": [
+      "For each risk factor: 1) Heading — one complete sentence using 'We may...', 'If we fail...', 'Our... may...' including risk trigger and consequence.",
+      "2) Issuer-specific factual background — Track Record Period data, contracts, licenses, litigation, customers/suppliers, products, corporate structure, regulatory status.",
+      "3) Risk mechanism — explain how facts could lead to operational, financial, legal, reputational, regulatory, liquidity or shareholder harm.",
+      "4) Quantification / concrete incident — include numbers, dates, amounts, lawsuits, regulatory events, renewal deadlines or metrics where supported.",
+      "5) Adverse-effect ending — controlled formulation: 'our business, financial condition, results of operations and prospects may be materially and adversely affected.'",
+      "6) Mitigation rule — do not reassure investors excessively; if controls are mentioned, qualify with residual risk: 'we cannot assure you that...'."
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Cover: model performance deterioration; rapid technology evolution; training data/IP infringement; generated content liability; compute cost and infrastructure; data privacy and cybersecurity; AI regulation; R&D commercialization uncertainty."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_software",
+        "rules": [
+          "Cover: model performance deterioration; rapid technology evolution; training data/IP infringement; compute cost and infrastructure; data privacy and cybersecurity; AI regulation; R&D commercialization uncertainty."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Cover: failure to license IPs/games; game approval and publication numbers; player retention; monetization; game lifecycle; channel dependence; IP impairment; virtual currency regulation; minors protection."
+        ]
+      }
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "has_vie",
+        "rules": [
+          "Cover: contractual arrangements may not be as effective as direct ownership; PRC legal uncertainty; shareholder conflicts; enforceability; regulatory challenge."
+        ]
+      },
+      {
+        "when": "is_wr",
+        "rules": [
+          "Cover: WVR beneficiaries control votes; interests may diverge; limited influence of ordinary shareholders; conversion/reserved matter risk."
+        ]
+      },
+      {
+        "when": "is_18c",
+        "rules": [
+          "Cover: failure to commercialize; reliance on external funding; difficulty in valuation; share price volatility; inability to meet revenue/profitability."
+        ]
+      },
+      {
+        "when": "is_precommercial",
+        "rules": [
+          "Cover: failure to commercialize; reliance on external funding; difficulty in valuation; share price volatility; inability to meet revenue/profitability."
+        ]
+      }
+    ],
+    "negative_rules": [
+      "No generic boilerplate risks without issuer-specific facts.",
+      "No mitigation language that neutralizes the risk within the same narrative."
+    ],
+    "validation_checklist": [
+      "Every Summary key risk appears here in full form.",
+      "WVR / Chapter 18C / VIE / litigation / loss-making risks appear where triggered by issuer metadata.",
+      "Each risk item ends with the controlled adverse-effect formulation."
     ]
   },
   "Waivers": {
@@ -740,6 +1043,30 @@
       "Not including the date of application and grant for each waiver or exemption.",
       "Omitting cross-references to relevant sections of the prospectus.",
       "Not updating the waiver or exemption details if the situation changes post-listing."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Regulatory relief disclosure: explain each Listing Rule / Companies Ordinance requirement, why the Company needs relief, whether the waiver is granted, and the conditions attached.",
+    "mandatory_subsections": [
+      "For each waiver, follow this structure: 1. Waiver title; 2. Relevant rule / ordinance provision; 3. Normal requirement under the rule; 4. Issuer-specific circumstances; 5. Grounds for waiver; 6. Grant status; 7. Conditions; 8. Alternative disclosure; 9. Cross-reference",
+      "Common waiver types to check against inputs: joint company secretary qualification; management presence in Hong Kong; continuing connected transactions; Contractual Arrangements annual cap / term / independent shareholders' approval; disclosure of share capital changes; disclosure of share incentive plan grantees; post-TRP investments or acquisitions; Chapter 18C / WVR-related waivers; existing shareholder / cornerstone participation under Rule 10.04; connected client consent; clawback mechanism"
+    ],
+    "required_input_fields": [
+      "Joint company secretaries waiver: names; which secretary satisfies Rule 3.28; which requires waiver; qualifications; training hours; waiver term; compliance adviser; Hong Kong legal adviser support; revocation conditions",
+      "Share incentive disclosure waiver: scheme name; grantee count; shares/options/awards; connected-person grantees; disclosure threshold; dilution; EPS impact; SFC exemption status; documents available for inspection"
+    ],
+    "cross_reference_rules": [
+      "Waiver conditions must be reflected in the relevant substantive sections (e.g. Connected Transactions annual caps, Appendix V display documents)."
+    ],
+    "negative_rules": [
+      "Do not invent waiver grant status, conditions or rule numbers.",
+      "WVR warning text must follow locked counsel blocks when is_wr applies."
+    ],
+    "validation_checklist": [
+      "Each waiver states rule basis, grant status and conditions (or [●] with missing-input flag).",
+      "Share incentive disclosure waiver reflected in Appendix V if applicable."
     ]
   },
   "InfoProspectus": {
@@ -827,6 +1154,28 @@
       "Incorrect exchange rate conversions.",
       "Inconsistencies between the English and Chinese versions of the prospectus.",
       "Failure to disclose all relevant tax implications."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Frames the legal use of the prospectus, selling restrictions, investor reliance, registration and high-level offering mechanics. Does not repeat the detailed application procedure.",
+    "mandatory_subsections": [
+      "1. Prospectus purpose — issued solely in connection with the Hong Kong Public Offering; does not constitute an offer in other jurisdictions",
+      "2. Selling restrictions — no public offering outside Hong Kong unless permitted; U.S. Securities Act restrictions; Rule 144A / Regulation S if applicable",
+      "3. Investor reliance — rely only on information contained in the Prospectus; no one is authorized to provide different information",
+      "4. Registration and documents — prospectus registered with the Registrar of Companies; Appendix V cross-reference",
+      "5. Global Offering mechanics overview — Hong Kong Public Offering; International Offering; mutual conditionality; reallocation; over-allotment option; offer size adjustment option; price determination",
+      "6. Application and payment basis — maximum Offer Price payable on application; refund if final Offer Price lower; levies and fees",
+      "7. Professional advice — investors should seek independent advice if in doubt"
+    ],
+    "negative_rules": [
+      "Do not duplicate the full Structure of Global Offering.",
+      "Do not duplicate the full How to Apply.",
+      "Focus on legal framing and cross-references."
+    ],
+    "validation_checklist": [
+      "Offering mechanics summary matches Structure of the Global Offering."
     ]
   },
   "DirectorsParties": {
@@ -959,6 +1308,27 @@
       "Failing to disclose the full scope of services provided by legal advisors.",
       "Not cross-referencing with other sections of the prospectus.",
       "Neglecting to include all relevant parties involved in the global offering."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Transaction parties registry, not biographies.",
+    "mandatory_subsections": [
+      "A. Directors table — Executive Directors; Non-executive Directors; Independent non-executive Directors; columns: name, address, nationality",
+      "B. Parties involved — Joint Sponsors; Overall Coordinators; Joint Global Coordinators; Joint Bookrunners; Joint Lead Managers; legal advisers to the Company by jurisdiction; legal advisers to the Sponsors and Underwriters by jurisdiction; reporting accountants / auditors; industry consultant; compliance adviser; receiving banks; share registrar; other professional parties (data compliance, sanctions, property valuer) if applicable"
+    ],
+    "drafting_sequence": [
+      "Exact official names only; exact role labels only.",
+      "Include addresses where precedent requires.",
+      "If one party has multiple roles, repeat/combine exactly as precedent does."
+    ],
+    "negative_rules": [
+      "Do not invent party names, roles or addresses.",
+      "No biographies here."
+    ],
+    "validation_checklist": [
+      "Cross-check names with Cover, Underwriting, Corporate Information, Appendix IV experts and Appendix V documents."
     ]
   },
   "CorporateInfo": {
@@ -1105,6 +1475,25 @@
       "Incorrect formatting or inconsistent style.",
       "Neglecting to update the information regularly.",
       "Including non-compliant or misleading statements."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Registry-style factual disclosure of corporate information.",
+    "required_input_fields": [
+      "Registered office; headquarters / head office / principal place of business; principal place of business in Hong Kong",
+      "Company website (with disclaimer that website information does not form part of the Prospectus)",
+      "Company secretary / joint company secretaries; authorized representatives",
+      "Audit Committee; Remuneration Committee; Nomination Committee; Corporate Governance Committee if WVR",
+      "Compliance adviser; principal share registrar; Hong Kong share registrar; principal banks / bankers"
+    ],
+    "negative_rules": [
+      "Use exact legal names and addresses; do not infer missing addresses or professional qualifications.",
+      "No narrative explanation unless precedent requires."
+    ],
+    "validation_checklist": [
+      "Names cross-check with Directors and Senior Management, Waivers and Directors and Parties."
     ]
   },
   "Regulation": {
@@ -1180,6 +1569,52 @@
       "Omitting critical regulatory requirements that could impact the issuer's business.",
       "Providing vague or overly general descriptions of regulations.",
       "Neglecting to include relevant government policies that support the issuer's industry."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Regulatory Overview as a regulation -> obligation -> issuer relevance matrix, scoped to the issuer's business model.",
+    "drafting_sequence": [
+      "For each regulatory topic: 1) Regulation name (official English name; Chinese name where available); 2) Issuing authority; 3) Promulgation / effective / amendment date; 4) Scope of application (activities, entities, users, products, services); 5) Core obligations (licenses, filings, approvals, content review, user protection, data protection, security assessment, annual inspection, foreign ownership restrictions); 6) Relevance to issuer (business model, products, data, users, VIE, listing, overseas operations); 7) Compliance status / residual uncertainty (permits obtained, filings completed, legal advice, uncertainty); 8) Cross-reference (Risk Factors, Business, Contractual Arrangements, Licenses and Permits)"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Topic selector: generative AI filing; algorithm recommendation; deep synthesis; AI-generated content labeling; cybersecurity review; data export; personal information protection; IP; consumer protection; anti-monopoly; overseas listing; foreign investment."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_software",
+        "rules": [
+          "Topic selector: algorithm recommendation; cybersecurity review; data export; personal information protection; IP; consumer protection; anti-monopoly; overseas listing; foreign investment."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Topic selector: ICP; online publishing license; game approval / publication number; online culture operation; virtual currency; content review; anti-addiction / minors protection; IP licensing; foreign investment restrictions; VIE; tax and foreign exchange."
+        ]
+      }
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "has_vie",
+        "rules": [
+          "Topic selector: Negative List; value-added telecommunications; qualification requirements; contractual arrangement legality; Foreign Investment Law uncertainty."
+        ]
+      }
+    ],
+    "cross_reference_rules": [
+      "Each topic ends with cross-references to Risk Factors, Business and Contractual Arrangements where triggered."
+    ],
+    "negative_rules": [
+      "Do not invent regulation names, dates, issuing authorities or compliance status."
+    ],
+    "validation_checklist": [
+      "Every regulation cited in Business or Risk Factors appears here with issuer relevance.",
+      "VIE-related regulatory analysis matches Contractual Arrangements."
     ]
   },
   "IndustryOverview": {
@@ -1280,6 +1715,44 @@
       "Failure to disclose conflicts of interest",
       "Over-reliance on a single source of information",
       "Omission of key risks and challenges"
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Evidence-based market disclosure, not promotional industry writing.",
+    "mandatory_subsections": [
+      "1. Source disclaimer — official sources; public sources; independent industry consultant report; whether information was independently verified; caution against undue reliance if precedent requires",
+      "2. Source of Information — consultant name; commissioned report name; fee paid; scope of work; primary research; secondary research; key assumptions; Directors' confirmation on no material adverse change if applicable",
+      "3. Industry definition and taxonomy — define relevant industry; identify segments; explain technical terms before using metrics",
+      "4. Industry value chain / ecosystem — participants; flow of products/services/data/payments; revenue sharing or settlement; diagram/table if supported",
+      "5. Market size and growth — historical market size; forecast market size; geography; period; metric; currency; CAGR",
+      "6. Market drivers and trends — causal logic; macro/technology/regulatory/user-demand factors",
+      "7. Competitive landscape — ranking; market share; benchmark; peer comparison; basis, year and source",
+      "8. Entry barriers / threats / cost trends — technology; capital; infrastructure; talent; regulation; IP; data; customer acquisition; cost structure"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Explain technology evolution before market size; include model architecture, modality, benchmark, cost decline and commercialization path; distinguish model layer and application layer."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Explain product categories, participants and value chain first; include players, IP, publishing channels, payment channels and lifecycle metrics; use gross billings, revenue, paying users, MAU, MPU and ARPPU where applicable."
+        ]
+      }
+    ],
+    "evidence_requirements": [
+      "Every statistic must include: source; period; geography; metric; scope; unit/currency."
+    ],
+    "negative_rules": [
+      "No promotional industry writing; no unsourced rankings or market-size claims."
+    ],
+    "validation_checklist": [
+      "Rankings and market shares cited in Summary/Business appear here with full source basis."
     ]
   },
   "HistoryReorg": {
@@ -1357,6 +1830,30 @@
       "Providing inaccurate or outdated information about the company's history and structure.",
       "Failing to disclose relevant regulatory requirements and compliance issues.",
       "Not maintaining a clear and chronological order in the presentation of information."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Chronological and transaction-based legal corporate history disclosure.",
+    "mandatory_subsections": [
+      "1. Overview — incorporation; origin of business; founders; listing vehicle; current group structure",
+      "2. Key milestones — timeline table; business milestones; product launches; acquisitions; financings; restructuring; regulatory milestones",
+      "3. Major subsidiaries / operating entities — entity name; jurisdiction; incorporation date; ownership; principal business; role in Group",
+      "4. Major shareholding changes — incorporation; share transfers; share splits; WVR if applicable; Pre-IPO investments; share incentive platforms; reclassification/conversion",
+      "5. Reorganization — for each step: step number; date; parties; transaction; consideration; rationale; completion status; resulting ownership/control; legal approval/filing; chart cross-reference",
+      "6. Pre-IPO investments — table fields: series/investor; agreement date; last payment date; number/class of shares; cost per share; discount/premium to Offer Price; total consideration; implied valuation; use of proceeds; strategic benefits; basis of consideration; lock-up; special rights and termination upon Listing; public float treatment",
+      "7. Capitalization and shareholding structure — before listing; immediately after listing; assumptions; voting power if WVR",
+      "8. Public float / free float / lock-up — Listing Rule compliance; excluded/included shareholders; lock-up periods",
+      "9. PRC legal compliance — M&A Rules; SAFE registration; PRC legal adviser confirmation; required approvals, permits and filings"
+    ],
+    "table_requirements": [
+      "Key milestones timeline table.",
+      "Pre-IPO investments table with the full field set above.",
+      "Shareholding structure tables before and immediately after Listing."
+    ],
+    "validation_checklist": [
+      "Every date, share class, consideration, ownership percentage and restructuring step reconciles with Share Capital, Substantial Shareholders, Contractual Arrangements, Connected Transactions and Appendix IV material contracts."
     ]
   },
   "Business": {
@@ -1481,6 +1978,56 @@
       "Using overly technical language that may confuse investors.",
       "Not providing sufficient context for the issuer's market position.",
       "Neglecting to update the section with the latest information."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Core commercial disclosure: who the issuer is, how it makes money, why it is competitive, how it operates, and what compliance controls support the business.",
+    "drafting_sequence": [
+      "Before drafting, classify issuer_type (AI / foundation model / technology platform; AI software / computer vision; online game / IP-based content operator; SaaS / enterprise software; biotech / healthcare; manufacturing / consumer / other) and activate the matching modules."
+    ],
+    "mandatory_subsections": [
+      "1. Overview / Who We Are — core identity; principal products/services; business model; geography; Track Record Period metrics; market ranking if supported",
+      "2. Mission / Vision, if used by precedent",
+      "3. Competitive strengths — for each: heading; claim; quantitative or factual support; commercial outcome",
+      "4. Business strategies — for each: strategic direction; implementation actions; link to strengths; link to market opportunity; link to Use of Proceeds where applicable",
+      "5. Business model — revenue generation; customers/users; suppliers/partners/channels; transaction flow; settlement flow; data flow; ecosystem diagram if applicable",
+      "6. Products and services — product names; launch dates; functions; target users/customers; monetization; revenue/user contribution if available",
+      "7. Technology, infrastructure and R&D — core technologies; R&D stages; R&D staff and expenses; technology ownership; dependence on third-party technology; computing/infrastructure/data/security controls",
+      "8. Commercialization — pricing; subscription; licensing; transaction model; sales channels; marketing; user acquisition; retention; monetization; customers/suppliers",
+      "9. Compliance-related operations — data privacy; content compliance; cybersecurity; IP protection; export control/sanctions if applicable; internal control",
+      "10. Standard closing modules — competition; employees; insurance; properties; ESG/environmental/work safety; licenses/permits; legal proceedings/compliance; awards"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Add modules: foundation model suite by modality; model architecture and benchmark performance; AI-native product offerings; Open Platform / API / MaaS; compute infrastructure and inference cost; model training and post-training; data governance and training data compliance; content safety and alignment; commercialization pathway from model capability to product adoption; global users/developers/enterprise customers."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Add modules: IP reserve (licensed and proprietary IPs); game portfolio (launched games, operated games, lifecycle, pipeline); game sourcing (IP licensing, game licensing, in-house development); publishing model (channels, marketing, user acquisition, payment channels); monetization (gross billings, paying users, ARPPU, conversion rate, virtual items); player service and community operations; data analytics for player behavior; relationship with IP owners, game developers and publishing channels."
+        ]
+      }
+    ],
+    "evidence_requirements": [
+      "Every competitive strength claim needs quantitative or factual support from context.",
+      "Market rankings require consultant source, metric, geography and period."
+    ],
+    "cross_reference_rules": [
+      "Strategies must link to Use of Proceeds where funded by offering proceeds.",
+      "Legal proceedings and licenses must cross-reference Risk Factors and Regulatory Overview."
+    ],
+    "negative_rules": [
+      "No promotional or absolute claims; no uncontrolled superlatives.",
+      "Do not enumerate more than 10 items of a product catalog; summarize by category."
+    ],
+    "validation_checklist": [
+      "Every Summary business claim is supported here.",
+      "Operating metrics match Summary, Glossary and Financial Information."
     ]
   },
   "ContractualArrangements": {
@@ -1561,6 +2108,32 @@
       "Inaccurate descriptions of contractual agreements and their enforcement.",
       "Insufficient disclosure of risks and uncertainties related to the VIE structure.",
       "Failure to obtain a formal opinion from the PRC legal advisor."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Legal-structure disclosure explaining why the VIE structure is necessary, how it works, and why it is legally valid and narrowly tailored.",
+    "mandatory_subsections": [
+      "1. PRC Regulatory Background — foreign investment restrictions; Negative List; restricted/prohibited business; license/permit required; PRC Legal Adviser advice; regulator consultation if available",
+      "2. Qualification Requirements — applicable foreign investor qualification requirements; uncertainty; why direct ownership not viable; steps to satisfy requirements",
+      "3. Overview of Contractual Arrangement — VIE WFOE; consolidated affiliated entities; registered shareholders; ownership percentages; why adopted; revenue/assets contribution of VIE entities; narrowly tailored statement",
+      "4. Structure diagram — legal ownership; contractual relationships; notes for each agreement type",
+      "5. Circumstances for unwinding — when call option may be exercised; approvals/procedures",
+      "6. Summary of agreements — for each: parties; purpose; rights granted to WFOE; obligations; fee/consideration mechanism; term and termination; default remedies. Required agreements: Exclusive Business Cooperation Agreement; Exclusive Option Agreement; Powers of Attorney; Equity Pledge Agreement; spousal undertakings if applicable",
+      "7. Other key terms — dispute resolution; succession; conflict of interest; loss sharing; liquidation; termination; insurance; no interference confirmation; legality; Foreign Investment Law uncertainty; implementation/compliance; accounting consolidation basis"
+    ],
+    "required_input_fields": [
+      "Restricted business category; license holder; VIE WFOE name; each VIE / PRC Operating Entity; registered shareholders and percentages; revenue/assets contribution; agreement dates; service fee formula; option exercise price; pledge registration status; arbitration forum; PRC Legal Adviser opinion; regulator consultation; compliance monitoring measures"
+    ],
+    "cross_reference_rules": [
+      "Must reconcile with Regulatory Overview, Risk Factors, Connected Transactions and Appendix IV material contracts."
+    ],
+    "negative_rules": [
+      "Do not invent PRC legal advice, regulator consultations or agreement terms."
+    ],
+    "validation_checklist": [
+      "Contractual Arrangement = Regulatory Overview = Risk Factors = Connected Transactions = Appendix IV material contracts (entities, agreements and dates consistent)."
     ]
   },
   "ControllingShareholders": {
@@ -1636,6 +2209,23 @@
       "Failing to disclose all relevant information about shareholdings and voting rights.",
       "Not providing sufficient detail on internal control mechanisms.",
       "Inconsistent information across different sections of the prospectus."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Proves management, operational and financial independence from controlling shareholders.",
+    "mandatory_subsections": [
+      "1. Identity of Controlling Shareholders — each controlling shareholder; direct/indirect structure; controlled corporations/trusts/nominees/deemed interests; voting rights/shareholding after Listing; assumptions",
+      "2. Rule 8.10 competing interests — whether competing business exists; description/mitigation if yes; formal confirmation if no",
+      "3. Independence — A. management independence (board composition; fiduciary duties; senior management experience; INED role; conflict voting abstention); B. operational independence (independent decision-making; independent customers/suppliers; independent licenses, IP, facilities, systems, employees; no reliance on controlling shareholders' trademarks/patents/resources); C. financial independence (independent finance department; accounting/internal control; treasury; third-party financing ability; no outstanding loans/guarantees from controlling shareholders)",
+      "4. Corporate governance measures — abstention from shareholder voting; connected transaction identification; annual INED review; disclosure of decisions; independent professional advice; compliance adviser support"
+    ],
+    "drafting_sequence": [
+      "Do not merely assert independence: provide factual basis for each independence dimension and end with the Directors' view."
+    ],
+    "validation_checklist": [
+      "Controlling shareholder identities and percentages match Substantial Shareholders and History."
     ]
   },
   "ConnectedTransactions": {
@@ -1712,6 +2302,31 @@
       "Not obtaining necessary waivers or exemptions from the Stock Exchange.",
       "Lack of clarity in the description of transactions and their terms.",
       "Neglecting to update the section with any changes in connected transactions post-filing."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Chapter 14A compliance disclosure for connected transactions.",
+    "mandatory_subsections": [
+      "1. Overview — pre-listing transactions that become continuing connected transactions upon Listing",
+      "2. Connected persons — for each: name; relationship; shareholding percentage; board appointment/control/associate relationship; why connected person",
+      "3. Classification — fully exempt continuing connected transaction; partially-exempt continuing connected transaction; non-exempt continuing connected transaction; Contractual Arrangement / VIE-related connected transaction",
+      "4. Transaction-specific disclosure — for each: agreement name; parties; date; term; principal terms; services/products; reasons; pricing policy; historical amounts; proposed annual caps; basis for annual caps; Listing Rules implications",
+      "5. Contractual Arrangement as connected transaction — why the VIE arrangement constitutes continuing connected transactions; why fundamental to legal structure; why strict compliance burdensome; waiver sought",
+      "6. Internal control procedures — audit committee review; board/internal monitoring; pricing review; annual INED/auditor review; reporting/disclosure controls",
+      "7. Confirmation and waiver — Directors' view; INED view; Joint Sponsors' confirmation; Stock Exchange waiver conditions"
+    ],
+    "drafting_sequence": [
+      "Annual cap reasoning template: historical transaction amounts; expected business expansion; expected volume; pricing assumptions; internal budget/business plan; third-party market comparison; why fair and reasonable."
+    ],
+    "negative_rules": [
+      "Do not invent annual caps, historical amounts or waiver status."
+    ],
+    "validation_checklist": [
+      "Connected persons reconcile with Substantial Shareholders and Directors sections.",
+      "VIE-related connected transactions match Contractual Arrangements.",
+      "Annual caps have stated bases traceable to inputs."
     ]
   },
   "DirectorsSeniorMgmt": {
@@ -1806,6 +2421,37 @@
       "Inaccurate or outdated information about directors and their roles.",
       "Lack of clarity in the description of roles and responsibilities.",
       "Failure to cross-reference with other sections of the prospectus."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "legal_checklist_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Governance and eligibility disclosure, not only biographies.",
+    "mandatory_subsections": [
+      "1. Board composition — total Directors after Listing; number of executive Directors; number of non-executive Directors; number of independent non-executive Directors",
+      "2. Directors summary table — name; age; position/title; time of joining Group; time of appointment as Director; responsibilities; relationship with other Directors/senior management",
+      "3. Director biographies — for each: current role; principal responsibilities; prior work experience; listed-company experience; education; professional qualifications; awards/publications if material; relationships; independence confirmation for INEDs",
+      "4. Senior management — table; biographies; cross-reference if also executive Director",
+      "5. General confirmations — public company directorships in preceding three years; relationship among Directors/senior management; Listing Rule 13.51(2) matters",
+      "6. Listing Rules confirmations — Rule 8.10 competing business; Rule 3.09D legal advice; Rule 3.13 INED independence",
+      "7. Joint company secretaries — age; position; experience; qualifications; memberships",
+      "8. Board committees — Audit; Remuneration; Nomination; Corporate Governance Committee if WVR; composition, chairperson, rule basis, duties",
+      "9. Remuneration — aggregate remuneration during Track Record Period; estimated current year remuneration; five highest paid individuals if required; inducement/loss-of-office/waiver disclosure",
+      "10. Corporate governance, diversity and compliance adviser — chairman/CEO role combination rationale; board diversity policy; gender diversity; compliance adviser appointment and scope"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "is_wr",
+        "rules": [
+          "Include Corporate Governance Committee; disclose Chapter 8A basis; include duties on WVR beneficiaries, conflicts, annual confirmation and shareholder communication; include INED role under Rule 8A.26; disclose permanent compliance adviser if required."
+        ]
+      }
+    ],
+    "table_requirements": [
+      "Directors summary table and senior management table with the column sets above."
+    ],
+    "validation_checklist": [
+      "Director names and roles match Directors and Parties, Corporate Information and Appendix IV."
     ]
   },
   "SubstantialShareholders": {
@@ -1881,6 +2527,27 @@
       "Omitting relevant information about controlled corporations.",
       "Misrepresenting the nature of the interest held.",
       "Not cross-referencing with other sections of the prospectus."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "SFO interests disclosure table for substantial shareholders.",
+    "mandatory_subsections": [
+      "Mandatory opening: 'So far as our Directors are aware, immediately following completion of the Global Offering...' with assumptions: no/full exercise of over-allotment option; offer size adjustment option; preferred share conversion; WVR conversion; cornerstone investment inclusion/exclusion",
+      "Required notes: controlled corporation chain; trustee/trust relationship; founder/settlor relationship; deemed interest under SFO; conversion assumptions; cornerstone inclusion/exclusion; cross-reference History, Share Capital and Appendix IV"
+    ],
+    "table_requirements": [
+      "Required columns: name of substantial shareholder; capacity / nature of interest; number of Shares; approximate percentage in relevant class; approximate percentage of total issued share capital; long/short position if applicable.",
+      "Separate share classes if Class A/Class B or WVR exists."
+    ],
+    "negative_rules": [
+      "Do not aggregate interests unless SFO deemed-interest logic supports it.",
+      "Do not invent shareholding numbers or percentages."
+    ],
+    "validation_checklist": [
+      "Percentages reconcile with Share Capital and the Global Offering share counts.",
+      "Shareholder identities match History and Appendix IV disclosure of interests."
     ]
   },
   "ShareCapital": {
@@ -1958,6 +2625,38 @@
       "Omission of repurchase mandate details",
       "Insufficient cross-referencing with other sections of the prospectus",
       "Non-compliance with Exchange formatting and disclosure requirements"
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Legal-capital disclosure of authorized and issued share capital.",
+    "mandatory_subsections": [
+      "1. Authorized and issued share capital — authorized share capital as of Latest Practicable Date; increase before Global Offering if any; issued shares as of prospectus date; Capitalization Issue shares; Global Offering shares; total issued shares after Listing",
+      "2. Assumptions — Global Offering unconditional; Capitalization Issue completed; over-allotment excluded/included; options/RSUs/warrants excluded/included; repurchase/issue mandate excluded",
+      "3. Ranking — pari passu; dividend/distribution entitlement",
+      "4. General meetings and class meetings — share classes; ordinary/special/class consent; Articles/Cayman law cross-reference",
+      "5. General mandate to issue shares — percentage limit; expiration; Appendix cross-reference",
+      "6. General mandate to repurchase shares — percentage limit; exchanges; expiration; Appendix cross-reference",
+      "7. Share incentive schemes — Pre-IPO; Post-IPO; Appendix cross-reference"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "is_wr",
+        "rules": [
+          "Distinguish Class A and Class B; voting rights per share; reserved matters; conversion mechanism; reconcile with WVR disclosures in Summary and Substantial Shareholders."
+        ]
+      }
+    ],
+    "table_requirements": [
+      "Share capital table reconciling issued shares before and after the Global Offering."
+    ],
+    "negative_rules": [
+      "Do not invent share counts, nominal values or mandate percentages."
+    ],
+    "validation_checklist": [
+      "Share Capital = Summary = Substantial Shareholders = Appendix IV (share counts and classes).",
+      "WVR voting rights reconcile with the WVR disclosures if applicable."
     ]
   },
   "FinancialInfo": {
@@ -2148,6 +2847,71 @@
       "Omission of critical accounting policies and estimates.",
       "Insufficient detail in segment analysis.",
       "Lack of cross-referencing between MD&A and financial statements."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "MD&A-style disclosure explaining results of operations, liquidity and financial condition through the business, not a generic financial analysis.",
+    "mandatory_subsections": [
+      "Mandatory opening: read with Accountants' Report in Appendix I; state accounting standard (IFRS / HKFRS / other); forward-looking statement warning; Track Record Period definitions; consolidated basis",
+      "1. Overview — business model in financial terms; revenue streams; revenue, gross profit, profit/loss; adjusted non-IFRS measures if applicable; operating metrics linked to financial results",
+      "2. Basis of presentation — Reorganization; common control/merger accounting if applicable; VIE consolidation basis; discontinued operations if applicable",
+      "3. Major factors affecting results — A. company-specific factors, B. industry/general factors; for each: factor, causal mechanism, Track Record Period evidence, cross-reference",
+      "4. Critical accounting policies, judgments and estimates — revenue recognition; gross versus net; timing; fair value; preferred shares; leases; tax; impairment; contract assets/liabilities; industry-specific accounting",
+      "5. Consolidated profit or loss table — absolute amounts; percentage of revenue; major line items",
+      "6. Major components — revenue by segment; cost of sales; gross profit/margin; selling expenses; administrative expenses; R&D expenses; other income/gains/losses; finance costs; tax",
+      "7. Period-to-period comparison — for each material line: increase/decrease amount; percentage change; business reason",
+      "8. Liquidity and capital resources — funding sources; cash; operating/investing/financing cash flows; working capital sufficiency; capex; future funding",
+      "9. Indebtedness and commitments — borrowings; rates; maturity; security/pledge/guarantee; unused facilities; contingent liabilities; off-balance sheet",
+      "10. Related party transactions — cross-reference accountant report; Directors' arm's length view",
+      "11. Financial risks — FX; interest rate; credit; liquidity; price; sensitivity",
+      "12. Dividends and distributable reserves"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Disclose revenue by software licenses, software-embedded hardware, API, subscriptions, MaaS; R&D expenses and productivity metrics; compute infrastructure and model efficiency; customer number, verticals, overseas revenue; capex for computing/data centers; revenue recognition for software/platform/hardware/R&D services."
+        ]
+      },
+      {
+        "when": "issuer_type=AI_software",
+        "rules": [
+          "Disclose revenue by software licenses, software-embedded hardware, API, subscriptions, MaaS; R&D expenses and productivity metrics; customer number, verticals, overseas revenue; revenue recognition for software/platform/hardware/R&D services."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Disclose gross billings, revenue sharing and net revenue recognition; revenue by game publishing, game development and IP licensing; top games table with revenue, % revenue, MAU, MPU, ARPPU; lifecycle of games; cost of sales by publishing channel share, IP owner share, royalties and development cost; Player Relation Period; gross versus net accounting judgment."
+        ]
+      }
+    ],
+    "table_requirements": [
+      "Consolidated profit or loss table with absolute amounts and percentage of revenue.",
+      "Revenue breakdown tables by segment/nature consistent with the Accountants' Report."
+    ],
+    "evidence_requirements": [
+      "All figures must be traceable to the Accountants' Report, management accounts or structured input tables."
+    ],
+    "cross_reference_rules": [
+      "Cross-reference Appendix I for historical financial information and related party details."
+    ],
+    "negative_rules": [
+      "Do not create explicit or implicit profit forecasts or margin forecasts.",
+      "Do not invent accounting policies or non-IFRS reconciliations."
+    ],
+    "validation_checklist": [
+      "All tables reconcile with Appendix I (Accountants' Report).",
+      "Non-IFRS reconciliation is mathematically correct.",
+      "Period-to-period narratives match the table movements."
+    ],
+    "source_registry": [
+      "Appendix I",
+      "management accounts",
+      "operating metrics",
+      "accounting policy notes"
     ]
   },
   "UseOfProceeds": {
@@ -2231,6 +2995,34 @@
       "Lack of consistency between the use of proceeds and the financial projections.",
       "Omitting alternative uses of the proceeds if the primary plans do not materialize.",
       "Failing to update the section if there are significant changes in the company's plans or financial forecasts."
+    ],
+    "section_group": "Offering",
+    "generation_mode": "evidence_based_drafting",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Links strategy to concrete allocation of net proceeds.",
+    "mandatory_subsections": [
+      "1. Reasons for Global Offering — employee incentive; enhanced profile; competitiveness; fundraising platform; issuer-specific reasons",
+      "2. Estimated net proceeds — gross proceeds; underwriting fees and expenses; assumed Offer Price; currency conversion",
+      "3. Use of proceeds table — columns: use category; percentage; HKD amount; RMB/USD equivalent; timeframe; business area; cross-reference",
+      "4. Detailed use by category — specific actions; rationale; expected impact; operational assumptions; identified targets/projects; if not identified, state clearly",
+      "5. Offer Price sensitivity — high-end/low-end effects; downward adjustment effect; pro rata adjustment",
+      "6. Over-allotment / offer size adjustment — additional proceeds; pro rata allocation",
+      "7. Temporary use of unused proceeds — short-term deposits; licensed banks; money market instruments; legal compliance",
+      "8. Reallocation policy — when; announcement obligation"
+    ],
+    "table_requirements": [
+      "Use of proceeds table; allocation percentages must sum to 100% where percentages are used."
+    ],
+    "cross_reference_rules": [
+      "Each major use links back to Business strategies."
+    ],
+    "negative_rules": [
+      "Do not state only broad categories: each major use must include sub-uses, rationale, percentage, amount and expected timeline."
+    ],
+    "validation_checklist": [
+      "Net proceeds figures match Cover assumptions and Appendix II pro forma.",
+      "Percentages sum to 100%."
     ]
   },
   "Underwriting": {
@@ -2298,6 +3090,27 @@
       "Not accurately reflecting the terms of the underwriting agreement.",
       "Ignoring the restrictions on stabilizing activities.",
       "Failing to cross-reference relevant sections of the prospectus."
+    ],
+    "section_group": "Offering",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Explains legal underwriting arrangements, obligations, termination, undertakings and fees.",
+    "mandatory_subsections": [
+      "1. Hong Kong Underwriters — exact names",
+      "2. Underwriting overview — prospectus published for Hong Kong Public Offering; Hong Kong Public Offering conditionally underwritten; International Offering expected to be underwritten; Global Offering composition; consequence if Offer Price not agreed",
+      "3. Underwriting arrangements and expenses — A. Hong Kong Public Offering (agreement date; parties; Hong Kong Offer Shares; conditions; obligations; termination grounds; commission/expenses); B. International Offering (expected agreement date; underwriters; conditions; relationship with Hong Kong Public Offering)",
+      "4. Undertakings — Company; controlling shareholders; cornerstone/existing shareholders if relevant; lock-up",
+      "5. Underwriters' interests and independence — fees; relationships; connected client consent/waivers",
+      "6. Indemnity — summarize if included",
+      "7. Expenses — underwriting fees; listing expenses; accounting treatment if relevant"
+    ],
+    "negative_rules": [
+      "Do not invent termination events, indemnities or fee percentages — use only underwriting agreement input."
+    ],
+    "validation_checklist": [
+      "Underwriter names match Cover and Directors and Parties.",
+      "Fee and expense figures reconcile with Use of Proceeds and Financial Information listing expenses."
     ]
   },
   "GlobalOfferingStructure": {
@@ -2383,6 +3196,41 @@
       "Not accurately reflecting the terms of the underwriting agreements.",
       "Omitting important details about the international offering.",
       "Providing conflicting information across different sections of the prospectus."
+    ],
+    "section_group": "Offering",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Explain offering mechanics: allocations, reallocation, clawback, over-allotment, pricing, stabilization and conditions.",
+    "mandatory_subsections": [
+      "1. Global Offering — total Offer Shares; Hong Kong allocation; International allocation; percentage split; assumptions",
+      "2. Hong Kong Public Offering — number of shares; percentage; eligibility; application channels; allocation basis; Pool A / Pool B if applicable; reallocation/clawback",
+      "3. International Offering — number of shares; percentage; target investors; QIBs/professional investors/Reg S; book-building; allocation factors; duplicate application avoidance",
+      "4. Reallocation — clawback thresholds; maximum HK reallocation; reallocation from International Offering; final Offer Price condition if applicable",
+      "5. Over-allotment Option — grantor; grantee; exercise period; max additional shares; percentage; purpose; announcement",
+      "6. Offer Size Adjustment Option, if applicable — max additional shares; exercise deadline; interaction with over-allotment; impact",
+      "7. Stabilization — stabilizing manager; permitted actions; time limit; no obligation; price cap; disclosure",
+      "8. Pricing and allocation — Offer Price range; Price Determination Date; lapse if no agreement; final pricing announcement",
+      "9. Conditions — Listing Committee approval; Offer Price agreement; underwriting agreements; mutual conditionality; lapse/refund"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "is_18c",
+        "rules": [
+          "Include independent price setting investor requirement; cross-check with waivers, cornerstone investors and underwriting allocation."
+        ]
+      }
+    ],
+    "cross_reference_rules": [
+      "Must interlock with How to Apply and Underwriting (cross-references, consistent mechanics naming)."
+    ],
+    "negative_rules": [
+      "Do not invent share numbers, percentages, clawback thresholds or stabilization terms."
+    ],
+    "validation_checklist": [
+      "Share numbers and percentage splits match Cover and Underwriting.",
+      "Clawback/reallocation mechanics match How to Apply.",
+      "Over-allotment / offer size adjustment terms match Cover assumptions and Use of Proceeds."
     ]
   },
   "Appendices": {
@@ -2450,6 +3298,66 @@
       "Incorrectly translating financial information.",
       "Omitting important accounting policies.",
       "Not cross-referencing adequately with the main prospectus."
+    ],
+    "section_group": "Appendices",
+    "generation_mode": "professional_source_assembly_only",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Assemble the five statutory appendices. Appendix I (Accountants' Report), Appendix II (Unaudited Pro Forma Financial Information) and Appendix III (Constitution and Cayman law/taxation summary) are professional_source_assembly_only: assemble strictly from signed professional documents. Appendix IV (Statutory and General Information) and Appendix V (Documents Delivered / Available for Inspection) are legal_checklist_drafting: follow the statutory checklist order.",
+    "mandatory_subsections": [
+      "Appendix I — Accountants' Report: reporting accountant letter (title; firm name/address; addressees; introduction; Track Record Period; pages covered; purpose); Directors' responsibility; reporting accountants' responsibility (standard such as HKSIR 200; ethics; reasonable assurance; no opinion on internal control effectiveness); opinion (true and fair view); interim/stub period review (negative assurance); Listing Rules / Companies Ordinance matters; historical financial information statements; notes (corporate info, basis of presentation/preparation, accounting policies, critical judgments, revenue, segment info, tax, PPE, intangibles, financial instruments, preferred shares/convertibles, share-based payments, related parties, capital management, subsequent events)",
+      "Appendix II — Unaudited Pro Forma Financial Information: opening disclaimer (not part of Accountants' Report; illustrative only); basis of preparation (Listing Rule 4.29; AG 7; transaction illustrated; assumed date); pro forma adjusted NTA table (unadjusted audited NTA; estimated net proceeds; preferred share conversion if applicable; pro forma adjusted NTA; per Share amount); Offer Price scenarios (low-end; mid-point; high-end; downward adjustment if applicable); notes (source from Appendix I; net proceeds basis; expenses; over-allotment assumption; share count; exchange rate); reporting accountant compilation report",
+      "Appendix III — Summary of Constitution and Cayman Islands Company Law and Taxation: opening (summary only; full M&A available for inspection); Memorandum of Association (adoption date; limited liability; objects; powers); Articles of Association (share classes and rights; directors' appointment/removal/powers; variation of rights; general meetings; voting; proxies; transfer; repurchase; dividends; winding up; minority protection; WVR provisions if applicable); Cayman Islands company law (incorporation; share capital; mergers; minority protection; directors' duties; shareholder remedies; taxation; exchange control); taxation (Cayman treatment; stamp duty; investor tax advice disclaimer)",
+      "Appendix IV — Statutory and General Information: A. Further information about the Company/Group (incorporation; changes in share capital; resolutions of shareholders; repurchase mandate disclosures; corporate reorganization cross-reference); B. Further information about the business (summary of material contracts with parties/dates/terms/consideration; intellectual property rights; property interests); C. Directors, management, staff, substantial shareholders and experts (disclosure of interests under SFO; service contracts and appointment letters; directors' remuneration; standard disclaimers); D. Share incentive schemes (for each: adoption date; purpose; participants; maximum shares; grant terms; vesting; outstanding grants; grantee disclosure; SFC exemption/waiver); E. Other information (litigation; no material adverse change; sponsors' independence and fee; preliminary expenses; promoter; qualifications and consents of experts; binding effect; bilingual prospectus; taxation)",
+      "Appendix V — Documents Delivered to Registrar and Available for Inspection / Display: documents delivered to the Registrar of Companies (application forms; written consents of experts; copies of material contracts); documents available for inspection/display (location/websites; availability period, usually 14 days); document list (M&A; Accountants' Report; audited financial statements; pro forma report; Cayman legal opinion; Cayman Companies Act; PRC legal opinions if applicable; industry consultant report; material contracts; expert consents; directors' service contracts; share incentive scheme rules; full grantee list if required by waiver)"
+    ],
+    "issuer_type_conditional_rules": [
+      {
+        "when": "issuer_type=AI_foundation_model",
+        "rules": [
+          "Appendix I notes: R&D expenses; fair value losses on convertible redeemable preferred shares; going concern if net liabilities/current liabilities; FVTPL/FVOCI assets; share-based payment; preferred share conversion upon Listing."
+        ]
+      },
+      {
+        "when": "issuer_type=gaming_IP",
+        "rules": [
+          "Appendix I notes: game publishing/development/IP revenue; IP licenses, copyrights and trademarks; goodwill/business combinations; VIE consolidation if applicable."
+        ]
+      }
+    ],
+    "table_requirements": [
+      "Appendix II pro forma adjusted NTA table with per-scenario Offer Price columns."
+    ],
+    "evidence_requirements": [
+      "Pro forma adjusted NTA = unadjusted audited NTA + estimated net proceeds + preferred share conversion/reclassification adjustment + other supported adjustments; per Share NTA = pro forma adjusted NTA / shares assumed in issue after Listing."
+    ],
+    "cross_reference_rules": [
+      "Appendix IV must cross-check with Share Capital, History, Contractual Arrangements, Connected Transactions, Directors and Senior Management, Substantial Shareholders, Waivers and Appendix V."
+    ],
+    "negative_rules": [
+      "Do not fabricate accountant opinions, audit standards, firm identity, figures, notes or accounting policies.",
+      "Do not invent legal provisions for the Constitution / Cayman law summary.",
+      "If a professional source document is unavailable, generate a skeleton only and flag as blocker."
+    ],
+    "validation_checklist": [
+      "Appendix I matches Financial Information.",
+      "Appendix II calculations reconcile with Use of Proceeds and Share Capital.",
+      "Appendix III matches Share Capital (including WVR class rights if applicable).",
+      "Appendix IV material contracts match History / VIE / Connected Transactions.",
+      "Appendix V includes all referenced professional reports and consents."
+    ],
+    "source_registry": [
+      "signed accountant report",
+      "pro forma model",
+      "net proceeds calculation",
+      "M&A",
+      "Cayman legal memo",
+      "legal checklist",
+      "material contracts",
+      "share incentive plans",
+      "directors declarations",
+      "registrar checklist",
+      "expert consents"
     ]
   },
   "BackCover": {
@@ -2462,7 +3370,18 @@
     "kg_writing_rules": [],
     "kg_required_input_fields": [],
     "kg_evidence_types": [],
-    "kg_common_pitfalls": []
+    "kg_common_pitfalls": [],
+    "section_group": "BackMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": false,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Back cover page: repeat company name, stock code and key parties exactly as on the Cover; no new information.",
+    "negative_rules": [
+      "Do not introduce any information not already on the Cover."
+    ],
+    "validation_checklist": [
+      "Names and stock code match the Cover exactly."
+    ]
   },
   "CornerstoneInvestors": {
     "name": "Cornerstone Investors",
@@ -2529,6 +3448,29 @@
       "Failure to include all necessary conditions precedent.",
       "Insufficient detail on the lock-up period and restrictions on disposals.",
       "Lack of cross-referencing with other sections of the prospectus."
+    ],
+    "section_group": "CoreBody",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Cornerstone placing transaction disclosure.",
+    "mandatory_subsections": [
+      "1. The Cornerstone Placing — date and parties; aggregate subscription amount; currency conversion; offer price basis; shares subscribed; percentage of Offer Shares; percentage of issued share capital after Listing; over-allotment / offer size assumptions",
+      "2. Scenario table — if price range: low-end; mid-point; high-end; with/without Over-allotment Option if applicable",
+      "3. Regulatory and relationship disclosure — Independent Third Party status; existing shareholder / close associate; Rule 10.04 waiver / connected client consent; public float treatment; substantial shareholder status; board representation",
+      "4. Investor profiles — for each: legal name; jurisdiction/entity type; controlling shareholder/manager; principal business; AUM/fund size if provided; investment focus; subscription amount",
+      "5. Confirmations — internal resources; no financing by Company/Directors/controlling shareholders/close associates; no side agreements; no accustomed-to-act relationship; approvals obtained",
+      "6. Closing conditions — underwriting unconditional; Offer Price agreed; Listing approval; no legal prohibition; warranties true",
+      "7. Lock-up — lock-up period; permitted transfers; transferee undertaking"
+    ],
+    "evidence_requirements": [
+      "Cornerstone shares = subscription amount / exchange rate / Offer Price, rounded down to the nearest board lot where precedent requires."
+    ],
+    "table_requirements": [
+      "Scenario table across the Offer Price range."
+    ],
+    "validation_checklist": [
+      "Subscription amounts and share counts reconcile with the Structure of the Global Offering and Substantial Shareholders."
     ]
   },
   "Cover": {
@@ -2607,6 +3549,79 @@
       "Omitting the stock code or placing it in an inconspicuous location.",
       "Failing to list all required key underwriters in the correct order.",
       "Providing outdated or incorrect information about the issuer’s corporate structure."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Transaction-terms lock page, not a normal cover or marketing copy: front-load key offer terms, regulatory disclaimers, price mechanism, selling restrictions and mandatory WVR / Chapter 18C risk warnings.",
+    "required_input_fields": [
+      "Company legal name in English (and Chinese, if applicable)",
+      "Incorporation jurisdiction and limited liability status",
+      "WVR status, if applicable",
+      "Stock code",
+      "Offering type: Global Offering",
+      "Total number of Offer Shares; number of Hong Kong Offer Shares; number of International Offer Shares",
+      "Whether offer share numbers are subject to: reallocation; Over-allotment Option; Offer Size Adjustment Option; Downward Offer Price Adjustment",
+      "Maximum Offer Price and indicative Offer Price range",
+      "Brokerage and levy rates (brokerage, SFC transaction levy, Stock Exchange trading fee, AFRC transaction levy)",
+      "Nominal value per Share",
+      "Names of Joint Sponsors, Overall Coordinators, Joint Global Coordinators, Joint Bookrunners, Joint Lead Managers",
+      "Prospectus date"
+    ],
+    "mandatory_subsections": [
+      "Mandatory legal warnings: if investors are in doubt, they should seek independent professional advice",
+      "HKEX, the Stock Exchange and HKSCC take no responsibility for the contents of the Prospectus",
+      "The Prospectus has been registered with the Registrar of Companies in Hong Kong; SFC and Registrar of Companies take no responsibility for the contents",
+      "Offer Price determination mechanism and lapse condition if Offer Price is not agreed by the deadline",
+      "U.S. Securities Act selling restriction; Rule 144A / Regulation S framework if applicable",
+      "Investors should read Risk Factors before investing",
+      "Hong Kong Underwriting Agreement termination cross-reference"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "is_wr",
+        "rules": [
+          "State that the Company will be controlled through weighted voting rights upon Listing; warn that WVR beneficiaries may exert significant influence over shareholder resolutions and their interests may not align with shareholders as a whole; cross-reference Risk Factors — WVR Structure."
+        ]
+      },
+      {
+        "when": "is_18c",
+        "rules": [
+          "State that the Company is a Specialist Technology Company; warn that Specialist Technology Companies carry high investment risks; warn about valuation difficulty, share price volatility and risk of corporate failure."
+        ]
+      },
+      {
+        "when": "is_precommercial",
+        "rules": [
+          "State Pre-Commercial Company status clearly; warn about reliance on external funding."
+        ]
+      },
+      {
+        "when": "has_downward_offer_price_adjustment",
+        "rules": [
+          "State maximum Offer Price, bottom end of indicative Offer Price range and lowest adjusted offer price after downward adjustment; cross-reference Structure of Global Offering and How to Apply."
+        ]
+      },
+      {
+        "when": "uses_fini_eapp",
+        "rules": [
+          "Add ATTENTION box: no printed prospectus / application forms will be provided; state where the electronic prospectus is available."
+        ]
+      }
+    ],
+    "negative_rules": [
+      "Do not invent offer size, offer price, stock code, sponsor names, fee rates, levy rates, timetable dates or regulatory status.",
+      "Do not write promotional business descriptions on the cover.",
+      "Do not omit required warnings for WVR, Chapter 18C, Pre-Commercial status, VIE or U.S. selling restrictions where applicable."
+    ],
+    "validation_checklist": [
+      "Cover share numbers match Structure of Global Offering.",
+      "Offer Price range matches Expected Timetable, How to Apply, Use of Proceeds and Pro Forma.",
+      "Stock code matches all headers and Summary.",
+      "Sponsor/bookrunner names match Directors and Parties and Underwriting.",
+      "WVR wording matches Share Capital and Summary.",
+      "Chapter 18C status matches Summary and Risk Factors."
     ]
   },
   "HowToApply": {
@@ -2682,6 +3697,32 @@
       "Omitting critical application channels or procedures.",
       "Neglecting to include confidentiality and data protection measures.",
       "Not providing sufficient contact information for inquiries."
+    ],
+    "section_group": "Offering",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Application procedure manual for the Hong Kong Offer Shares.",
+    "mandatory_subsections": [
+      "1. How to apply — application channels; printed forms availability; electronic prospectus websites; eIPO/HKSCC/CCASS/FINI",
+      "2. Who can apply — eligibility; Hong Kong identity/address/legal capacity; restrictions on U.S. persons if applicable",
+      "3. Who cannot apply — existing shareholders; Directors/chief executive; close associates; connected persons; International Offering participants; persons prohibited unless waiver/consent",
+      "4. Application channels — HK eIPO White Form; Yellow Form if applicable; HKSCC EIPO / CCASS; broker/custodian; target investors; deadline and payment",
+      "5. Application amount and payment — board lot; application money table; maximum application; fees/levies",
+      "6. Multiple applications — one application per beneficial owner; duplicate rejection; double application restrictions",
+      "7. Bad weather / extreme conditions",
+      "8. Publication of results",
+      "9. Share certificates and refunds",
+      "10. Personal data, if precedent includes"
+    ],
+    "evidence_requirements": [
+      "Generate from transaction timetable, registrar, receiving bank and application channel data."
+    ],
+    "negative_rules": [
+      "Do not infer dates, URLs, deadlines or channels."
+    ],
+    "validation_checklist": [
+      "Channels, deadlines and amounts match Important Notice, Expected Timetable and Structure of the Global Offering."
     ]
   },
   "ImportantNotice": {
@@ -2760,6 +3801,42 @@
       "Omitting important terms and conditions that affect investor rights.",
       "Not cross-referencing with other sections of the prospectus.",
       "Using informal or ambiguous language that could mislead investors."
+    ],
+    "section_group": "FrontMatter",
+    "generation_mode": "controlled_template_fill",
+    "requires_verified_source": true,
+    "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
+    "section_function": "Tells investors how applications are accepted: whether the process is fully electronic, where the prospectus is available, what channels can be used, and what minimum application amount applies.",
+    "mandatory_subsections": [
+      "1. Fully electronic application process / application process status — whether fully electronic application is adopted; whether printed prospectus or application forms will be provided; where the electronic prospectus is available; statement that the electronic version is identical to the registered prospectus",
+      "2. Application channels — HK eIPO White Form service; HKSCC EIPO / CCASS / FINI; broker or custodian instructions; White Form / Yellow Form only if applicable",
+      "3. Applicant instructions — minimum number of Hong Kong Offer Shares; board lot multiple; payment of maximum Offer Price plus levies; pre-funding requirement if applying through broker/custodian",
+      "4. Application money table — number of shares applied for; maximum amount payable; note on brokerage and levies; maximum application number",
+      "5. Intermediary reminder — brokers, custodians and agents must remind clients the prospectus is available online",
+      "6. Cross-reference — How to Apply for Hong Kong Offer Shares"
+    ],
+    "transaction_conditional_rules": [
+      {
+        "when": "uses_fini_eapp",
+        "rules": [
+          "Do not include physical form lodging deadlines; state no physical channel exists for public applications; include HK eIPO White Form and HKSCC EIPO / FINI."
+        ]
+      },
+      {
+        "when": "not uses_fini_eapp",
+        "rules": [
+          "If older-style physical forms apply: include White Form, Yellow Form and CCASS instructions; include physical lodging deadline and collection/dispatch rules."
+        ]
+      }
+    ],
+    "table_requirements": [
+      "Application money table (shares applied for; maximum amount payable including brokerage and levies)."
+    ],
+    "validation_checklist": [
+      "Minimum application shares reconcile with the board lot.",
+      "Maximum application shares do not exceed the allowed percentage of Hong Kong Offer Shares.",
+      "Amount payable calculation includes Offer Price, brokerage and all applicable levies.",
+      "Application channels match How to Apply."
     ]
   }
 }

@@ -29,6 +29,8 @@ Review focus:
 5. Explicit or implicit profit-forecast wording.
 6. Missing [[AI:CITE|...]], [[AI:VERIFY|...]], or [[AI:XREF|...]] where needed.
 7. Any material mismatch between the evidence and the draft.
+8. VALIDATION CHECKLIST enforcement: if the section requirements contain a "VALIDATION CHECKLIST" block, verify each checklist item explicitly and raise an issue for every item the draft fails (checklist failures that the writer can fix are WRITING_ERROR).
+9. GENERATION MODE compliance: if the requirements declare a generation mode (e.g. controlled_template_fill, professional_source_assembly_only), flag drafting behaviour that violates that mode (e.g. invented narrative in a template-fill section).
 
 Return JSON only, with this exact schema:
 {

@@ -547,7 +547,7 @@ export default function SettingsPage() {
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
             <AppBackendStatus />
-            <Link href="/" className="text-sm text-[var(--accent)] hover:underline">
+            <Link href="/workspace" className="text-sm text-[var(--accent)] hover:underline">
               ← Back to workspace
             </Link>
           </div>

@@ -159,7 +159,7 @@ function meanPool(vectors: number[][]) {
   return sums.map((x) => x / vectors.length);
 }
 
-async function hfRequest(model: string, payload: any) {
+async function hfRequest(model: string, payload: Record<string, unknown>) {
   if (!process.env.HF_API_KEY) {
     throw new Error("Missing HF_API_KEY.");
   }
@@ -396,39 +396,6 @@ function buildPlainContext(topChunks: RagChunk[]) {
   return topChunks
     .map((c) => c.text.replace(/\n{3,}/g, "\n\n"))
     .join("\n\n");
-}
-
-function cleanDraftOutput(text: string) {
-  const lines = text
-    .split("\n")
-    .map((l) => l.trimEnd())
-    .filter((l) => l.length > 0);
-  const cleaned = lines.filter((line) => {
-    const lower = line.toLowerCase();
-    const hasMarker =
-      lower.includes("<system>") ||
-      lower.includes("<user>") ||
-      lower.includes("<assistant>") ||
-      lower.includes("system:") ||
-      lower.includes("user:") ||
-      lower.includes("assistant:") ||
-      lower.includes("section:") ||
-      lower.includes("requirements:") ||
-      lower.includes("context:");
-    if (hasMarker) {
-      return false;
-    }
-    if (
-      lower.startsWith("sources:") ||
-      lower.startsWith("source:") ||
-      line.startsWith("Source:")
-    ) {
-      return false;
-    }
-    return true;
-  });
-  const joined = cleaned.join("\n").trim();
-  return joined.replace(/^\[\d+\]\s*/gm, "").trim();
 }
 
 function extractBetweenMarkers(

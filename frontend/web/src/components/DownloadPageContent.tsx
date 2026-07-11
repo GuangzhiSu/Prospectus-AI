@@ -4,158 +4,129 @@ import Link from "next/link";
 import { PublicNav } from "@/components/PublicNav";
 import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
 
-type Locale = "en" | "zh";
-
 type DisplayAsset = DownloadAsset & {
   downloadHref: string;
 };
 
-type DownloadCard = {
-  id: string;
+type DownloadCopy = {
+  navLocale?: "en" | "zh";
+  eyebrow: string;
   title: string;
-  platform: string;
   description: string;
-  href: string;
-  recommended?: boolean;
-  action: string;
+  primaryCta: string;
+  workspaceCta: string;
+  releaseTitle: string;
+  releaseDescription: string;
+  evidence: string;
+  drafting: string;
+  export: string;
+  includedTitle: string;
+  included: string[];
+  downloadsTitle: string;
+  downloadsDescription: string;
+  settingsCta: string;
+  recommended: string;
+  downloadButton: string;
+  footerTitle: string;
+  footerDescription: string;
+  workflowTitle: string;
+  workflowText: string;
+  deploymentTitle: string;
+  deploymentText: string;
 };
 
 const assetLabels = {
   en: {
     windows: {
-      title: "Windows installer",
-      description:
-        "Recommended desktop installer for private IPO drafting workstations. Creates Start Menu and optional desktop shortcuts.",
+      title: "Windows Installer",
+      description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
     },
     linux: {
       title: "Linux x86_64",
-      description:
-        "Full Linux archive for controlled workstation, server, or internal testing deployment.",
+      description: "Full Linux archive for workstation or server deployment.",
     },
   },
   zh: {
     windows: {
       title: "Windows 安装包",
-      description:
-        "推荐用于私有 IPO 起草工作站的桌面安装包，会创建开始菜单快捷方式，并可选择创建桌面快捷方式。",
+      description: "标准安装程序，会创建开始菜单快捷方式，并可选择创建桌面快捷方式。",
     },
     linux: {
       title: "Linux x86_64",
-      description:
-        "适用于受控工作站、服务器或内部测试部署的完整 Linux 压缩包。",
+      description: "适用于工作站或服务器部署的完整 Linux 压缩包。",
     },
   },
 };
 
 const copy = {
   en: {
-    eyebrow: "Private and controlled deployment",
-    title: "Download the private AI Prospectus workspace.",
+    navLocale: "en",
+    eyebrow: "Sponsor counsel drafting workspace",
+    title: "Prospectus AI",
     description:
-      "Use the installer, web workspace, or source package depending on how your team wants to run local evidence preparation, prospectus drafting, review, and export.",
-    windowsCta: "Windows installer",
+      "A desktop-ready AI workspace for transforming issuer files into prospectus evidence, section drafts, verification notes, and Word exports.",
+    primaryCta: "Download Windows installer",
     workspaceCta: "Open web workspace",
-    settingsCta: "Configure model settings",
-    panelTitle: "Controlled IPO workspace",
-    panelSubtitle: "Local files, explicit model settings, reviewable output",
-    privateData: "Private data",
-    localMode: "Local mode",
-    reviewExport: "Review export",
-    includedTitle: "Designed for",
+    releaseTitle: "Current release",
+    releaseDescription: "Installer and release builds from GitHub Releases",
+    evidence: "Evidence",
+    drafting: "Drafting",
+    export: "Export",
+    includedTitle: "Included",
     included: [
-      "Sensitive issuer materials in a local or controlled environment",
-      "Model and inference configuration before drafting",
-      "Evidence preparation, section drafting, review notes, and DOCX export",
+      "Isolated AI module and web workspace",
+      "Windows installer with Start Menu and desktop shortcuts",
+      "Local file workflow for confidential issuer materials",
     ],
     downloadsTitle: "Downloads",
     downloadsDescription:
-      "Pick the package that matches your deployment path. Windows is the recommended packaged experience; Linux and source are available for controlled technical use.",
+      "Pick the package for your machine. Buttons download the published v0.1.0 release assets from GitHub.",
+    settingsCta: "Configure model settings",
     recommended: "Recommended",
-    sourceTitle: "Source / GitHub",
-    sourcePlatform: "Repository",
-    sourceDescription:
-      "Use the repository for code review, local development, deployment customization, and release notes.",
-    sourceAction: "View source",
     downloadButton: "Download",
-    footerTitle: "Private by workflow design",
+    footerTitle: "Designed for controlled drafting",
     footerDescription:
-      "AI Prospectus separates public product pages from the workspace where issuer files, diagnostic context, drafting state, and export readiness are handled.",
-    workflowTitle: "Workspace path",
-    workflowText: "Upload materials, run IPO diagnostic, prepare evidence, draft sections, review, and export.",
-    deploymentTitle: "Deployment path",
-    deploymentText: "Use packaged installers for controlled desktop use or source for internal engineering review.",
+      "The app keeps the main workflow local: upload issuer materials, prepare evidence, generate sections, then export a Word draft for review.",
+    workflowTitle: "Workflow",
+    workflowText: "Data upload, Agent1 evidence preparation, Agent2 section drafting, and DOCX export.",
+    deploymentTitle: "Deployment",
+    deploymentText: "Use the web workspace for development or download the Windows installer for distribution.",
   },
   zh: {
-    eyebrow: "私有化与受控部署",
-    title: "下载私有化 AI Prospectus 工作台。",
+    navLocale: "zh",
+    eyebrow: "保荐人律师文档生成工作区",
+    title: "Prospectus AI",
     description:
-      "根据团队运行方式选择安装包、网页工作台或源码包，用于本地证据整理、招股书起草、复核和导出。",
-    windowsCta: "Windows 安装包",
-    workspaceCta: "打开网页工作台",
-    settingsCta: "配置模型设置",
-    panelTitle: "受控 IPO 工作台",
-    panelSubtitle: "本地文件、明确模型配置、可复核输出",
-    privateData: "私有数据",
-    localMode: "本地模式",
-    reviewExport: "复核导出",
-    includedTitle: "适用于",
+      "面向桌面端的 AI 工作区，可将发行人文件转化为招股书证据、章节草稿、核验提示和 Word 工作稿。",
+    primaryCta: "下载 Windows 安装包",
+    workspaceCta: "打开网页工作区",
+    releaseTitle: "当前版本",
+    releaseDescription: "安装包和发布文件来自 GitHub Releases",
+    evidence: "证据",
+    drafting: "起草",
+    export: "导出",
+    includedTitle: "包含内容",
     included: [
-      "在本地或受控环境中处理敏感发行人材料",
-      "在起草前配置模型和推理参数",
-      "证据准备、章节起草、复核提示和 DOCX 导出",
+      "独立 AI 模块与网页工作区",
+      "带开始菜单和桌面快捷方式的 Windows 安装包",
+      "适合敏感发行人材料的本地文件工作流",
     ],
     downloadsTitle: "下载",
-    downloadsDescription:
-      "选择适合部署路径的版本。Windows 是推荐的打包体验；Linux 和源码适合受控技术使用。",
+    downloadsDescription: "选择适合你机器的版本。按钮会下载 GitHub 上发布的 v0.1.0 文件。",
+    settingsCta: "配置模型设置",
     recommended: "推荐",
-    sourceTitle: "源码 / GitHub",
-    sourcePlatform: "代码仓库",
-    sourceDescription:
-      "用于代码审阅、本地开发、部署定制和查看发布说明。",
-    sourceAction: "查看源码",
     downloadButton: "下载",
-    footerTitle: "从工作流层面保持私有",
+    footerTitle: "为受控起草流程而设计",
     footerDescription:
-      "AI Prospectus 将公开产品页面与实际处理发行人文件、诊断语境、起草状态和导出准备度的工作台分离。",
-    workflowTitle: "工作台路径",
-    workflowText: "上传材料、运行上市诊断、准备证据、生成章节、复核并导出。",
-    deploymentTitle: "部署路径",
-    deploymentText: "受控桌面使用建议安装包；内部工程审阅可使用源码。",
+      "应用将核心流程保留在本地：上传发行人材料、整理证据、生成章节，然后导出 Word 草稿供审阅。",
+    workflowTitle: "工作流",
+    workflowText: "数据上传、Agent1 证据整理、Agent2 章节起草和 DOCX 导出。",
+    deploymentTitle: "部署",
+    deploymentText: "开发时可使用网页工作区；分发时建议下载 Windows 安装包。",
   },
-} satisfies Record<
-  Locale,
-  {
-    eyebrow: string;
-    title: string;
-    description: string;
-    windowsCta: string;
-    workspaceCta: string;
-    settingsCta: string;
-    panelTitle: string;
-    panelSubtitle: string;
-    privateData: string;
-    localMode: string;
-    reviewExport: string;
-    includedTitle: string;
-    included: string[];
-    downloadsTitle: string;
-    downloadsDescription: string;
-    recommended: string;
-    sourceTitle: string;
-    sourcePlatform: string;
-    sourceDescription: string;
-    sourceAction: string;
-    downloadButton: string;
-    footerTitle: string;
-    footerDescription: string;
-    workflowTitle: string;
-    workflowText: string;
-    deploymentTitle: string;
-    deploymentText: string;
-  }
->;
+} satisfies Record<"en" | "zh", DownloadCopy>;
 
-function getAssets(locale: Locale): DisplayAsset[] {
+function getAssets(locale: "en" | "zh"): DisplayAsset[] {
   const labels = assetLabels[locale];
   return DOWNLOAD_ASSETS.map((asset) => ({
     ...asset,
@@ -181,59 +152,49 @@ function ArrowIcon() {
   );
 }
 
-export function DownloadPageContent({ locale = "en" }: { locale?: Locale }) {
+export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" }) {
   const t = copy[locale];
   const assets = getAssets(locale);
   const recommended = assets.find((asset) => asset.recommended) ?? assets[0];
-  const workspaceHref = locale === "zh" ? "/zh/workspace" : "/workspace";
-  const cards: DownloadCard[] = [
-    ...assets.map((asset) => ({
-      id: asset.id,
-      title: asset.title,
-      platform: asset.platform,
-      description: asset.description,
-      href: asset.downloadHref,
-      recommended: asset.recommended,
-      action: t.downloadButton,
-    })),
-    {
-      id: "source",
-      title: t.sourceTitle,
-      platform: t.sourcePlatform,
-      description: t.sourceDescription,
-      href: "https://github.com/GuangzhiSu/Prospectus-AI",
-      action: t.sourceAction,
-    },
-  ];
 
   return (
-    <main className="min-h-screen bg-[#f7f8f2] text-[#17201b]">
-      <PublicNav active="download" locale={locale} />
-
+    <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
+      <PublicNav active="download" locale={t.navLocale} />
       <section className="relative overflow-hidden bg-[#16231d] text-white">
-        <div className="absolute inset-0 opacity-[0.14]">
-          <Image src="/app-icon-512.png" alt="" fill priority sizes="100vw" className="object-cover" />
+        <div className="absolute inset-0 opacity-20">
+          <Image
+            src="/app-icon-512.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
         </div>
         <div className="relative mx-auto grid min-h-[680px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-14 pt-28 md:grid-cols-[1fr_420px]">
           <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase text-[#dce8df]">
               {t.eyebrow}
             </div>
-            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">{t.title}</h1>
+            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+              {t.title}
+            </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#dce8df] md:text-lg">
               {t.description}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href={recommended.downloadHref} className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]">
+              <a
+                href={recommended.downloadHref}
+                className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
+              >
                 <DownloadIcon />
-                {t.windowsCta}
+                {t.primaryCta}
               </a>
-              <Link href={workspaceHref} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link
+                href="/workspace"
+                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
                 {t.workspaceCta}
-                <ArrowIcon />
-              </Link>
-              <Link href="/settings" className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
-                {t.settingsCta}
                 <ArrowIcon />
               </Link>
             </div>
@@ -241,24 +202,24 @@ export function DownloadPageContent({ locale = "en" }: { locale?: Locale }) {
 
           <div className="border border-white/15 bg-[#f7faf6] p-5 text-[#17201b] shadow-2xl">
             <div className="flex items-center gap-3 border-b border-[#d8ded6] pb-4">
-              <Image src="/app-icon.png" alt="AI Prospectus icon" width={44} height={44} />
+              <Image src="/app-icon.png" alt="Prospectus AI icon" width={44} height={44} />
               <div>
-                <p className="text-sm font-semibold">{t.panelTitle}</p>
-                <p className="text-xs text-[#647064]">{t.panelSubtitle}</p>
+                <p className="text-sm font-semibold">{t.releaseTitle}</p>
+                <p className="text-xs text-[#647064]">{t.releaseDescription}</p>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
               <div className="bg-[#eef3ec] px-2 py-3">
-                <p className="font-semibold">Data</p>
-                <p className="mt-1 text-[#647064]">{t.privateData}</p>
+                <p className="font-semibold">Agent1</p>
+                <p className="mt-1 text-[#647064]">{t.evidence}</p>
               </div>
               <div className="bg-[#eef3ec] px-2 py-3">
-                <p className="font-semibold">Model</p>
-                <p className="mt-1 text-[#647064]">{t.localMode}</p>
+                <p className="font-semibold">Agent2</p>
+                <p className="mt-1 text-[#647064]">{t.drafting}</p>
               </div>
               <div className="bg-[#eef3ec] px-2 py-3">
                 <p className="font-semibold">DOCX</p>
-                <p className="mt-1 text-[#647064]">{t.reviewExport}</p>
+                <p className="mt-1 text-[#647064]">{t.export}</p>
               </div>
             </div>
             <div className="mt-5 border-t border-[#d8ded6] pt-4">
@@ -285,12 +246,14 @@ export function DownloadPageContent({ locale = "en" }: { locale?: Locale }) {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {cards.map((asset) => (
+        <div className="grid gap-4 md:grid-cols-2">
+          {assets.map((asset) => (
             <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
-              <div className="flex min-h-[86px] items-start justify-between gap-3">
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase text-[#6b735f]">{asset.platform}</p>
+                  <p className="text-xs font-semibold uppercase text-[#6b735f]">
+                    {asset.platform}
+                  </p>
                   <h3 className="mt-2 text-lg font-semibold">{asset.title}</h3>
                 </div>
                 {asset.recommended && (
@@ -299,12 +262,15 @@ export function DownloadPageContent({ locale = "en" }: { locale?: Locale }) {
                   </span>
                 )}
               </div>
-              <p className="mt-3 min-h-24 text-sm leading-6 text-[#637064]">{asset.description}</p>
+              <p className="mt-3 min-h-12 text-sm leading-6 text-[#637064]">{asset.description}</p>
               <div className="mt-5 flex items-center justify-between border-t border-[#edf0eb] pt-4">
                 <span className="text-sm font-medium text-[#334139]">{asset.platform}</span>
-                <a href={asset.href} className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]">
-                  {asset.id === "source" ? <ArrowIcon /> : <DownloadIcon />}
-                  {asset.action}
+                <a
+                  href={asset.downloadHref}
+                  className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
+                >
+                  <DownloadIcon />
+                  {t.downloadButton}
                 </a>
               </div>
             </article>

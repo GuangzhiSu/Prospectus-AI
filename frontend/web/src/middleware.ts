@@ -1,5 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  DESKTOP_MARKETING_REDIRECTS,
+  isElectronUserAgent,
+} from "@/lib/desktop-app";
+
 const PROTECTED_API_PREFIXES = [
   "/api/agent1",
   "/api/agent2",
@@ -49,7 +54,23 @@ function isProtectedPath(pathname: string) {
   );
 }
 
+function redirectDesktopMarketing(request: NextRequest): NextResponse | null {
+  if (!isElectronUserAgent(request.headers.get("user-agent") ?? "")) {
+    return null;
+  }
+  const destination = DESKTOP_MARKETING_REDIRECTS[request.nextUrl.pathname];
+  if (!destination) {
+    return null;
+  }
+  return NextResponse.redirect(new URL(destination, request.url));
+}
+
 export function middleware(request: NextRequest) {
+  const desktopRedirect = redirectDesktopMarketing(request);
+  if (desktopRedirect) {
+    return desktopRedirect;
+  }
+
   if (!isProtectedPath(request.nextUrl.pathname)) {
     return NextResponse.next();
   }
@@ -62,5 +83,15 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/workspace/:path*", "/zh/workspace/:path*", "/api/:path*"],
+  matcher: [
+    "/",
+    "/zh",
+    "/download",
+    "/zh/download",
+    "/eligibility",
+    "/zh/eligibility",
+    "/workspace/:path*",
+    "/zh/workspace/:path*",
+    "/api/:path*",
+  ],
 };

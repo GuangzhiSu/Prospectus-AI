@@ -1,4 +1,5 @@
 {
+  "issuer_type": "other",
   "is_wr": false,
   "is_18c": false,
   "is_precommercial": false,
@@ -7,5 +8,11 @@
   "uses_fini_eapp": false,
   "has_cornerstone": false,
   "has_overallotment": false,
-  "needs_how_to_apply": true
+  "needs_how_to_apply": true,
+  "has_downward_offer_price_adjustment": false,
+  "has_offer_size_adjustment_option": false,
+  "has_major_litigation": false,
+  "is_loss_making": false,
+  "has_net_liabilities": false,
+  "has_negative_operating_cash_flow": false
 }

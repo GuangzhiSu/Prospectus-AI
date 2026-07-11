@@ -1,10 +1,10 @@
 /**
  * Electron shell for Prospectus AI.
  *
- * Development: run `npm run dev` in frontend/web, then `npm start` here — loads http://127.0.0.1:3000
+ * Development: run `npm run dev` in frontend/web, then `npm start` here — loads /workspace
  *
- * Packaged: place the built app next to a full Prospectus install (agent1.py + web/server.js),
- * e.g. the output of packaging/windows/build.ps1 — same folder layout as start-prospectus-ui.bat.
+ * Packaged macOS: runtime lives in Contents/Resources/prospectus/
+ * Packaged Windows: flat layout beside Prospectus AI.exe (agent1.py + web/)
  */
 
 const { app, BrowserWindow, dialog } = require("electron");
@@ -15,24 +15,121 @@ const { spawn } = require("child_process");
 
 const DEV_URL = "http://127.0.0.1:3000";
 const DEFAULT_PORT = process.env.PROSPECTUS_PORT || "3000";
+/** Desktop app opens the drafting workspace, not the public marketing homepage. */
+const APP_ENTRY_PATH = process.env.PROSPECTUS_ELECTRON_ENTRY || "/workspace";
+
+/** Marketing routes that should never load inside the desktop shell. */
+const DESKTOP_MARKETING_REDIRECTS = {
+  "/": "/workspace",
+  "/zh": "/zh/workspace",
+  "/download": "/workspace",
+  "/zh/download": "/zh/workspace",
+  "/eligibility": "/workspace",
+  "/zh/eligibility": "/zh/workspace",
+};
+
+function redirectDesktopMarketingNavigation(event, navigationUrl) {
+  try {
+    const url = new URL(navigationUrl);
+    const destination = DESKTOP_MARKETING_REDIRECTS[url.pathname];
+    if (!destination || !mainWindow || mainWindow.isDestroyed()) return;
+    event.preventDefault();
+    mainWindow.loadURL(`${url.origin}${destination}`);
+  } catch {
+    // Ignore malformed URLs.
+  }
+}
+
+function attachDesktopNavigationGuards(webContents) {
+  webContents.on("will-navigate", (event, url) => {
+    redirectDesktopMarketingNavigation(event, url);
+  });
+}
 
 let serverChild = null;
 let mainWindow = null;
+
+function appHomeUrl(baseUrl) {
+  const base = baseUrl.replace(/\/$/, "");
+  const entry = APP_ENTRY_PATH.startsWith("/") ? APP_ENTRY_PATH : `/${APP_ENTRY_PATH}`;
+  return `${base}${entry}`;
+}
 
 function iconPath() {
   const p = path.join(__dirname, "build", "icon.png");
   return fs.existsSync(p) ? p : undefined;
 }
 
+function venvBinDir(prospectusRoot) {
+  return process.platform === "win32"
+    ? path.join(prospectusRoot, "venv", "Scripts")
+    : path.join(prospectusRoot, "venv", "bin");
+}
+
+function venvPython(prospectusRoot) {
+  return process.platform === "win32"
+    ? path.join(prospectusRoot, "venv", "Scripts", "python.exe")
+    : path.join(prospectusRoot, "venv", "bin", "python3");
+}
+
+function bundledProspectusRoot() {
+  if (!app.isPackaged || process.platform !== "darwin") return null;
+  const bundled = path.join(process.resourcesPath, "prospectus");
+  if (fs.existsSync(path.join(bundled, "agent1.py")) && fs.existsSync(path.join(bundled, "web", "server.js"))) {
+    return bundled;
+  }
+  return null;
+}
+
+function ensureMacWorkspace(bundleRoot, workspaceRoot) {
+  fs.mkdirSync(workspaceRoot, { recursive: true });
+  for (const rel of ["prospectus_kg_output/inputs"]) {
+    const src = path.join(bundleRoot, rel);
+    const dst = path.join(workspaceRoot, rel);
+    if (fs.existsSync(src) && !fs.existsSync(dst)) {
+      fs.cpSync(src, dst, { recursive: true });
+    }
+  }
+}
+
 /**
- * Layout from packaging/windows/build.ps1: InstallRoot/agent1.py, InstallRoot/web/server.js
+ * Layout from packaging scripts:
+ * - macOS DMG: Contents/Resources/prospectus/
+ * - Windows portable: InstallRoot/agent1.py beside the .exe
  */
 function findProspectusInstallNearExe() {
+  const bundled = bundledProspectusRoot();
+  if (bundled) {
+    const workspaceRoot = app.getPath("userData");
+    ensureMacWorkspace(bundled, workspaceRoot);
+    return {
+      prospectusRoot: bundled,
+      webRoot: path.join(bundled, "web"),
+      workspaceRoot,
+    };
+  }
+
+  const candidates = [];
   const exeDir = path.dirname(process.execPath);
-  const webServer = path.join(exeDir, "web", "server.js");
-  const agent = path.join(exeDir, "agent1.py");
-  if (fs.existsSync(webServer) && fs.existsSync(agent)) {
-    return { prospectusRoot: exeDir, webRoot: path.join(exeDir, "web") };
+  candidates.push(exeDir);
+
+  if (process.platform === "darwin") {
+    const macOsDir = path.join("Contents", "MacOS");
+    if (exeDir.endsWith(macOsDir) || exeDir.includes(`${path.sep}Contents${path.sep}MacOS`)) {
+      candidates.push(path.resolve(exeDir, "..", "..", ".."));
+    }
+  }
+
+  const seen = new Set();
+  for (const dir of candidates) {
+    const normalized = path.resolve(dir);
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    const webServer = path.join(normalized, "web", "server.js");
+    const agent = path.join(normalized, "agent1.py");
+    if (fs.existsSync(webServer) && fs.existsSync(agent)) {
+      return { prospectusRoot: normalized, webRoot: path.join(normalized, "web") };
+    }
   }
   return null;
 }
@@ -84,16 +181,27 @@ function startNextStandalone(layout, port) {
       reject(new Error(`Missing server.js: ${serverJs}`));
       return;
     }
+
+    const embeddedNode =
+      process.platform === "win32"
+        ? path.join(layout.prospectusRoot, "node", "node.exe")
+        : path.join(layout.prospectusRoot, "node", "bin", "node");
+    const serverNode = fs.existsSync(embeddedNode) ? embeddedNode : process.execPath;
+
     const env = {
       ...process.env,
       PROSPECTUS_ROOT: layout.prospectusRoot,
-      AGENT1_PYTHON: path.join(layout.prospectusRoot, "venv", "Scripts", "python.exe"),
-      PATH: `${path.join(layout.prospectusRoot, "venv", "Scripts")}${path.delimiter}${process.env.PATH || ""}`,
+      AGENT1_PYTHON: venvPython(layout.prospectusRoot),
+      PATH: `${venvBinDir(layout.prospectusRoot)}${path.delimiter}${process.env.PATH || ""}`,
       PORT: String(port),
       HOSTNAME: "127.0.0.1",
       ELECTRON_RUN_AS_NODE: "1",
     };
-    serverChild = spawn(process.execPath, [serverJs], {
+    if (layout.workspaceRoot) {
+      env.WORKSPACE_ROOT = layout.workspaceRoot;
+    }
+
+    serverChild = spawn(serverNode, [serverJs], {
       cwd: layout.webRoot,
       env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -120,7 +228,7 @@ function startNextStandalone(layout, port) {
 
 async function resolveStartUrl() {
   if (!app.isPackaged) {
-    return { url: DEV_URL, startedServer: false };
+    return { url: appHomeUrl(DEV_URL), startedServer: false };
   }
   const layout = findProspectusInstallNearExe();
   if (!layout) {
@@ -128,7 +236,7 @@ async function resolveStartUrl() {
   }
   const port = await findAvailablePort(DEFAULT_PORT);
   await startNextStandalone(layout, port);
-  return { url: `http://127.0.0.1:${port}`, startedServer: true };
+  return { url: appHomeUrl(`http://127.0.0.1:${port}`), startedServer: true };
 }
 
 async function createWindow() {
@@ -138,10 +246,12 @@ async function createWindow() {
     await dialog.showMessageBox({
       type: "error",
       title: "Prospectus AI",
-      message: "Install folder not found next to this app",
+      message: "Install folder not found",
       detail:
-        "Place this program in the same folder as agent1.py and the web folder (the output of packaging/windows/build.ps1).\n\n" +
-        "Or for development, run from the repo: npm run dev in frontend/web, then npm start in platform/desktop (unpackaged).",
+        process.platform === "darwin"
+          ? "The app bundle is missing its bundled runtime (Contents/Resources/prospectus).\n\nRebuild with: npm run pack:mac"
+          : "Place this program in the same folder as agent1.py and the web folder (the output of packaging/windows/build.ps1).\n\n" +
+            "Or for development, run from the repo: npm run dev in frontend/web, then npm start in platform/desktop (unpackaged).",
     });
     app.quit();
     return;
@@ -152,8 +262,10 @@ async function createWindow() {
     height: 900,
     minWidth: 960,
     minHeight: 640,
+    title: "Prospectus AI",
     icon: iconPath(),
     show: false,
+    autoHideMenuBar: app.isPackaged,
     webPreferences: {
       sandbox: true,
       contextIsolation: true,
@@ -161,6 +273,7 @@ async function createWindow() {
   });
 
   mainWindow.once("ready-to-show", () => mainWindow.show());
+  attachDesktopNavigationGuards(mainWindow.webContents);
 
   try {
     await mainWindow.loadURL(url);

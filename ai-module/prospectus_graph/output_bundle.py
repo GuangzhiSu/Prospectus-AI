@@ -16,6 +16,7 @@ from typing import Any
 from prospectus_graph.ai_tag_schema import parse_ai_tags
 from prospectus_graph.blocker_gate import run_document_blockers
 from prospectus_graph.config import SECTIONS
+from prospectus_graph.cross_validation import run_cross_section_validation
 from prospectus_graph.issuer_metadata import METADATA_FIELDS, load_issuer_metadata
 
 VERIFICATION_NOTES_RE = re.compile(
@@ -174,10 +175,29 @@ def write_output_bundle(
     coverage_path.write_text(build_coverage_matrix(meta), encoding="utf-8")
 
     doc_issues = run_document_blockers(combined_markdown, issuer_metadata_path=issuer_metadata_path)
+    cross = run_cross_section_validation(
+        combined_markdown, issuer_metadata_path=issuer_metadata_path
+    )
+    doc_issues = doc_issues + cross["errors"] + cross["warnings"]
     blockers = [i for i in doc_issues if i.get("severity") == "blocker"]
     highs = [i for i in doc_issues if i.get("severity") == "high"]
     mediums = [i for i in doc_issues if i.get("severity") == "medium"]
     lows = [i for i in doc_issues if i.get("severity") == "low"]
+
+    missing_inputs_path = out / "missing_inputs.json"
+    missing_inputs_path.write_text(
+        json.dumps(
+            {
+                "missing_inputs": cross["missing_inputs"],
+                "passed_checks": cross["passed_checks"],
+                "suggested_fixes": cross["suggested_fixes"],
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     if extra_blockers:
         blockers.extend(extra_blockers)
@@ -204,4 +224,5 @@ def write_output_bundle(
         "validation_report": str(report_path),
         "evidence_register": str(evidence_path),
         "coverage_matrix": str(coverage_path),
+        "missing_inputs": str(missing_inputs_path),
     }

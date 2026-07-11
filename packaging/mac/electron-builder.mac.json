@@ -1,0 +1,50 @@
+{
+  "appId": "com.prospectus.ai",
+  "productName": "Prospectus AI",
+  "copyright": "Copyright © contributors",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "main.cjs",
+    "build/icon.png"
+  ],
+  "extraResources": [
+    {
+      "from": "prospectus-bundle",
+      "to": "prospectus",
+      "filter": ["**/*"]
+    }
+  ],
+  "mac": {
+    "target": ["dmg"],
+    "category": "public.app-category.productivity",
+    "icon": "build/icon.png"
+  },
+  "dmg": {
+    "title": "Prospectus AI ${version}",
+    "window": {
+      "width": 540,
+      "height": 420
+    },
+    "contents": [
+      {
+        "x": 130,
+        "y": 160
+      },
+      {
+        "x": 410,
+        "y": 160,
+        "type": "link",
+        "path": "/Applications"
+      },
+      {
+        "x": 270,
+        "y": 310,
+        "type": "file",
+        "path": "build/install-prospectus.command",
+        "name": "双击安装 Install.command"
+      }
+    ]
+  }
+}
