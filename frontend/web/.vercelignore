@@ -1,0 +1,16 @@
+# Local dependencies and Next output
+node_modules/
+.next/
+out/
+build/
+
+# Runtime files
+uploads/
+rag/
+rag_raw/
+.progress.json
+
+# Local environment and caches
+.env
+.env.*
+*.tsbuildinfo
