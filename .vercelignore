@@ -1,0 +1,34 @@
+# Local dependencies and framework output
+node_modules/
+frontend/web/node_modules/
+frontend/web/.next/
+.next/
+
+# Local release bundles and packaged runtimes
+dist/
+platform/desktop/release/
+platform/desktop/node_modules/
+
+# Runtime workspaces and generated outputs
+uploads/
+rag/
+rag_raw/
+agent1_output/
+agent2_output/
+prospectus_kg_output/
+prospectus_corpus/
+pipeline-module/ipo_prospectus_pipeline/outputs/
+pipeline-module/ipo_prospectus_pipeline/outputs_*/
+
+# Local or sensitive source data
+data/
+*.docx
+*.pdf
+.env
+.env.*
+
+# Tooling and caches
+.git/
+.pytest_cache/
+**/__pycache__/
+*.py[cod]
