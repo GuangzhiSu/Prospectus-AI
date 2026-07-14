@@ -181,25 +181,35 @@ def _shape(value: Any) -> str:
     return "scalar"
 
 
+def _has_page_provenance(value: dict[str, Any]) -> bool:
+    return bool(value.get("source_file")) and value.get("page_start") is not None
+
+
 def _wrap_value(value: Any, *, sec_meta: dict[str, Any], default_source_kind: str) -> dict[str, Any] | None:
     if value in (None, "", [], {}):
         return None
     if isinstance(value, dict) and "value" in value:
+        had_page_provenance = _has_page_provenance(value)
         wrapped = dict(value)
         wrapped.setdefault("likely_source_document", default_source_kind)
         wrapped.setdefault("original_input_shape", _shape(value.get("value")))
-        wrapped.setdefault("evidence_status", "traceable" if wrapped.get("source_file") else "legacy_no_page_span")
     else:
         wrapped = {
             "value": value,
             "likely_source_document": default_source_kind,
             "original_input_shape": _shape(value),
-            "evidence_status": "legacy_no_page_span",
         }
+        had_page_provenance = False
     wrapped.setdefault("source_file", sec_meta.get("source_file") or "")
     wrapped.setdefault("page_start", sec_meta.get("page_start"))
     wrapped.setdefault("page_end", sec_meta.get("page_end"))
     wrapped.setdefault("span_preview", "")
+    if "evidence_status" not in wrapped or (
+        wrapped.get("evidence_status") == "legacy_no_page_span" and _has_page_provenance(wrapped)
+    ):
+        wrapped["evidence_status"] = (
+            "traceable" if had_page_provenance else "section_traceable"
+        ) if _has_page_provenance(wrapped) else "legacy_no_page_span"
     return wrapped
 
 
@@ -317,7 +327,7 @@ def build_for_doc(
         counter["source_documents"] += 1
         counter["extracted_fields"] += len(extracted_all)
         counter["missing_fields"] += len(missing_all)
-        counter["traceable_fields"] += sum(1 for f in extracted_all if f.get("evidence_status") == "traceable")
+        counter["traceable_fields"] += sum(1 for f in extracted_all if _has_page_provenance(f))
         source_doc = {
             "source_document_kind": tmpl.source_document_kind,
             "display_name": tmpl.display_name,
@@ -356,7 +366,7 @@ def build_for_doc(
         "generation_method": "deterministic mapping from section-level reverse extraction",
         "limitations": [
             "Values are inferred from the published prospectus, not from actual issuer data-room files.",
-            "Fields marked legacy_no_page_span should be regenerated with stage3_extract_v2 --provider openai or a fresh local model run.",
+            "Fields lacking source_file/page_start should be regenerated with stage3_extract_v2 --provider openai or a fresh local model run.",
             "Professional opinions are source-document placeholders and should not be treated as signed opinions.",
         ],
         "counts": dict(counter),

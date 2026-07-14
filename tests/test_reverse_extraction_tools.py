@@ -118,6 +118,7 @@ def test_build_source_packages_maps_sections_to_realistic_documents(tmp_path):
         out_dir=out_dir,
     )
     assert summary["documents_written"] == 1
+    assert summary["counts"]["traceable_fields"] == 1
     package = json.loads((out_dir / "demo" / "source_package.json").read_text(encoding="utf-8"))
     proceeds_doc = next(
         d for d in package["source_documents"]
@@ -126,5 +127,6 @@ def test_build_source_packages_maps_sections_to_realistic_documents(tmp_path):
     assert proceeds_doc["agent1_domain"] == "offering_use_of_proceeds"
     assert proceeds_doc["extracted_fields"][0]["value"] == "HK$100 million"
     assert proceeds_doc["extracted_fields"][0]["page_start"] == 100
+    assert proceeds_doc["extracted_fields"][0]["evidence_status"] == "section_traceable"
     seed = json.loads((out_dir / "demo" / "agent1_input_seed.json").read_text(encoding="utf-8"))
     assert "offering_use_of_proceeds" in seed
