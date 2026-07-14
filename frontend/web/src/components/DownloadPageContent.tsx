@@ -43,9 +43,13 @@ const assetLabels = {
       title: "Windows Installer",
       description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
     },
-    macos: {
-      title: "macOS DMG",
-      description: "Standalone Mac app package for Apple Silicon or Intel Macs.",
+    "macos-arm64": {
+      title: "macOS Apple Silicon",
+      description: "Standalone Mac app package for M-series Macs.",
+    },
+    "macos-x64": {
+      title: "macOS Intel",
+      description: "Standalone Mac app package for Intel Macs.",
     },
     linux: {
       title: "Linux x86_64",
@@ -62,9 +66,13 @@ const assetLabels = {
       title: "Windows 安装包",
       description: "标准安装程序，会创建开始菜单快捷方式，并可选择创建桌面快捷方式。",
     },
-    macos: {
-      title: "macOS DMG",
-      description: "适用于 Apple Silicon 或 Intel Mac 的独立应用包。",
+    "macos-arm64": {
+      title: "macOS Apple Silicon",
+      description: "适用于 M 系列芯片 Mac 的独立应用包。",
+    },
+    "macos-x64": {
+      title: "macOS Intel",
+      description: "适用于 Intel Mac 的独立应用包。",
     },
     linux: {
       title: "Linux x86_64",
@@ -269,7 +277,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {assets.map((asset) => (
             <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">

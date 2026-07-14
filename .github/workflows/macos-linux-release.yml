@@ -3,22 +3,6 @@
 name: macOS and Linux release bundle
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/macos-linux-release.yml"
-      - "packaging/mac/**"
-      - "packaging/linux/**"
-      - "platform/desktop/**"
-      - "frontend/web/**"
-      - "ai-module/**"
-      - "resources/**"
-      - "issuer_metadata.json"
-      - "package.json"
-      - "prospectus_kg_output/inputs/input_schema.json"
-      - "prospectus_kg_output/inputs/input_schema_crosswalk.json"
-      - "prospectus_kg_output/inputs/_coverage_vs_report.md"
   workflow_dispatch:
     inputs:
       release_tag:
