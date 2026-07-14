@@ -155,7 +155,7 @@ async function runWindowsVenvSetup(root: string): Promise<{ ok: boolean; message
   }
 
   return new Promise((resolve) => {
-    const proc = spawn("cmd.exe", ["/d", "/s", "/c", `"${script}"`], {
+    const proc = spawn(process.env.ComSpec || "cmd.exe", ["/d", "/c", "call", script], {
       cwd: root,
       env: { ...process.env, PROSPECTUS_NO_PAUSE: "1" },
       windowsHide: true,

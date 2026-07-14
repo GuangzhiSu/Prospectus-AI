@@ -135,7 +135,7 @@ function runWindowsVenvSetup(prospectusRoot) {
       reject(new Error(`Missing Python setup script: ${script}`));
       return;
     }
-    const child = spawn("cmd.exe", ["/d", "/s", "/c", `"${script}"`], {
+    const child = spawn(process.env.ComSpec || "cmd.exe", ["/d", "/c", "call", script], {
       cwd: prospectusRoot,
       env: { ...process.env, PROSPECTUS_NO_PAUSE: "1" },
       windowsHide: true,
