@@ -226,6 +226,12 @@ def _section_cache(input_records_dir: Path, doc_id: str, section_id: str) -> dic
     return _load_json(input_records_dir / doc_id / f"{section_id}.json")
 
 
+def _section_source_materials(input_records_dir: Path, doc_id: str, section_id: str) -> dict[str, Any]:
+    cache = _section_cache(input_records_dir, doc_id, section_id)
+    materials = cache.get("extracted_source_materials")
+    return materials if isinstance(materials, dict) else {}
+
+
 def _extract_fields_for_section(
     *,
     doc_id: str,
@@ -321,13 +327,28 @@ def build_for_doc(
             )
             extracted_all.extend(extracted)
             missing_all.extend(missing)
+            materials = _section_source_materials(input_records_dir, doc_id, sid)
+            if materials and page_ranges:
+                page_ranges[-1]["source_material_counts"] = materials.get("counts") or {}
 
-        if not extracted_all and not page_ranges:
+        section_materials = [
+            _section_source_materials(input_records_dir, doc_id, sid)
+            for sid in tmpl.canonical_sections
+        ]
+        section_materials = [m for m in section_materials if m]
+        if not extracted_all and not page_ranges and not section_materials:
             continue
         counter["source_documents"] += 1
         counter["extracted_fields"] += len(extracted_all)
         counter["missing_fields"] += len(missing_all)
         counter["traceable_fields"] += sum(1 for f in extracted_all if _has_page_provenance(f))
+        counter["source_material_sections"] += len(section_materials)
+        counter["source_material_numeric_facts"] += sum(
+            len(m.get("key_numeric_facts") or []) for m in section_materials
+        )
+        counter["source_material_narrative_points"] += sum(
+            len(m.get("key_narrative_points") or []) for m in section_materials
+        )
         source_doc = {
             "source_document_kind": tmpl.source_document_kind,
             "display_name": tmpl.display_name,
@@ -338,6 +359,7 @@ def build_for_doc(
             "prospectus_page_ranges": page_ranges,
             "extracted_fields": extracted_all,
             "missing_fields": missing_all,
+            "section_source_materials": section_materials,
         }
         source_documents.append(source_doc)
         domain = agent1_seed.setdefault(tmpl.agent1_domain, {})
@@ -345,6 +367,7 @@ def build_for_doc(
             {
                 "source_document_kind": tmpl.source_document_kind,
                 "schema_a_field": tmpl.schema_a_field_id,
+                "section_source_materials": section_materials,
                 "fields": [
                     {
                         "field_id": f["field_id"],

@@ -388,11 +388,13 @@ def _merge_records(doc_id: str, per_section: dict[str, dict[str, Any]], section_
     record: dict[str, Any] = {}
     coverage: dict[str, str] = {}
     null_reasons: dict[str, dict[str, str]] = {}
+    source_materials: dict[str, dict[str, Any]] = {}
     for sid, fields in section_fields.items():
         per_sec = per_section.get(sid) or {}
         values = per_sec.get("values") or {}
         notes = per_sec.get("coverage_notes") or ""
         reasons = per_sec.get("null_reasons") or {}
+        materials = per_sec.get("extracted_source_materials") or {}
         sect_rec: dict[str, Any] = {}
         for fld in fields:
             short = fld.get("field_name") or fld.get("field_id", "").split(".")[-1]
@@ -404,11 +406,14 @@ def _merge_records(doc_id: str, per_section: dict[str, dict[str, Any]], section_
             coverage[sid] = notes
         if reasons:
             null_reasons[sid] = reasons
+        if isinstance(materials, dict) and materials:
+            source_materials[sid] = materials
     return {
         "document_id": doc_id,
         "record": record,
         "coverage_notes": coverage,
         "null_reasons": null_reasons,
+        "source_materials": source_materials,
     }
 
 
