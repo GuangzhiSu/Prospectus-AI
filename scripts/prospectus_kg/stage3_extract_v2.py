@@ -145,6 +145,28 @@ _FEWSHOT_EXAMPLES: list[dict[str, Any]] = [
     }
 ]
 
+_SOURCE_DOCUMENT_HINTS: dict[str, list[str]] = {
+    "Cover": ["offering term sheet", "draft prospectus cover", "sponsor deal summary"],
+    "Corporate_Information": ["corporate information questionnaire", "company secretarial records"],
+    "History_Reorganization_Corporate_Structure": ["corporate reorganization memo", "group structure chart", "register of members"],
+    "Business": ["sponsor business due-diligence memo", "business operations questionnaire", "management interview notes"],
+    "Industry_Overview": ["industry consultant report", "market data workbook"],
+    "Risk_Factors": ["sponsor risk register", "legal due-diligence memo", "management risk questionnaire"],
+    "Financial_Information": ["accountants' report", "MD&A support schedule", "financial model workbook"],
+    "Future_Plans_and_Use_of_Proceeds": ["use-of-proceeds schedule", "board-approved budget", "offering term sheet"],
+    "Regulatory_Overview": ["PRC/HK legal regulatory memo", "licence schedule"],
+    "Contractual_Arrangements_VIE": ["PRC legal opinion", "VIE agreements summary"],
+    "Connected_Transactions": ["connected transactions memo", "continuing connected transaction schedule"],
+    "Directors_and_Senior_Management": ["director and senior management questionnaires", "biography register"],
+    "Substantial_Shareholders": ["shareholder register", "SFO interests schedule"],
+    "Share_Capital": ["capitalization table", "register of members"],
+    "Expected_Timetable": ["offering timetable", "receiving bank and registrar timetable"],
+    "Structure_of_the_Global_Offering": ["offering structure term sheet", "underwriting working group memo"],
+    "Underwriting": ["underwriting agreement", "underwriting terms summary"],
+    "How_to_Apply_for_Hong_Kong_Offer_Shares": ["HK public offering application procedures memo"],
+    "Waivers_and_Exemptions": ["waiver application schedule", "sponsor/counsel waiver memo"],
+}
+
 
 def _load_section_schema(schema_path: Path) -> dict[str, list[dict[str, Any]]]:
     """Return {section_id: [field, ...]} from the per-section schema."""
@@ -183,6 +205,11 @@ def _section_prompt(
         alias_str = f"  aliases: {aliases}" if aliases else ""
         field_lines.append(f"- {short}: {desc}{alias_str}")
     field_block = "\n".join(field_lines)
+    source_hints = _SOURCE_DOCUMENT_HINTS.get(section_id) or [
+        "issuer questionnaire",
+        "sponsor due-diligence memo",
+        "professional party source document",
+    ]
 
     is_underfilled = section_id in _UNDERFILLED_SECTIONS
     underfilled_hint = (
@@ -196,22 +223,30 @@ def _section_prompt(
     example_block = json.dumps(_FEWSHOT_EXAMPLES[0]["output"], ensure_ascii=False, indent=2)
 
     system = (
-        "You are an Exchange IPO analyst extracting structured inputs from a single prospectus "
-        "section. For every field, either return a concrete value lifted from the text, or "
-        "set it to null AND record why in `null_reasons`. Numbers and dates must be quoted "
-        "verbatim. Aliases listed next to each field are the same concept in different words "
-        "— treat them as triggers. Output one JSON object only."
+        "You are an Exchange IPO documentation analyst reverse-engineering the issuer data room "
+        "behind a published prospectus section. For every field, either return a concrete value "
+        "lifted from the text, or set it to null AND record why in `null_reasons`. Numbers and "
+        "dates must be quoted verbatim. Aliases listed next to each field are the same concept "
+        "in different words — treat them as triggers. Do not put 'not disclosed' wording inside "
+        "`values`; use `null_reasons` instead. Output one JSON object only."
     )
     user = (
         f"Document id: {doc_id}\n"
         f"Section: {section_id}\n"
         f"Underfilled-section mode: {is_underfilled}\n\n"
         "Fill each field below. Use the given field names as keys in `values`. "
-        "Each non-null entry must be of shape {\"value\": <scalar or list>, "
-        "\"span_preview\": <short quoted snippet, <=160 chars>}. "
+        "Each non-null entry must be an object with:\n"
+        "- value: scalar/list/object/table rows lifted from the text\n"
+        "- span_preview: short quoted snippet, <=160 chars\n"
+        "- likely_source_document: the realistic original data-room document this value would have come from\n"
+        "- original_input_shape: one of scalar, list, table, narrative_points, legal_citation, computed\n"
+        "- extraction_notes: short note if the value was assembled from multiple nearby sentences or table rows\n"
         "If a field is truly absent, omit it from `values` and record `null_reasons[field] = "
         "<one-line reason>`. Do not invent additional keys.\n"
         f"{underfilled_hint}\n\n"
+        "Likely original source documents for this section include: "
+        f"{source_hints}. Prefer one of these labels unless the text clearly points elsewhere.\n"
+        "When the prospectus presents a schedule/table, preserve it as row objects rather than a prose summary.\n\n"
         "=== FIELDS (with aliases) ===\n"
         f"{field_block}\n\n"
         "=== SECTION TEXT ===\n"
@@ -220,8 +255,9 @@ def _section_prompt(
         f"{example_block}\n\n"
         "Output shape:\n"
         "{\n"
-        "  \"values\": {<field_name>: {\"value\": ..., \"span_preview\": \"...\"}, ...},\n"
+        "  \"values\": {<field_name>: {\"value\": ..., \"span_preview\": \"...\", \"likely_source_document\": \"...\", \"original_input_shape\": \"...\", \"extraction_notes\": \"...\"}, ...},\n"
         "  \"null_reasons\": {<field_name>: str},\n"
+        "  \"source_package\": [{\"source_document_kind\": str, \"likely_fields\": [str], \"prospectus_basis\": str}],\n"
         "  \"coverage_notes\": str\n"
         "}\n"
         f"Field names must be exactly one of: {short_names}."
@@ -255,6 +291,7 @@ def _attach_provenance(
             continue
         if isinstance(v, dict):
             entry = {
+                **v,
                 "value": v.get("value"),
                 "source_file": source_file,
                 "page_start": page_start,
@@ -272,6 +309,73 @@ def _attach_provenance(
         enriched[k] = entry
     parsed["values"] = enriched
     return parsed
+
+
+def _provider_name(provider: str | None) -> str:
+    return (
+        provider
+        or os.environ.get("STAGE3B_LLM_PROVIDER")
+        or os.environ.get("IPO_LLM_PROVIDER")
+        or "qwen_local"
+    ).strip().lower()
+
+
+def _create_stage3_client(
+    *,
+    provider: str,
+    raw_dir: Path,
+    max_tokens: int,
+    temperature: float,
+    model: str | None,
+    qwen_model: str | None,
+):
+    if provider in {"openai", "chatgpt", "gpt"}:
+        from openai_client import OpenAIClient  # noqa: E402
+
+        return OpenAIClient(
+            model=model or os.environ.get("OPENAI_MODEL", "gpt-4o"),
+            max_tokens=max_tokens,
+            temperature=temperature,
+            save_raw_dir=raw_dir,
+        )
+
+    from qwen_local_client import QwenLocalClient  # noqa: E402
+
+    return QwenLocalClient(
+        model=qwen_model or model,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        save_raw_dir=raw_dir,
+    )
+
+
+def _response_format(provider: str) -> dict[str, Any]:
+    schema = {
+        "type": "object",
+        "required": ["values"],
+        "properties": {
+            "values": {"type": "object"},
+            "null_reasons": {"type": "object"},
+            "source_package": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "source_document_kind": {"type": "string"},
+                        "likely_fields": {"type": "array", "items": {"type": "string"}},
+                        "prospectus_basis": {"type": "string"},
+                    },
+                },
+            },
+            "coverage_notes": {"type": "string"},
+        },
+    }
+    if provider in {"openai", "chatgpt", "gpt"}:
+        return {
+            "name": "stage3b_section_source_extraction",
+            "schema": schema,
+        }
+    return {"schema": schema}
 
 
 def _merge_records(doc_id: str, per_section: dict[str, dict[str, Any]], section_fields: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:
@@ -361,9 +465,11 @@ def run(
     max_tokens: int = 1024,
     max_section_chars: int = MAX_SECTION_CHARS_DEFAULT,
     backup_records: bool = True,
+    provider: str | None = None,
+    model: str | None = None,
+    qwen_model: str | None = None,
+    temperature: float = 0.0,
 ) -> dict[str, Any]:
-    from qwen_local_client import QwenLocalClient  # noqa: E402
-
     section_fields = _load_section_schema(schema_path)
     log.info("stage3b_v2_sections", count=len(section_fields))
 
@@ -371,7 +477,12 @@ def run(
     per_doc_section_dir.mkdir(parents=True, exist_ok=True)
     records_dir = out_dir / "records"
     records_dir.mkdir(parents=True, exist_ok=True)
-    raw_dir = out_dir / "qwen_raw_extract_v2"
+    provider_resolved = _provider_name(provider)
+    raw_dir = (
+        out_dir / "qwen_raw_extract_v2"
+        if provider_resolved in {"qwen", "qwen_local", "qwen-hf", "local_qwen"}
+        else out_dir / f"{provider_resolved}_raw_extract_v2"
+    )
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     section_files = sorted([p for p in sections_dir.glob("*.json") if not p.name.startswith("_")])
@@ -397,11 +508,15 @@ def run(
         # and the records dir already exists with legacy content.
         _maybe_backup_records_dir(records_dir)
 
-    client = QwenLocalClient(
+    client = _create_stage3_client(
+        provider=provider_resolved,
+        raw_dir=raw_dir,
         max_tokens=max_tokens,
-        temperature=0.0,
-        save_raw_dir=raw_dir,
+        temperature=temperature,
+        model=model,
+        qwen_model=qwen_model,
     )
+    response_format = _response_format(provider_resolved)
 
     t0 = time.time()
     total_calls = 0
@@ -456,21 +571,11 @@ def run(
             try:
                 resp = client.create_response(
                     messages=messages,
-                    response_format={
-                        "schema": {
-                            "type": "object",
-                            "required": ["values"],
-                            "properties": {
-                                "values": {"type": "object"},
-                                "null_reasons": {"type": "object"},
-                                "coverage_notes": {"type": "string"},
-                            },
-                        }
-                    },
+                    response_format=response_format,
                     raw_save_id=f"{doc_id}__{sid}",
                 )
             except Exception as exc:  # noqa: BLE001
-                log.exception("stage3b_v2_call_failed", doc=doc_id, section=sid, error=str(exc))
+                log.warning("stage3b_v2_call_failed", doc=doc_id, section=sid, error=str(exc)[:500])
                 failed_calls += 1
                 continue
 
@@ -514,6 +619,8 @@ def run(
 
     summary = {
         "stage": "stage3b_extract_v2",
+        "llm_provider": provider_resolved,
+        "model": getattr(client, "model", model),
         "documents_processed": len(section_files),
         "llm_calls_new": total_calls,
         "llm_calls_cached": cached_calls,
@@ -550,6 +657,14 @@ if __name__ == "__main__":
     ap.add_argument("--max-tokens", type=int, default=1024)
     ap.add_argument("--max-section-chars", type=int, default=MAX_SECTION_CHARS_DEFAULT)
     ap.add_argument("--no-backup", action="store_true", help="Skip records/ backup on partial reruns.")
+    ap.add_argument(
+        "--provider",
+        default=None,
+        help="LLM provider: qwen_local (default) or openai/chatgpt. Env: STAGE3B_LLM_PROVIDER.",
+    )
+    ap.add_argument("--model", default=None, help="OpenAI/ChatGPT model, or local model if --qwen-model is not set.")
+    ap.add_argument("--qwen-model", default=None, help="Local Qwen model override.")
+    ap.add_argument("--temperature", type=float, default=0.0)
     args = ap.parse_args()
 
     only_sections = None
@@ -567,5 +682,9 @@ if __name__ == "__main__":
         max_tokens=args.max_tokens,
         max_section_chars=args.max_section_chars,
         backup_records=not args.no_backup,
+        provider=args.provider,
+        model=args.model,
+        qwen_model=args.qwen_model,
+        temperature=args.temperature,
     )
     print(json.dumps(summary, indent=2, ensure_ascii=False))

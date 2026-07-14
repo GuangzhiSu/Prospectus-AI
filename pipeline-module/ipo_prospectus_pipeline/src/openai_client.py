@@ -9,12 +9,20 @@ from typing import Any
 
 import structlog
 from openai import OpenAI
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 logger = structlog.get_logger()
 
-# Rate limit and server errors to retry
-RETRY_EXCEPTIONS = (Exception,)  # OpenAI can raise various; tenacity will retry
+try:
+    from openai import AuthenticationError, BadRequestError, PermissionDeniedError
+
+    NON_RETRY_EXCEPTIONS = (AuthenticationError, BadRequestError, PermissionDeniedError)
+except Exception:  # pragma: no cover - depends on installed openai version
+    NON_RETRY_EXCEPTIONS = ()
+
+
+def _is_retryable_exception(exc: BaseException) -> bool:
+    return not isinstance(exc, NON_RETRY_EXCEPTIONS)
 
 
 def _get_client() -> OpenAI:
@@ -50,7 +58,7 @@ class OpenAIClient:
         return self._client
 
     @retry(
-        retry=retry_if_exception_type(RETRY_EXCEPTIONS),
+        retry=retry_if_exception(_is_retryable_exception),
         stop=stop_after_attempt(5),
         wait=wait_exponential(multiplier=1, min=2, max=60),
         reraise=True,
