@@ -143,6 +143,8 @@ export type ProviderUiMeta = {
   modelPresetGroups?: readonly ModelPresetGroup[];
   keyPlaceholder: string;
   baseUrlPlaceholder?: string;
+  billingUrl?: string;
+  billingLabel?: string;
 };
 
 export const PROVIDER_UI: Record<LlmProviderId, ProviderUiMeta> = {
@@ -176,6 +178,8 @@ export const PROVIDER_UI: Record<LlmProviderId, ProviderUiMeta> = {
     modelPresetGroups: OPENAI_MODEL_GROUPS,
     keyPlaceholder: "sk-…",
     baseUrlPlaceholder: "https://api.openai.com/v1",
+    billingUrl: "https://platform.openai.com/settings/organization/billing/overview",
+    billingLabel: "Open OpenAI billing",
   },
   deepseek: {
     id: "deepseek",
@@ -194,6 +198,8 @@ export const PROVIDER_UI: Record<LlmProviderId, ProviderUiMeta> = {
     modelPresetGroups: DEEPSEEK_MODEL_GROUPS,
     keyPlaceholder: "sk-…",
     baseUrlPlaceholder: DEEPSEEK_DEFAULT_BASE_URL,
+    billingUrl: "https://platform.deepseek.com/top_up",
+    billingLabel: "Open DeepSeek top-up",
   },
   qwen_api: {
     id: "qwen_api",
@@ -212,6 +218,8 @@ export const PROVIDER_UI: Record<LlmProviderId, ProviderUiMeta> = {
     modelPresetGroups: DASHSCOPE_MODEL_GROUPS,
     keyPlaceholder: "sk-…",
     baseUrlPlaceholder: DASHSCOPE_DEFAULT_BASE_URL_CN,
+    billingUrl: "https://dashscope.console.aliyun.com/billing",
+    billingLabel: "Open DashScope billing",
   },
   anthropic: {
     id: "anthropic",
@@ -227,6 +235,8 @@ export const PROVIDER_UI: Record<LlmProviderId, ProviderUiMeta> = {
     modelPresets: ANTHROPIC_MODEL_PRESETS,
     modelPresetGroups: ANTHROPIC_MODEL_GROUPS,
     keyPlaceholder: "sk-ant-…",
+    billingUrl: "https://platform.claude.com/settings/billing",
+    billingLabel: "Open Claude billing",
   },
 };
 

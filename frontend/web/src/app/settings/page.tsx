@@ -406,6 +406,22 @@ export default function SettingsPage() {
     return (
       <div className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
         <h3 className="text-sm font-medium">{activeMeta.label} — API connection</h3>
+        {activeMeta.billingUrl && (
+          <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm md:flex-row md:items-center md:justify-between">
+            <p className="text-[var(--muted)]">
+              Need API credits? Open the provider billing page to top up or check your balance,
+              then return here to save and test the connection.
+            </p>
+            <a
+              href={activeMeta.billingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--background)]"
+            >
+              {activeMeta.billingLabel || "Open billing"}
+            </a>
+          </div>
+        )}
         <label className="flex flex-col gap-1 text-sm">
           <span>
             API key
