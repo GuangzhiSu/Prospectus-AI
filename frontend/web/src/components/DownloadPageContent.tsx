@@ -91,7 +91,7 @@ const copy = {
     ],
     downloadsTitle: "Downloads",
     downloadsDescription:
-      "Pick the package for your machine. Buttons resolve the published v0.1.0 release assets from GitHub.",
+      "Pick the package for your machine. Buttons resolve the published v0.1.1 release assets from GitHub.",
     settingsCta: "Configure model settings",
     recommended: "Recommended",
     downloadButton: "Download",
@@ -124,7 +124,7 @@ const copy = {
       "适合敏感发行人材料的本地文件工作流",
     ],
     downloadsTitle: "下载",
-    downloadsDescription: "选择适合你机器的版本。按钮会解析 GitHub 上发布的 v0.1.0 文件。",
+    downloadsDescription: "选择适合你机器的版本。按钮会解析 GitHub 上发布的 v0.1.1 文件。",
     settingsCta: "配置模型设置",
     recommended: "推荐",
     downloadButton: "下载",

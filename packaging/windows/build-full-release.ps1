@@ -221,7 +221,7 @@ No separate Python install required for agents: python-embed\ bootstraps a local
 
 Start
 -----
-1. Double-click Prospectus AI.exe, or install ProspectusAI-Setup-0.1.0.exe and use the shortcut
+1. Double-click Prospectus AI.exe, or install the ProspectusAI-Setup installer and use the shortcut
 2. First launch creates venv\ and installs Python packages on this machine (5-20 minutes depending on network)
 3. The desktop window starts the local service and opens the app automatically
 4. If needed, use Open-Prospectus-UI.cmd as a browser fallback

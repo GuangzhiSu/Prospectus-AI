@@ -1,15 +1,18 @@
-# Builds the full Windows portable bundle and installer (embedded Node + venv + Next standalone).
-# Linux-produced dist/ProspectusAI is NOT usable on Windows (wrong Python/venv + native modules).
+# Builds the full Windows portable bundle and installer (embedded Node + local-first Python bootstrap + Next standalone).
+# Linux-produced dist/ProspectusAI is NOT usable on Windows (wrong native modules).
 
 name: Windows release bundle
 
 on:
+  push:
+    tags:
+      - "*.*.*"
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "GitHub release tag to upload to, for example 0.1.0"
+        description: "GitHub release tag to upload to, for example 0.1.1"
         required: false
-        default: "0.1.0"
+        default: "0.1.1"
       upload_to_release:
         description: "Upload build outputs to the GitHub release"
         required: false
@@ -31,6 +34,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Resolve release metadata
+        id: release_meta
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = "${{ inputs.release_tag }}"
+            $upload = "${{ inputs.upload_to_release }}"
+          } else {
+            $tag = "${{ github.ref_name }}"
+            $upload = "true"
+          }
+          if (-not $tag) { throw "Release tag is empty" }
+          $version = $tag.TrimStart("v")
+          "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "upload_to_release=$upload" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -56,7 +76,7 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
-          & "${{ github.workspace }}/packaging/windows/build-installer.ps1" -SkipStage -Version "${{ inputs.release_tag }}"
+          & "${{ github.workspace }}/packaging/windows/build-installer.ps1" -SkipStage -Version "${{ steps.release_meta.outputs.version }}"
 
       - name: Create portable ZIP
         shell: pwsh
@@ -79,18 +99,25 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ProspectusAI-windows-installer
-          path: dist/ProspectusAI-Setup-${{ inputs.release_tag }}.exe
+          path: dist/ProspectusAI-Setup-${{ steps.release_meta.outputs.version }}.exe
           if-no-files-found: error
           retention-days: 30
 
       - name: Upload to GitHub Release
-        if: ${{ inputs.upload_to_release }}
+        if: ${{ steps.release_meta.outputs.upload_to_release == 'true' }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_TAG: ${{ steps.release_meta.outputs.release_tag }}
+          RELEASE_VERSION: ${{ steps.release_meta.outputs.version }}
         run: |
+          gh release view "$env:RELEASE_TAG" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create "$env:RELEASE_TAG" `
+              --title "AI Prospectus v$env:RELEASE_VERSION" `
+              --notes "Automated Windows release for Prospectus AI $env:RELEASE_VERSION."
+          }
           gh release upload "$env:RELEASE_TAG" `
-            "${{ github.workspace }}/dist/ProspectusAI-Setup-${{ inputs.release_tag }}.exe" `
+            "${{ github.workspace }}/dist/ProspectusAI-Setup-$env:RELEASE_VERSION.exe" `
             "${{ github.workspace }}/dist/ProspectusAI-windows-x86_64.zip" `
             --clobber

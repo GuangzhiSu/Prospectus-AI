@@ -274,7 +274,7 @@ The middleware protects `/workspace` and operational API routes, while leaving `
 
 Download buttons currently point to GitHub Releases. The recommended Windows button points to a real installer:
 
-- `ProspectusAI-Setup-0.1.0.exe`
+- `ProspectusAI-Setup-0.1.1.exe`
 - `ProspectusAI.zip`
 - `ProspectusAI-windows-from-linux-20260510-1154.tar.gz`
 - `ProspectusAI-linux-x86_64-20260509-0311.tar.gz`
@@ -287,7 +287,7 @@ powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
 
 To build it in GitHub Actions, run the **Windows release bundle** workflow and enable `upload_to_release`. The workflow creates:
 
-- `dist/ProspectusAI-Setup-0.1.0.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
+- `dist/ProspectusAI-Setup-0.1.1.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
 - `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
 
 The installed app includes **Settings -> Software updates**. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:

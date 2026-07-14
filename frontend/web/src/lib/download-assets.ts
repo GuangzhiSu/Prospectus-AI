@@ -10,12 +10,12 @@ export type DownloadAsset = {
 };
 
 const RELEASE_BASE_URL =
-  "https://github.com/GuangzhiSu/Prospectus-AI/releases/download/0.1.0";
+  "https://github.com/GuangzhiSu/Prospectus-AI/releases/download/0.1.1";
 const RELEASE_PAGE_URL =
-  "https://github.com/GuangzhiSu/Prospectus-AI/releases/tag/0.1.0";
+  "https://github.com/GuangzhiSu/Prospectus-AI/releases/tag/0.1.1";
 
 export const RELEASE_API_URL =
-  "https://api.github.com/repos/GuangzhiSu/Prospectus-AI/releases/tags/0.1.0";
+  "https://api.github.com/repos/GuangzhiSu/Prospectus-AI/releases/tags/0.1.1";
 
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   {
@@ -23,7 +23,7 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     title: "Windows Installer",
     platform: "Windows",
     description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
-    href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.0.exe`,
+    href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.1.exe`,
     fallbackHref: `${RELEASE_BASE_URL}/ProspectusAI-windows-x86_64.zip`,
     recommended: true,
   },
