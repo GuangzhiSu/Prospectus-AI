@@ -411,17 +411,29 @@ async function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
-  void createWindow();
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
-  });
-});
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
 
-app.on("window-all-closed", () => {
-  if (serverChild) {
-    serverChild.kill();
-    serverChild = null;
-  }
+if (!gotSingleInstanceLock) {
   app.quit();
-});
+} else {
+  app.on("second-instance", () => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  });
+
+  app.whenReady().then(() => {
+    void createWindow();
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+    });
+  });
+
+  app.on("window-all-closed", () => {
+    if (serverChild) {
+      serverChild.kill();
+      serverChild = null;
+    }
+    app.quit();
+  });
+}

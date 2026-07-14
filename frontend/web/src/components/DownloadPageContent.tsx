@@ -164,7 +164,12 @@ function getAssets(locale: "en" | "zh"): DisplayAsset[] {
     title: labels[asset.id as keyof typeof labels]?.title || asset.title,
     description: labels[asset.id as keyof typeof labels]?.description || asset.description,
     downloadHref: `/api/download/${asset.id}`,
-    actionLabel: copy[locale].downloadButton,
+    actionLabel:
+      asset.id === "test-dataset"
+        ? locale === "zh"
+          ? "下载数据集"
+          : "Download dataset"
+        : copy[locale].downloadButton,
   }));
 }
 
