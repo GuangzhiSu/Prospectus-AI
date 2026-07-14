@@ -300,6 +300,8 @@ To publish the public end-to-end test dataset, build the zip locally and upload 
 
 ```bash
 python3 scripts/package_public_test_dataset.py --force
+GITHUB_TOKEN=<token-with-contents-write> \
+  python3 scripts/upload_github_release_asset.py --tag 0.1.2 --clobber
 ```
 
 The generated asset is `dist/public-datasets/ProspectusAI-test-dataset.zip`. It contains `prospectus_corpus/`, `prospectus_kg_output/inputs/`, and `prospectus_kg_output/native_docs/` so users can test the full input preparation and drafting path.
