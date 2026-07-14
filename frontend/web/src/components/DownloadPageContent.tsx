@@ -277,9 +277,9 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {assets.map((asset) => (
-            <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
+            <article key={asset.id} className="flex h-full flex-col border border-[#d5ddd2] bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase text-[#6b735f]">
@@ -293,12 +293,12 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
                   </span>
                 )}
               </div>
-              <p className="mt-3 min-h-12 text-sm leading-6 text-[#637064]">{asset.description}</p>
-              <div className="mt-5 flex items-center justify-between border-t border-[#edf0eb] pt-4">
+              <p className="mt-3 flex-1 text-sm leading-6 text-[#637064]">{asset.description}</p>
+              <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#edf0eb] pt-4">
                 <span className="text-sm font-medium text-[#334139]">{asset.platform}</span>
                 <a
                   href={asset.downloadHref}
-                  className="inline-flex h-10 items-center gap-2 bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
+                  className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
                 >
                   <DownloadIcon />
                   {asset.actionLabel}
