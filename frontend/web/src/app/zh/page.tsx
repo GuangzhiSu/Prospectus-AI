@@ -38,6 +38,21 @@ const audiences = [
   "合规与披露团队",
 ];
 
+const graphHighlights = [
+  {
+    title: "来源锚定",
+    text: "事实、叙事段落和表格抽取结果会保留对应来源文件与位置线索。",
+  },
+  {
+    title: "章节路由",
+    text: "证据会先映射到招股书章节结构，再进入章节级生成。",
+  },
+  {
+    title: "缺口识别",
+    text: "缺失输入和覆盖薄弱的地方会变成复核信号，而不是悄悄混进草稿里。",
+  },
+];
+
 const contactHref =
   "mailto:contact@ai-prospectus.com?subject=AI%20Prospectus%20demo%20request";
 
@@ -54,6 +69,60 @@ function DownloadIcon() {
     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v11m0 0 4-4m-4 4-4-4M5 21h14" />
     </svg>
+  );
+}
+
+function EvidenceGraphVisual() {
+  return (
+    <div className="border border-white/15 bg-[#0f1916] p-5 text-white shadow-2xl">
+      <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-xs font-semibold uppercase text-[#f2c14e]">内部证据层</p>
+          <p className="mt-1 text-sm text-[#c8d8d0]">从原始材料到可核验披露结构</p>
+        </div>
+        <span className="border border-[#5aa79b]/45 bg-[#14332e] px-3 py-1 text-xs font-semibold text-[#9ee0d5]">
+          仅在运行时使用
+        </span>
+      </div>
+
+      <div className="relative mt-5 grid gap-2 overflow-hidden border border-white/10 bg-[#15231f] p-4 sm:block sm:min-h-[300px]">
+        <div className="absolute left-[16%] top-[28%] hidden h-px w-[68%] bg-[#f2c14e]/50 sm:block" />
+        <div className="absolute left-[21%] top-[48%] hidden h-px w-[54%] rotate-[-18deg] bg-[#5aa79b]/45 sm:block" />
+        <div className="absolute left-[24%] top-[57%] hidden h-px w-[50%] rotate-[21deg] bg-white/20 sm:block" />
+        <div className="absolute left-[48%] top-[28%] hidden h-[42%] w-px bg-white/20 sm:block" />
+
+        <div className="border border-white/15 bg-[#f7faf6] px-3 py-2 text-[#17201b] sm:absolute sm:left-[6%] sm:top-[14%] sm:w-[9.5rem]">
+          <p className="text-xs font-semibold">发行人文件</p>
+          <p className="mt-1 text-[11px] text-[#647064]">PDF、DOCX、XLSX、JSON</p>
+        </div>
+        <div className="border border-[#f2c14e]/55 bg-[#2b2414] px-3 py-2 sm:absolute sm:left-[39%] sm:top-[11%] sm:w-[9rem]">
+          <p className="text-xs font-semibold text-[#f7d98b]">抽取事实</p>
+          <p className="mt-1 text-[11px] text-[#e9d8a6]">数值、日期、主体</p>
+        </div>
+        <div className="border border-[#5aa79b]/55 bg-[#14332e] px-3 py-2 sm:absolute sm:right-[5%] sm:top-[18%] sm:w-[9rem]">
+          <p className="text-xs font-semibold text-[#9ee0d5]">章节地图</p>
+          <p className="mt-1 text-[11px] text-[#bfe9e1]">业务、风险、财务分析</p>
+        </div>
+        <div className="border border-white/15 bg-[#22302b] px-3 py-2 sm:absolute sm:bottom-[15%] sm:left-[13%] sm:w-[9rem]">
+          <p className="text-xs font-semibold">来源指针</p>
+          <p className="mt-1 text-[11px] text-[#c8d8d0]">文件、表格、页码、行号</p>
+        </div>
+        <div className="border border-[#d77259]/55 bg-[#321c18] px-3 py-2 sm:absolute sm:bottom-[9%] sm:left-[42%] sm:w-[9.5rem]">
+          <p className="text-xs font-semibold text-[#ffb39f]">覆盖缺口</p>
+          <p className="mt-1 text-[11px] text-[#f1c5bb]">缺失输入会被标记</p>
+        </div>
+        <div className="border border-white/15 bg-[#f7faf6] px-3 py-2 text-[#17201b] sm:absolute sm:bottom-[20%] sm:right-[8%] sm:w-[9rem]">
+          <p className="text-xs font-semibold">起草计划</p>
+          <p className="mt-1 text-[11px] text-[#647064]">有证据支撑的大纲</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2 text-xs text-[#c8d8d0] sm:grid-cols-3">
+        <div className="border border-white/10 px-3 py-2">可追溯检索包</div>
+        <div className="border border-white/10 px-3 py-2">章节感知提示词</div>
+        <div className="border border-white/10 px-3 py-2">面向复核的缺口</div>
+      </div>
+    </div>
   );
 }
 
@@ -86,14 +155,14 @@ export default function ChineseHomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/download"
+                href="/zh/download"
                 className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
               >
                 <DownloadIcon />
                 下载应用
               </Link>
               <Link
-                href="/workspace"
+                href="/zh/workspace"
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 打开受保护工作区
@@ -172,10 +241,34 @@ export default function ChineseHomePage() {
             <div className="border border-[#d5ddd2] bg-white p-5">
               <p className="text-sm font-semibold">可扩展模块</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                AI、前端、平台、知识图谱、资源和抽取管线都有清晰边界。
+                AI、前端、平台、内部证据层、资源和抽取管线都有清晰边界。
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-[#17201b] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase text-[#f2c14e]">生成引擎内部</p>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight">
+              私有证据图谱会先整理事实，再让模型开始写作。
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-[#c8d8d0]">
+              用户只需要完成上传、生成、修改和导出。系统背后会构建一层结构化证据层，
+              将来源材料、抽取事实、章节要求和缺失信息信号持续对齐，帮助生成内容更接近可审阅披露文本。
+            </p>
+            <div className="mt-7 grid gap-3">
+              {graphHighlights.map((item) => (
+                <div key={item.title} className="border border-white/15 bg-white/[0.04] p-4">
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#c8d8d0]">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <EvidenceGraphVisual />
         </div>
       </section>
 
@@ -219,11 +312,11 @@ export default function ChineseHomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href="/download" className="inline-flex h-11 items-center gap-2 bg-[#17201b] px-5 text-sm font-semibold text-white hover:bg-[#2b3a32]">
+            <Link href="/zh/download" className="inline-flex h-11 items-center gap-2 bg-[#17201b] px-5 text-sm font-semibold text-white hover:bg-[#2b3a32]">
               <DownloadIcon />
               下载应用
             </Link>
-            <Link href="/workspace" className="inline-flex h-11 items-center gap-2 border border-[#c9d2c7] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
+            <Link href="/zh/workspace" className="inline-flex h-11 items-center gap-2 border border-[#c9d2c7] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#f6f8f4]">
               受保护工作区
               <ArrowIcon />
             </Link>

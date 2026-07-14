@@ -39,7 +39,7 @@ const labels = {
 
 function navClass(isActive: boolean) {
   return [
-    "px-3 py-2 text-sm font-semibold transition",
+    "whitespace-nowrap px-3 py-2 text-sm font-semibold transition",
     isActive ? "bg-[#17201b] text-white" : "text-[#334139] hover:bg-[#eef3ec]",
   ].join(" ");
 }

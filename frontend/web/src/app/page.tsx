@@ -38,6 +38,21 @@ const audiences = [
   "Compliance and disclosure teams",
 ];
 
+const graphHighlights = [
+  {
+    title: "Source anchoring",
+    text: "Facts, narrative passages, and extracted tables stay connected to the files they came from.",
+  },
+  {
+    title: "Section routing",
+    text: "Evidence is classified against the prospectus section map before drafting begins.",
+  },
+  {
+    title: "Gap detection",
+    text: "Missing inputs and weak coverage are surfaced as review signals instead of hidden in the draft.",
+  },
+];
+
 const contactHref =
   "mailto:contact@ai-prospectus.com?subject=AI%20Prospectus%20demo%20request";
 
@@ -54,6 +69,60 @@ function DownloadIcon() {
     <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v11m0 0 4-4m-4 4-4-4M5 21h14" />
     </svg>
+  );
+}
+
+function EvidenceGraphVisual() {
+  return (
+    <div className="border border-white/15 bg-[#0f1916] p-5 text-white shadow-2xl">
+      <div className="flex flex-col justify-between gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-xs font-semibold uppercase text-[#f2c14e]">Internal evidence layer</p>
+          <p className="mt-1 text-sm text-[#c8d8d0]">Source material to verified disclosure structure</p>
+        </div>
+        <span className="border border-[#5aa79b]/45 bg-[#14332e] px-3 py-1 text-xs font-semibold text-[#9ee0d5]">
+          Runtime only
+        </span>
+      </div>
+
+      <div className="relative mt-5 grid gap-2 overflow-hidden border border-white/10 bg-[#15231f] p-4 sm:block sm:min-h-[300px]">
+        <div className="absolute left-[16%] top-[28%] hidden h-px w-[68%] bg-[#f2c14e]/50 sm:block" />
+        <div className="absolute left-[21%] top-[48%] hidden h-px w-[54%] rotate-[-18deg] bg-[#5aa79b]/45 sm:block" />
+        <div className="absolute left-[24%] top-[57%] hidden h-px w-[50%] rotate-[21deg] bg-white/20 sm:block" />
+        <div className="absolute left-[48%] top-[28%] hidden h-[42%] w-px bg-white/20 sm:block" />
+
+        <div className="border border-white/15 bg-[#f7faf6] px-3 py-2 text-[#17201b] sm:absolute sm:left-[6%] sm:top-[14%] sm:w-[9.5rem]">
+          <p className="text-xs font-semibold">Issuer files</p>
+          <p className="mt-1 text-[11px] text-[#647064]">PDF, DOCX, XLSX, JSON</p>
+        </div>
+        <div className="border border-[#f2c14e]/55 bg-[#2b2414] px-3 py-2 sm:absolute sm:left-[39%] sm:top-[11%] sm:w-[9rem]">
+          <p className="text-xs font-semibold text-[#f7d98b]">Extracted facts</p>
+          <p className="mt-1 text-[11px] text-[#e9d8a6]">values, dates, entities</p>
+        </div>
+        <div className="border border-[#5aa79b]/55 bg-[#14332e] px-3 py-2 sm:absolute sm:right-[5%] sm:top-[18%] sm:w-[9rem]">
+          <p className="text-xs font-semibold text-[#9ee0d5]">Section map</p>
+          <p className="mt-1 text-[11px] text-[#bfe9e1]">Business, Risk, MD&A</p>
+        </div>
+        <div className="border border-white/15 bg-[#22302b] px-3 py-2 sm:absolute sm:bottom-[15%] sm:left-[13%] sm:w-[9rem]">
+          <p className="text-xs font-semibold">Source pointers</p>
+          <p className="mt-1 text-[11px] text-[#c8d8d0]">file, table, page, row</p>
+        </div>
+        <div className="border border-[#d77259]/55 bg-[#321c18] px-3 py-2 sm:absolute sm:bottom-[9%] sm:left-[42%] sm:w-[9.5rem]">
+          <p className="text-xs font-semibold text-[#ffb39f]">Coverage gaps</p>
+          <p className="mt-1 text-[11px] text-[#f1c5bb]">missing inputs flagged</p>
+        </div>
+        <div className="border border-white/15 bg-[#f7faf6] px-3 py-2 text-[#17201b] sm:absolute sm:bottom-[20%] sm:right-[8%] sm:w-[9rem]">
+          <p className="text-xs font-semibold">Draft plan</p>
+          <p className="mt-1 text-[11px] text-[#647064]">evidence-backed outline</p>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2 text-xs text-[#c8d8d0] sm:grid-cols-3">
+        <div className="border border-white/10 px-3 py-2">Traceable retrieval packets</div>
+        <div className="border border-white/10 px-3 py-2">Section-aware prompts</div>
+        <div className="border border-white/10 px-3 py-2">Reviewer-facing gaps</div>
+      </div>
+    </div>
   );
 }
 
@@ -173,10 +242,35 @@ export default function HomePage() {
             <div className="border border-[#d5ddd2] bg-white p-5">
               <p className="text-sm font-semibold">Extensible modules</p>
               <p className="mt-3 text-sm leading-6 text-[#637064]">
-                AI, frontend, platform, knowledge graph, resources, and extraction pipelines now have clear homes.
+                AI, frontend, platform, evidence layer, resources, and extraction pipelines now have clear homes.
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-[#17201b] text-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase text-[#f2c14e]">Inside the drafting engine</p>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight">
+              A private evidence graph organizes the facts before the model writes.
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-[#c8d8d0]">
+              Users work with upload, draft, revise, and export. Behind that surface, AI Prospectus builds a structured
+              evidence layer that keeps source materials, extracted facts, section requirements, and missing-input
+              signals aligned throughout generation.
+            </p>
+            <div className="mt-7 grid gap-3">
+              {graphHighlights.map((item) => (
+                <div key={item.title} className="border border-white/15 bg-white/[0.04] p-4">
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#c8d8d0]">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <EvidenceGraphVisual />
         </div>
       </section>
 

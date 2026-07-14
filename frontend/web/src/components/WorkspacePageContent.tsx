@@ -90,7 +90,6 @@ const WORKSPACE_COPY = {
     title: "Prospectus AI",
     subtitle: "From your files to prospectus sections — draft, refine, export",
     productSite: "Product site",
-    kgView: "Knowledge Graph web view",
     downloadApp: "Download app",
     settings: "Model & inference settings",
     zhWorkspace: "中文工作区",
@@ -177,7 +176,6 @@ const WORKSPACE_COPY = {
     title: "Prospectus AI",
     subtitle: "从文件到招股书章节：起草、修改、导出",
     productSite: "产品主页",
-    kgView: "知识图谱视图",
     downloadApp: "下载应用",
     settings: "模型与推理设置",
     zhWorkspace: "English workspace",
@@ -752,12 +750,6 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     </a>
                   </>
                 )}
-                <a
-                  href="/kg-view"
-                  className="text-[var(--accent)] hover:underline"
-                >
-                  {t.kgView}
-                </a>
                 <a
                   href={href.settings}
                   className="text-[var(--accent)] hover:underline"
