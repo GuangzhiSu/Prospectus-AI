@@ -350,6 +350,12 @@ function sectionOrderIndex(sectionId: string | undefined) {
 export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLocale }) {
   const t = WORKSPACE_COPY[locale];
   const steps = t.steps.map((label, index) => ({ id: index + 1, label }));
+  const href = {
+    product: locale === "zh" ? "/zh" : "/",
+    download: locale === "zh" ? "/zh/download" : "/download",
+    settings: locale === "zh" ? "/zh/settings" : "/settings",
+    workspaceSwitch: locale === "zh" ? "/workspace" : "/zh/workspace",
+  };
   const [files, setFiles] = useState<DataFile[]>([]);
   const [results, setResults] = useState<{
     manifest?: Manifest;
@@ -733,13 +739,13 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 {!desktopShell && (
                   <>
                     <Link
-                      href="/"
+                      href={href.product}
                       className="text-[var(--accent)] hover:underline"
                     >
                       {t.productSite}
                     </Link>
                     <a
-                      href="/download"
+                      href={href.download}
                       className="text-[var(--accent)] hover:underline"
                     >
                       {t.downloadApp}
@@ -753,13 +759,13 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                   {t.kgView}
                 </a>
                 <a
-                  href="/settings"
+                  href={href.settings}
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.settings}
                 </a>
                 <a
-                  href={locale === "zh" ? "/workspace" : "/zh/workspace"}
+                  href={href.workspaceSwitch}
                   className="text-[var(--accent)] hover:underline"
                 >
                   {t.zhWorkspace}

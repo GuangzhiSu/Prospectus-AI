@@ -99,6 +99,7 @@ export function DraftingPageContent({ locale = "en" }: { locale?: Locale }) {
   const href = {
     workspace: locale === "zh" ? "/zh/workspace" : "/workspace",
     download: locale === "zh" ? "/zh/download" : "/download",
+    settings: locale === "zh" ? "/zh/settings" : "/settings",
   };
 
   return (
@@ -125,7 +126,7 @@ export function DraftingPageContent({ locale = "en" }: { locale?: Locale }) {
                 <DownloadIcon />
                 {t.secondaryCta}
               </Link>
-              <Link href="/settings" className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white hover:bg-white/10">
+              <Link href={href.settings} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white hover:bg-white/10">
                 {t.settingsCta}
                 <ArrowIcon />
               </Link>

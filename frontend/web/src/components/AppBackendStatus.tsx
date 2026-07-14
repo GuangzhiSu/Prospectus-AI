@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PROVIDER_UI, type LlmProviderId } from "@/lib/llm-provider-config";
 
@@ -28,6 +29,8 @@ function modelForProvider(s: SettingsSummary): string {
 }
 
 export function AppBackendStatus() {
+  const pathname = usePathname();
+  const isZh = pathname?.startsWith("/zh") ?? false;
   const [settings, setSettings] = useState<SettingsSummary | null>(null);
 
   useEffect(() => {
@@ -63,16 +66,16 @@ export function AppBackendStatus() {
 
   const meta = PROVIDER_UI[settings.llmProvider];
   const detail = modelForProvider(settings);
-  const title = `${meta.label} — ${detail}. Click to change.`;
+  const title = isZh ? `${meta.label} — ${detail}。点击修改。` : `${meta.label} — ${detail}. Click to change.`;
 
   return (
     <Link
-      href="/settings"
+      href={isZh ? "/zh/settings" : "/settings"}
       title={title}
       className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-xs text-[var(--foreground)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--surface)]"
     >
       <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden />
-      <span className="shrink-0 text-[var(--muted)]">Backend</span>
+      <span className="shrink-0 text-[var(--muted)]">{isZh ? "后端" : "Backend"}</span>
       <span className="truncate font-medium text-[var(--foreground)]">
         {meta.shortLabel} · {shortenModelLabel(detail, 36)}
       </span>

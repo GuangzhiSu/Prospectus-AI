@@ -187,6 +187,10 @@ function ArrowIcon() {
 export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" }) {
   const t = copy[locale];
   const assets = getAssets(locale);
+  const href = {
+    workspace: locale === "zh" ? "/zh/workspace" : "/workspace",
+    settings: locale === "zh" ? "/zh/settings" : "/settings",
+  };
 
   return (
     <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
@@ -222,7 +226,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
                 {t.primaryCta}
               </a>
               <Link
-                href="/workspace"
+                href={href.workspace}
                 className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 {t.workspaceCta}
@@ -271,7 +275,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
             <h2 className="text-2xl font-semibold">{t.downloadsTitle}</h2>
             <p className="mt-2 text-sm text-[#637064]">{t.downloadsDescription}</p>
           </div>
-          <Link href="/settings" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
+          <Link href={href.settings} className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
             {t.settingsCta}
             <ArrowIcon />
           </Link>
