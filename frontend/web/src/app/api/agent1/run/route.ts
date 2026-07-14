@@ -11,7 +11,7 @@ import {
 } from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
-export const maxDuration = 900; // large source files and first model load can take a while locally
+export const maxDuration = 300; // Vercel Hobby cap; local desktop runs are not constrained by this value.
 
 export async function POST(req: Request) {
   try {

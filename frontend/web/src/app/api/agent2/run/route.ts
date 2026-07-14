@@ -13,8 +13,8 @@ import {
 } from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
-/** Local desktop/server batch generation can take a long time for full prospectus runs. */
-export const maxDuration = 1800;
+/** Vercel Hobby cap; local desktop batch generation is not constrained by this value. */
+export const maxDuration = 300;
 
 const SECTION_ORDER = [
   "ExpectedTimetable",

@@ -99,7 +99,7 @@ except Exception as e:
             {
               ok: false,
               error: err || out || "parse error",
-              python: path.basename(python),
+              python: path.basename(pythonDisplayName(python)),
             } satisfies GpuInfo
           )
         );
