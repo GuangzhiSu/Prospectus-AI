@@ -5,6 +5,8 @@ import { APP_RELEASE_TAG, APP_VERSION } from "@/lib/app-version";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
+const DEFAULT_DOWNLOAD_PAGE_URL = "https://ai-prospectus.com/download";
+
 type GitHubReleaseAsset = {
   name?: string;
   browser_download_url?: string;
@@ -46,6 +48,7 @@ export async function GET() {
   const repo = process.env.UPDATE_REPO || "GuangzhiSu/Prospectus-AI";
   const currentVersion = process.env.APP_VERSION || APP_VERSION;
   const currentTag = process.env.APP_RELEASE_TAG || APP_RELEASE_TAG;
+  const downloadPageUrl = process.env.UPDATE_DOWNLOAD_URL || DEFAULT_DOWNLOAD_PAGE_URL;
 
   try {
     const res = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
@@ -62,6 +65,7 @@ export async function GET() {
           ok: false,
           currentVersion,
           currentTag,
+          downloadPageUrl,
           error: `GitHub release check failed (${res.status})`,
         },
         { status: 502 }
@@ -85,6 +89,7 @@ export async function GET() {
       releaseUrl: release.html_url || `https://github.com/${repo}/releases/latest`,
       installerUrl: installer?.browser_download_url || null,
       installerName: installer?.name || null,
+      downloadPageUrl,
       notes: release.body || "",
     });
   } catch (e) {
@@ -93,6 +98,7 @@ export async function GET() {
         ok: false,
         currentVersion,
         currentTag,
+        downloadPageUrl,
         error: e instanceof Error ? e.message : "Update check failed",
       },
       { status: 500 }

@@ -274,10 +274,10 @@ The middleware protects `/workspace` and operational API routes, while leaving `
 
 Download buttons currently point to GitHub Releases. The recommended Windows button points to a real installer:
 
-- `ProspectusAI-Setup-0.1.1.exe`
-- `ProspectusAI.zip`
-- `ProspectusAI-windows-from-linux-20260510-1154.tar.gz`
-- `ProspectusAI-linux-x86_64-20260509-0311.tar.gz`
+- `ProspectusAI-Setup-0.1.2.exe`
+- `ProspectusAI-windows-x86_64.zip`
+- `ProspectusAI-linux-x86_64-<timestamp>.tar.gz`
+- `ProspectusAI-test-dataset.zip`
 
 To create the Windows installer locally, run this on a Windows machine with Node.js, Python 3.11, and Inno Setup 6:
 
@@ -287,14 +287,22 @@ powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
 
 To build it in GitHub Actions, run the **Windows release bundle** workflow and enable `upload_to_release`. The workflow creates:
 
-- `dist/ProspectusAI-Setup-0.1.1.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
+- `dist/ProspectusAI-Setup-0.1.2.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
 - `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
 
-The installed app includes **Settings -> Software updates**. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:
+The installed app checks for updates on startup in desktop/local runtimes and also includes **Settings -> Software updates** for manual checks. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:
 
 1. Update `APP_VERSION` in `frontend/web/src/lib/app-version.ts`.
 2. Create/publish the matching GitHub Release tag.
 3. Run the **Windows release bundle** workflow with `release_tag` set to that version and `upload_to_release` enabled.
+
+To publish the public end-to-end test dataset, build the zip locally and upload it to the same GitHub Release:
+
+```bash
+python3 scripts/package_public_test_dataset.py --force
+```
+
+The generated asset is `dist/public-datasets/ProspectusAI-test-dataset.zip`. It contains `prospectus_corpus/`, `prospectus_kg_output/inputs/`, and `prospectus_kg_output/native_docs/` so users can test the full input preparation and drafting path.
 
 ## Data and runtime paths
 

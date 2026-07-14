@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { PublicNav } from "@/components/PublicNav";
-import { DOWNLOAD_ASSETS, type DownloadAsset } from "@/lib/download-assets";
+import { DOWNLOAD_ASSETS, RELEASE_LABEL, type DownloadAsset } from "@/lib/download-assets";
 
 type DisplayAsset = DownloadAsset & {
   downloadHref: string;
@@ -52,6 +52,11 @@ const assetLabels = {
       title: "Linux x86_64",
       description: "Full Linux archive for workstation or server deployment.",
     },
+    "test-dataset": {
+      title: "Test dataset",
+      description:
+        "Public sample pack with reverse-engineered inputs, source packages, section text, and prospectus PDFs for end-to-end tests.",
+    },
   },
   zh: {
     windows: {
@@ -65,6 +70,10 @@ const assetLabels = {
     linux: {
       title: "Linux x86_64",
       description: "适用于工作站或服务器部署的完整 Linux 压缩包。",
+    },
+    "test-dataset": {
+      title: "测试数据集",
+      description: "公开测试包，包含逆向提取输入、source packages、章节原文和招股书 PDF，可直接用于端到端测试。",
     },
   },
 };
@@ -88,10 +97,11 @@ const copy = {
       "Isolated AI module and web workspace",
       "Windows installer, macOS DMG workflow, and Linux archive options",
       "Local file workflow for confidential issuer materials",
+      "Downloadable test dataset for validating the full generation path",
     ],
     downloadsTitle: "Downloads",
     downloadsDescription:
-      "Pick the package for your machine. Buttons resolve the published v0.1.1 release assets from GitHub.",
+      `Pick the package for your machine. Buttons resolve the published ${RELEASE_LABEL} release assets from GitHub.`,
     settingsCta: "Configure model settings",
     recommended: "Recommended",
     downloadButton: "Download",
@@ -122,9 +132,10 @@ const copy = {
       "独立 AI 模块与网页工作区",
       "Windows 安装包、macOS DMG 流程和 Linux 压缩包选项",
       "适合敏感发行人材料的本地文件工作流",
+      "可下载测试数据集，用于验证完整生成链路",
     ],
     downloadsTitle: "下载",
-    downloadsDescription: "选择适合你机器的版本。按钮会解析 GitHub 上发布的 v0.1.1 文件。",
+    downloadsDescription: `选择适合你机器的版本。按钮会解析 GitHub 上发布的 ${RELEASE_LABEL} 文件。`,
     settingsCta: "配置模型设置",
     recommended: "推荐",
     downloadButton: "下载",
@@ -259,7 +270,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {assets.map((asset) => (
             <article key={asset.id} className="border border-[#d5ddd2] bg-white p-5 shadow-sm">
               <div className="flex items-start justify-between gap-3">

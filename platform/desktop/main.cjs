@@ -7,7 +7,7 @@
  * Packaged Windows: flat layout beside Prospectus AI.exe (agent1.py + web/)
  */
 
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow, dialog, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const net = require("net");
@@ -28,6 +28,24 @@ const DESKTOP_MARKETING_REDIRECTS = {
   "/zh/eligibility": "/zh/workspace",
 };
 
+const LOCAL_APP_HOSTS = new Set(["127.0.0.1", "localhost", "::1"]);
+
+function isExternalNavigation(navigationUrl) {
+  try {
+    const url = new URL(navigationUrl);
+    if (!["http:", "https:"].includes(url.protocol)) return true;
+    return !LOCAL_APP_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function openExternalNavigation(navigationUrl) {
+  shell.openExternal(navigationUrl).catch(() => {
+    // Ignore failures; the renderer can still show the original link target.
+  });
+}
+
 function redirectDesktopMarketingNavigation(event, navigationUrl) {
   try {
     const url = new URL(navigationUrl);
@@ -42,7 +60,19 @@ function redirectDesktopMarketingNavigation(event, navigationUrl) {
 
 function attachDesktopNavigationGuards(webContents) {
   webContents.on("will-navigate", (event, url) => {
+    if (isExternalNavigation(url)) {
+      event.preventDefault();
+      openExternalNavigation(url);
+      return;
+    }
     redirectDesktopMarketingNavigation(event, url);
+  });
+  webContents.setWindowOpenHandler(({ url }) => {
+    if (isExternalNavigation(url)) {
+      openExternalNavigation(url);
+      return { action: "deny" };
+    }
+    return { action: "allow" };
   });
 }
 

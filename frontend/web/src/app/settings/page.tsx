@@ -34,6 +34,7 @@ type UpdateResp = {
   releaseUrl?: string;
   installerUrl?: string | null;
   installerName?: string | null;
+  downloadPageUrl?: string;
   error?: string;
 };
 
@@ -603,6 +604,14 @@ export default function SettingsPage() {
                           className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]"
                         >
                           Open release notes
+                        </a>
+                      )}
+                      {updateStatus.downloadPageUrl && (
+                        <a
+                          href={updateStatus.downloadPageUrl}
+                          className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]"
+                        >
+                          Open download page
                         </a>
                       )}
                     </div>

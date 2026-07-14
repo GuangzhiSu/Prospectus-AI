@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "GitHub release tag to upload to, for example 0.1.1"
+        description: "GitHub release tag to upload to, for example 0.1.2"
         required: false
-        default: "0.1.1"
+        default: "0.1.2"
       upload_to_release:
         description: "Upload build outputs to the GitHub release"
         required: false

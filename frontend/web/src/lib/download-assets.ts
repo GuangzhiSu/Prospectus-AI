@@ -1,3 +1,5 @@
+import { APP_RELEASE_TAG } from "@/lib/app-version";
+
 export type DownloadAsset = {
   id: string;
   title: string;
@@ -9,13 +11,17 @@ export type DownloadAsset = {
   recommended?: boolean;
 };
 
+export const RELEASE_TAG = APP_RELEASE_TAG;
+export const RELEASE_LABEL = RELEASE_TAG.startsWith("v") ? RELEASE_TAG : `v${RELEASE_TAG}`;
+
 const RELEASE_BASE_URL =
-  "https://github.com/GuangzhiSu/Prospectus-AI/releases/download/0.1.1";
+  `https://github.com/GuangzhiSu/Prospectus-AI/releases/download/${RELEASE_TAG}`;
 const RELEASE_PAGE_URL =
-  "https://github.com/GuangzhiSu/Prospectus-AI/releases/tag/0.1.1";
+  `https://github.com/GuangzhiSu/Prospectus-AI/releases/tag/${RELEASE_TAG}`;
+const PUBLIC_TEST_DATASET_ASSET = "ProspectusAI-test-dataset.zip";
 
 export const RELEASE_API_URL =
-  "https://api.github.com/repos/GuangzhiSu/Prospectus-AI/releases/tags/0.1.1";
+  `https://api.github.com/repos/GuangzhiSu/Prospectus-AI/releases/tags/${RELEASE_TAG}`;
 
 export const DOWNLOAD_ASSETS: DownloadAsset[] = [
   {
@@ -23,7 +29,7 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     title: "Windows Installer",
     platform: "Windows",
     description: "Standard installer that creates Start Menu and optional desktop shortcuts.",
-    href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-0.1.1.exe`,
+    href: `${RELEASE_BASE_URL}/ProspectusAI-Setup-${RELEASE_TAG.replace(/^v/i, "")}.exe`,
     fallbackHref: `${RELEASE_BASE_URL}/ProspectusAI-windows-x86_64.zip`,
     recommended: true,
   },
@@ -41,7 +47,17 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     title: "Linux x86_64",
     platform: "Linux",
     description: "Full Linux archive for workstation or server deployment.",
-    href: `${RELEASE_BASE_URL}/ProspectusAI-linux-x86_64-20260509-0311.tar.gz`,
+    href: RELEASE_PAGE_URL,
+    fallbackHref: RELEASE_PAGE_URL,
+    dynamicAssetPattern: "^ProspectusAI-linux-x86_64-.*\\.tar\\.gz$",
+  },
+  {
+    id: "test-dataset",
+    title: "Test Dataset",
+    platform: "Dataset",
+    description: "Sample reverse-engineered inputs, source packages, section texts, and prospectus PDFs for end-to-end testing.",
+    href: `${RELEASE_BASE_URL}/${PUBLIC_TEST_DATASET_ASSET}`,
+    fallbackHref: RELEASE_PAGE_URL,
   },
 ];
 

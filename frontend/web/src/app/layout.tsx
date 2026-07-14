@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
+import { UpdatePrompt } from "@/components/UpdatePrompt";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -59,6 +60,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${jakarta.variable} ${mono.variable} ${serif.variable} font-sans antialiased`}>
         {children}
+        <UpdatePrompt />
       </body>
     </html>
   );
