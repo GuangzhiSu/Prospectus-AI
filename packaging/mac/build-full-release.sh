@@ -208,7 +208,7 @@ REQ_NOTORCH="$BUNDLE_DIR/requirements-no-torch.txt"
 grep -vE '^(#|$|[[:space:]]*torch)' "$REPO_ROOT/ai-module/requirements.txt" | grep -v '^[[:space:]]*$' > "$REQ_NOTORCH" || true
 
 if [[ "$TORCH_CPU" == "1" ]]; then
-  run_pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
+  run_pip install "torch>=2.0.0"
 else
   run_pip install "torch>=2.0.0"
 fi

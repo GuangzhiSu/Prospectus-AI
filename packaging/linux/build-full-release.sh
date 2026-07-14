@@ -10,6 +10,8 @@
 #   INSTALL_ROOT — output directory relative to repo (default: dist/ProspectusAI)
 #   SKIP_TAR     — if 1, do not create tar.gz
 #   TORCH_CPU    — if 1 (default), install PyTorch CPU wheels for broader portability
+#   NODE_VERSION — nodejs.org version to embed (default: 20.18.0)
+#   NODE_TAR_PATH — optional local node-v{ver}-linux-{arch}.tar.xz (skip download)
 
 set -euo pipefail
 
@@ -19,6 +21,7 @@ INSTALL_ROOT="${INSTALL_ROOT:-dist/ProspectusAI-linux}"
 STAGE="$REPO_ROOT/$INSTALL_ROOT"
 SKIP_TAR="${SKIP_TAR:-0}"
 TORCH_CPU="${TORCH_CPU:-1}"
+NODE_VERSION="${NODE_VERSION:-20.18.0}"
 
 resolve_node() {
   if [[ -n "${NODE:-}" && -x "${NODE}" ]]; then
@@ -41,6 +44,17 @@ resolve_node() {
 
 NODE_BIN="$(resolve_node)"
 echo "Using node: $NODE_BIN ($("$NODE_BIN" -v))"
+
+detect_linux_node_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64) echo "x64" ;;
+    aarch64|arm64) echo "arm64" ;;
+    *)
+      echo "ERROR: Unsupported Linux architecture: $(uname -m)" >&2
+      exit 1
+      ;;
+  esac
+}
 
 WEB_DIR="$REPO_ROOT/frontend/web"
 if [[ ! -d "$WEB_DIR/node_modules" ]]; then
@@ -127,6 +141,28 @@ pip install -r "$REQ_NOTORCH"
 rm -f "$REQ_NOTORCH"
 deactivate || true
 
+echo "==> Downloading Node.js v$NODE_VERSION for Linux…"
+NODE_ARCH="$(detect_linux_node_arch)"
+NODE_DIR="$STAGE/node"
+mkdir -p "$NODE_DIR"
+NODE_TAR="node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz"
+if [[ -n "${NODE_TAR_PATH:-}" && -f "$NODE_TAR_PATH" ]]; then
+  echo "Using local Node archive: $NODE_TAR_PATH"
+  tar -xJf "$NODE_TAR_PATH" -C "$NODE_DIR" --strip-components=1
+else
+  NODE_URL="https://nodejs.org/dist/v${NODE_VERSION}/${NODE_TAR}"
+  TMP_NODE="$(mktemp -t prospectus-node.XXXXXX.tar.xz)"
+  curl -fsSL -o "$TMP_NODE" "$NODE_URL"
+  tar -xJf "$TMP_NODE" -C "$NODE_DIR" --strip-components=1
+  rm -f "$TMP_NODE"
+fi
+
+if [[ ! -x "$NODE_DIR/bin/node" ]]; then
+  echo "ERROR: node binary not found after extracting Node archive." >&2
+  exit 1
+fi
+echo "Embedded Node: $("$NODE_DIR/bin/node" -v)"
+
 cat > "$STAGE/start-prospectus-ui.sh" << 'EOS'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -136,16 +172,23 @@ export PATH="$ROOT/venv/bin:$PATH"
 export PORT="${PORT:-3000}"
 export HOSTNAME="${HOSTNAME:-127.0.0.1}"
 
-if ! command -v node >/dev/null 2>&1; then
+NODE_EXE=""
+if [[ -x "$ROOT/node/bin/node" ]]; then
+  NODE_EXE="$ROOT/node/bin/node"
+elif command -v node >/dev/null 2>&1; then
+  NODE_EXE="$(command -v node)"
+fi
+
+if [[ -z "$NODE_EXE" ]]; then
   echo "ERROR: Node.js is not installed or not on PATH."
-  echo "Install Node 20+ (e.g. https://nodejs.org/ or apt install nodejs)."
+  echo "Expected bundled Node at node/bin/node, or install Node 20+ on PATH."
   exit 1
 fi
 
 echo "PROSPECTUS_ROOT=$PROSPECTUS_ROOT"
 echo "Starting Prospectus UI on http://${HOSTNAME}:${PORT} — open this URL in a browser."
 cd "$ROOT/web"
-exec node server.js
+exec "$NODE_EXE" server.js
 EOS
 chmod +x "$STAGE/start-prospectus-ui.sh"
 
@@ -154,10 +197,8 @@ Prospectus AI — 本机运行说明（Linux 打包版）
 ================================================
 
 1. 依赖
+   - 已自带 Node.js：node/
    - 已自带 Python 虚拟环境：venv/（安装时已写入 torch 等）
-   - 你需要本机已安装 Node.js 20+（用于运行 web/server.js），例如：
-     sudo apt install nodejs npm
-     或从 https://nodejs.org/ 安装 LTS
 
 2. 启动
    在终端进入本文件夹，执行：
@@ -190,4 +231,4 @@ if [[ "$SKIP_TAR" != "1" ]]; then
   echo "Archive: $ARCHIVE"
 fi
 
-echo "Send the folder $STAGE or the .tar.gz to users; they run ./start-prospectus-ui.sh after installing Node.js."
+echo "Send the folder $STAGE or the .tar.gz to users; they run ./start-prospectus-ui.sh."

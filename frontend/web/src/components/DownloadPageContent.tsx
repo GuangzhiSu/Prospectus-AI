@@ -45,8 +45,7 @@ const assetLabels = {
     },
     macos: {
       title: "macOS DMG",
-      description:
-        "Standalone Mac app package. If the DMG is still being published, the button opens the release page.",
+      description: "Standalone Mac app package for Apple Silicon or Intel Macs.",
     },
     linux: {
       title: "Linux x86_64",
@@ -65,7 +64,7 @@ const assetLabels = {
     },
     macos: {
       title: "macOS DMG",
-      description: "适用于 Apple Silicon 或 Intel Mac 的独立应用包；若 DMG 尚在发布中，按钮会打开发布页。",
+      description: "适用于 Apple Silicon 或 Intel Mac 的独立应用包。",
     },
     linux: {
       title: "Linux x86_64",
@@ -157,7 +156,7 @@ function getAssets(locale: "en" | "zh"): DisplayAsset[] {
     title: labels[asset.id as keyof typeof labels]?.title || asset.title,
     description: labels[asset.id as keyof typeof labels]?.description || asset.description,
     downloadHref: `/api/download/${asset.id}`,
-    actionLabel: asset.dynamicAssetPattern ? copy[locale].viewReleaseButton : copy[locale].downloadButton,
+    actionLabel: copy[locale].downloadButton,
   }));
 }
 

@@ -32,7 +32,7 @@ else
   grep -vE '^(#|$|[[:space:]]*torch)' "$ROOT/requirements.txt" | grep -v '^[[:space:]]*$' > "$REQ_NOTORCH" || true
 fi
 
-pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
+pip install "torch>=2.0.0"
 pip install -r "$REQ_NOTORCH"
 deactivate || true
 

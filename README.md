@@ -276,6 +276,8 @@ Download buttons currently point to GitHub Releases. The recommended Windows but
 
 - `ProspectusAI-Setup-0.1.2.exe`
 - `ProspectusAI-windows-x86_64.zip`
+- `ProspectusAI-mac-arm64-<timestamp>.dmg`
+- `ProspectusAI-mac-x64-<timestamp>.dmg`
 - `ProspectusAI-linux-x86_64-<timestamp>.tar.gz`
 - `ProspectusAI-test-dataset.zip`
 
@@ -289,6 +291,12 @@ To build it in GitHub Actions, run the **Windows release bundle** workflow and e
 
 - `dist/ProspectusAI-Setup-0.1.2.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
 - `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
+
+The **macOS and Linux release bundle** workflow creates and uploads:
+
+- `dist/ProspectusAI-mac-arm64-<timestamp>.dmg` - Apple Silicon macOS app DMG
+- `dist/ProspectusAI-mac-x64-<timestamp>.dmg` - Intel macOS app DMG
+- `dist/ProspectusAI-linux-x86_64-<timestamp>.tar.gz` - Linux bundle with embedded Node.js and Python venv
 
 The installed app checks for updates on startup in desktop/local runtimes and also includes **Settings -> Software updates** for manual checks. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:
 

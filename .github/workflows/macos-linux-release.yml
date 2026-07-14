@@ -1,0 +1,214 @@
+# Builds macOS DMG and Linux tar.gz release assets and uploads them to GitHub Releases.
+
+name: macOS and Linux release bundle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/macos-linux-release.yml"
+      - "packaging/mac/**"
+      - "packaging/linux/**"
+      - "platform/desktop/**"
+      - "frontend/web/**"
+      - "ai-module/**"
+      - "resources/**"
+      - "issuer_metadata.json"
+      - "package.json"
+      - "prospectus_kg_output/inputs/input_schema.json"
+      - "prospectus_kg_output/inputs/input_schema_crosswalk.json"
+      - "prospectus_kg_output/inputs/_coverage_vs_report.md"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "GitHub release tag to upload to, for example 0.1.2"
+        required: false
+        default: "0.1.2"
+      upload_to_release:
+        description: "Upload build outputs to the GitHub release"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: macos-linux-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  linux:
+    name: Linux x86_64 bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release metadata
+        id: release_meta
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.release_tag }}"
+            upload="${{ inputs.upload_to_release }}"
+          else
+            tag="$(python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path("frontend/web/src/lib/app-version.ts").read_text()
+          match = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', text)
+          if not match:
+              raise SystemExit("APP_VERSION not found")
+          print(match.group(1))
+          PY
+          )"
+            upload="true"
+          fi
+          if [[ -z "$tag" ]]; then
+            echo "Release tag is empty" >&2
+            exit 1
+          fi
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "upload_to_release=$upload" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/web/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend/web
+
+      - name: Build Linux bundle
+        env:
+          TORCH_CPU: "1"
+        run: bash packaging/linux/build-full-release.sh
+
+      - name: List dist output
+        run: ls -lh dist
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProspectusAI-linux-x86_64
+          path: dist/ProspectusAI-linux-x86_64-*.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload to GitHub Release
+        if: ${{ steps.release_meta.outputs.upload_to_release == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release_meta.outputs.release_tag }}
+          RELEASE_VERSION: ${{ steps.release_meta.outputs.version }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" \
+              --title "AI Prospectus v$RELEASE_VERSION" \
+              --notes "Automated desktop release for Prospectus AI $RELEASE_VERSION."
+          gh release upload "$RELEASE_TAG" dist/ProspectusAI-linux-x86_64-*.tar.gz --clobber
+
+  macos:
+    name: macOS ${{ matrix.arch }} DMG
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 210
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-26
+          - arch: x64
+            runner: macos-26-intel
+
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release metadata
+        id: release_meta
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${{ inputs.release_tag }}"
+            upload="${{ inputs.upload_to_release }}"
+          else
+            tag="$(python3 - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path("frontend/web/src/lib/app-version.ts").read_text()
+          match = re.search(r'APP_VERSION\s*=\s*"([^"]+)"', text)
+          if not match:
+              raise SystemExit("APP_VERSION not found")
+          print(match.group(1))
+          PY
+          )"
+            upload="true"
+          fi
+          if [[ -z "$tag" ]]; then
+            echo "Release tag is empty" >&2
+            exit 1
+          fi
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "upload_to_release=$upload" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/web/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend/web
+
+      - name: Build macOS DMG
+        env:
+          TORCH_CPU: "1"
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: bash packaging/mac/build-full-release.sh
+
+      - name: List dist output
+        run: ls -lh dist
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProspectusAI-mac-${{ matrix.arch }}
+          path: dist/ProspectusAI-mac-${{ matrix.arch }}-*.dmg
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload to GitHub Release
+        if: ${{ steps.release_meta.outputs.upload_to_release == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release_meta.outputs.release_tag }}
+          RELEASE_VERSION: ${{ steps.release_meta.outputs.version }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" \
+              --title "AI Prospectus v$RELEASE_VERSION" \
+              --notes "Automated desktop release for Prospectus AI $RELEASE_VERSION."
+          gh release upload "$RELEASE_TAG" dist/ProspectusAI-mac-${{ matrix.arch }}-*.dmg --clobber
