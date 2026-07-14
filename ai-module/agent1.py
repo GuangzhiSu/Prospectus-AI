@@ -75,6 +75,10 @@ FILENAME_TO_SCHEMA_FIELD: dict[str, str] = {
 
 # Canonical prospectus section (Agent2 naming) -> legacy Agent1 letter bucket (A-H)
 CANONICAL_TO_LEGACY: dict[str, str] = {
+    "Cover": "H", "Back_Cover": "H",
+    "Important_Notice": "H", "Contents": "A", "Definitions": "A",
+    "Glossary_of_Technical_Terms": "B",
+    "Prospectus_and_Global_Offering_Information": "H",
     "Business": "A", "Corporate_Information": "A",
     "History_Reorganization_Corporate_Structure": "A",
     "Industry_Overview": "B",
@@ -89,6 +93,7 @@ CANONICAL_TO_LEGACY: dict[str, str] = {
     "Structure_of_the_Global_Offering": "H", "Underwriting": "H",
     "Parties_Involved_in_the_Global_Offering": "H",
     "Expected_Timetable": "H", "How_to_Apply_for_Hong_Kong_Offer_Shares": "H",
+    "Appendices": "D",
 }
 
 JSON_CATEGORY_TO_SECTION: dict[str, str] = {
@@ -111,8 +116,61 @@ RESERVED_KEYS: set[str] = {
     "schema_version", "issuer_id", "language", "source_defaults",
     "_comment", "_note", "_meta",
 }
-META_KEYS: set[str] = {"provenance", "source", "schema_a_field"}
+META_KEYS: set[str] = {
+    "provenance", "source", "schema_a_field",
+    "source_file", "page_start", "page_end", "span_preview",
+    "evidence_status", "extraction_notes", "likely_source_document",
+    "original_input_shape", "section_id", "section_sentence_index",
+    "char_count", "word_count", "counts", "extraction_method",
+}
 _SKIP_KEYS: set[str] = RESERVED_KEYS | META_KEYS
+
+def _canonical_from_path(path: Path) -> str | None:
+    stem = path.stem
+    if stem in CANONICAL_TO_LEGACY:
+        return stem
+    return None
+
+
+def _canonical_from_category(category: str) -> str | None:
+    if category in CANONICAL_TO_LEGACY:
+        return category
+    if category.startswith("section_"):
+        section = category[len("section_"):]
+        if section in CANONICAL_TO_LEGACY:
+            return section
+    return None
+
+
+def _canonical_from_material(node: Any) -> str | None:
+    if not isinstance(node, dict):
+        return None
+    section_id = node.get("section_id")
+    if isinstance(section_id, str) and section_id in CANONICAL_TO_LEGACY:
+        return section_id
+    return None
+
+
+def _section_for_json_node(category: str, path: Path, node: Any = None) -> tuple[str, str | None]:
+    """Return (Agent1 A-H bucket, canonical prospectus section if known).
+
+    Agent1 historically routed JSON only by top-level domain keys. This helper
+    also recognises per-section reverse-extraction files, merged record
+    ``section_*`` keys, and source-material blocks so near-miss JSON shapes do
+    not all fall into bucket A.
+    """
+    canonical = (
+        _canonical_from_material(node)
+        or _canonical_from_category(category)
+        or _canonical_from_path(path)
+    )
+    if canonical:
+        return CANONICAL_TO_LEGACY.get(canonical, "A"), canonical
+
+    if category in JSON_CATEGORY_TO_SECTION:
+        return JSON_CATEGORY_TO_SECTION[category], None
+
+    return "A", None
 
 
 def _workspace_default(name: str) -> str:
@@ -300,27 +358,86 @@ def _extract_facts(
 
 
 def extract_facts_from_json(path: Path) -> list[dict[str, Any]]:
-    """Extract fact entries from structured IPO JSON."""
+    """Extract fact entries from structured IPO JSON.
+
+    Supported shapes include:
+    - canonical Agent1 domain JSON (``business_products``, ``financials``...)
+    - source-package seeds with ``agent1_input_seed`` nested inside
+    - merged reverse records with ``record.section_<CanonicalSection>``
+    - per-section reverse files with top-level ``values``
+    - source-material blocks, with routing inferred from ``section_id``
+    """
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     if not isinstance(data, dict):
         return []
     facts: list[dict[str, Any]] = []
     source = path.name
-    for category, fields in data.items():
+
+    def add_facts(prefix: str, value: Any, section: str, canonical: str | None = None) -> None:
+        if value is None:
+            return
+        start_len = len(facts)
+        _extract_facts(prefix, value, facts, source)
+        for fact in facts[start_len:]:
+            md = fact.setdefault("metadata", {})
+            md["section_hint"] = section
+            if canonical:
+                md["prospectus_section_hint"] = canonical
+
+    def process_category(category: str, fields: Any) -> None:
         if category.startswith("$") or category in RESERVED_KEYS:
-            continue
+            return
         if not isinstance(fields, dict):
-            continue
-        section = JSON_CATEGORY_TO_SECTION.get(category, "A")
+            return
+
+        # source_package.json embeds the actual Agent1-ready seed here.
+        if category == "agent1_input_seed":
+            for child_category, child_fields in fields.items():
+                process_category(child_category, child_fields)
+            return
+
+        # Merged records are keyed by section_<CanonicalSection>; route each
+        # subsection to its real bucket instead of defaulting the whole file to A.
+        if category == "record":
+            for section_key, section_fields in fields.items():
+                if not isinstance(section_fields, dict):
+                    continue
+                section, canonical = _section_for_json_node(section_key, path, section_fields)
+                for field_name, value in section_fields.items():
+                    if value is None or field_name.startswith("$") or field_name in _SKIP_KEYS:
+                        continue
+                    add_facts(f"{category}.{section_key}.{field_name}", value, section, canonical)
+            return
+
+        # Merged records carry dense materials by canonical section id.
+        if category == "source_materials":
+            for section_key, material in fields.items():
+                section, canonical = _section_for_json_node(section_key, path, material)
+                add_facts(f"{category}.{section_key}", material, section, canonical)
+            return
+
+        # If an unknown envelope contains known Agent1 domains, unwrap those
+        # children instead of treating the whole envelope as bucket A.
+        known_children = [
+            (child_category, child_fields)
+            for child_category, child_fields in fields.items()
+            if child_category in JSON_CATEGORY_TO_SECTION
+        ]
+        if category not in JSON_CATEGORY_TO_SECTION and known_children:
+            for child_category, child_fields in known_children:
+                process_category(child_category, child_fields)
+            return
+
+        section, canonical = _section_for_json_node(category, path, fields)
         for field_name, value in fields.items():
-            if value is None or field_name.startswith("$") or field_name in RESERVED_KEYS:
+            if value is None or field_name.startswith("$") or field_name in _SKIP_KEYS:
                 continue
             full_field = f"{category}.{field_name}"
-            start_len = len(facts)
-            _extract_facts(full_field, value, facts, source)
-            for f in facts[start_len:]:
-                f.setdefault("metadata", {})["section_hint"] = section
+            add_facts(full_field, value, section, canonical)
+
+    for category, fields in data.items():
+        process_category(category, fields)
     return facts
 
 
@@ -335,11 +452,151 @@ def _is_narrative_field(category: str, field_name: str, value: Any) -> bool:
 
 
 def _narrative_to_text(prefix: str, value: Any) -> str:
+    del prefix  # retained for backward-compatible call sites
     if isinstance(value, str):
         return value
     if isinstance(value, list) and value and isinstance(value[0], str):
         return "\n".join(f"- {v}" for v in value)
     return ""
+
+
+def _make_text_item(
+    *,
+    text: str,
+    source: str,
+    section: str,
+    topic: str,
+    importance: str = "medium",
+    canonical: str | None = None,
+    source_type_hint: str | None = None,
+) -> dict[str, Any] | None:
+    if not text or not text.strip():
+        return None
+    item: dict[str, Any] = {
+        "text": text.strip(),
+        "source_file": source,
+        "section_hint": section,
+        "topic": topic,
+        "importance": importance,
+    }
+    if canonical:
+        item["prospectus_section_hint"] = canonical
+    if source_type_hint:
+        item["source_type_hint"] = source_type_hint
+    return item
+
+
+def _source_material_text_blocks(material: dict[str, Any]) -> list[tuple[str, str, str]]:
+    """Return (label, text, importance) blocks from dense source materials."""
+    blocks: list[tuple[str, str, str]] = []
+
+    narrative_lines: list[str] = []
+    for item in (material.get("key_narrative_points") if isinstance(material.get("key_narrative_points"), list) else []) or []:
+        if isinstance(item, dict) and str(item.get("text") or "").strip():
+            narrative_lines.append(f"- {str(item['text']).strip()}")
+        elif isinstance(item, str) and item.strip():
+            narrative_lines.append(f"- {item.strip()}")
+    if narrative_lines:
+        blocks.append(("key_narrative_points", "\n".join(narrative_lines), "high"))
+
+    numeric_lines: list[str] = []
+    for item in (material.get("key_numeric_facts") if isinstance(material.get("key_numeric_facts"), list) else []) or []:
+        if isinstance(item, dict) and str(item.get("text") or "").strip():
+            numeric_lines.append(f"- {str(item['text']).strip()}")
+        elif isinstance(item, str) and item.strip():
+            numeric_lines.append(f"- {item.strip()}")
+    if numeric_lines:
+        blocks.append(("key_numeric_facts", "\n".join(numeric_lines), "high"))
+
+    excerpt_lines: list[str] = []
+    for item in (material.get("source_excerpt_blocks") if isinstance(material.get("source_excerpt_blocks"), list) else []) or []:
+        if not isinstance(item, dict):
+            continue
+        text = str(item.get("text") or "").strip()
+        if not text:
+            continue
+        label = str(item.get("label") or "excerpt").strip()
+        excerpt_lines.append(f"[{label}] {text}")
+    if excerpt_lines:
+        blocks.append(("source_excerpt_blocks", "\n\n".join(excerpt_lines), "medium"))
+
+    term_lines: list[str] = []
+    for item in (material.get("term_definitions") if isinstance(material.get("term_definitions"), list) else []) or []:
+        if not isinstance(item, dict):
+            continue
+        term = str(item.get("term") or "").strip()
+        definition = str(item.get("definition") or "").strip()
+        if term and definition:
+            term_lines.append(f"- {term}: {definition}")
+    if term_lines:
+        blocks.append(("term_definitions", "\n".join(term_lines), "high"))
+
+    return blocks
+
+
+def extract_source_material_texts(path: Path) -> list[dict[str, Any]]:
+    """Extract text evidence from reverse-engineered section source materials.
+
+    This recognises per-section ``extracted_source_materials``, merged
+    ``source_materials`` and source-package ``section_source_materials`` blocks.
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return []
+    source = path.name
+    out: list[dict[str, Any]] = []
+    seen_material_ids: set[int] = set()
+    seen_text_keys: set[tuple[str, str, str]] = set()
+
+    def emit(material: dict[str, Any], fieldpath: str, fallback_category: str) -> None:
+        material_id = id(material)
+        if material_id in seen_material_ids:
+            return
+        seen_material_ids.add(material_id)
+        section, canonical = _section_for_json_node(
+            fallback_category, path, material
+        )
+        for label, text, importance in _source_material_text_blocks(material):
+            key = (canonical or section, label, text[:240])
+            if key in seen_text_keys:
+                continue
+            seen_text_keys.add(key)
+            item = _make_text_item(
+                text=text,
+                source=source,
+                section=section,
+                canonical=canonical,
+                topic=f"{fieldpath}.{label}",
+                importance=importance,
+                source_type_hint="json_source_material",
+            )
+            if item:
+                out.append(item)
+
+    def walk(node: Any, fieldpath: str, fallback_category: str) -> None:
+        if isinstance(node, dict):
+            if any(isinstance(node.get(k), list) for k in (
+                "key_narrative_points",
+                "key_numeric_facts",
+                "source_excerpt_blocks",
+                "term_definitions",
+            )):
+                emit(node, fieldpath, fallback_category)
+            for k, v in node.items():
+                if k.startswith("$") or k in RESERVED_KEYS:
+                    continue
+                child_category = k if k in JSON_CATEGORY_TO_SECTION or k in CANONICAL_TO_LEGACY else fallback_category
+                walk(v, f"{fieldpath}.{k}" if fieldpath else k, child_category)
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, f"{fieldpath}[{i}]", fallback_category)
+
+    for category, value in data.items():
+        if category.startswith("$") or category in RESERVED_KEYS:
+            continue
+        walk(value, category, category)
+    return out
 
 
 def extract_text_from_json(path: Path) -> list[dict[str, Any]]:
@@ -350,23 +607,60 @@ def extract_text_from_json(path: Path) -> list[dict[str, Any]]:
         return []
     texts: list[dict[str, Any]] = []
     source = path.name
-    for category, fields in data.items():
+
+    def process_category(category: str, fields: Any) -> None:
+        if category.startswith("$") or category in RESERVED_KEYS:
+            return
         if not isinstance(fields, dict):
-            continue
-        section = JSON_CATEGORY_TO_SECTION.get(category, "A")
+            return
+
+        if category == "agent1_input_seed":
+            for child_category, child_fields in fields.items():
+                process_category(child_category, child_fields)
+            return
+
+        if category == "record":
+            for section_key, section_fields in fields.items():
+                if isinstance(section_fields, dict):
+                    process_category(section_key, section_fields)
+            return
+
+        if category == "source_materials":
+            for section_key, material in fields.items():
+                process_category(section_key, material)
+            return
+
+        known_children = [
+            (child_category, child_fields)
+            for child_category, child_fields in fields.items()
+            if child_category in JSON_CATEGORY_TO_SECTION
+        ]
+        if category not in JSON_CATEGORY_TO_SECTION and known_children:
+            for child_category, child_fields in known_children:
+                process_category(child_category, child_fields)
+            return
+
+        section, canonical = _section_for_json_node(category, path, fields)
         for field_name, value in fields.items():
+            if field_name.startswith("$") or field_name in _SKIP_KEYS:
+                continue
             if not _is_narrative_field(category, field_name, value):
                 continue
             text = _narrative_to_text(f"{category}.{field_name}", value)
             if not text.strip():
                 continue
-            texts.append({
-                "text": text,
-                "source_file": source,
-                "section_hint": section,
-                "topic": f"{category}.{field_name}",
-                "importance": "medium",
-            })
+            item = _make_text_item(
+                text=text,
+                source=source,
+                section=section,
+                canonical=canonical,
+                topic=f"{category}.{field_name}",
+            )
+            if item:
+                texts.append(item)
+
+    for category, fields in data.items():
+        process_category(category, fields)
     return texts
 
 
@@ -402,25 +696,36 @@ def extract_narrative_blocks(path: Path) -> list[dict[str, Any]]:
             if node.get("$kind") == "narrative":
                 text = _narrative_points_to_text(node)
                 if text.strip():
-                    out.append({
-                        "text": text,
-                        "source_file": source,
-                        "section_hint": JSON_CATEGORY_TO_SECTION.get(top_category, "A"),
-                        "topic": fieldpath,
-                        "importance": "medium",
-                        "narrative_source": node.get("source"),
-                    })
+                    section, canonical = _section_for_json_node(top_category, path, node)
+                    item = _make_text_item(
+                        text=text,
+                        source=source,
+                        section=section,
+                        canonical=canonical,
+                        topic=fieldpath,
+                        importance="medium",
+                        source_type_hint="json_narrative",
+                    )
+                    if item:
+                        item["narrative_source"] = node.get("source")
+                        out.append(item)
                 return
             for k, v in node.items():
                 if k.startswith("$") or k in RESERVED_KEYS:
                     continue
-                walk(v, top_category, f"{fieldpath}.{k}" if fieldpath else k)
+                child_category = k if k in JSON_CATEGORY_TO_SECTION or k in CANONICAL_TO_LEGACY else top_category
+                walk(v, child_category, f"{fieldpath}.{k}" if fieldpath else k)
         elif isinstance(node, list):
             for i, v in enumerate(node):
                 walk(v, top_category, f"{fieldpath}[{i}]")
 
     for category, fields in data.items():
         if category.startswith("$") or category in RESERVED_KEYS:
+            continue
+        if category == "agent1_input_seed" and isinstance(fields, dict):
+            for child_category, child_fields in fields.items():
+                if isinstance(child_fields, (dict, list)):
+                    walk(child_fields, child_category, child_category)
             continue
         if isinstance(fields, (dict, list)):
             walk(fields, category, category)
@@ -917,7 +1222,11 @@ def run_agent1(
                 f"{f.name}:{fact.get('field','')}:{i}:{str(fact.get('value',''))}".encode()
             ).hexdigest()[:12]
             fact_store.append(fact)
-        narrative = extract_text_from_json(f) + extract_narrative_blocks(f)
+        narrative = (
+            extract_text_from_json(f)
+            + extract_narrative_blocks(f)
+            + extract_source_material_texts(f)
+        )
         for item in narrative:
             chunk_list = chunk_text(
                 item["text"],
@@ -933,8 +1242,12 @@ def run_agent1(
                     "topic": item["topic"],
                     "importance": item["importance"],
                     "chunk_id": chunk_id,
-                    "source_type": "json_narrative",
+                    "source_type": item.get("source_type_hint") or "json_narrative",
                 }
+                if item.get("schema_field_hint"):
+                    rec["schema_field_hint"] = item["schema_field_hint"]
+                if item.get("prospectus_section_hint"):
+                    rec["prospectus_section_hint"] = item["prospectus_section_hint"]
                 text_chunks.append(rec)
                 by_section[item["section_hint"]].append(rec)
         print(f"  [JSON] {f.name} -> {len(facts)} facts, {len(narrative)} narrative blocks")
@@ -1049,6 +1362,8 @@ def run_agent1(
             "text": rec["text"],
             "sheet_summary": rec.get("topic", "")[:100],
             "source_type": rec.get("source_type", "text_chunk"),
+            "schema_field_hint": rec.get("schema_field_hint"),
+            "prospectus_section_hint": rec.get("prospectus_section_hint"),
         })
     # Append fact summaries as text-like chunks for context (so section writer sees facts)
     facts_by_section: dict[str, list[dict]] = {}

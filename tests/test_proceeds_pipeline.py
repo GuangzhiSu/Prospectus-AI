@@ -109,6 +109,121 @@ def test_agent1_preserves_indexed_proceeds_rows_and_dossier(tmp_path):
     assert "Indexed schedule rows" in result.formatted_facts
 
 
+def test_agent1_routes_reverse_section_json_and_source_materials(tmp_path):
+    data_dir = tmp_path / "data"
+    out_dir = tmp_path / "agent1"
+    data_dir.mkdir()
+    (data_dir / "Industry_Overview.json").write_text(
+        json.dumps(
+            {
+                "values": {
+                    "market_size": {
+                        "value": "RMB10.5 billion",
+                        "source_file": "demo.pdf",
+                        "page_start": 20,
+                    }
+                },
+                "extracted_source_materials": {
+                    "section_id": "Industry_Overview",
+                    "key_numeric_facts": [
+                        {
+                            "text": "The market grew from RMB5.0 billion in 2020 to RMB10.5 billion in 2023.",
+                            "source_file": "demo.pdf",
+                            "page_start": 20,
+                        }
+                    ],
+                    "key_narrative_points": [
+                        {"text": "Digital transformation continues to drive industry demand."}
+                    ],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    run_agent1(data_dir=data_dir, output_dir=out_dir, model_name="dummy")
+
+    facts = [
+        json.loads(line)
+        for line in (out_dir / "fact_store.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert {f["metadata"]["section_hint"] for f in facts} == {"B"}
+    assert any(
+        f["metadata"].get("prospectus_section_hint") == "Industry_Overview"
+        for f in facts
+    )
+
+    chunks = [
+        json.loads(line)
+        for line in (out_dir / "text_chunks.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert any("RMB5.0 billion" in c["text"] for c in chunks)
+    assert any(c.get("prospectus_section_hint") == "Industry_Overview" for c in chunks)
+    assert any(c.get("source_type") == "json_source_material" for c in chunks)
+
+
+def test_agent1_unwraps_source_package_agent1_seed(tmp_path):
+    data_dir = tmp_path / "data"
+    out_dir = tmp_path / "agent1"
+    data_dir.mkdir()
+    (data_dir / "source_package.json").write_text(
+        json.dumps(
+            {
+                "document_id": "demo",
+                "agent1_input_seed": {
+                    "industry_market": {
+                        "reverse_engineered_sources": [
+                            {
+                                "source_document_kind": "industry_consultant_report",
+                                "section_source_materials": [
+                                    {
+                                        "section_id": "Industry_Overview",
+                                        "key_narrative_points": [
+                                            {"text": "The addressable market is expanding due to SaaS adoption."}
+                                        ],
+                                        "term_definitions": [
+                                            {"term": "SaaS", "definition": "software as a service"}
+                                        ],
+                                    }
+                                ],
+                                "fields": [
+                                    {
+                                        "field_name": "growth_rate",
+                                        "value": "23.4%",
+                                        "source_file": "demo.pdf",
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    run_agent1(data_dir=data_dir, output_dir=out_dir, model_name="dummy")
+
+    facts = [
+        json.loads(line)
+        for line in (out_dir / "fact_store.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert facts
+    assert {f["metadata"]["section_hint"] for f in facts} == {"B"}
+
+    chunks = [
+        json.loads(line)
+        for line in (out_dir / "text_chunks.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert any("SaaS adoption" in c["text"] for c in chunks)
+    assert any("SaaS: software as a service" in c["text"] for c in chunks)
+    assert any(c.get("prospectus_section_hint") == "Industry_Overview" for c in chunks)
+
+
 def test_use_of_proceeds_template_renders_complete_section(tmp_path):
     data_dir = tmp_path / "data"
     agent1_dir = tmp_path / "agent1"
