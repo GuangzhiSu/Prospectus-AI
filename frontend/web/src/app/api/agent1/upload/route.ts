@@ -1,4 +1,4 @@
-// POST /api/agent1/upload - Upload Excel and JSON files to data/
+// POST /api/agent1/upload - Upload issuer source files to data/
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
@@ -6,11 +6,17 @@ import { getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 
 export const runtime = "nodejs";
 
-const ALLOWED_EXT = [".xlsx", ".json"];
-const MAX_BYTES = 50 * 1024 * 1024; // 50MB
+const ALLOWED_EXT = [".xlsx", ".json", ".docx", ".pdf"];
+const MAX_BYTES_BY_EXT: Record<string, number> = {
+  ".pdf": 150 * 1024 * 1024,
+  ".docx": 75 * 1024 * 1024,
+  ".xlsx": 75 * 1024 * 1024,
+  ".json": 75 * 1024 * 1024,
+};
 
-function isAllowedFile(name: string) {
-  return ALLOWED_EXT.some((ext) => name.toLowerCase().endsWith(ext));
+function extOf(name: string) {
+  const lower = name.toLowerCase();
+  return ALLOWED_EXT.find((ext) => lower.endsWith(ext));
 }
 
 function sanitizeFilename(name: string) {
@@ -36,12 +42,14 @@ export async function POST(req: Request) {
     const errors: string[] = [];
 
     for (const f of files) {
-      if (f.size > MAX_BYTES) {
-        errors.push(`${f.name}: file too large (max 50MB)`);
+      const ext = extOf(f.name);
+      if (!ext) {
+        errors.push(`${f.name}: only .xlsx, .json, .docx, or .pdf allowed`);
         continue;
       }
-      if (!isAllowedFile(f.name)) {
-        errors.push(`${f.name}: only .xlsx or .json allowed`);
+      const maxBytes = MAX_BYTES_BY_EXT[ext];
+      if (f.size > maxBytes) {
+        errors.push(`${f.name}: file too large (max ${Math.round(maxBytes / 1024 / 1024)}MB)`);
         continue;
       }
       const safeName = sanitizeFilename(f.name);

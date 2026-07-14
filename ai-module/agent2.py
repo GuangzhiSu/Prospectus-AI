@@ -60,7 +60,15 @@ def _workspace_default(name: str) -> str:
 
 
 def _issuer_metadata_default_path() -> Path:
-    return Path(__file__).resolve().parent / "issuer_metadata.json"
+    here = Path(__file__).resolve().parent
+    for candidate in [
+        here / "issuer_metadata.json",
+        here.parent / "issuer_metadata.json",
+        Path.cwd() / "issuer_metadata.json",
+    ]:
+        if candidate.exists():
+            return candidate
+    return here / "issuer_metadata.json"
 
 
 def _lookup_section_name(section_id: str) -> str:
@@ -506,6 +514,7 @@ class AssemblerNode:
         from prospectus_graph.output_bundle import strip_verification_notes
 
         text = strip_verification_notes(text)
+        text = _normalize_section_markdown(text, section_name)
         safe_name = section_name.replace(" ", "_").replace("&", "and")
         out_file = self.output_dir / f"section_{section_id}_{safe_name}.md"
 
@@ -557,6 +566,44 @@ def _section_body_from_file(content: str) -> str:
     parts = content.split("\n\n", 1)
     body = parts[-1].strip() if len(parts) > 1 else content.strip()
     return strip_verification_notes(strip_model_reasoning(body))
+
+
+def _normalize_section_markdown(text: str, section_name: str) -> str:
+    """Normalize common LLM formatting slips before persistence."""
+    import re
+
+    cleaned = (text or "").strip()
+    if not cleaned:
+        return ""
+
+    # Convert legacy/single-bracket AI tags to the canonical double-bracket form.
+    cleaned = re.sub(
+        r"(?<!\[)\[AI:([A-Z_]+)\|([^\]\n]+)\](?!\])",
+        r"[[AI:\1|\2]]",
+        cleaned,
+    )
+    cleaned = re.sub(r"\bData Missing\b", "DATA_MISSING", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bCounsel Input Required\b", "COUNSEL_INPUT_REQUIRED", cleaned, flags=re.I)
+
+    lines = cleaned.splitlines()
+    normalized_section = re.sub(r"[^a-z0-9]+", "", section_name.lower())
+    while lines:
+        first = lines[0].strip()
+        heading = re.sub(r"^#{1,6}\s*", "", first).strip()
+        heading_norm = re.sub(r"[^a-z0-9]+", "", heading.lower())
+        is_duplicate_title = first.startswith("#") and (
+            heading_norm == normalized_section
+            or heading_norm.startswith("section") and normalized_section in heading_norm
+        )
+        is_ai_tag_heading = re.match(r"^#{1,6}\s*\[\[AI:", first, re.I)
+        if is_duplicate_title or is_ai_tag_heading:
+            lines.pop(0)
+            while lines and not lines[0].strip():
+                lines.pop(0)
+            continue
+        break
+
+    return "\n".join(lines).strip() + "\n"
 
 
 def _load_existing_sections(out_path: Path) -> dict[str, str]:
@@ -685,9 +732,18 @@ def _build_section_state(
     issuer_metadata_path: Path | None = None,
 ) -> SectionDraftState:
     section_name = _lookup_section_name(section_id)
-    reqs = requirements_map.get(section_id, {})
+    reqs = dict(requirements_map.get(section_id, {}))
+    try:
+        from prompts.sections.augment import get_corpus_style_guide
+
+        guide = get_corpus_style_guide(section_id)
+        if guide.get("preferred_outline"):
+            reqs["kg_typical_structure"] = guide["preferred_outline"]
+            reqs["kg_heading_lock"] = bool(guide.get("heading_lock"))
+    except Exception:  # noqa: BLE001
+        pass
     base_req = reqs.get("requirements", f"Write the {section_name} section.")
-    requirements = _augment_requirements(
+    requirements = augment_requirements(
         section_id, base_req, issuer_metadata_path, reqs=reqs
     )
     return {
@@ -972,7 +1028,10 @@ def run_agent2(
         sections = [sid for sid, _ in SECTIONS]
 
     valid_sections = [sid for sid in sections if sid in [s[0] for s in SECTIONS]]
-    use_cached_model = len(valid_sections) > 1
+    llm_sections = [
+        sid for sid in valid_sections if sid not in {"ExpectedTimetable", "Contents"}
+    ]
+    use_cached_model = len(llm_sections) > 1
 
     model, tokenizer = None, None
     if use_cached_model and _uses_local_qwen():

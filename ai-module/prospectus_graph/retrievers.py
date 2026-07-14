@@ -8,7 +8,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable
 
-from prospectus_graph.config import SECTION_FACT_SCHEMA, SECTION_TO_AGENT1_IDS
+from prospectus_graph.config import (
+    SECTION_FACT_SCHEMA,
+    SECTION_TEXT_SCHEMA,
+    SECTION_TO_AGENT1_IDS,
+)
 from prospectus_graph.state import EvidenceChunk, RetrievedFact
 
 TOKEN_RE = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_\-./%]*")
@@ -84,26 +88,39 @@ def format_facts_for_prompt(
         item_lines: list[str] = []
         other_lines: list[str] = []
         for g in group:
+            fact_id = g.get("fact_id") or ""
+            field = g.get("field") or ""
             period = g.get("period") or ""
             metric = g.get("metric", "")
             value = g.get("value")
             unit = g.get("unit") or ""
+            source = (g.get("metadata") or {}).get("source_file", "")
             if value is None:
                 continue
             val_str = str(value).strip()
             if val_str in seen_values:
                 continue
             seen_values.add(val_str)
+            prefix_bits = []
+            if fact_id:
+                prefix_bits.append(f"[{fact_id}]")
+            if field:
+                prefix_bits.append(field)
+            line_prefix = " ".join(prefix_bits).strip()
+            suffix = f" (source: {source})" if source else ""
             if isinstance(value, float) and 0 < value < 1:
                 pct = f"{value * 100:.1f}%"
-                line = f"{period} {metric}: {pct}".strip() if period else f"{metric}: {pct}"
+                core = f"{period} {metric}: {pct}".strip() if period else f"{metric}: {pct}"
+                line = f"{line_prefix} — {core}{suffix}" if line_prefix else f"{core}{suffix}"
                 other_lines.append(line)
             elif isinstance(value, (int, float)) and value >= 1000:
                 fmt = f"{value:,.0f}" if isinstance(value, (int, float)) and value == int(value) else f"{value:,.2f}"
-                line = f"{period} {metric}: {unit} {fmt}".strip() if unit else f"{period} {metric}: {fmt}".strip()
+                core = f"{period} {metric}: {unit} {fmt}".strip() if unit else f"{period} {metric}: {fmt}".strip()
+                line = f"{line_prefix} — {core}{suffix}" if line_prefix else f"{core}{suffix}"
                 other_lines.append(line)
             else:
-                line = f"{period} {metric}: {value} {unit}".strip() if unit else f"{period} {metric}: {value}".strip()
+                core = f"{period} {metric}: {value} {unit}".strip() if unit else f"{period} {metric}: {value}".strip()
+                line = f"{line_prefix} — {core}{suffix}" if line_prefix else f"{core}{suffix}"
                 if metric == "item":
                     item_lines.append(line)
                 else:
@@ -371,6 +388,26 @@ def load_facts(rag_dir: str | Path) -> list[RetrievedFact]:
     return facts
 
 
+def _matches_prefix(value: str, prefixes: list[str]) -> bool:
+    v = (value or "").strip()
+    if not v:
+        return False
+    for p in prefixes:
+        if v == p or v.startswith(p + ".") or v.startswith(p + "["):
+            return True
+    return False
+
+
+def _chunk_topic_fields(chunk: dict[str, Any]) -> list[str]:
+    fields = [
+        str(chunk.get("topic") or ""),
+        str(chunk.get("sheet_summary") or ""),
+        str(chunk.get("schema_field_hint") or ""),
+        str(chunk.get("prospectus_section_hint") or ""),
+    ]
+    return [f for f in fields if f]
+
+
 class HybridRetriever:
     """
     Hybrid retrieval: semantic search over text_chunks + structured filter over fact_store.
@@ -475,7 +512,7 @@ class HybridRetriever:
             field = f.get("field") or ""
             matched = False
             for p in required_prefixes:
-                if field == p or field.startswith(p + "."):
+                if _matches_prefix(field, [p]):
                     by_prefix[p].append(f)
                     matched = True
                     break
@@ -503,6 +540,115 @@ class HybridRetriever:
                 selected.append(f)
 
         return selected[: self.fact_limit]
+
+    def _score_text_chunk(self, query_tokens: set[str], chunk: dict[str, Any]) -> float:
+        text_tokens = _tokenize(chunk.get("text", ""))
+        topic_tokens = _tokenize(" ".join(_chunk_topic_fields(chunk)))
+        source_tokens = _tokenize(chunk.get("source_file", ""))
+        combined = text_tokens | topic_tokens | source_tokens
+        if not combined:
+            return 0.0
+        importance = str(chunk.get("importance", "")).lower()
+        importance_boost = 1.0 if importance == "high" else 0.35 if importance == "medium" else 0.0
+        return (
+            len(query_tokens & combined)
+            + 1.25 * len(query_tokens & topic_tokens)
+            + 0.5 * len(query_tokens & source_tokens)
+            + importance_boost
+        ) / max(math.sqrt(len(text_tokens) or 1), 1)
+
+    def _select_text_schema_aware(
+        self,
+        chunks: list[dict[str, Any]],
+        *,
+        section_id: str,
+        preferred_ids: set[str],
+        query: str,
+        max_chars: int,
+    ) -> list[dict[str, Any]]:
+        """Select narrative evidence by required schema prefixes first.
+
+        This keeps sections like Financial Information from being crowded out by
+        high-frequency cross-reference text such as industry-source disclaimers.
+        """
+        required_prefixes = SECTION_TEXT_SCHEMA.get(section_id) or []
+        if not required_prefixes:
+            if self.use_semantic:
+                return self._semantic_search(query, chunks, preferred_ids, max_chars)
+            return self._lexical_fallback(query, chunks, preferred_ids, max_chars)
+
+        query_tokens = _tokenize(query)
+        selected: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        total = 0
+
+        def key(ch: dict[str, Any]) -> str:
+            return "|".join(
+                str(ch.get(k) or "")
+                for k in ("chunk_id", "source_file", "topic", "page", "sheet_name")
+            )
+
+        def add(ch: dict[str, Any]) -> bool:
+            nonlocal total
+            k = key(ch)
+            if k in seen:
+                return False
+            text = ch.get("text", "")
+            if not text:
+                return False
+            if total + len(text) > max_chars and selected:
+                return False
+            selected.append(ch)
+            seen.add(k)
+            total += len(text)
+            return True
+
+        per_prefix = max(2, min(5, 18 // max(len(required_prefixes), 1)))
+        for prefix in required_prefixes:
+            matches = [
+                ch
+                for ch in chunks
+                if any(_matches_prefix(field, [prefix]) for field in _chunk_topic_fields(ch))
+            ]
+            matches.sort(
+                key=lambda ch: self._score_text_chunk(query_tokens, ch),
+                reverse=True,
+            )
+            added_for_prefix = 0
+            for ch in matches:
+                if add(ch):
+                    added_for_prefix += 1
+                if added_for_prefix >= per_prefix or total >= max_chars:
+                    break
+            if total >= max_chars:
+                break
+
+        schema_pool = [
+            ch
+            for ch in chunks
+            if any(_matches_prefix(field, required_prefixes) for field in _chunk_topic_fields(ch))
+        ]
+        preferred_pool = [
+            ch
+            for ch in chunks
+            if (ch.get("section_hint") or ch.get("section_id")) in preferred_ids
+        ]
+        fill_pool = schema_pool or preferred_pool or chunks
+        fill_pool.sort(
+            key=lambda ch: self._score_text_chunk(query_tokens, ch),
+            reverse=True,
+        )
+        for ch in fill_pool:
+            if total >= max_chars:
+                break
+            add(ch)
+
+        if selected:
+            return selected
+
+        if self.use_semantic:
+            return self._semantic_search(query, chunks, preferred_ids, max_chars)
+        return self._lexical_fallback(query, chunks, preferred_ids, max_chars)
 
     def _lexical_fallback(
         self,
@@ -544,15 +690,14 @@ class HybridRetriever:
         preferred_ids = set(self.section_mapping.get(section_id, []))
 
         text_chunks = self._get_text_chunks()
-        text_budget = max_context_chars // 2
-        if self.use_semantic:
-            text_evidence_raw = self._semantic_search(
-                query, text_chunks, preferred_ids, self.text_limit_chars
-            )
-        else:
-            text_evidence_raw = self._lexical_fallback(
-                query, text_chunks, preferred_ids, self.text_limit_chars
-            )
+        text_budget = min(self.text_limit_chars, max(4000, max_context_chars // 2))
+        text_evidence_raw = self._select_text_schema_aware(
+            text_chunks,
+            section_id=section_id,
+            preferred_ids=preferred_ids,
+            query=query,
+            max_chars=text_budget,
+        )
         text_evidence: list[EvidenceChunk] = []
         for ch in text_evidence_raw:
             text_evidence.append({

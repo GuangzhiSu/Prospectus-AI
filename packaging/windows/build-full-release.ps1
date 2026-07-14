@@ -1,6 +1,7 @@
-# Full Windows portable bundle: Next standalone + embedded Node.js (win-x64) + Python venv + agents.
+# Full Windows portable bundle: Next standalone + embedded Node.js (win-x64) + embedded Python bootstrap + agents.
 # Run on a Windows x64 machine with Node + Python 3.10+ available for *building only*.
-# End users: unzip / copy the output folder, double-click start-prospectus-ui.bat — no separate Node install.
+# End users: unzip / copy the output folder, double-click Prospectus AI.exe — no separate Node install.
+# On first launch the app creates a local venv from python-embed on the user's machine.
 #
 # Usage (repo root):
 #   powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1
@@ -9,15 +10,23 @@
 #   -InstallRoot       Relative to repo root (default: dist\ProspectusAI)
 #   -NodeVersion       nodejs.org version to embed, e.g. 20.18.0
 #   -NodeZipPath       Optional local path to node-v{ver}-win-x64.zip (skip download)
+#   -PythonVersion     python.org embeddable runtime version to include
+#   -PythonEmbedZipPath Optional local path to python-{ver}-embed-amd64.zip (skip download)
+#   -GetPipUrl         get-pip.py URL for first-run bootstrap
 #   -SkipZip           If set, do not create dist\ProspectusAI-windows-*.zip
 #   -TorchCpu          If $true (default), install CPU PyTorch wheels for portability
+#   -PrebuildVenv      Development-only: also create venv during build (not portable across machines)
 
 param(
     [string]$InstallRoot = "dist\ProspectusAI",
     [string]$NodeVersion = "20.18.0",
     [string]$NodeZipPath = "",
+    [string]$PythonVersion = "3.12.10",
+    [string]$PythonEmbedZipPath = "",
+    [string]$GetPipUrl = "https://bootstrap.pypa.io/get-pip.py",
     [switch]$SkipZip,
-    [bool]$TorchCpu = $true
+    [bool]$TorchCpu = $true,
+    [switch]$PrebuildVenv
 )
 
 $ErrorActionPreference = "Stop"
@@ -123,34 +132,57 @@ if (-not (Test-Path (Join-Path $NodeDir "node.exe"))) {
     throw "node.exe not found after extracting Node archive."
 }
 
-# --- Python venv + pip (CPU PyTorch by default) ---
-$venvPy = Join-Path $Stage "venv\Scripts\python.exe"
-Write-Host "Creating Python venv (this may take several minutes)..."
-if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 -m venv (Join-Path $Stage "venv")
-} elseif (Get-Command python -ErrorAction SilentlyContinue) {
-    & python -m venv (Join-Path $Stage "venv")
-} else {
-    throw "Python 3 not found on PATH (need py launcher or python for build)."
-}
-
-$pip = Join-Path $Stage "venv\Scripts\pip.exe"
-& $pip install --upgrade pip wheel setuptools
-
+# --- Python bootstrap files ---
 $reqPath = Join-Path $RepoRoot "ai-module\requirements.txt"
 $reqNoTorch = Join-Path $env:TEMP "req-notorch-$([Guid]::NewGuid().ToString('n')).txt"
 Get-Content -LiteralPath $reqPath -Encoding UTF8 |
     Where-Object { $_ -notmatch '^\s*#' -and $_ -notmatch '^\s*torch' -and $_.Trim() -ne '' } |
     Set-Content -LiteralPath $reqNoTorch -Encoding UTF8
-
-if ($TorchCpu) {
-    & $pip install "torch>=2.0.0" --index-url "https://download.pytorch.org/whl/cpu"
-} else {
-    & $pip install "torch>=2.0.0"
-}
-& $pip install -r $reqNoTorch
 Copy-Item -Force $reqNoTorch (Join-Path $Stage "requirements-no-torch.txt")
 Remove-Item -Force $reqNoTorch -ErrorAction SilentlyContinue
+
+$PythonEmbedDir = Join-Path $Stage "python-embed"
+New-Item -ItemType Directory -Force -Path $PythonEmbedDir | Out-Null
+
+if ($PythonEmbedZipPath -and (Test-Path $PythonEmbedZipPath)) {
+    $pyZipFile = (Resolve-Path $PythonEmbedZipPath).Path
+    Write-Host "Using local Python embeddable zip: $pyZipFile"
+} else {
+    $pyZipUrl = "https://www.python.org/ftp/python/$PythonVersion/python-$PythonVersion-embed-amd64.zip"
+    $pyZipFile = Join-Path $env:TEMP "python-$PythonVersion-embed-amd64.zip"
+    Write-Host "Downloading Python $PythonVersion embeddable runtime..."
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Invoke-WebRequest -Uri $pyZipUrl -OutFile $pyZipFile -UseBasicParsing
+}
+
+Expand-Archive -Path $pyZipFile -DestinationPath $PythonEmbedDir -Force
+if (-not (Test-Path (Join-Path $PythonEmbedDir "python.exe"))) {
+    throw "python.exe not found after extracting Python embeddable runtime."
+}
+
+Write-Host "Downloading get-pip.py for first-run venv bootstrap..."
+Invoke-WebRequest -Uri $GetPipUrl -OutFile (Join-Path $PythonEmbedDir "get-pip.py") -UseBasicParsing
+
+if ($PrebuildVenv) {
+    Write-Warning "PrebuildVenv is for same-machine development only. Do not use it for public Windows releases."
+    Write-Host "Creating Python venv (this may take several minutes)..."
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        & py -3 -m venv (Join-Path $Stage "venv")
+    } elseif (Get-Command python -ErrorAction SilentlyContinue) {
+        & python -m venv (Join-Path $Stage "venv")
+    } else {
+        throw "Python 3 not found on PATH (need py launcher or python for build)."
+    }
+
+    $pip = Join-Path $Stage "venv\Scripts\pip.exe"
+    & $pip install --upgrade pip wheel setuptools
+    if ($TorchCpu) {
+        & $pip install "torch>=2.0.0" --index-url "https://download.pytorch.org/whl/cpu"
+    } else {
+        & $pip install "torch>=2.0.0"
+    }
+    & $pip install -r (Join-Path $Stage "requirements-no-torch.txt")
+}
 
 # --- Launcher + readme ---
 Copy-Item -Force (Join-Path $PSScriptRoot "start-prospectus-ui.bat") $Stage
@@ -185,14 +217,15 @@ Prospectus AI — Windows portable bundle
 ============================================
 
 No separate Node.js install required: this folder includes node\node.exe.
-No separate Python install required for agents: venv\ contains dependencies.
+No separate Python install required for agents: python-embed\ bootstraps a local venv on first launch.
 
 Start
 -----
 1. Double-click Prospectus AI.exe, or install ProspectusAI-Setup-0.1.0.exe and use the shortcut
-2. The desktop window starts the local service and opens the app automatically
-3. If needed, use Open-Prospectus-UI.cmd as a browser fallback
-4. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
+2. First launch creates venv\ and installs Python packages on this machine (5-20 minutes depending on network)
+3. The desktop window starts the local service and opens the app automatically
+4. If needed, use Open-Prospectus-UI.cmd as a browser fallback
+5. In the app, open Model & inference settings to configure Qwen or an OpenAI-compatible API
 
 GPU (optional)
 --------------
@@ -205,8 +238,8 @@ Troubleshooting
 - Antivirus may slow first run while scanning venv and node.
 
 --- 中文简要说明 ---
-无需单独安装 Node.js（已包含 node\node.exe）或系统 Python（Agent 使用本目录 venv）。
-双击 Prospectus AI.exe 会自动启动本地服务并打开桌面窗口；也可用 Open-Prospectus-UI.cmd 作为浏览器备用入口。
+无需单独安装 Node.js（已包含 node\node.exe）或系统 Python（首次启动会用 python-embed 在本机创建 venv）。
+第一次启动会安装 Python 依赖，可能需要 5-20 分钟；之后双击 Prospectus AI.exe 会自动启动本地服务并打开桌面窗口；也可用 Open-Prospectus-UI.cmd 作为浏览器备用入口。
 首次请在网页「Model & inference」里配置本地 Qwen 或 OpenAI 兼容 API。
 "@
 Set-Content -LiteralPath (Join-Path $Stage "README-Windows.txt") -Value $readme -Encoding UTF8

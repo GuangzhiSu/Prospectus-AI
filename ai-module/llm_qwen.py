@@ -24,10 +24,14 @@ import os
 import socket
 import json
 import time
+from pathlib import Path
 
 DEFAULT_TEXT_MODEL = "Qwen/Qwen3.5-4B"
 DEFAULT_VL_MODEL = "Qwen/Qwen2-VL-2B-Instruct"
-_DEBUG_LOG_PATH = "/home/gs285/finance/prospectus-ui/.cursor/debug-668fa0.log"
+_DEBUG_LOG_PATH = os.environ.get(
+    "PROSPECTUS_QWEN_DEBUG_LOG",
+    str(Path.cwd() / ".prospectus-qwen-debug.log"),
+)
 
 
 def _debug_log(

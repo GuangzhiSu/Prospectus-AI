@@ -100,16 +100,16 @@ const WORKSPACE_COPY = {
     exportWord: "Export to Word",
     buildingWord: "Building your Word document…",
     filesTitle: "Your files",
-    filesSubtitle: "Excel workbooks or structured JSON",
+    filesSubtitle: "Excel, structured JSON, DOCX, or PDF source files",
     uploading: "Uploading…",
-    uploadButton: "Upload .xlsx / .json",
+    uploadButton: "Upload source files",
     refresh: "Refresh",
     removeAll: "Remove all",
     removeAllTitle: "Remove all uploaded files, upload new documents",
-    noFiles: "No .xlsx or .json files yet",
+    noFiles: "No source files yet",
     prepareTitle: "Step 1: Prepare your data",
     prepareDescription:
-      "We read your spreadsheets or JSON and organize them for each prospectus chapter. Large Excel files may take several minutes.",
+      "We extract narrative evidence and structured facts, then route them to prospectus chapters. Large files may take several minutes.",
     working: "Working…",
     prepareButton: "Prepare data",
     statusTitle: "Step 2: Status",
@@ -117,6 +117,9 @@ const WORKSPACE_COPY = {
     noResults: "No results yet. Use Step 1 after uploading files.",
     ready: "Ready to draft",
     readyDescription: "Generate and edit your prospectus in the panel on the right.",
+    preparedCounts: (chunks: number, facts: number) => `${chunks} narrative chunks · ${facts} structured facts`,
+    coverageTitle: "Evidence coverage",
+    coverageCounts: (chunks: number, facts: number) => `${chunks} chunks · ${facts} facts`,
     filesFromUpload: (n: number) => `${n} file${n === 1 ? "" : "s"} from your upload`,
     dataQuality: "Data quality",
     suggestion: "Suggestion",
@@ -184,15 +187,15 @@ const WORKSPACE_COPY = {
     exportWord: "导出 Word",
     buildingWord: "正在生成 Word 文档…",
     filesTitle: "你的文件",
-    filesSubtitle: "Excel 工作簿或结构化 JSON",
+    filesSubtitle: "Excel、结构化 JSON、DOCX 或 PDF 源文件",
     uploading: "正在上传…",
-    uploadButton: "上传 .xlsx / .json",
+    uploadButton: "上传源文件",
     refresh: "刷新",
     removeAll: "全部移除",
     removeAllTitle: "删除所有上传文件，重新上传新文档",
-    noFiles: "还没有 .xlsx 或 .json 文件",
+    noFiles: "还没有源文件",
     prepareTitle: "步骤 1：整理数据",
-    prepareDescription: "系统会读取表格或 JSON，并按招股书章节组织材料。大型 Excel 文件可能需要几分钟。",
+    prepareDescription: "系统会抽取叙事证据和结构化事实，并按招股书章节归类。大型文件可能需要几分钟。",
     working: "处理中…",
     prepareButton: "整理数据",
     statusTitle: "步骤 2：状态",
@@ -200,6 +203,9 @@ const WORKSPACE_COPY = {
     noResults: "还没有结果。请先上传文件并运行步骤 1。",
     ready: "可以开始起草",
     readyDescription: "在右侧面板生成和编辑招股书内容。",
+    preparedCounts: (chunks: number, facts: number) => `${chunks} 个叙事 chunks · ${facts} 个结构化 facts`,
+    coverageTitle: "证据覆盖",
+    coverageCounts: (chunks: number, facts: number) => `${chunks} chunks · ${facts} facts`,
     filesFromUpload: (n: number) => `来自本次上传的 ${n} 个文件`,
     dataQuality: "数据质量",
     suggestion: "建议",
@@ -689,6 +695,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
 
   const manifest = results?.manifest ?? results?.classification;
   const sourceFiles = results?.manifest?.source_files;
+  const preparedManifest = results?.manifest;
+  const preparedSections = preparedManifest?.sections ?? [];
   const qualityFlags =
     results?.manifest?.data_quality_flags ??
     results?.classification?.data_quality_flags ??
@@ -845,7 +853,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
               ref={fileInputRef}
               type="file"
               multiple
-              accept=".xlsx,.json"
+              accept=".xlsx,.json,.docx,.pdf"
               className="hidden"
               onChange={(e) => {
                 if (e.target.files?.length) handleUpload(e.target.files);
@@ -940,7 +948,42 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                         {t.filesFromUpload(sourceFiles.length)}
                       </p>
                     )}
+                    {preparedManifest && (
+                      <p className="text-xs text-[var(--muted)] mt-2">
+                        {t.preparedCounts(
+                          preparedManifest.text_chunk_count ?? preparedManifest.total_chunks ?? 0,
+                          preparedManifest.fact_count ?? 0
+                        )}
+                      </p>
+                    )}
                   </div>
+                  {preparedSections.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-xs font-semibold text-[var(--muted)]">
+                        {t.coverageTitle}
+                      </h3>
+                      <ul className="grid grid-cols-1 gap-2">
+                        {preparedSections.map((s) => {
+                          const empty = (s.chunk_count ?? 0) === 0 && (s.fact_count ?? 0) === 0;
+                          return (
+                            <li
+                              key={s.id}
+                              className={`rounded-md border bg-white px-3 py-2 text-xs ${
+                                empty ? "border-[var(--warning)]/50" : "border-[#d5dde8]"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="truncate font-medium">{s.name}</span>
+                                <span className={empty ? "text-[var(--warning)]" : "text-[var(--muted)]"}>
+                                  {t.coverageCounts(s.chunk_count ?? 0, s.fact_count ?? 0)}
+                                </span>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                   {qualityFlags.length > 0 && (
                     <div>
                       <h3 className="mb-2 text-xs font-semibold text-[var(--muted)]">{t.dataQuality}</h3>

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { spawn } from "child_process";
 import path from "path";
 import { getProspectusRoot } from "@/lib/prospectus-root";
+import {
+  formatPythonProcessError,
+  pythonDisplayName,
+  resolvePythonCommand,
+  spawnPython,
+} from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
 
@@ -15,8 +20,16 @@ type GpuInfo = {
 };
 
 export async function GET() {
-  const python = process.env.AGENT1_PYTHON || "python3";
   const root = getProspectusRoot();
+  const pythonResolution = await resolvePythonCommand(root);
+  if (!pythonResolution.ok) {
+    return NextResponse.json({
+      ok: false,
+      error: pythonResolution.error,
+      python: "unavailable",
+    } satisfies GpuInfo);
+  }
+  const python = pythonResolution.python;
   const code = `
 import json
 try:
@@ -30,7 +43,7 @@ except Exception as e:
 `;
 
   return new Promise<NextResponse>((resolve) => {
-    const proc = spawn(python, ["-c", code], {
+    const proc = spawnPython(python, ["-c", code], {
       cwd: root,
       env: process.env,
     });
@@ -48,8 +61,8 @@ except Exception as e:
           NextResponse.json(
             {
               ok: false,
-              error: err || out || `exit ${code}`,
-              python: path.basename(python),
+              error: formatPythonProcessError(err || out || `exit ${code}`),
+              python: path.basename(pythonDisplayName(python)),
             } satisfies GpuInfo,
             { status: 200 }
           )
@@ -64,7 +77,7 @@ except Exception as e:
             NextResponse.json({
               ok: false,
               error: String(data.error),
-              python: path.basename(python),
+              python: path.basename(pythonDisplayName(python)),
             } satisfies GpuInfo)
           );
           return;
@@ -77,7 +90,7 @@ except Exception as e:
             device_names: Array.isArray(data.device_names)
               ? (data.device_names as string[])
               : [],
-            python: path.basename(python),
+            python: path.basename(pythonDisplayName(python)),
           } satisfies GpuInfo)
         );
       } catch {
@@ -97,8 +110,8 @@ except Exception as e:
         NextResponse.json(
           {
             ok: false,
-            error: String(e.message),
-            python: path.basename(python),
+            error: formatPythonProcessError(String(e.message)),
+            python: path.basename(pythonDisplayName(python)),
           } satisfies GpuInfo
         )
       );

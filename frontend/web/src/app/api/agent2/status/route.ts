@@ -2,8 +2,13 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
-import { spawn } from "child_process";
 import { getAgentScriptPath, getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
+import {
+  formatPythonProcessError,
+  pythonDisplayName,
+  resolvePythonCommand,
+  spawnPython,
+} from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -42,12 +47,25 @@ export async function GET() {
     }
 
     // Quick spawn test: --help exits immediately (no model load)
-    const python = process.env.AGENT1_PYTHON || "python3";
+    const pythonResolution = await resolvePythonCommand(root);
+    if (!pythonResolution.ok) {
+      return NextResponse.json({
+        ok: false,
+        root,
+        workspaceRoot: paths.root,
+        python: "unavailable",
+        model: process.env.AGENT1_MODEL || "Qwen/Qwen2.5-3B-Instruct",
+        checks,
+        spawn: pythonResolution.error,
+        hint: "Python is not ready. On Windows, restart the desktop app so it can rebuild the local venv.",
+      });
+    }
+    const python = pythonResolution.python;
     const model = process.env.AGENT1_MODEL || "Qwen/Qwen2.5-3B-Instruct";
     const env = { ...process.env };
     if (process.env.AGENT1_USE_CPU === "1") env.CUDA_VISIBLE_DEVICES = "";
     const canSpawn = await new Promise<{ ok: boolean; error?: string }>((resolve) => {
-      const proc = spawn(python, [agent2Path, "--help"], { cwd: root, env });
+      const proc = spawnPython(python, [agent2Path, "--help"], { cwd: root, env });
       let stderr = "";
       proc.stderr?.on("data", (d) => { stderr += d.toString(); });
       const t = setTimeout(() => {
@@ -59,12 +77,12 @@ export async function GET() {
         if (code === 0) {
           resolve({ ok: true });
         } else {
-          resolve({ ok: false, error: stderr || `Exit code ${code}` });
+          resolve({ ok: false, error: formatPythonProcessError(stderr || `Exit code ${code}`) });
         }
       });
       proc.on("error", (err) => {
         clearTimeout(t);
-        resolve({ ok: false, error: String(err.message) });
+        resolve({ ok: false, error: formatPythonProcessError(String(err.message)) });
       });
     });
 
@@ -72,7 +90,7 @@ export async function GET() {
       ok: ready && canSpawn.ok,
       root,
       workspaceRoot: paths.root,
-      python,
+      python: pythonDisplayName(python),
       model,
       checks,
       spawn: canSpawn.ok ? "ok" : canSpawn.error,

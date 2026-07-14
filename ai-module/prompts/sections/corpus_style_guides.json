@@ -1,0 +1,298 @@
+{
+  "ExpectedTimetable": {
+    "heading_lock": true,
+    "preferred_outline": [
+      {"subsection": "Expected Timetable", "description": "Event/date/time table for the Hong Kong Public Offering and listing."},
+      {"subsection": "Notes", "description": "Hong Kong time convention, change notice, severe weather or extreme conditions if supported."}
+    ],
+    "style_rules": [
+      "Use a table. Do not write promotional prose.",
+      "Keep every standard timetable event and mark unsupported dates as DATA_MISSING."
+    ],
+    "forbidden_patterns": ["invented dates", "invented trading commencement time"]
+  },
+  "Contents": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Contents", "description": "Exact prospectus chapter order with page placeholders if pagination is unknown."}
+    ],
+    "style_rules": [
+      "Use generated section titles exactly. Do not add chapters that are not generated."
+    ],
+    "forbidden_patterns": ["fabricated page numbers"]
+  },
+  "Summary": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Balanced issuer overview and offering context."},
+      {"subsection": "Our Business Model", "description": "Revenue model and monetisation only if supported."},
+      {"subsection": "Our Strengths", "description": "Neutral strengths only when evidenced by source documents."},
+      {"subsection": "Our Strategies", "description": "Current plans only; no certainty or forecast."},
+      {"subsection": "Summary Financial Information", "description": "Concise historical financial tables where data exists."},
+      {"subsection": "Risk Factors", "description": "Short cross-reference to principal risks."},
+      {"subsection": "The Global Offering", "description": "Offer size, price range and use of proceeds only if supported."}
+    ],
+    "style_rules": [
+      "Use the prospectus opening caution that the summary should be read with the whole document.",
+      "Market ranks, shares and CAGR must carry AI:CITE tags or be omitted."
+    ],
+    "forbidden_patterns": ["marketing superlatives without source", "new risk themes not in Risk Factors"]
+  },
+  "Definitions": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Definitions", "description": "Alphabetical dictionary of defined terms."}
+    ],
+    "style_rules": [
+      "Use a two-column term/meaning table or concise dictionary list.",
+      "Do not define terms not used elsewhere or not supported by source documents."
+    ],
+    "forbidden_patterns": ["generic legal dictionary", "duplicated glossary technical terms"]
+  },
+  "Glossary": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Glossary of Technical Terms", "description": "Alphabetical technical terms relevant to the issuer's business."}
+    ],
+    "style_rules": [
+      "Plain-language explanations only; keep legal/entity definitions in Definitions."
+    ],
+    "forbidden_patterns": ["legal definitions", "unsupported technical catalogues"]
+  },
+  "ForwardLooking": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Forward-Looking Statements", "description": "Safe-harbour style cautionary language and examples of forward-looking terminology."}
+    ],
+    "style_rules": [
+      "Use standard cautionary prose. Keep it generic unless company-specific supported factors are provided."
+    ],
+    "forbidden_patterns": ["profit forecast", "margin forecast", "dated growth promise"]
+  },
+  "RiskFactors": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Risks Relating to Our Industry", "description": "Industry-specific risks with one risk per heading."},
+      {"subsection": "Risks Relating to Our Business", "description": "Operations, customers, suppliers, technology, IP, data and employees."},
+      {"subsection": "Risks Relating to Our Financial Condition", "description": "Historical losses, liquidity, receivables, fair value and working capital where supported."},
+      {"subsection": "Risks Relating to Laws and Regulations", "description": "Licences, cybersecurity, data, foreign investment, VIE or overseas listing risks where supported."},
+      {"subsection": "Risks Relating to the Global Offering", "description": "Trading, liquidity, dilution, WVR and offering mechanics risks where supported."}
+    ],
+    "style_rules": [
+      "Use real prospectus risk style: heading states the risk, followed by paragraphs explaining cause and adverse effect.",
+      "Do not use Factual Cause/Harm bullet templates in final prose.",
+      "No mitigation language in the same risk narrative."
+    ],
+    "forbidden_patterns": ["generic unknown-risks boilerplate", "mitigation paragraphs", "risk matrix tone"]
+  },
+  "Waivers": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Waivers and Exemptions", "description": "Each waiver by rule, reason, conditions and sponsor/counsel basis."}
+    ],
+    "style_rules": ["Use checklist format when source data is thin."],
+    "forbidden_patterns": ["unstated regulatory conclusion"]
+  },
+  "InfoProspectus": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Information about this Prospectus and the Global Offering", "description": "Responsibility, selling restrictions, application reliance and offer mechanics cautions."}
+    ],
+    "style_rules": ["Use standard legal/prospectus cautionary language with placeholders for missing deal terms."],
+    "forbidden_patterns": ["invented jurisdiction selling restrictions"]
+  },
+  "DirectorsParties": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Directors", "description": "Director names, addresses and responsibilities."},
+      {"subsection": "Parties Involved in the Global Offering", "description": "Sponsors, underwriters, legal advisers, auditors, industry consultant and receiving bank."}
+    ],
+    "style_rules": ["Prefer tables. Do not invent advisers or addresses."],
+    "forbidden_patterns": ["fabricated professional parties"]
+  },
+  "CorporateInfo": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Corporate Information", "description": "Registered office, headquarters, principal place of business, company secretary, authorised representatives and websites."}
+    ],
+    "style_rules": ["Use table format; mark unknown fields DATA_MISSING."],
+    "forbidden_patterns": ["invented addresses", "invented websites"]
+  },
+  "Regulation": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Scope and jurisdictions of applicable regulation."},
+      {"subsection": "Licences, Permits and Approvals", "description": "Material licences and approval status."},
+      {"subsection": "Foreign Investment and Overseas Listing", "description": "Restrictions and filings where applicable."},
+      {"subsection": "Data Privacy, Cybersecurity and Content Compliance", "description": "Data lifecycle, cybersecurity review, personal information and content obligations where relevant."},
+      {"subsection": "Intellectual Property", "description": "IP ownership, registration and enforcement regime."},
+      {"subsection": "Other Sector-Specific Regulations", "description": "Product, consumer, labour, tax or other material rules."}
+    ],
+    "style_rules": [
+      "For each topic state rule set, regulator, core requirement and issuer relevance/status only if supported."
+    ],
+    "forbidden_patterns": ["unsupported legal opinion", "downplayed compliance risk"]
+  },
+  "IndustryOverview": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Sources of Information", "description": "Third-party report and public source disclaimer."},
+      {"subsection": "Overview of the Relevant Industry", "description": "Industry definition and value chain."},
+      {"subsection": "Market Size and Growth", "description": "Historical and forecast market data with source/scope/date/metric."},
+      {"subsection": "Market Drivers and Trends", "description": "Demand drivers, technology, regulation and adoption trends."},
+      {"subsection": "Competitive Landscape", "description": "Ranking, market share and competition only with sourced support."},
+      {"subsection": "Entry Barriers", "description": "Technology, capital, data, customer or regulatory barriers where sourced."}
+    ],
+    "style_rules": [
+      "Every statistic, ranking, share, CAGR and forecast requires AI:CITE.",
+      "Do not turn industry analysis into issuer promotion."
+    ],
+    "forbidden_patterns": ["unsourced ranking", "issuer strengths disguised as industry facts"]
+  },
+  "HistoryReorg": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Issuer history and corporate development."},
+      {"subsection": "Major Corporate Milestones", "description": "Founding, financing, acquisitions, disposals and group development."},
+      {"subsection": "Reorganization", "description": "Pre-listing reorganization steps and rationale."},
+      {"subsection": "Corporate Structure", "description": "Group chart narrative, subsidiaries and VIE/controlled entities where applicable."},
+      {"subsection": "PRC Regulatory Matters", "description": "M&A, SAFE, CSRC or overseas listing filings where supported."}
+    ],
+    "style_rules": ["Use chronological order and avoid unexplained entity jumps."],
+    "forbidden_patterns": ["invented reorganization steps"]
+  },
+  "Business": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Who the issuer is, what it sells, where it operates and key scale metrics."},
+      {"subsection": "Our Business Model", "description": "Revenue model, pricing, delivery, monetisation and customer contracts."},
+      {"subsection": "Our Products and Services", "description": "Products, platforms or services grouped by segment, not endless lists."},
+      {"subsection": "Our Technology, Research and Development", "description": "R&D, technology architecture, IP and innovation system."},
+      {"subsection": "Customers, Sales and Marketing", "description": "Customer base, key customers, sales process and concentration."},
+      {"subsection": "Suppliers and Operations", "description": "Material suppliers, procurement, production, delivery and operations."},
+      {"subsection": "Data Privacy, Cybersecurity and Compliance", "description": "Data lifecycle, controls, incidents and compliance if relevant."},
+      {"subsection": "Employees", "description": "Headcount, functions, qualifications and training."},
+      {"subsection": "Properties, Insurance and Legal Proceedings", "description": "Properties, insurance, claims, litigation and material compliance matters."}
+    ],
+    "style_rules": [
+      "Mission, vision, strengths and strategies are optional and may appear only if the source context contains those exact concepts.",
+      "Group product lists into categories when more than 10 items appear.",
+      "Use cross-references to Regulation and Risk Factors for risk-sensitive operational matters."
+    ],
+    "forbidden_patterns": ["generic mission/vision", "unsourced leadership claim", "startup pitch tone"]
+  },
+  "ContractualArrangements": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Why contractual arrangements are used and relevant operating entities."},
+      {"subsection": "Contractual Arrangements", "description": "Core VIE agreements and control/economic benefit mechanics."},
+      {"subsection": "Risks and Limitations", "description": "Material limitations and PRC law uncertainty with cross-reference to Risk Factors."},
+      {"subsection": "Compliance with PRC Laws", "description": "Legal adviser views only if supported."}
+    ],
+    "style_rules": ["If VIE is not applicable, generate a short not-applicable placeholder with verification tag."],
+    "forbidden_patterns": ["invented VIE structure", "unsupported legal conclusion"]
+  },
+  "ControllingShareholders": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Our Controlling Shareholders", "description": "Identity, shareholding and control relationship."},
+      {"subsection": "Independence from Our Controlling Shareholders", "description": "Management, operational and financial independence."},
+      {"subsection": "Competing Interests", "description": "Competing businesses and non-compete undertakings where supported."},
+      {"subsection": "Corporate Governance Measures", "description": "Measures to manage conflicts."}
+    ],
+    "style_rules": ["Do not assume independence or non-compete undertakings without evidence."],
+    "forbidden_patterns": ["invented controlling shareholder"]
+  },
+  "ConnectedTransactions": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Connected persons and transaction categories."},
+      {"subsection": "Continuing Connected Transactions", "description": "Agreements, parties, terms, caps and Listing Rules classification."},
+      {"subsection": "Waivers and Conditions", "description": "Waivers, annual caps and review procedures."},
+      {"subsection": "Directors' and Sponsors' Views", "description": "Views only where source support exists."}
+    ],
+    "style_rules": ["Use tables for agreements/caps. Preserve missing caps as DATA_MISSING."],
+    "forbidden_patterns": ["invented annual caps", "unsupported fairness conclusion"]
+  },
+  "DirectorsSeniorMgmt": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Board of Directors", "description": "Executive, non-executive and independent non-executive directors."},
+      {"subsection": "Senior Management", "description": "Senior managers and responsibilities."},
+      {"subsection": "Company Secretary", "description": "Company secretary qualification and role."},
+      {"subsection": "Board Committees", "description": "Audit, remuneration, nomination and other committees."},
+      {"subsection": "Corporate Governance", "description": "Compliance, training, diversity and governance measures where supported."}
+    ],
+    "style_rules": ["Use biographical prose only from supplied CV/source data."],
+    "forbidden_patterns": ["fabricated biographies", "invented degrees"]
+  },
+  "SubstantialShareholders": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Substantial Shareholders", "description": "Shareholding table immediately following the Global Offering."}
+    ],
+    "style_rules": ["Use table format and distinguish class, number and percentage."],
+    "forbidden_patterns": ["invented percentages"]
+  },
+  "ShareCapital": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Share Capital", "description": "Authorised and issued shares, changes on completion of offering and assumptions."},
+      {"subsection": "Assumptions", "description": "Assumptions on over-allotment option, share incentive schemes and conversion if supported."}
+    ],
+    "style_rules": ["Use tables and preserve assumptions. Do not calculate missing totals unless inputs are complete."],
+    "forbidden_patterns": ["fabricated share counts"]
+  },
+  "FinancialInfo": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Overview", "description": "Basis of presentation, track record period and IFRS/accountants' report reference."},
+      {"subsection": "Our Business Model", "description": "Revenue sources and cost structure relevant to financial performance."},
+      {"subsection": "Major Factors Affecting Our Results of Operations", "description": "Company-specific and general factors."},
+      {"subsection": "Description of Selected Components of Results of Operations", "description": "Revenue, cost of sales, gross profit, expenses, other income/losses and tax."},
+      {"subsection": "Period-to-Period Comparison of Results of Operations", "description": "Historical comparison only."},
+      {"subsection": "Liquidity and Capital Resources", "description": "Cash flow, working capital, indebtedness and capital commitments."},
+      {"subsection": "Selected Balance Sheet Items", "description": "Receivables, inventories, financial assets, liabilities and equity."},
+      {"subsection": "Key Financial Ratios and Non-IFRS Measures", "description": "Only if defined and reconcilable."},
+      {"subsection": "Critical Accounting Policies and Estimates", "description": "Policies and judgments that materially affect financial statements."}
+    ],
+    "style_rules": [
+      "Historical analysis only. No future profit/margin forecast.",
+      "Use tables when multiple periods are available.",
+      "If a driver is unavailable, state DATA_MISSING instead of inventing management explanation."
+    ],
+    "forbidden_patterns": ["financial forecast", "generic MD&A with no figures", "unreconciled non-IFRS measure"]
+  },
+  "UseOfProceeds": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Future Plans", "description": "Business plans tied to use of proceeds."},
+      {"subsection": "Use of Proceeds", "description": "Allocation table by purpose, amount and percentage."}
+    ],
+    "style_rules": ["Percentages must sum to 100 if percentages are used."],
+    "forbidden_patterns": ["invented allocation", "unsupported expansion plan"]
+  },
+  "Underwriting": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "Hong Kong Underwriters", "description": "Hong Kong underwriting parties and agreement."},
+      {"subsection": "Underwriting Arrangements and Expenses", "description": "Obligations, commissions, expenses and termination."},
+      {"subsection": "Indemnity and Undertakings", "description": "Issuer/shareholder undertakings if supported."},
+      {"subsection": "Activities by Underwriters", "description": "Stabilisation and market-making where applicable."}
+    ],
+    "style_rules": ["Use standard underwriting structure; keep deal-specific names/fees as DATA_MISSING if absent."],
+    "forbidden_patterns": ["invented underwriter", "invented commission"]
+  },
+  "GlobalOfferingStructure": {
+    "heading_lock": false,
+    "preferred_outline": [
+      {"subsection": "The Global Offering", "description": "Offer structure, public/international split and reallocation."},
+      {"subsection": "Pricing and Allocation", "description": "Price range, price determination and allocation basis."},
+      {"subsection": "Hong Kong Public Offering", "description": "Application and allocation mechanics."},
+      {"subsection": "International Offering", "description": "Placing and over-allotment option if supported."},
+      {"subsection": "Stabilisation", "description": "Stabilising manager and permitted activities if supported."}
+    ],
+    "style_rules": ["Interlock with Expected Timetable, How to Apply and Underwriting."],
+    "forbidden_patterns": ["invented offer size", "invented reallocation trigger"]
+  }
+}

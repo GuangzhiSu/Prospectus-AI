@@ -823,6 +823,13 @@ def run_agent1(
     for fact in fact_store:
         sh = fact.get("metadata", {}).get("section_hint", "A")
         facts_by_section.setdefault(sh, []).append(fact)
+        field = str(fact.get("field") or "")
+        secondary_sections: list[str] = []
+        if field.startswith("offering_use_of_proceeds"):
+            secondary_sections.extend(["E", "H"])
+        for secondary in secondary_sections:
+            if secondary != sh:
+                facts_by_section.setdefault(secondary, []).append(fact)
     for section_id, facts in facts_by_section.items():
         block = "\n".join(
             f"{f['field']}: {f['metric']}={f['value']}" + (f" ({f['period']})" if f.get("period") else "")
@@ -863,6 +870,55 @@ def run_agent1(
                     out.write(json.dumps(api_rec, ensure_ascii=False) + "\n")
             print(f"  Section {section_id}: {len(recs)} items -> {spath}")
 
+    # --- Data quality diagnostics for UI + downstream gating ---
+    data_quality_flags: list[dict[str, Any]] = []
+    missing_information_requests: list[dict[str, Any]] = []
+    for section_id, section_name in SECTIONS:
+        chunk_count = len(by_section[section_id])
+        fact_count = len(facts_by_section.get(section_id, []))
+        if chunk_count == 0 and fact_count == 0:
+            data_quality_flags.append({
+                "severity": "high",
+                "issue": f"No prepared evidence was routed to {section_name}.",
+                "evidence_pointer": {"agent1_section": section_id},
+                "suggested_fix": (
+                    "Upload source documents or JSON fields for this prospectus area, "
+                    "then run Prepare data again."
+                ),
+            })
+            missing_information_requests.append({
+                "section": section_name,
+                "priority": "high",
+                "missing_items": [
+                    "Narrative source documents",
+                    "Structured facts / schedules",
+                    "Professional or counsel source support where applicable",
+                ],
+                "why_needed_for_prospectus": (
+                    "Agent2 can only draft a skeleton with DATA_MISSING placeholders "
+                    "when no evidence is available for this area."
+                ),
+                "what_user_should_provide": [
+                    {
+                        "type": "source file",
+                        "description": f"Documents supporting {section_name}",
+                        "preferred_format": ".json, .docx, .pdf, or .xlsx",
+                    }
+                ],
+            })
+        elif chunk_count == 0 and fact_count > 0:
+            data_quality_flags.append({
+                "severity": "medium",
+                "issue": f"{section_name} has structured facts but no narrative source chunks.",
+                "evidence_pointer": {"agent1_section": section_id},
+                "suggested_fix": (
+                    "Add a narrative memo/source document for better prospectus-style prose, "
+                    "or expect a table-heavy draft."
+                ),
+            })
+
+    all_input_files = [p.name for p in [*excel_files, *json_files, *docx_files, *pdf_files]]
+
     # --- Write manifest ---
     manifest = {
         "text_chunk_count": len(text_chunks),
@@ -877,8 +933,10 @@ def run_agent1(
             }
             for s in SECTIONS
         ],
-        "source_files": list({c.get("source_file", "") for c in text_chunks}),
+        "source_files": sorted(set(all_input_files)),
         "sheet_summaries": {f"{k[0]}:{k[1]}": v for k, v in sheet_summaries.items()},
+        "data_quality_flags": data_quality_flags,
+        "missing_information_requests": missing_information_requests,
     }
     with open(output_path / "manifest.json", "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)

@@ -72,6 +72,73 @@ function venvPython(prospectusRoot) {
     : path.join(prospectusRoot, "venv", "bin", "python3");
 }
 
+function pythonIsUsable(pythonPath, cwd) {
+  return new Promise((resolve) => {
+    if (!fs.existsSync(pythonPath)) {
+      resolve(false);
+      return;
+    }
+    const child = spawn(pythonPath, ["-c", "import sys; print(sys.executable)"], {
+      cwd,
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const timer = setTimeout(() => {
+      child.kill();
+      resolve(false);
+    }, 10000);
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      resolve(code === 0);
+    });
+    child.on("error", () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+  });
+}
+
+function runWindowsVenvSetup(prospectusRoot) {
+  return new Promise((resolve, reject) => {
+    const script = path.join(prospectusRoot, "ensure-python-venv.bat");
+    if (!fs.existsSync(script)) {
+      reject(new Error(`Missing Python setup script: ${script}`));
+      return;
+    }
+    const child = spawn("cmd.exe", ["/d", "/s", "/c", `"${script}"`], {
+      cwd: prospectusRoot,
+      env: { ...process.env, PROSPECTUS_NO_PAUSE: "1" },
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (d) => {
+      stdout += d.toString();
+      if (process.env.PROSPECTUS_ELECTRON_DEBUG) console.log(String(d));
+    });
+    child.stderr?.on("data", (d) => {
+      stderr += d.toString();
+      if (process.env.PROSPECTUS_ELECTRON_DEBUG) console.error(String(d));
+    });
+    child.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(stderr.trim() || stdout.trim() || `Python setup exited with code ${code}`));
+    });
+    child.on("error", reject);
+  });
+}
+
+async function ensurePythonRuntime(prospectusRoot) {
+  if (process.platform !== "win32") return;
+  const py = venvPython(prospectusRoot);
+  if (await pythonIsUsable(py, prospectusRoot)) return;
+  await runWindowsVenvSetup(prospectusRoot);
+  if (!(await pythonIsUsable(py, prospectusRoot))) {
+    throw new Error("Python setup completed but the local venv is still not usable.");
+  }
+}
+
 function bundledProspectusRoot() {
   if (!app.isPackaged || process.platform !== "darwin") return null;
   const bundled = path.join(process.resourcesPath, "prospectus");
@@ -128,7 +195,12 @@ function findProspectusInstallNearExe() {
     const webServer = path.join(normalized, "web", "server.js");
     const agent = path.join(normalized, "agent1.py");
     if (fs.existsSync(webServer) && fs.existsSync(agent)) {
-      return { prospectusRoot: normalized, webRoot: path.join(normalized, "web") };
+      const workspaceRoot =
+        process.platform === "win32"
+          ? path.join(app.getPath("userData"), "workspace")
+          : undefined;
+      if (workspaceRoot) fs.mkdirSync(workspaceRoot, { recursive: true });
+      return { prospectusRoot: normalized, webRoot: path.join(normalized, "web"), workspaceRoot };
     }
   }
   return null;
@@ -174,7 +246,8 @@ async function findAvailablePort(startPort) {
   throw new Error(`No free TCP port from ${first} to ${first + 99} on 127.0.0.1`);
 }
 
-function startNextStandalone(layout, port) {
+async function startNextStandalone(layout, port) {
+  await ensurePythonRuntime(layout.prospectusRoot);
   return new Promise((resolve, reject) => {
     const serverJs = path.join(layout.webRoot, "server.js");
     if (!fs.existsSync(serverJs)) {
@@ -240,7 +313,21 @@ async function resolveStartUrl() {
 }
 
 async function createWindow() {
-  const { url, missingLayout } = await resolveStartUrl();
+  let start;
+  try {
+    start = await resolveStartUrl();
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    await dialog.showMessageBox({
+      type: "error",
+      title: "Prospectus AI",
+      message: "Could not start Prospectus AI",
+      detail: msg,
+    });
+    app.quit();
+    return;
+  }
+  const { url, missingLayout } = start;
 
   if (missingLayout) {
     await dialog.showMessageBox({

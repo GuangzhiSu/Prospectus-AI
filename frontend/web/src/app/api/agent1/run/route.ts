@@ -2,12 +2,16 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
-import { spawn } from "child_process";
 import { getAgentScriptPath, getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
+import {
+  formatPythonProcessError,
+  resolvePythonCommand,
+  spawnPython,
+} from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
-export const maxDuration = 300; // 5 min for LLM
+export const maxDuration = 900; // large source files and first model load can take a while locally
 
 export async function POST(req: Request) {
   try {
@@ -27,16 +31,24 @@ export async function POST(req: Request) {
     }
 
     const files = await fs.readdir(dataDir);
-    const hasXlsx = files.some((f) => f.toLowerCase().endsWith(".xlsx"));
-    const hasJson = files.some((f) => f.toLowerCase().endsWith(".json"));
-    if (!hasXlsx && !hasJson) {
+    const supportedExt = [".xlsx", ".json", ".docx", ".pdf"];
+    const hasSupportedInput = files.some((f) =>
+      supportedExt.some((ext) => f.toLowerCase().endsWith(ext))
+    );
+    if (!hasSupportedInput) {
       return NextResponse.json(
-        { error: `No .xlsx or .json files in ${path.relative(root, dataDir) || dataDir}. Upload files first.` },
+        { error: `No .xlsx, .json, .docx, or .pdf files in ${path.relative(root, dataDir) || dataDir}. Upload files first.` },
         { status: 400 }
       );
     }
 
-    const python = process.env.AGENT1_PYTHON || "python3";
+    const pythonResolution = await resolvePythonCommand(root);
+    if (!pythonResolution.ok) {
+      return NextResponse.json(
+        { ok: false, error: pythonResolution.error },
+        { status: 500 }
+      );
+    }
     const settings = await readSettings();
     const env = buildAgentProcessEnv(process.env, settings);
     const model =
@@ -44,8 +56,8 @@ export async function POST(req: Request) {
       process.env.AGENT1_MODEL ||
       "Qwen/Qwen3.5-4B";
     return new Promise<NextResponse>((resolve) => {
-      const proc = spawn(
-        python,
+      const proc = spawnPython(
+        pythonResolution.python,
         [
           agent1Path,
           "--model",
@@ -85,7 +97,7 @@ export async function POST(req: Request) {
             NextResponse.json(
               {
                 ok: false,
-                error: stderr || stdout || `Exit code ${code}`,
+                error: formatPythonProcessError(stderr || stdout || `Exit code ${code}`),
               },
               { status: 500 }
             )
@@ -96,7 +108,7 @@ export async function POST(req: Request) {
       proc.on("error", (err) => {
         resolve(
           NextResponse.json(
-            { ok: false, error: String(err.message) },
+            { ok: false, error: formatPythonProcessError(String(err.message)) },
             { status: 500 }
           )
         );

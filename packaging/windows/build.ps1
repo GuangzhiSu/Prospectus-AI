@@ -78,6 +78,7 @@ if (Test-Path $cov) {
 }
 
 Copy-Item -Force (Join-Path $PSScriptRoot "start-prospectus-ui.bat") $Stage
+Copy-Item -Force (Join-Path $PSScriptRoot "ensure-python-venv.bat") $Stage
 Copy-Item -Force (Join-Path $PSScriptRoot "Open-Prospectus-UI.cmd") $Stage
 Copy-Item -Force (Join-Path $RepoRoot "frontend\web\src\app\favicon.ico") (Join-Path $Stage "app.ico")
 

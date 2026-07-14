@@ -1,4 +1,4 @@
-// GET /api/agent1/files - List Excel and JSON files in data/
+// GET /api/agent1/files - List issuer source files in data/
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
@@ -6,7 +6,7 @@ import { getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 
 export const runtime = "nodejs";
 
-const DATA_EXT = [".xlsx", ".json"];
+const DATA_EXT = [".xlsx", ".json", ".docx", ".pdf"];
 
 function isDataFile(name: string) {
   const lower = name.toLowerCase();

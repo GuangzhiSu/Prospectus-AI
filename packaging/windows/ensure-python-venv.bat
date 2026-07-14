@@ -1,77 +1,92 @@
 @echo off
-setlocal EnableExtensions
+setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
-REM #region agent log
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $p=(Join-Path '%CD%' 'launcher-debug-581cd2.ndjson'); $j=@{sessionId='581cd2';runId='post-parens-fix';hypothesisId='H5';location='ensure-python-venv.bat:entry';message='ensure_entered';timestamp=[int64]([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds());data=@{}}|ConvertTo-Json -Compress; Add-Content -LiteralPath $p -Value $j -Encoding utf8 } catch {}" 2>nul
-REM #endregion
-if exist "venv\Scripts\python.exe" exit /b 0
-if exist "venv\bin\python" (
+
+set "VENV_PY=%~dp0venv\Scripts\python.exe"
+set "EMBED_PY=%~dp0python-embed\python.exe"
+
+if exist "%VENV_PY%" (
+  "%VENV_PY%" -c "import sys; print(sys.executable)" >nul 2>&1
+  if not errorlevel 1 exit /b 0
+  echo [Prospectus AI] Existing Python venv is not usable. Rebuilding it locally...
+  rmdir /s /q "%~dp0venv" >nul 2>&1
+)
+
+if exist "%~dp0venv\bin\python" (
   echo ERROR: This folder has a Linux Python environment ^(venv\bin^). It cannot run on Windows.
   echo Download the Windows bundle built with: npm run pack:windows-dist
-  pause
+  if not "%PROSPECTUS_NO_PAUSE%"=="1" pause
   exit /b 1
 )
-if not exist "python-embed\python.exe" (
-  where py >nul 2>&1
-  if errorlevel 1 (
-    echo ERROR: Missing python-embed\python.exe ^(folder incomplete or wrong zip^).
-    echo Also no Python launcher py on PATH.
-    pause
-    exit /b 1
-  )
-  echo [Prospectus AI] Using system Python ^(py -3^) to create venv...
-  py -3 -m venv venv
-  if errorlevel 1 goto :fail_root
-  call venv\Scripts\activate.bat
-  pip install --upgrade pip
-  pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
-  if errorlevel 1 goto :fail_root
-  if exist "requirements-no-torch.txt" (pip install -r requirements-no-torch.txt) else (pip install -r requirements.txt)
-  if errorlevel 1 goto :fail_root
-  echo [Prospectus AI] Python environment ready.
-  exit /b 0
-)
-echo [Prospectus AI] First launch: installing Python packages ^(5-15 minutes^). Please wait...
-cd /d "%~dp0python-embed"
-REM Embeddable python won't load Lib\site-packages until "import site" is enabled.
-REM Official zips ship pythonXY._pth — "*.pth" never matches; must include *._pth
-for %%P in (*._pth *.pth) do (
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $p='%%~fP'; $a=Get-Content -LiteralPath $p; $b=@($a | ForEach-Object { if ($_ -match '^\s*#\s*import\s+site\s*$') { 'import site' } else { $_ } }); Set-Content -LiteralPath $p -Value $b -Encoding ascii } catch {}" 2>nul
-)
-REM #region agent log
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $root=(Resolve-Path '%~dp0.').Path; $p=Join-Path $root 'launcher-debug-581cd2.ndjson'; $j=@{sessionId='581cd2';runId='embed-site';hypothesisId='H6';location='ensure-python-venv.bat:after_pth';message='embed_import_site';timestamp=[int64]([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds());data=@{}}|ConvertTo-Json -Compress; Add-Content -LiteralPath $p -Value $j -Encoding utf8 } catch {}" 2>nul
-REM #endregion
-python -c "import pip" >nul 2>&1
+
+if exist "%EMBED_PY%" goto :use_embedded_python
+
+where py >nul 2>&1
 if errorlevel 1 (
-  if not exist "get-pip.py" (
-    echo ERROR: get-pip.py is missing from python-embed folder.
-    cd /d "%~dp0"
-    goto :fail_root
-  )
-  python get-pip.py
+  echo ERROR: No bundled python-embed\python.exe was found and the Windows Python launcher ^(py^) is not on PATH.
+  echo Reinstall Prospectus AI from the Windows bundle, or install Python 3.10+ and reopen the app.
+  if not "%PROSPECTUS_NO_PAUSE%"=="1" pause
+  exit /b 1
+)
+
+echo [Prospectus AI] Creating Python environment with system Python ^(py -3^)...
+py -3 -m venv "%~dp0venv"
+if errorlevel 1 goto :fail_root
+call "%~dp0venv\Scripts\activate.bat"
+python -m pip install --upgrade pip wheel setuptools
+if errorlevel 1 goto :fail_root
+goto :install_requirements
+
+:use_embedded_python
+echo [Prospectus AI] Creating Python environment with bundled Python...
+cd /d "%~dp0python-embed"
+
+REM Embeddable Python needs import site enabled before pip/virtualenv can see site-packages.
+for %%P in (*._pth *.pth) do (
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $p='%%~fP'; $a=Get-Content -LiteralPath $p; $b=@($a | ForEach-Object { if ($_ -match '^\s*#\s*import\s+site\s*$') { 'import site' } else { $_ } }); if ($b -notcontains 'import site') { $b += 'import site' }; Set-Content -LiteralPath $p -Value $b -Encoding ascii } catch { exit 1 }"
   if errorlevel 1 goto :fail_embed
 )
-python -m pip install --upgrade pip
+
+"%EMBED_PY%" -c "import pip" >nul 2>&1
+if errorlevel 1 (
+  if not exist "%~dp0python-embed\get-pip.py" (
+    echo ERROR: get-pip.py is missing from python-embed.
+    goto :fail_embed
+  )
+  "%EMBED_PY%" "%~dp0python-embed\get-pip.py"
+  if errorlevel 1 goto :fail_embed
+)
+
+"%EMBED_PY%" -m pip install --upgrade pip wheel setuptools
 if errorlevel 1 goto :fail_embed
-python -m pip install "virtualenv>=20.28.0"
+"%EMBED_PY%" -m pip install "virtualenv>=20.28.0"
 if errorlevel 1 goto :fail_embed
 cd /d "%~dp0"
-python-embed\python.exe -m virtualenv venv
+"%EMBED_PY%" -m virtualenv "%~dp0venv"
 if errorlevel 1 goto :fail_root
-call venv\Scripts\activate.bat
-pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
+call "%~dp0venv\Scripts\activate.bat"
+
+:install_requirements
+echo [Prospectus AI] Installing Python packages. First launch can take 5-20 minutes...
+python -m pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
 if errorlevel 1 goto :fail_root
-if exist "requirements-no-torch.txt" (
-  pip install -r requirements-no-torch.txt
+if exist "%~dp0requirements-no-torch.txt" (
+  python -m pip install -r "%~dp0requirements-no-torch.txt"
 ) else (
-  pip install -r requirements.txt
+  python -m pip install -r "%~dp0requirements.txt"
 )
 if errorlevel 1 goto :fail_root
+
+"%VENV_PY%" -c "import sys; import pandas; import langgraph; print(sys.executable)" >nul 2>&1
+if errorlevel 1 goto :fail_root
+
 echo [Prospectus AI] Python environment ready.
 exit /b 0
+
 :fail_embed
 cd /d "%~dp0"
 :fail_root
-echo Setup failed. Install Microsoft Visual C++ Redistributable x64 if you see a DLL error.
-pause
+echo Setup failed. If this is the first launch, check your network connection and try again.
+echo If you see a DLL error, install Microsoft Visual C++ Redistributable x64.
+if not "%PROSPECTUS_NO_PAUSE%"=="1" pause
 exit /b 1

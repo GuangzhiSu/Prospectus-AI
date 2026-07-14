@@ -79,7 +79,7 @@ def compose_planner_prompt(
     narrative_mode = (kg_structure_mode or "narrative").strip().lower() == "narrative"
     if kg_typical_structure and narrative_mode:
         lines: list[str] = [
-            "Required outline (copy these names VERBATIM, in this order, as your numbered outline):",
+            "Suggested corpus-aligned outline (use as the default scaffold when supported by evidence):",
         ]
         for idx, item in enumerate(kg_typical_structure, start=1):
             sub = (item.get("subsection") or "").strip()
@@ -88,11 +88,12 @@ def compose_planner_prompt(
             lines.append(f"  {idx}. {sub}")
         required_outline_block = "\n".join(lines) + "\n\n"
         required_outline_rule = (
-            "\n- Required outline is present above: your `outline` MUST reproduce those "
-            "titles VERBATIM and in that order (you may prefix them \"1 \", \"2 \", ...). "
-            "Do not rename, merge, split, reorder, or omit them. You MAY append at most "
-            "one extra trailing subsection for evidence-driven section-specific content. "
-            "Keys in `fact_mapping` MUST exactly match the outline titles (after the number)."
+            "\n- A suggested corpus-aligned outline is present above. Use it as the primary "
+            "prospectus scaffold, but do not invent facts to fill optional headings. Preserve "
+            "mandatory headings required by the section requirements; for optional unsupported "
+            "headings, omit them. You may add evidence-driven subsection titles when the source "
+            "materials clearly require them. Keys in `fact_mapping` MUST exactly match the final "
+            "outline titles (after the number)."
         )
     elif not narrative_mode:
         required_outline_rule = (

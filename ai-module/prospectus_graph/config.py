@@ -49,34 +49,108 @@ SECTION_FACT_SCHEMA: dict[str, list[str]] = {
     "Summary": [
         "financials.income_statement",
         "operating_metrics",
-        "market",
-        "competition",
-        "business",
+        "industry_market",
+        "business_products",
+        "customers_suppliers",
+        "rd_ip",
         "company_profile",
+        "company_legal_entity",
+        "offering_use_of_proceeds",
     ],
     "Business": [
-        "business",
+        "company_legal_entity",
+        "business_products",
         "products_and_technology",
+        "customers_suppliers",
+        "rd_ip",
         "customers",
-        "market",
-        "competition",
+        "industry_market",
+        "regulatory_legal",
     ],
     "FinancialInfo": [
         "financials",
         "operating_metrics",
+        "business_products.revenue",
+        "customers_suppliers",
     ],
     "IndustryOverview": [
+        "industry_market",
         "market",
         "competition",
     ],
     "RiskFactors": [
+        "risk_seeds",
         "risk_related_data",
+        "financials",
+        "business_products",
+        "regulatory_legal",
     ],
     "ShareCapital": [
         "shareholders",
+        "company_legal_entity.share_capital",
+        "offering_use_of_proceeds.share_capital",
     ],
     "UseOfProceeds": [
         "ipo_offering",
+        "offering_use_of_proceeds",
+    ],
+    "Regulation": [
+        "regulatory_legal",
+        "rd_ip.data_security_privacy",
+        "business_products",
+    ],
+    "HistoryReorg": [
+        "company_legal_entity",
+    ],
+    "ContractualArrangements": [
+        "company_legal_entity",
+        "regulatory_legal",
+    ],
+    "ConnectedTransactions": [
+        "related_party_transactions",
+    ],
+    "DirectorsSeniorMgmt": [
+        "management_governance",
+    ],
+    "ControllingShareholders": [
+        "management_governance",
+        "company_legal_entity",
+    ],
+    "SubstantialShareholders": [
+        "management_governance.shareholders",
+        "company_legal_entity.shareholders",
+    ],
+    "Underwriting": [
+        "offering_use_of_proceeds",
+    ],
+    "GlobalOfferingStructure": [
+        "offering_use_of_proceeds",
+    ],
+}
+
+# Text-topic routing mirrors the fact schema but can be narrower where identity
+# facts are enough and narrative should prioritise operating materials.
+SECTION_TEXT_SCHEMA: dict[str, list[str]] = {
+    **SECTION_FACT_SCHEMA,
+    "Business": [
+        "business_products",
+        "customers_suppliers",
+        "rd_ip",
+        "industry_market.competitive_landscape",
+        "regulatory_legal",
+    ],
+    "Summary": [
+        "business_products",
+        "industry_market",
+        "financials",
+        "risk_seeds",
+        "offering_use_of_proceeds",
+    ],
+    "FinancialInfo": [
+        "financials",
+        "business_products.business_model",
+        "business_products.business_sustainability_drivers",
+        "customers_suppliers",
     ],
 }
 

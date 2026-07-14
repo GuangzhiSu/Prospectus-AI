@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ..paths import resolve_generation_rules_path
+from ..paths import resolve_generation_rules_path, sections_dir
 
 # Behavioural constraints per generation mode (spec §39.6).
 GENERATION_MODE_RULES: dict[str, str] = {
@@ -73,13 +73,12 @@ def format_kg_guidance(reqs: dict) -> str:
         if structure_mode == "narrative":
             lines.append("")
             lines.append(
-                "HEADING LOCK: Use the subsection names listed under \"Typical structure\" above "
-                "VERBATIM as your H2/H3 headings, in that order. You may prefix them with "
-                "sequential numbers (\"1 <name>\", \"2 <name>\", ...). You MUST NOT rename, "
-                "merge, split, reorder, or omit them. If a subsection has no supporting "
-                "evidence, still include the heading with body \"**DATA_MISSING**\" plus an "
-                "[[AI:VERIFY|evidence=...]] pointer. You MAY add at most one extra trailing "
-                "subsection for genuinely section-specific content if the evidence requires it."
+                "STRUCTURE GUIDANCE: Treat the Typical structure above as corpus-derived guidance, "
+                "not automatic company facts. Use it as a scaffold only when it fits the section "
+                "requirements and retrieved evidence. Mandatory subsections from the structured "
+                "specification must be preserved; optional unsupported headings may be omitted. "
+                "For a mandatory but unsupported item, keep the heading with **DATA_MISSING** plus "
+                "an [[AI:VERIFY|...]] pointer."
             )
         else:
             lines.append("")
@@ -133,6 +132,63 @@ def _load_generation_rules() -> dict[str, list[str]]:
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return {k: list(v) for k, v in data.items() if isinstance(v, list)}
+
+
+def load_corpus_style_guides() -> dict[str, dict[str, Any]]:
+    path = sections_dir() / "corpus_style_guides.json"
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:  # noqa: BLE001
+        return {}
+    return {k: v for k, v in data.items() if isinstance(v, dict)}
+
+
+def get_corpus_style_guide(section_id: str) -> dict[str, Any]:
+    return load_corpus_style_guides().get(section_id, {})
+
+
+def format_corpus_style_guide_block(section_id: str) -> str:
+    guide = get_corpus_style_guide(section_id)
+    if not guide:
+        return ""
+    lines = [
+        "CORPUS STYLE GUIDE (derived from real HK prospectuses; structure/style only, not company facts):"
+    ]
+    outline = guide.get("preferred_outline") or []
+    if outline:
+        lines.append("Preferred prospectus outline:")
+        for item in outline:
+            if not isinstance(item, dict):
+                continue
+            sub = str(item.get("subsection") or "").strip()
+            desc = str(item.get("description") or "").strip()
+            if sub:
+                lines.append(f"  - {sub}: {desc}")
+    rules = guide.get("style_rules") or []
+    if rules:
+        lines.append("Style rules:")
+        for rule in rules:
+            if str(rule).strip():
+                lines.append(f"  - {str(rule).strip()}")
+    forbidden = guide.get("forbidden_patterns") or []
+    if forbidden:
+        lines.append("Forbidden output patterns:")
+        for item in forbidden:
+            if str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
+    if guide.get("heading_lock"):
+        lines.append(
+            "Heading lock: use the preferred outline headings exactly unless a template renderer handles this section."
+        )
+    else:
+        lines.append(
+            "Heading guidance: use the preferred outline as the default scaffold, but do not invent facts to fill it. "
+            "If a preferred heading is not relevant or unsupported and is not mandatory, omit it; if mandatory, keep it with DATA_MISSING."
+        )
+    return "\n".join(lines)
 
 
 def format_generation_rules_block(section_id: str) -> str:
@@ -339,6 +395,9 @@ def augment_requirements(
     gen_rules = format_generation_rules_block(section_id)
     if gen_rules:
         parts.append(gen_rules)
+    style_guide = format_corpus_style_guide_block(section_id)
+    if style_guide:
+        parts.append(style_guide)
     parts.append("---\nSECTION-SPECIFIC REQUIREMENTS:\n" + base_requirements)
     if reqs is not None:
         structured = format_structured_requirements(section_id, reqs, meta)

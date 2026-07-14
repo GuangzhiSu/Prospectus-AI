@@ -3,13 +3,18 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 import os from "os";
-import { spawn, type ChildProcessWithoutNullStreams } from "child_process";
+import { type ChildProcessWithoutNullStreams } from "child_process";
 import { getAgentScriptPath, getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
+import {
+  formatPythonProcessError,
+  resolvePythonCommand,
+  spawnPython,
+} from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
-/** Vercel Hobby allows max 300s. Longer local runs should use the desktop/server workflow. */
-export const maxDuration = 300;
+/** Local desktop/server batch generation can take a long time for full prospectus runs. */
+export const maxDuration = 1800;
 
 const SECTION_ORDER = [
   "ExpectedTimetable",
@@ -76,7 +81,9 @@ function agent2SseResponse(
             encoder.encode(
               `data: ${JSON.stringify({
                 type: "error",
-                message: stderr.trim() || stdoutBuf.trim() || `Exit code ${code}`,
+                message: formatPythonProcessError(
+                  stderr.trim() || stdoutBuf.trim() || `Exit code ${code}`
+                ),
               })}\n\n`
             )
           );
@@ -94,7 +101,10 @@ function agent2SseResponse(
       proc.on("error", async (err) => {
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ type: "error", message: String(err.message) })}\n\n`
+            `data: ${JSON.stringify({
+              type: "error",
+              message: formatPythonProcessError(String(err.message)),
+            })}\n\n`
           )
         );
         if (cleanup) {
@@ -125,15 +135,29 @@ export async function POST(req: Request) {
     const agent1Output = paths.agent1Output;
     const agent2Path = getAgentScriptPath("agent2.py", root);
 
+    let hasAgent1Output = false;
     try {
       await fs.access(path.join(agent1Output, "rag_chunks.jsonl"));
+      hasAgent1Output = true;
+    } catch {
+      try {
+        await fs.access(path.join(agent1Output, "text_chunks.jsonl"));
+        hasAgent1Output = true;
+      } catch {
+        hasAgent1Output = false;
+      }
+    }
+    try {
       await fs.access(agent2Path);
     } catch {
+      hasAgent1Output = false;
+    }
+    if (!hasAgent1Output) {
       return NextResponse.json(
         {
           ok: false,
           error:
-            `${path.relative(root, agent1Output) || agent1Output}/rag_chunks.jsonl or agent2.py not found. Run Agent1 first.`,
+            `${path.relative(root, agent1Output) || agent1Output}/text_chunks.jsonl or rag_chunks.jsonl, or agent2.py, was not found. Run Prepare data first.`,
         },
         { status: 400 }
       );
@@ -163,7 +187,13 @@ export async function POST(req: Request) {
       await fs.writeFile(modFilePath, modificationInstructions, "utf8");
     }
 
-    const python = process.env.AGENT1_PYTHON || "python3";
+    const pythonResolution = await resolvePythonCommand(root);
+    if (!pythonResolution.ok) {
+      return NextResponse.json(
+        { ok: false, error: pythonResolution.error },
+        { status: 500 }
+      );
+    }
     const settings = await readSettings();
     const env: NodeJS.ProcessEnv = {
       ...buildAgentProcessEnv(process.env, settings),
@@ -196,7 +226,7 @@ export async function POST(req: Request) {
     ];
     if (modFilePath) args.push("--modification-file", modFilePath);
 
-    const proc = spawn(python, args, {
+    const proc = spawnPython(pythonResolution.python, args, {
       cwd: root,
       env,
     }) as ChildProcessWithoutNullStreams;

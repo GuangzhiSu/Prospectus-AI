@@ -1,9 +1,13 @@
 // POST: run huggingface snapshot_download via Python (first-run model pull)
 import { NextResponse } from "next/server";
 import path from "path";
-import { spawn } from "child_process";
 import { getProspectusRoot } from "@/lib/prospectus-root";
 import { getDefaultLocalModelDir } from "@/lib/app-settings";
+import {
+  formatPythonProcessError,
+  resolvePythonCommand,
+  spawnPython,
+} from "@/lib/python-runtime";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -26,11 +30,17 @@ export async function POST(req: Request) {
   const root = getProspectusRoot();
   const script = path.join(root, "scripts", "download_qwen_model.py");
   const targetDir = outDir || getDefaultLocalModelDir();
-  const python = process.env.AGENT1_PYTHON || "python3";
+  const pythonResolution = await resolvePythonCommand(root);
+  if (!pythonResolution.ok) {
+    return NextResponse.json(
+      { ok: false, error: pythonResolution.error, path: targetDir },
+      { status: 500 }
+    );
+  }
 
   return new Promise<NextResponse>((resolve) => {
-    const proc = spawn(
-      python,
+    const proc = spawnPython(
+      pythonResolution.python,
       [script, "--repo-id", repoId, "--out-dir", targetDir],
       {
         cwd: root,
@@ -60,7 +70,7 @@ export async function POST(req: Request) {
           NextResponse.json(
             {
               ok: false,
-              error: stderr || stdout || `exit ${code}`,
+              error: formatPythonProcessError(stderr || stdout || `exit ${code}`),
               path: targetDir,
             },
             { status: 500 }
@@ -71,7 +81,7 @@ export async function POST(req: Request) {
     proc.on("error", (err) => {
       resolve(
         NextResponse.json(
-          { ok: false, error: String(err.message) },
+          { ok: false, error: formatPythonProcessError(String(err.message)) },
           { status: 500 }
         )
       );
