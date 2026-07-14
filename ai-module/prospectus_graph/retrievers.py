@@ -84,7 +84,25 @@ def format_facts_for_prompt(
             continue
         header = prefix.replace("_", " ").title()
         lines.append(f"\n{header.upper()} FACTS")
-        seen_values: set[str] = set()
+        indexed_rows: dict[str, list[str]] = {}
+        for g in group:
+            field = str(g.get("field") or "")
+            metric = str(g.get("metric") or "")
+            fact_id = str(g.get("fact_id") or "")
+            if "[" not in field or not metric or metric == "item":
+                continue
+            value = g.get("value")
+            if value is None:
+                continue
+            unit = g.get("unit") or ""
+            value_text = f"{value} {unit}".strip() if unit else str(value)
+            cite = f" [{fact_id}]" if fact_id else ""
+            indexed_rows.setdefault(field, []).append(f"{metric}={value_text}{cite}")
+        if indexed_rows:
+            lines.append("Indexed schedule rows (same bracket index belongs to the same table row):")
+            for row_key, items in list(indexed_rows.items())[:24]:
+                lines.append(f"{row_key}: " + "; ".join(items[:8]))
+        seen_values: set[tuple[str, str, str, str]] = set()
         item_lines: list[str] = []
         other_lines: list[str] = []
         for g in group:
@@ -95,12 +113,15 @@ def format_facts_for_prompt(
             value = g.get("value")
             unit = g.get("unit") or ""
             source = (g.get("metadata") or {}).get("source_file", "")
+            if "[" in str(field) and metric != "item":
+                continue
             if value is None:
                 continue
             val_str = str(value).strip()
-            if val_str in seen_values:
+            dedupe_key = (field, str(metric), str(period), val_str)
+            if dedupe_key in seen_values:
                 continue
-            seen_values.add(val_str)
+            seen_values.add(dedupe_key)
             prefix_bits = []
             if fact_id:
                 prefix_bits.append(f"[{fact_id}]")
@@ -430,6 +451,7 @@ class HybridRetriever:
         self.use_semantic = use_semantic
         self._text_chunks: list[dict[str, Any]] | None = None
         self._facts: list[RetrievedFact] | None = None
+        self._section_dossiers: dict[str, dict[str, Any]] | None = None
         self._model = None
 
     def _get_text_chunks(self) -> list[dict[str, Any]]:
@@ -442,6 +464,83 @@ class HybridRetriever:
         if self._facts is None:
             self._facts = load_facts(self.rag_dir)
         return self._facts
+
+    def _get_section_dossiers(self) -> dict[str, dict[str, Any]]:
+        if self._section_dossiers is not None:
+            return self._section_dossiers
+        path = self.rag_dir / "section_dossiers.json"
+        dossiers: dict[str, dict[str, Any]] = {}
+        if path.exists():
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for item in data.get("sections", []) or []:
+                    if isinstance(item, dict) and item.get("section_id"):
+                        dossiers[str(item["section_id"])] = item
+            except Exception:  # noqa: BLE001
+                dossiers = {}
+        self._section_dossiers = dossiers
+        return dossiers
+
+    def _format_section_dossier(self, section_id: str) -> str:
+        dossier = self._get_section_dossiers().get(section_id)
+        if not dossier:
+            return ""
+        lines = [
+            "SECTION EVIDENCE DOSSIER (prepared by Agent1; use to decide what can be drafted):",
+            f"- Warning level: {dossier.get('warning_level', 'unknown')}",
+            f"- Prepared text chunks: {dossier.get('text_chunk_count', 0)}",
+            f"- Prepared facts: {dossier.get('fact_count', 0)}",
+        ]
+        source_files = dossier.get("source_files") or []
+        if source_files:
+            lines.append("- Source files: " + ", ".join(str(s) for s in source_files[:12]))
+        missing_slots = dossier.get("missing_required_slots") or []
+        if missing_slots:
+            lines.append("Missing required content slots:")
+            for item in missing_slots[:10]:
+                if not isinstance(item, dict):
+                    continue
+                action = item.get("missing_action") or "mark DATA_MISSING and request source input"
+                lines.append(f"  - {item.get('slot')}: {action}")
+        slot_status = dossier.get("content_slot_status") or []
+        covered = [
+            item for item in slot_status
+            if isinstance(item, dict) and item.get("status") == "covered"
+        ]
+        if covered:
+            lines.append("Covered content slots:")
+            for item in covered[:10]:
+                lines.append(
+                    f"  - {item.get('slot')} "
+                    f"(facts={item.get('fact_count', 0)}, text={item.get('text_chunk_count', 0)})"
+                )
+        missing_fact_prefixes = dossier.get("missing_fact_prefixes") or []
+        if missing_fact_prefixes:
+            label = (
+                "Missing structured fact prefixes"
+                if dossier.get("warning_level") != "ok"
+                else "Non-blocking schema gaps"
+            )
+            lines.append(f"{label}: " + ", ".join(str(p) for p in missing_fact_prefixes[:16]))
+        source_priorities = dossier.get("source_priorities") or []
+        if source_priorities:
+            lines.append("Source priority order:")
+            for item in source_priorities[:8]:
+                lines.append(f"  - {item}")
+        table_patterns = dossier.get("table_patterns") or []
+        if table_patterns:
+            lines.append("Expected table patterns:")
+            for item in table_patterns[:8]:
+                if isinstance(item, dict):
+                    cols = item.get("columns") or []
+                    lines.append(
+                        f"  - {item.get('name')}: "
+                        + (", ".join(str(c) for c in cols) if cols else "standard prospectus columns")
+                    )
+                else:
+                    lines.append(f"  - {item}")
+        return "\n".join(lines)
 
     def _load_embedding_model(self):
         if self._model is not None:
@@ -525,7 +624,10 @@ class HybridRetriever:
         seen: set[tuple] = set()
 
         for p in required_prefixes:
-            for f in by_prefix[p][:per_prefix]:
+            prefix_limit = per_prefix
+            if section_id == "UseOfProceeds" and p == "offering_use_of_proceeds.use_of_proceeds":
+                prefix_limit = min(self.fact_limit, max(per_prefix, 45))
+            for f in by_prefix[p][:prefix_limit]:
                 key = (f.get("field"), f.get("period"), f.get("metric"), f.get("value"))
                 if key not in seen:
                     seen.add(key)
@@ -719,6 +821,13 @@ class HybridRetriever:
         full_context = text_context
         if formatted:
             full_context = f"{full_context}\n\n---\nSTRUCTURED FACTS (use for figures, dates, metrics):\n{formatted}" if full_context else f"STRUCTURED FACTS:\n{formatted}"
+        dossier_block = self._format_section_dossier(section_id)
+        if dossier_block:
+            full_context = (
+                f"{full_context}\n\n---\n{dossier_block}"
+                if full_context
+                else dossier_block
+            )
 
         notes = [
             f"Hybrid retriever: {len(text_evidence)} text chunks, {len(facts)} facts for {section_id}.",

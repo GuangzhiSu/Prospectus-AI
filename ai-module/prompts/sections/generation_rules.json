@@ -1,18 +1,28 @@
 {
   "RiskFactors": [
     "No mitigation language inside the same risk narrative; use [[AI:XREF|to=Business]] / [[AI:XREF|to=Regulation]] for mitigation elsewhere.",
-    "Use real prospectus risk prose: one risk heading followed by cause/adverse-effect paragraphs. Do not output memo labels such as Factual Cause, Harm to Issuer, or Harm to Investors."
+    "Use real prospectus risk prose: one risk heading followed by cause/adverse-effect paragraphs. Do not output memo labels such as Factual Cause, Harm to Issuer, or Harm to Investors.",
+    "A risk factor is acceptable only if it has issuer-specific context from evidence or is explicitly marked DATA_MISSING with a source request.",
+    "Do not produce a risk table or risk matrix; the final output must read like long-form prospectus disclosure."
   ],
   "Business": [
     "Mission, vision, strengths, strategies, awards, market leadership, customer scale, R&D scale and product lists may be drafted only when directly supported by retrieved context.",
-    "For product/platform catalogues with more than 10 items, group by business segment or platform instead of enumerating every item."
+    "For product/platform catalogues with more than 10 items, group by business segment or platform instead of enumerating every item.",
+    "The opening overview must identify business, geography, operating model and scale; if any are missing, use DATA_MISSING instead of generic company prose.",
+    "When evidence contains customer/supplier concentration, segment revenue, R&D/IP or data privacy facts, include the corresponding prospectus subsection instead of leaving them buried in generic overview text.",
+    "Do not use pitch-deck wording such as scalable, disruptive, world-class, best-in-class or leading unless the exact claim is backed by cited source evidence."
   ],
   "FinancialInfo": [
     "Historical analysis only. Do not create profit, margin, cash-flow, valuation or working-capital forecasts.",
-    "Use financial tables where multi-period figures exist; if management explanations are absent, write DATA_MISSING rather than inventing period-on-period drivers."
+    "Use financial tables where multi-period figures exist; if management explanations are absent, write DATA_MISSING rather than inventing period-on-period drivers.",
+    "Every period-to-period explanation must state the exact line item, compared periods, amount/percentage movement and evidence pointer.",
+    "If income statement data exists but cash flow or balance sheet data is missing, draft the available table and mark the missing liquidity/balance-sheet subsections explicitly.",
+    "Do not create non-IFRS measures unless definition and reconciliation evidence are retrieved."
   ],
   "IndustryOverview": [
-    "Every market size, CAGR, forecast, ranking, market share or consultant statement must include an AI:CITE tag with source, scope, date and metric."
+    "Every market size, CAGR, forecast, ranking, market share or consultant statement must include an AI:CITE tag with source, scope, date and metric.",
+    "If consultant/source evidence is missing, produce a source-request skeleton; do not draft a generic market essay from common knowledge.",
+    "Keep the issuer out of the market narrative except where defining the segment in which it operates or where a sourced ranking/share claim is provided."
   ],
   "Regulation": [
     "Do not state legal compliance conclusions unless the retrieved context contains legal-opinion or regulatory evidence. Otherwise use COUNSEL_INPUT_REQUIRED."
@@ -33,7 +43,9 @@
     "Request for Elaboration (RfE) style for technical terms only; no duplicate legal definitions from Definitions."
   ],
   "UseOfProceeds": [
-    "Allocation percentages must sum to 100% where percentages are used; otherwise flag COUNSEL_INPUT_REQUIRED."
+    "Allocation percentages must sum to 100% where percentages are used; otherwise flag COUNSEL_INPUT_REQUIRED.",
+    "Each allocation row must include purpose, amount or percentage, implementation/timing and source pointer when available.",
+    "Do not invent net proceeds, offer-price assumptions, expansion plans, R&D budgets or acquisitions; missing items must be DATA_MISSING / COUNSEL_INPUT_REQUIRED."
   ],
   "GlobalOfferingStructure": [
     "Must interlock with How to Apply and Underwriting (cross-references, consistent mechanics naming)."

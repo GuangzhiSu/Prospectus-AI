@@ -18,6 +18,7 @@ and coverage_matrix.md under --output-dir (unless --no-output-bundle).
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 from typing import Any
@@ -633,6 +634,216 @@ def _generate_contents_body(existing: dict[str, str]) -> str:
     return "\n".join(lines) if lines else "[No sections generated yet.]"
 
 
+def _load_fact_store_rows(rag_path: Path) -> list[dict[str, Any]]:
+    fact_path = rag_path / "fact_store.jsonl"
+    if not fact_path.exists():
+        return []
+    rows: list[dict[str, Any]] = []
+    with open(fact_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
+    return rows
+
+
+def _fmt_money(value: Any, unit: str | None = None) -> str:
+    try:
+        num = float(value)
+    except (TypeError, ValueError):
+        return str(value or "[●]")
+    currency = "HK$" if (unit or "").upper() == "HKD" else (unit or "")
+    if abs(num) >= 1_000_000:
+        return f"{currency}{num / 1_000_000:,.1f} million".strip()
+    if abs(num) < 1_000 and num != int(num):
+        return f"{currency}{num:,.2f}".strip()
+    return f"{currency}{num:,.0f}".strip()
+
+
+def _fmt_pct(value: Any) -> str:
+    try:
+        return f"{float(value):g}%"
+    except (TypeError, ValueError):
+        return str(value or "[●]")
+
+
+def _cite_for_fact(fact: dict[str, Any], section_id: str) -> str:
+    meta = fact.get("metadata") or {}
+    source = meta.get("source_file") or "fact_store"
+    field = fact.get("field") or ""
+    metric = fact.get("metric") or ""
+    fact_id = fact.get("fact_id") or ""
+    return (
+        "[[AI:CITE|"
+        f"source={source}; section={section_id}; field={field}; metric={metric}; "
+        f"fact_id={fact_id}; confidence=prepared_fact"
+        "]]"
+    )
+
+
+def _group_indexed_facts(
+    facts: list[dict[str, Any]],
+    prefix: str,
+) -> dict[int, dict[str, dict[str, Any]]]:
+    import re
+
+    pattern = re.compile(rf"^{re.escape(prefix)}\[(\d+)\]$")
+    grouped: dict[int, dict[str, dict[str, Any]]] = {}
+    for fact in facts:
+        field = str(fact.get("field") or "")
+        m = pattern.match(field)
+        if not m:
+            continue
+        idx = int(m.group(1))
+        metric = str(fact.get("metric") or "")
+        if metric:
+            grouped.setdefault(idx, {})[metric] = fact
+    return grouped
+
+
+def _render_use_of_proceeds_template(rag_path: Path) -> str | None:
+    """Deterministic renderer for the table-heavy Future Plans and Use of Proceeds section."""
+    facts = _load_fact_store_rows(rag_path)
+    if not facts:
+        return None
+    allocation_prefix = "offering_use_of_proceeds.use_of_proceeds.allocation"
+    rows = _group_indexed_facts(facts, allocation_prefix)
+    if not rows:
+        return None
+
+    def first_fact(field: str, metric: str | None = None) -> dict[str, Any] | None:
+        for fact in facts:
+            if fact.get("field") != field:
+                continue
+            if metric is None or fact.get("metric") == metric:
+                return fact
+        return None
+
+    basis = first_fact("offering_use_of_proceeds.use_of_proceeds.basis")
+    price_low = first_fact("offering_use_of_proceeds.offer.offer_price", "price_range")
+    price_high = first_fact("offering_use_of_proceeds.offer.offer_price", "price_range_high")
+    total_offer = first_fact("offering_use_of_proceeds.offer.total_offer_shares")
+    over_allotment = first_fact("offering_use_of_proceeds.offer.over_allotment_shares")
+    sensitivity = first_fact(
+        "offering_use_of_proceeds.use_of_proceeds.net_proceeds_sensitivity_hkd.note"
+    )
+
+    total_amount = 0.0
+    total_pct = 0.0
+    table_lines = [
+        "| Purpose | Approximate % of net proceeds | Approximate amount | Expected timing |",
+        "| :--- | ---: | ---: | :--- |",
+    ]
+    detailed_lines: list[str] = []
+    for idx in sorted(rows):
+        row = rows[idx]
+        purpose = str(row.get("purpose", {}).get("value") or "[●]")
+        pct_fact = row.get("pct")
+        amount_fact = row.get("amount_hkd_approx")
+        timeline = str(row.get("timeline", {}).get("value") or "[●]")
+        pct = _fmt_pct(pct_fact.get("value")) if pct_fact else "[●]"
+        amount = (
+            _fmt_money(amount_fact.get("value"), amount_fact.get("unit"))
+            if amount_fact
+            else "[●]"
+        )
+        if pct_fact:
+            try:
+                total_pct += float(pct_fact.get("value"))
+            except (TypeError, ValueError):
+                pass
+        if amount_fact:
+            try:
+                total_amount += float(amount_fact.get("value"))
+            except (TypeError, ValueError):
+                pass
+        cites = " ".join(
+            _cite_for_fact(f, "UseOfProceeds")
+            for f in [row.get("purpose"), pct_fact, amount_fact, row.get("timeline")]
+            if f
+        )
+        table_lines.append(f"| {purpose} | {pct} | {amount} | {timeline} {cites} |")
+
+        sub_prefix = f"{allocation_prefix}[{idx}].sub_allocation"
+        sub_rows = _group_indexed_facts(facts, sub_prefix)
+        if sub_rows:
+            detailed_lines.append(f"**{purpose}.**")
+            for sub_idx in sorted(sub_rows):
+                sub = sub_rows[sub_idx]
+                sub_purpose = str(sub.get("purpose", {}).get("value") or "[●]")
+                sub_pct = _fmt_pct(sub.get("pct", {}).get("value")) if sub.get("pct") else "[●]"
+                sub_amount = (
+                    _fmt_money(sub["amount_hkd_approx"].get("value"), sub["amount_hkd_approx"].get("unit"))
+                    if sub.get("amount_hkd_approx")
+                    else "[●]"
+                )
+                sub_cites = " ".join(
+                    _cite_for_fact(f, "UseOfProceeds")
+                    for f in [sub.get("purpose"), sub.get("pct"), sub.get("amount_hkd_approx")]
+                    if f
+                )
+                detailed_lines.append(f"- {sub_purpose}: {sub_pct}, approximately {sub_amount}. {sub_cites}")
+            detailed_lines.append("")
+    if rows:
+        table_lines.append(f"| **Total** | **{total_pct:g}%** | **{_fmt_money(total_amount, 'HKD')}** |  |")
+
+    lines = ["## Future Plans and Use of Proceeds", ""]
+    if basis:
+        lines.append(
+            "Based on the stated assumptions "
+            f"({basis.get('value')}), we estimate that the net proceeds from the Global Offering "
+            f"will be approximately {_fmt_money(total_amount, 'HKD')}. "
+            f"{_cite_for_fact(basis, 'UseOfProceeds')}"
+        )
+    if price_low or price_high or total_offer:
+        parts = []
+        if price_low and price_high:
+            parts.append(
+                f"an Offer Price range of {_fmt_money(price_low.get('value'), price_low.get('unit'))} "
+                f"to {_fmt_money(price_high.get('value'), price_high.get('unit'))}"
+            )
+        if total_offer:
+            parts.append(f"{int(float(total_offer.get('value'))):,} Offer Shares")
+        if parts:
+            cites = " ".join(
+                _cite_for_fact(f, "UseOfProceeds")
+                for f in [price_low, price_high, total_offer]
+                if f
+            )
+            lines.append("The Global Offering assumptions include " + " and ".join(parts) + f". {cites}")
+    lines.extend([
+        "",
+        "We intend to use the net proceeds from the Global Offering for the following purposes:",
+        "",
+        *table_lines,
+        "",
+    ])
+    if detailed_lines:
+        lines.extend(["### Implementation Plan", "", *detailed_lines])
+    if sensitivity:
+        lines.extend([
+            "### Offer Price Sensitivity",
+            "",
+            f"The allocation may be adjusted if final net proceeds differ from the assumed basis. {sensitivity.get('value')} {_cite_for_fact(sensitivity, 'UseOfProceeds')}",
+            "",
+        ])
+    if over_allotment:
+        lines.extend([
+            "### Over-allotment Option",
+            "",
+            "If the Over-allotment Option is exercised, the Company may receive additional proceeds from "
+            f"{int(float(over_allotment.get('value'))):,} additional Offer Shares. "
+            f"{_cite_for_fact(over_allotment, 'UseOfProceeds')}",
+            "",
+        ])
+    lines.extend([
+        "[[AI:XREF|to=Business]]",
+        "[[AI:XREF|to=FinancialInfo]]",
+        "[[AI:VERIFY|evidence=Confirm board-approved use-of-proceeds schedule, net proceeds computation and any temporary deposit/treasury treatment before filing.]]",
+    ])
+    return "\n".join(lines).strip() + "\n"
+
+
 def _append_to_all_sections(
     out_path: Path,
     section_id: str,
@@ -961,6 +1172,30 @@ def run_agent2_single(
             _finalize_output_bundle(out_path, meta_path)
         return body
 
+    if section_id == "UseOfProceeds":
+        _emit_phase_start(section_id, "template")
+        text = _render_use_of_proceeds_template(rag_path)
+        if text:
+            section_name = _lookup_section_name(section_id)
+            safe_name = section_name.replace(" ", "_").replace("&", "and")
+            out_file = out_path / f"section_{section_id}_{safe_name}.md"
+            out_file.write_text(f"# Section {section_id}: {section_name}\n\n{text}", encoding="utf-8")
+            print(f"Saved: {out_file}")
+            _append_to_all_sections(
+                out_path,
+                section_id,
+                section_name,
+                text,
+                only_sections_up_to=None if modification_instructions else section_id,
+            )
+            _emit_phase_end(section_id, "template")
+            _emit_section_done(section_id)
+            if finalize_bundle:
+                _rebuild_all_sections(out_path)
+                _finalize_output_bundle(out_path, meta_path)
+            return text
+        _emit_phase_end(section_id, "template")
+
     retriever = _create_retriever(rag_path)
     requirements_map = _build_requirements_map()
 
@@ -1057,6 +1292,42 @@ def run_agent2(
             _rebuild_all_sections(out_path)
             results[section_id] = _generate_contents_body(_load_existing_sections(out_path))
             _emit_section_done(section_id)
+        elif section_id == "UseOfProceeds":
+            _emit_phase_start(section_id, "template")
+            text = _render_use_of_proceeds_template(rag_path)
+            if text:
+                section_name = _lookup_section_name(section_id)
+                safe_name = section_name.replace(" ", "_").replace("&", "and")
+                out_file = out_path / f"section_{section_id}_{safe_name}.md"
+                out_file.write_text(f"# Section {section_id}: {section_name}\n\n{text}", encoding="utf-8")
+                print(f"Saved: {out_file}")
+                results[section_id] = text
+                _emit_phase_end(section_id, "template")
+                _emit_section_done(section_id)
+            else:
+                _emit_phase_end(section_id, "template")
+                state = _build_section_state(
+                    section_id=section_id,
+                    requirements_map=requirements_map,
+                    rag_dir=rag_path,
+                    output_dir=out_path,
+                    max_context_chars=max_context_chars,
+                    model_name=model_name,
+                    max_revision_loops=max_revision_loops,
+                    issuer_metadata_path=meta_path,
+                )
+                result = _run_section_graph(
+                    section_state=state,
+                    retriever=retriever,
+                    output_dir=out_path,
+                    model_name=model_name,
+                    combine_immediately=False,
+                    only_sections_up_to=None,
+                    model=model,
+                    tokenizer=tokenizer,
+                )
+                results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+                _emit_section_done(section_id)
         else:
             state = _build_section_state(
                 section_id=section_id,

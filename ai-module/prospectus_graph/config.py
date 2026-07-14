@@ -84,6 +84,9 @@ SECTION_FACT_SCHEMA: dict[str, list[str]] = {
         "financials",
         "business_products",
         "regulatory_legal",
+        "offering_use_of_proceeds",
+        "company_legal_entity.share_classes",
+        "company_legal_entity.dwvr",
     ],
     "ShareCapital": [
         "shareholders",
@@ -91,8 +94,10 @@ SECTION_FACT_SCHEMA: dict[str, list[str]] = {
         "offering_use_of_proceeds.share_capital",
     ],
     "UseOfProceeds": [
-        "ipo_offering",
-        "offering_use_of_proceeds",
+        "offering_use_of_proceeds.use_of_proceeds",
+        "ipo_offering.use_of_proceeds",
+        "offering_use_of_proceeds.offer",
+        "offering_use_of_proceeds.underwriting",
     ],
     "Regulation": [
         "regulatory_legal",

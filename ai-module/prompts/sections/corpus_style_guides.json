@@ -83,7 +83,36 @@
       "Do not use Factual Cause/Harm bullet templates in final prose.",
       "No mitigation language in the same risk narrative."
     ],
-    "forbidden_patterns": ["generic unknown-risks boilerplate", "mitigation paragraphs", "risk matrix tone"]
+    "forbidden_patterns": ["generic unknown-risks boilerplate", "mitigation paragraphs", "risk matrix tone"],
+    "source_priorities": [
+      "risk_seeds.items and sponsor due-diligence/risk memos",
+      "financials and operating metrics that show concentration, losses, liquidity, receivables or working-capital pressure",
+      "business_products, customers_suppliers, rd_ip and regulatory_legal evidence for company-specific operational and compliance risks",
+      "offering_use_of_proceeds and share-capital data for offering/WVR/dilution/liquidity risks"
+    ],
+    "required_content_slots": [
+      {"slot": "Industry-specific risk headings", "evidence_prefixes": ["risk_seeds", "industry_market", "regulatory_legal"], "required": true, "missing_action": "include only generic industry-risk skeletons with DATA_MISSING and request industry consultant / sponsor risk input"},
+      {"slot": "Business and operational risk headings", "evidence_prefixes": ["risk_seeds", "business_products", "customers_suppliers", "rd_ip"], "required": true, "missing_action": "do not invent operations; request business DD, customer/supplier schedules and technology/IP evidence"},
+      {"slot": "Financial-condition risks", "evidence_prefixes": ["risk_seeds", "financials", "operating_metrics"], "required": true, "missing_action": "mark financial-risk analysis DATA_MISSING unless historical financial tables support it"},
+      {"slot": "Regulatory and legal risks", "evidence_prefixes": ["risk_seeds", "regulatory_legal", "rd_ip.data_privacy_compliance"], "required": true, "missing_action": "request legal/regulatory memo; avoid counsel conclusions"},
+      {"slot": "Global offering and securities risks", "evidence_prefixes": ["offering_use_of_proceeds", "company_legal_entity.share_classes", "company_legal_entity.dwvr"], "required": true, "missing_action": "keep standard offering-risk placeholders and cross-reference Underwriting/Global Offering Structure"}
+    ],
+    "prospectus_phrases": [
+      "If any of the following risks actually occurs, our business, financial condition and results of operations could be materially and adversely affected.",
+      "We cannot assure you that...",
+      "Any failure to... may materially and adversely affect...",
+      "Our historical results may not be indicative of our future performance."
+    ],
+    "quality_checks": [
+      "Each risk heading must itself state the risk, not merely name a topic.",
+      "Each risk narrative must include cause, issuer-specific context and adverse effect.",
+      "Do not mention mitigation or internal controls unless the risk is about failure of those controls.",
+      "Numerical concentration/financial risks must cite the supporting fact id/source."
+    ],
+    "missing_data_policy": [
+      "Where a risk category has no issuer-specific evidence, keep the category heading only if standard practice requires it and insert DATA_MISSING with a concrete source request.",
+      "Do not create risk factors from general market knowledge."
+    ]
   },
   "Waivers": {
     "heading_lock": false,
@@ -147,7 +176,37 @@
       "Every statistic, ranking, share, CAGR and forecast requires AI:CITE.",
       "Do not turn industry analysis into issuer promotion."
     ],
-    "forbidden_patterns": ["unsourced ranking", "issuer strengths disguised as industry facts"]
+    "forbidden_patterns": ["unsourced ranking", "issuer strengths disguised as industry facts"],
+    "source_priorities": [
+      "industry_market.consultant_engagement, methodology, market_size, CAGR, ranking and market_share fields",
+      "independent consultant report excerpts, public-source extracts and source disclaimers",
+      "business_products only for defining issuer's market participation, not for proving market size"
+    ],
+    "required_content_slots": [
+      {"slot": "Source and methodology disclosure", "evidence_prefixes": ["industry_market.consultant_engagement", "industry_market.industry_consultant_methodology", "industry_market.source_disclaimers"], "required": true, "missing_action": "insert CONSULTANT_REPORT_REQUIRED and avoid all market statistics"},
+      {"slot": "Industry definition and value chain", "evidence_prefixes": ["industry_market", "business_products.product_segments"], "required": true, "missing_action": "use a short DATA_MISSING placeholder; do not define a new market from common knowledge"},
+      {"slot": "Historical and forecast market size", "evidence_prefixes": ["industry_market.market_size", "industry_market.market_growth_cagr"], "required": true, "missing_action": "omit charts/tables and request consultant market-size data"},
+      {"slot": "Market drivers and trends", "evidence_prefixes": ["industry_market.industry_trends", "industry_market.market_growth_cagr"], "required": true, "missing_action": "state DATA_MISSING; do not turn issuer strategy into industry trend"},
+      {"slot": "Competitive landscape, ranking and market share", "evidence_prefixes": ["industry_market.ranking", "industry_market.market_share", "industry_market.competitive_landscape"], "required": true, "missing_action": "omit issuer rank/share claims and request consultant ranking table"}
+    ],
+    "table_patterns": [
+      {"name": "Market size table", "columns": ["year", "market segment", "market size", "currency/unit", "historical/forecast", "source"], "when": "market_size or CAGR data is available"},
+      {"name": "Competitive landscape table", "columns": ["rank", "company/category", "metric", "market share", "period/source"], "when": "ranking or market_share data is available"}
+    ],
+    "prospectus_phrases": [
+      "According to the industry consultant report...",
+      "The market is expected to grow from... to...",
+      "The following table sets forth...",
+      "Key market drivers include..."
+    ],
+    "quality_checks": [
+      "Every statistic must carry source, scope, period and metric.",
+      "Do not describe the issuer as a leader unless ranking/share evidence exists.",
+      "Separate industry facts from company strengths."
+    ],
+    "missing_data_policy": [
+      "If consultant data is missing, produce a source-request skeleton rather than a generic industry essay."
+    ]
   },
   "HistoryReorg": {
     "heading_lock": false,
@@ -179,7 +238,44 @@
       "Group product lists into categories when more than 10 items appear.",
       "Use cross-references to Regulation and Risk Factors for risk-sensitive operational matters."
     ],
-    "forbidden_patterns": ["generic mission/vision", "unsourced leadership claim", "startup pitch tone"]
+    "forbidden_patterns": ["generic mission/vision", "unsourced leadership claim", "startup pitch tone"],
+    "source_priorities": [
+      "business_products narratives and structured facts",
+      "customers_suppliers schedules for customer base, sales channels, concentration, supplier and procurement discussion",
+      "rd_ip for technology, R&D, IP, data privacy and cybersecurity discussion",
+      "financials.segment_revenue and operating_metrics for scale and segment contribution",
+      "regulatory_legal only for compliance-sensitive cross-references"
+    ],
+    "required_content_slots": [
+      {"slot": "Issuer overview and operating scale", "evidence_prefixes": ["company_legal_entity.identity", "business_products.scale_metrics_as_of_2021_06_30", "operating_metrics"], "required": true, "missing_action": "draft only a short overview with DATA_MISSING for scale metrics"},
+      {"slot": "Business model and revenue model", "evidence_prefixes": ["business_products.business_model", "business_products.sales_model", "financials.segment_revenue"], "required": true, "missing_action": "request business model memo and revenue breakdown; do not infer monetisation"},
+      {"slot": "Products, platforms and services by segment", "evidence_prefixes": ["business_products.product_segments", "business_products.platforms", "business_products.products_and_services"], "required": true, "missing_action": "use segment placeholders and request product/service catalogue"},
+      {"slot": "Customers, sales channels and marketing", "evidence_prefixes": ["customers_suppliers.customer_base_metrics", "customers_suppliers.top_customers", "business_products.sales_model"], "required": true, "missing_action": "request customer concentration and sales channel schedule"},
+      {"slot": "Suppliers, production, quality control and logistics", "evidence_prefixes": ["customers_suppliers.top_suppliers", "business_products.production_model", "business_products.quality_control", "business_products.logistics_inventory"], "required": true, "missing_action": "keep a DATA_MISSING operational subsection rather than inventing supply chain details"},
+      {"slot": "Technology, R&D, IP and data protection", "evidence_prefixes": ["rd_ip.rd", "rd_ip.technology_architecture", "rd_ip.ip_portfolio", "rd_ip.data_privacy_compliance"], "required": true, "missing_action": "request R&D/IP/data-security support and avoid technical superiority claims"},
+      {"slot": "Employees, properties, insurance, legal proceedings and compliance", "evidence_prefixes": ["management_governance.employees", "company_legal_entity.properties", "regulatory_legal.legal_opinions"], "required": false, "missing_action": "include only if source data exists; otherwise keep a concise DATA_MISSING note"}
+    ],
+    "table_patterns": [
+      {"name": "Revenue by business segment", "columns": ["segment", "track-record period", "revenue", "percentage of total revenue"], "when": "segment revenue facts exist"},
+      {"name": "Top customers/suppliers concentration", "columns": ["period", "top customer/supplier", "amount", "percentage of revenue/purchases"], "when": "customer or supplier concentration data exists"},
+      {"name": "R&D and IP summary", "columns": ["category", "metric", "period/as of date", "supporting source"], "when": "R&D headcount, expenses or IP portfolio facts exist"}
+    ],
+    "prospectus_phrases": [
+      "We are...",
+      "During the Track Record Period, we generated revenue primarily from...",
+      "The following table sets forth a breakdown of our revenue by...",
+      "As of the Latest Practicable Date..."
+    ],
+    "quality_checks": [
+      "The first two paragraphs must identify the issuer, business, geography and scale with evidence.",
+      "Each major product/service category should map to revenue or operating evidence where available.",
+      "Use 'we believe' sparingly and only for supported management statements.",
+      "Cross-reference risk-sensitive matters instead of burying caveats in promotional prose."
+    ],
+    "missing_data_policy": [
+      "If only structured facts exist, draft table-heavy prose and request narrative DD material.",
+      "If product/customer/supplier/R&D slots are missing, preserve headings with DATA_MISSING rather than inventing operations."
+    ]
   },
   "ContractualArrangements": {
     "heading_lock": false,
@@ -261,7 +357,42 @@
       "Use tables when multiple periods are available.",
       "If a driver is unavailable, state DATA_MISSING instead of inventing management explanation."
     ],
-    "forbidden_patterns": ["financial forecast", "generic MD&A with no figures", "unreconciled non-IFRS measure"]
+    "forbidden_patterns": ["financial forecast", "generic MD&A with no figures", "unreconciled non-IFRS measure"],
+    "source_priorities": [
+      "financials.income_statement, balance_sheet, cash_flow and segment_revenue",
+      "financials.indebtedness, working-capital, commitments, receivables, inventories and liquidity facts",
+      "business_products.business_model and customers_suppliers only to explain historical drivers supported by figures",
+      "accountants' report / MD&A source documents where available"
+    ],
+    "required_content_slots": [
+      {"slot": "Basis of presentation and track record period", "evidence_prefixes": ["financials.$note", "financials.income_statement", "financials.balance_sheet"], "required": true, "missing_action": "request accountants' report / financial statements"},
+      {"slot": "Selected consolidated statements of profit or loss", "evidence_prefixes": ["financials.income_statement", "financials.income_statement_breakdowns_schema"], "required": true, "missing_action": "do not describe revenue/profit trends without income statement data"},
+      {"slot": "Revenue and cost breakdown by segment/period", "evidence_prefixes": ["financials.segment_revenue", "business_products.business_model"], "required": true, "missing_action": "request segment revenue/cost breakdown; avoid generic growth drivers"},
+      {"slot": "Period-to-period MD&A explanations", "evidence_prefixes": ["financials.income_statement", "business_products.business_sustainability_drivers", "customers_suppliers"], "required": true, "missing_action": "provide numeric comparison only and mark management explanation DATA_MISSING"},
+      {"slot": "Liquidity, cash flow, indebtedness and working capital", "evidence_prefixes": ["financials.cash_flow", "financials.indebtedness", "financials.working_capital", "financials.balance_sheet"], "required": true, "missing_action": "request cash flow, indebtedness and working-capital schedules"},
+      {"slot": "Selected balance sheet items and ageing", "evidence_prefixes": ["financials.balance_sheet", "financials.receivables", "financials.inventories"], "required": false, "missing_action": "include only supported items; otherwise mark DATA_MISSING"}
+    ],
+    "table_patterns": [
+      {"name": "Summary income statement", "columns": ["line item", "period 1", "period 2", "period 3", "change", "change %"], "when": "multi-period income statement facts exist"},
+      {"name": "Revenue by segment", "columns": ["segment", "period", "amount", "percentage of revenue"], "when": "segment_revenue facts exist"},
+      {"name": "Cash flow summary", "columns": ["cash-flow category", "period 1", "period 2", "period 3"], "when": "cash_flow facts exist"}
+    ],
+    "prospectus_phrases": [
+      "The following table sets forth selected items of our consolidated statements of profit or loss...",
+      "Our revenue increased/decreased primarily due to...",
+      "As at..., we had...",
+      "Net cash generated from/used in operating activities..."
+    ],
+    "quality_checks": [
+      "Every trend sentence must cite the figures it compares.",
+      "Do not explain a variance unless the cause exists in evidence.",
+      "No forecasts, target margins or future profitability claims.",
+      "Non-IFRS measures require definition, reconciliation and consistent naming."
+    ],
+    "missing_data_policy": [
+      "When management explanation is absent, state DATA_MISSING after the numeric comparison.",
+      "When financial statements are absent, output only a source-request skeleton."
+    ]
   },
   "UseOfProceeds": {
     "heading_lock": false,
@@ -270,7 +401,36 @@
       {"subsection": "Use of Proceeds", "description": "Allocation table by purpose, amount and percentage."}
     ],
     "style_rules": ["Percentages must sum to 100 if percentages are used."],
-    "forbidden_patterns": ["invented allocation", "unsupported expansion plan"]
+    "forbidden_patterns": ["invented allocation", "unsupported expansion plan"],
+    "source_priorities": [
+      "offering_use_of_proceeds.use_of_proceeds allocation schedule",
+      "offering_use_of_proceeds.offer for gross/net proceeds and offer-price assumptions",
+      "business_products strategies/future plans only when tied to proceeds allocation",
+      "underwriting/listing expense facts for deductions and net proceeds"
+    ],
+    "required_content_slots": [
+      {"slot": "Gross proceeds, net proceeds and offer-price assumption", "evidence_prefixes": ["offering_use_of_proceeds.offer", "offering_use_of_proceeds.net_proceeds", "ipo_offering"], "required": true, "missing_action": "request offer size/price/net proceeds assumptions"},
+      {"slot": "Allocation table by purpose", "evidence_prefixes": ["offering_use_of_proceeds.use_of_proceeds"], "required": true, "missing_action": "do not invent allocation percentages; mark COUNSEL_INPUT_REQUIRED"},
+      {"slot": "Implementation plan and timeline", "evidence_prefixes": ["offering_use_of_proceeds.use_of_proceeds", "business_products.future_plans"], "required": true, "missing_action": "request implementation timeline and milestones for each allocation"},
+      {"slot": "Unutilised proceeds handling", "evidence_prefixes": ["offering_use_of_proceeds.use_of_proceeds", "offering_use_of_proceeds.offer"], "required": false, "missing_action": "insert standard placeholder only if counsel confirms treasury/deposit treatment"}
+    ],
+    "table_patterns": [
+      {"name": "Use of proceeds allocation", "columns": ["purpose", "approximate amount", "percentage of net proceeds", "expected timing", "implementation notes"], "when": "use_of_proceeds facts exist"}
+    ],
+    "prospectus_phrases": [
+      "Assuming an Offer Price of...",
+      "We estimate that we will receive net proceeds of approximately...",
+      "We intend to use the net proceeds for the following purposes...",
+      "To the extent that the net proceeds are not immediately used..."
+    ],
+    "quality_checks": [
+      "Percentages must sum to 100% unless the source explicitly says otherwise.",
+      "Every proceeds purpose must connect to a supported future plan or business need.",
+      "Do not create acquisition, R&D or marketing budgets without allocation evidence."
+    ],
+    "missing_data_policy": [
+      "If allocation is missing, produce only the heading, DATA_MISSING and the exact source request."
+    ]
   },
   "Underwriting": {
     "heading_lock": false,

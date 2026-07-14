@@ -227,8 +227,9 @@ def _extract_facts(
         return
     if isinstance(value, list):
         for i, item in enumerate(value):
+            item_prefix = f"{prefix}[{i}]"
             if isinstance(item, dict) and _handle_typed_node(
-                f"{prefix}[{i}]", item, facts, source_file
+                item_prefix, item, facts, source_file
             ):
                 continue
             if isinstance(item, dict):
@@ -240,16 +241,16 @@ def _extract_facts(
                     if isinstance(v, (str, int, float, bool)) and v is not None:
                         unit = _infer_unit(k)
                         fact: dict[str, Any] = {
-                            "field": prefix,
+                            "field": item_prefix,
                             "period": period,
                             "metric": k,
                             "value": v,
                             "unit": unit,
-                            "metadata": {"source_file": source_file},
+                            "metadata": {"source_file": source_file, "index": i},
                         }
                         facts.append(fact)
                     elif isinstance(v, (dict, list)):
-                        _extract_facts(f"{prefix}.{k}", v, facts, source_file)
+                        _extract_facts(f"{item_prefix}.{k}", v, facts, source_file)
             elif isinstance(item, (str, int, float, bool)):
                 facts.append({
                     "field": prefix,
@@ -535,6 +536,237 @@ def _load_input_manifest(data_path: Path) -> dict[str, dict]:
         lookup[p] = entry
         lookup[Path(p).name] = entry
     return lookup
+
+
+def _matches_prefix(value: str, prefixes: list[str]) -> bool:
+    v = (value or "").strip()
+    if not v:
+        return False
+    for p in prefixes:
+        p = (p or "").strip()
+        if p and (v == p or v.startswith(p + ".") or v.startswith(p + "[")):
+            return True
+    return False
+
+
+def _text_topic_fields(chunk: dict[str, Any]) -> list[str]:
+    fields = [
+        str(chunk.get("topic") or ""),
+        str(chunk.get("schema_field_hint") or ""),
+        str(chunk.get("prospectus_section_hint") or ""),
+        str(chunk.get("source_file") or ""),
+    ]
+    return [f for f in fields if f]
+
+
+def _load_corpus_style_guides() -> dict[str, dict[str, Any]]:
+    path = Path(__file__).resolve().parent / "prompts" / "sections" / "corpus_style_guides.json"
+    if not path.exists():
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:  # noqa: BLE001
+        return {}
+    return {k: v for k, v in data.items() if isinstance(v, dict)}
+
+
+def _prefix_coverage_for_facts(
+    facts: list[dict[str, Any]],
+    prefixes: list[str],
+) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for prefix in prefixes:
+        matches = [f for f in facts if _matches_prefix(str(f.get("field") or ""), [prefix])]
+        examples = [
+            {
+                "fact_id": m.get("fact_id"),
+                "field": m.get("field"),
+                "metric": m.get("metric"),
+                "period": m.get("period"),
+                "source_file": (m.get("metadata") or {}).get("source_file"),
+            }
+            for m in matches[:5]
+        ]
+        out.append({"prefix": prefix, "count": len(matches), "examples": examples})
+    return out
+
+
+def _prefix_coverage_for_text(
+    chunks: list[dict[str, Any]],
+    prefixes: list[str],
+) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for prefix in prefixes:
+        matches = [
+            c
+            for c in chunks
+            if any(_matches_prefix(field, [prefix]) for field in _text_topic_fields(c))
+        ]
+        examples = [
+            {
+                "chunk_id": m.get("chunk_id"),
+                "topic": m.get("topic"),
+                "source_file": m.get("source_file"),
+                "source_type": m.get("source_type"),
+            }
+            for m in matches[:5]
+        ]
+        out.append({"prefix": prefix, "count": len(matches), "examples": examples})
+    return out
+
+
+def _slot_status(
+    *,
+    section_id: str,
+    guide: dict[str, Any],
+    facts: list[dict[str, Any]],
+    chunks: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    slots = guide.get("required_content_slots") or []
+    out: list[dict[str, Any]] = []
+    for item in slots:
+        if not isinstance(item, dict):
+            continue
+        slot = str(item.get("slot") or "").strip()
+        if not slot:
+            continue
+        prefixes = [str(p).strip() for p in item.get("evidence_prefixes") or [] if str(p).strip()]
+        fact_matches = [
+            f
+            for f in facts
+            if prefixes and _matches_prefix(str(f.get("field") or ""), prefixes)
+        ]
+        text_matches = [
+            c
+            for c in chunks
+            if prefixes and any(_matches_prefix(field, prefixes) for field in _text_topic_fields(c))
+        ]
+        status = "covered" if fact_matches or text_matches else "missing"
+        out.append({
+            "slot": slot,
+            "section_id": section_id,
+            "required": bool(item.get("required", True)),
+            "status": status,
+            "evidence_prefixes": prefixes,
+            "fact_count": len(fact_matches),
+            "text_chunk_count": len(text_matches),
+            "missing_action": item.get("missing_action"),
+            "example_sources": sorted({
+                str((m.get("metadata") or {}).get("source_file") or m.get("source_file") or "")
+                for m in [*fact_matches[:3], *text_matches[:3]]
+                if ((m.get("metadata") or {}).get("source_file") or m.get("source_file"))
+            }),
+        })
+    return out
+
+
+def build_section_dossiers(
+    *,
+    text_chunks: list[dict[str, Any]],
+    fact_store: list[dict[str, Any]],
+    facts_by_section: dict[str, list[dict]],
+) -> dict[str, Any]:
+    """Build per-Agent2-section evidence dossiers for downstream drafting.
+
+    The dossier is intentionally deterministic: it does not summarise or create
+    facts, it only reports which guide-required slots and schema prefixes have
+    support in the prepared user materials.
+    """
+    try:
+        from prospectus_graph.config import (
+            SECTION_FACT_SCHEMA,
+            SECTION_TEXT_SCHEMA,
+            SECTION_TO_AGENT1_IDS,
+            SECTIONS as AGENT2_SECTIONS,
+        )
+    except Exception:  # noqa: BLE001
+        return {"sections": []}
+
+    guides = _load_corpus_style_guides()
+    sections: list[dict[str, Any]] = []
+    for section_id, section_name in AGENT2_SECTIONS:
+        preferred_ids = set(SECTION_TO_AGENT1_IDS.get(section_id, []))
+        section_chunks = [
+            c
+            for c in text_chunks
+            if (c.get("section_hint") in preferred_ids)
+            or (c.get("prospectus_section_hint") == section_id)
+        ]
+        section_facts = [
+            f
+            for f in fact_store
+            if (f.get("metadata") or {}).get("section_hint") in preferred_ids
+        ]
+        # Schema prefixes are the stronger signal; include their facts even when
+        # the coarse A-H section_hint points elsewhere.
+        fact_prefixes = SECTION_FACT_SCHEMA.get(section_id) or []
+        text_prefixes = SECTION_TEXT_SCHEMA.get(section_id) or []
+        if fact_prefixes:
+            schema_facts = [
+                f for f in fact_store if _matches_prefix(str(f.get("field") or ""), fact_prefixes)
+            ]
+            seen = {
+                (f.get("field"), f.get("period"), f.get("metric"), str(f.get("value")))
+                for f in section_facts
+            }
+            for f in schema_facts:
+                key = (f.get("field"), f.get("period"), f.get("metric"), str(f.get("value")))
+                if key not in seen:
+                    section_facts.append(f)
+                    seen.add(key)
+        if text_prefixes:
+            schema_chunks = [
+                c
+                for c in text_chunks
+                if any(_matches_prefix(field, text_prefixes) for field in _text_topic_fields(c))
+            ]
+            seen_chunks = {c.get("chunk_id") for c in section_chunks}
+            for c in schema_chunks:
+                if c.get("chunk_id") not in seen_chunks:
+                    section_chunks.append(c)
+                    seen_chunks.add(c.get("chunk_id"))
+
+        guide = guides.get(section_id, {})
+        fact_coverage = _prefix_coverage_for_facts(fact_store, fact_prefixes)
+        text_coverage = _prefix_coverage_for_text(text_chunks, text_prefixes)
+        slots = _slot_status(
+            section_id=section_id,
+            guide=guide,
+            facts=section_facts,
+            chunks=section_chunks,
+        )
+        missing_slots = [s for s in slots if s.get("required") and s.get("status") == "missing"]
+        missing_fact_prefixes = [p["prefix"] for p in fact_coverage if p["count"] == 0]
+        missing_text_prefixes = [p["prefix"] for p in text_coverage if p["count"] == 0]
+        warning_level = "ok"
+        if missing_slots or (fact_prefixes and len(missing_fact_prefixes) == len(fact_prefixes)):
+            warning_level = "needs_input"
+        if not section_chunks and not section_facts:
+            warning_level = "no_evidence"
+
+        sections.append({
+            "section_id": section_id,
+            "section_name": section_name,
+            "preferred_agent1_buckets": sorted(preferred_ids),
+            "warning_level": warning_level,
+            "text_chunk_count": len(section_chunks),
+            "fact_count": len(section_facts),
+            "source_files": sorted({
+                str((f.get("metadata") or {}).get("source_file") or f.get("source_file") or "")
+                for f in [*section_facts, *section_chunks]
+                if ((f.get("metadata") or {}).get("source_file") or f.get("source_file"))
+            }),
+            "fact_prefix_coverage": fact_coverage,
+            "text_prefix_coverage": text_coverage,
+            "content_slot_status": slots,
+            "missing_required_slots": missing_slots,
+            "missing_fact_prefixes": missing_fact_prefixes,
+            "missing_text_prefixes": missing_text_prefixes,
+            "source_priorities": guide.get("source_priorities") or [],
+            "table_patterns": guide.get("table_patterns") or [],
+        })
+    return {"sections": sections}
 
 
 def extract_from_docx(path: Path) -> list[tuple[str, str]]:
@@ -918,6 +1150,15 @@ def run_agent1(
             })
 
     all_input_files = [p.name for p in [*excel_files, *json_files, *docx_files, *pdf_files]]
+    section_dossiers = build_section_dossiers(
+        text_chunks=text_chunks,
+        fact_store=fact_store,
+        facts_by_section=facts_by_section,
+    )
+    dossier_path = output_path / "section_dossiers.json"
+    with open(dossier_path, "w", encoding="utf-8") as f:
+        json.dump(section_dossiers, f, indent=2, ensure_ascii=False)
+    print(f"Wrote section dossiers to {dossier_path}")
 
     # --- Write manifest ---
     manifest = {
@@ -932,6 +1173,18 @@ def run_agent1(
                 "fact_count": len(facts_by_section.get(s[0], [])),
             }
             for s in SECTIONS
+        ],
+        "prospectus_section_dossiers": [
+            {
+                "id": item.get("section_id"),
+                "name": item.get("section_name"),
+                "warning_level": item.get("warning_level"),
+                "missing_required_slot_count": len(item.get("missing_required_slots") or []),
+                "missing_fact_prefix_count": len(item.get("missing_fact_prefixes") or []),
+                "missing_text_prefix_count": len(item.get("missing_text_prefixes") or []),
+            }
+            for item in section_dossiers.get("sections", [])
+            if isinstance(item, dict)
         ],
         "source_files": sorted(set(all_input_files)),
         "sheet_summaries": {f"{k[0]}:{k[1]}": v for k, v in sheet_summaries.items()},

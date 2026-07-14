@@ -173,6 +173,64 @@ def format_corpus_style_guide_block(section_id: str) -> str:
         for rule in rules:
             if str(rule).strip():
                 lines.append(f"  - {str(rule).strip()}")
+    source_priorities = guide.get("source_priorities") or []
+    if source_priorities:
+        lines.append("Source priority order:")
+        for item in source_priorities:
+            if str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
+    slots = guide.get("required_content_slots") or []
+    if slots:
+        lines.append("Required content slots and evidence anchors:")
+        for item in slots:
+            if isinstance(item, dict):
+                slot = str(item.get("slot") or "").strip()
+                anchors = item.get("evidence_prefixes") or item.get("evidence") or []
+                required = item.get("required", True)
+                action = str(item.get("missing_action") or "").strip()
+                if slot:
+                    req_label = "required" if required else "conditional"
+                    anchor_text = ", ".join(str(a) for a in anchors) if anchors else "source context"
+                    line = f"  - {slot} ({req_label}; evidence: {anchor_text})"
+                    if action:
+                        line += f"; if missing: {action}"
+                    lines.append(line)
+            elif str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
+    table_patterns = guide.get("table_patterns") or []
+    if table_patterns:
+        lines.append("Prospectus table patterns:")
+        for item in table_patterns:
+            if isinstance(item, dict):
+                name = str(item.get("name") or "").strip()
+                columns = item.get("columns") or []
+                when = str(item.get("when") or "").strip()
+                if name:
+                    col_text = ", ".join(str(c) for c in columns) if columns else "prospectus-standard columns"
+                    line = f"  - {name}: columns = {col_text}"
+                    if when:
+                        line += f"; use when {when}"
+                    lines.append(line)
+            elif str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
+    phrases = guide.get("prospectus_phrases") or []
+    if phrases:
+        lines.append("Prospectus phrase bank (adapt only when supported; do not copy mechanically):")
+        for phrase in phrases:
+            if str(phrase).strip():
+                lines.append(f"  - {str(phrase).strip()}")
+    quality_checks = guide.get("quality_checks") or []
+    if quality_checks:
+        lines.append("Self-check before finalising:")
+        for item in quality_checks:
+            if str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
+    missing_policy = guide.get("missing_data_policy") or []
+    if missing_policy:
+        lines.append("Missing-data policy:")
+        for item in missing_policy:
+            if str(item).strip():
+                lines.append(f"  - {str(item).strip()}")
     forbidden = guide.get("forbidden_patterns") or []
     if forbidden:
         lines.append("Forbidden output patterns:")
