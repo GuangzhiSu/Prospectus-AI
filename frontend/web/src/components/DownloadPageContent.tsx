@@ -26,9 +26,19 @@ type DownloadCopy = {
   downloadsTitle: string;
   downloadsDescription: string;
   settingsCta: string;
+  guideCta: string;
   recommended: string;
   downloadButton: string;
   viewReleaseButton: string;
+  guideTitle: string;
+  guideDescription: string;
+  guideItems: Array<{
+    title: string;
+    badge: string;
+    steps: string[];
+  }>;
+  guideNoteTitle: string;
+  guideNote: string;
   footerTitle: string;
   footerDescription: string;
   workflowTitle: string;
@@ -110,9 +120,58 @@ const copy = {
     downloadsDescription:
       `Pick the package for your machine. Buttons resolve the published ${RELEASE_LABEL} release assets from GitHub.`,
     settingsCta: "Configure model settings",
+    guideCta: "Installation guide",
     recommended: "Recommended",
     downloadButton: "Download",
     viewReleaseButton: "View release",
+    guideTitle: "After You Download",
+    guideDescription:
+      "Use the application package to install Prospectus AI. The dataset ZIP is only sample material for testing the workflow after the app is running.",
+    guideItems: [
+      {
+        title: "Windows Installer",
+        badge: "Recommended",
+        steps: [
+          "Close any existing Prospectus AI windows before upgrading.",
+          "Run ProspectusAI-Setup-0.1.2.exe and follow the installer.",
+          "Launch Prospectus AI from the Start Menu or desktop shortcut.",
+          "First launch creates the local Python environment. Keep the window open and allow 5-20 minutes.",
+        ],
+      },
+      {
+        title: "macOS DMG",
+        badge: "Apple Silicon / Intel",
+        steps: [
+          "Download the DMG matching your Mac chip.",
+          "Open the DMG and run 双击安装 Install.command inside the window.",
+          "If macOS blocks the script, right-click it, choose Open, then Open again.",
+          "Launch Prospectus AI from Applications or Launchpad.",
+        ],
+      },
+      {
+        title: "Linux Archive",
+        badge: "x86_64",
+        steps: [
+          "Extract the tar.gz archive.",
+          "Open a terminal in the extracted folder.",
+          "Run ./start-prospectus-ui.sh.",
+          "Open the local URL printed in the terminal.",
+        ],
+      },
+      {
+        title: "Test Dataset",
+        badge: "Sample inputs",
+        steps: [
+          "Do not run the dataset ZIP as an application.",
+          "Extract it after Prospectus AI is installed.",
+          "Use files under prospectus_kg_output/inputs or prospectus_corpus as sample materials.",
+          "Upload the sample files in the workspace, then run Prepare data.",
+        ],
+      },
+    ],
+    guideNoteTitle: "First-run setup",
+    guideNote:
+      "The desktop app starts a local server and may install Python packages on first launch. This is expected. If an upgrade fails because a DLL is locked, close Prospectus AI and any remaining node.exe or python.exe process, then rerun the installer.",
     footerTitle: "Designed for controlled drafting",
     footerDescription:
       "The app keeps the main workflow local: upload issuer materials, prepare evidence, generate sections, then export a Word draft for review.",
@@ -144,9 +203,58 @@ const copy = {
     downloadsTitle: "下载",
     downloadsDescription: `选择适合你机器的版本。按钮会解析 GitHub 上发布的 ${RELEASE_LABEL} 文件。`,
     settingsCta: "配置模型设置",
+    guideCta: "安装指南",
     recommended: "推荐",
     downloadButton: "下载",
     viewReleaseButton: "查看发布页",
+    guideTitle: "下载后怎么操作",
+    guideDescription:
+      "应用安装包用于安装 Prospectus AI；测试数据集 ZIP 只是样例材料，等应用正常打开后再用于测试生成链路。",
+    guideItems: [
+      {
+        title: "Windows 安装包",
+        badge: "推荐",
+        steps: [
+          "升级前先关闭所有 Prospectus AI 窗口。",
+          "运行 ProspectusAI-Setup-0.1.2.exe，并按安装器提示完成安装。",
+          "从开始菜单或桌面快捷方式启动 Prospectus AI。",
+          "首次启动会创建本地 Python 环境，请保持窗口打开，通常需要 5-20 分钟。",
+        ],
+      },
+      {
+        title: "macOS DMG",
+        badge: "Apple Silicon / Intel",
+        steps: [
+          "按你的 Mac 芯片下载对应 DMG。",
+          "打开 DMG，双击窗口里的 双击安装 Install.command。",
+          "如果 macOS 阻止脚本，请右键选择打开，再点打开。",
+          "之后从应用程序或启动台打开 Prospectus AI。",
+        ],
+      },
+      {
+        title: "Linux 压缩包",
+        badge: "x86_64",
+        steps: [
+          "解压 tar.gz 文件。",
+          "在解压后的文件夹中打开终端。",
+          "运行 ./start-prospectus-ui.sh。",
+          "在浏览器打开终端中显示的本地地址。",
+        ],
+      },
+      {
+        title: "测试数据集",
+        badge: "样例材料",
+        steps: [
+          "不要把数据集 ZIP 当作应用运行。",
+          "先安装并打开 Prospectus AI，再解压数据集。",
+          "可使用 prospectus_kg_output/inputs 或 prospectus_corpus 中的文件作为样例材料。",
+          "在工作区上传样例文件，然后运行整理数据。",
+        ],
+      },
+    ],
+    guideNoteTitle: "首次启动说明",
+    guideNote:
+      "桌面应用会启动本地服务，首次打开可能会安装 Python 依赖，这是正常现象。如果升级安装时提示 DLL 被占用，请关闭 Prospectus AI，并在任务管理器结束残留的 node.exe 或 python.exe 后再安装。",
     footerTitle: "为受控起草流程而设计",
     footerDescription:
       "应用将核心流程保留在本地：上传发行人材料、整理证据、生成章节，然后导出 Word 草稿供审阅。",
@@ -280,10 +388,16 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
             <h2 className="text-2xl font-semibold">{t.downloadsTitle}</h2>
             <p className="mt-2 text-sm text-[#637064]">{t.downloadsDescription}</p>
           </div>
-          <Link href={href.settings} className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
-            {t.settingsCta}
-            <ArrowIcon />
-          </Link>
+          <div className="flex flex-wrap gap-4">
+            <a href="#install-guide" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
+              {t.guideCta}
+              <ArrowIcon />
+            </a>
+            <Link href={href.settings} className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
+              {t.settingsCta}
+              <ArrowIcon />
+            </Link>
+          </div>
         </div>
 
         <div className="grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -315,6 +429,45 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section id="install-guide" className="border-y border-[#d5ddd2] bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-14">
+          <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:items-start">
+            <div>
+              <p className="text-xs font-semibold uppercase text-[#6b735f]">{t.guideCta}</p>
+              <h2 className="mt-3 text-2xl font-semibold">{t.guideTitle}</h2>
+              <p className="mt-4 text-sm leading-6 text-[#637064]">{t.guideDescription}</p>
+              <div className="mt-6 border border-[#d5ddd2] bg-[#f6f8f4] p-4">
+                <p className="text-sm font-semibold">{t.guideNoteTitle}</p>
+                <p className="mt-2 text-sm leading-6 text-[#637064]">{t.guideNote}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {t.guideItems.map((item) => (
+                <article key={item.title} className="border border-[#d5ddd2] bg-[#f8faf6] p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h3 className="text-base font-semibold">{item.title}</h3>
+                    <span className="bg-[#e8f3ef] px-2 py-1 text-xs font-semibold text-[#0f766e]">
+                      {item.badge}
+                    </span>
+                  </div>
+                  <ol className="mt-4 space-y-3 text-sm leading-6 text-[#334139]">
+                    {item.steps.map((step, index) => (
+                      <li key={step} className="grid grid-cols-[26px_1fr] gap-3">
+                        <span className="flex h-6 w-6 items-center justify-center bg-[#17201b] text-xs font-semibold text-white">
+                          {index + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
