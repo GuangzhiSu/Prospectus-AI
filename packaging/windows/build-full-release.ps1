@@ -37,7 +37,7 @@ Write-Host "Repo: $RepoRoot"
 
 # --- Next.js build ---
 Push-Location (Join-Path $RepoRoot "frontend\web")
-npm ci
+npm install --no-audit --no-fund
 npm run build
 if (-not (Test-Path ".next\standalone\frontend\web\server.js")) {
     Pop-Location
