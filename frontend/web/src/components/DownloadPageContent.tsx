@@ -133,7 +133,7 @@ const copy = {
         badge: "Recommended",
         steps: [
           "Close any existing Prospectus AI windows before upgrading.",
-          "Run ProspectusAI-Setup-0.1.2.exe and follow the installer.",
+          `Run ProspectusAI-Setup-${RELEASE_LABEL.replace(/^v/i, "")}.exe and follow the installer.`,
           "Launch Prospectus AI from the Start Menu or desktop shortcut.",
           "First launch creates the local Python environment. Keep the window open and allow 5-20 minutes.",
         ],
@@ -216,7 +216,7 @@ const copy = {
         badge: "推荐",
         steps: [
           "升级前先关闭所有 Prospectus AI 窗口。",
-          "运行 ProspectusAI-Setup-0.1.2.exe，并按安装器提示完成安装。",
+          `运行 ProspectusAI-Setup-${RELEASE_LABEL.replace(/^v/i, "")}.exe，并按安装器提示完成安装。`,
           "从开始菜单或桌面快捷方式启动 Prospectus AI。",
           "首次启动会创建本地 Python 环境，请保持窗口打开，通常需要 5-20 分钟。",
         ],

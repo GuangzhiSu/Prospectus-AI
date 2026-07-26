@@ -7,9 +7,15 @@ set "EMBED_PY=%~dp0python-embed\python.exe"
 set "BOOTSTRAP_LOCK=%~dp0.venv-bootstrap.lock"
 set "PIP_DISABLE_PIP_VERSION_CHECK=1"
 set "VIRTUALENV_NO_PERIODIC_UPDATE=1"
+REM Never let a system Python or Conda installation leak into the bundled runtime.
+set "PYTHONHOME="
+set "PYTHONPATH="
+set "PYTHONUSERBASE="
+set "PYTHONNOUSERSITE=1"
+set "PYTHON_HEALTHCHECK=import sys, pyexpat, pandas, langgraph; print(sys.executable)"
 
 if exist "%VENV_PY%" (
-  "%VENV_PY%" -c "import sys; print(sys.executable)" >nul 2>&1
+  "%VENV_PY%" -I -c "%PYTHON_HEALTHCHECK%" >nul 2>&1
   if not errorlevel 1 exit /b 0
 )
 
@@ -18,7 +24,7 @@ if errorlevel 2 exit /b 0
 if errorlevel 1 exit /b 1
 
 if exist "%VENV_PY%" (
-  "%VENV_PY%" -c "import sys; print(sys.executable)" >nul 2>&1
+  "%VENV_PY%" -I -c "%PYTHON_HEALTHCHECK%" >nul 2>&1
   if not errorlevel 1 goto :success_ready
   echo [Prospectus AI] Existing Python venv is not usable. Rebuilding it locally...
   rmdir /s /q "%~dp0venv" >nul 2>&1
@@ -42,10 +48,9 @@ if errorlevel 1 (
 )
 
 echo [Prospectus AI] Creating Python environment with system Python ^(py -3^)...
-py -3 -m venv "%~dp0venv"
+py -3 -I -m venv "%~dp0venv"
 if errorlevel 1 goto :fail_root
-call "%~dp0venv\Scripts\activate.bat"
-python -m pip install --upgrade pip wheel setuptools
+"%VENV_PY%" -I -m pip install --upgrade pip wheel setuptools
 if errorlevel 1 goto :fail_root
 goto :install_requirements
 
@@ -59,41 +64,63 @@ for %%P in (*._pth *.pth) do (
   if errorlevel 1 goto :fail_embed
 )
 
-"%EMBED_PY%" -c "import pip" >nul 2>&1
+"%EMBED_PY%" -I -c "import pip" >nul 2>&1
 if errorlevel 1 (
   if not exist "%~dp0python-embed\get-pip.py" (
     echo ERROR: get-pip.py is missing from python-embed.
     goto :fail_embed
   )
-  "%EMBED_PY%" "%~dp0python-embed\get-pip.py"
+  "%EMBED_PY%" -I "%~dp0python-embed\get-pip.py"
   if errorlevel 1 goto :fail_embed
 )
 
-"%EMBED_PY%" -m pip install --disable-pip-version-check --no-warn-script-location "virtualenv>=20.28.0"
+"%EMBED_PY%" -I -m pip install --disable-pip-version-check --no-warn-script-location "virtualenv>=20.28.0"
 if errorlevel 1 goto :fail_embed
 cd /d "%~dp0"
-"%EMBED_PY%" -m virtualenv "%~dp0venv"
+"%EMBED_PY%" -I -m virtualenv --copies "%~dp0venv"
 if errorlevel 1 goto :fail_root
-call "%~dp0venv\Scripts\activate.bat"
-python -m pip install --upgrade pip wheel setuptools
+
+REM The embeddable distribution keeps extension modules beside python.exe.
+REM Copy them into the venv executable directory so isolated mode can load them.
+copy /y "%~dp0python-embed\*.pyd" "%~dp0venv\Scripts\" >nul
+if errorlevel 1 goto :fail_root
+copy /y "%~dp0python-embed\*.dll" "%~dp0venv\Scripts\" >nul
+if errorlevel 1 goto :fail_root
+copy /y "%~dp0python-embed\python*.zip" "%~dp0venv\Scripts\" >nul
+if errorlevel 1 goto :fail_root
+
+REM A local ._pth file prevents registry, Conda, and global site-package paths
+REM from entering sys.path while keeping the app root and venv packages visible.
+for %%P in ("%~dp0python-embed\python*._pth") do (
+  (
+    echo %%~nP.zip
+    echo .
+    echo ..\Lib\site-packages
+    echo ..\..
+    echo ..\..\scripts
+    echo import site
+  ) > "%~dp0venv\Scripts\%%~nxP"
+)
+
+"%VENV_PY%" -I -m pip install --upgrade pip wheel setuptools
 if errorlevel 1 goto :fail_root
 
 :install_requirements
 echo [Prospectus AI] Installing Python packages. First launch can take 5-20 minutes...
-python -m pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
+"%VENV_PY%" -I -m pip install "torch>=2.0.0" --index-url https://download.pytorch.org/whl/cpu
 if errorlevel 1 goto :fail_root
 if exist "%~dp0requirements-no-torch.txt" (
-  python -m pip install -r "%~dp0requirements-no-torch.txt"
+  "%VENV_PY%" -I -m pip install -r "%~dp0requirements-no-torch.txt"
 ) else (
-  python -m pip install -r "%~dp0requirements.txt"
+  "%VENV_PY%" -I -m pip install -r "%~dp0requirements.txt"
 )
 if errorlevel 1 goto :fail_root
 
-"%VENV_PY%" -c "import sys; print(sys.executable)" >nul 2>&1
+"%VENV_PY%" -I -c "%PYTHON_HEALTHCHECK%" >nul 2>&1
 if errorlevel 1 goto :fail_root
 
 :success_ready
-"%VENV_PY%" -c "import sys; import pandas; import langgraph; print(sys.executable)" >nul 2>&1
+"%VENV_PY%" -I -c "%PYTHON_HEALTHCHECK%" >nul 2>&1
 if errorlevel 1 goto :fail_root
 
 echo [Prospectus AI] Python environment ready.
@@ -117,7 +144,7 @@ for /l %%L in (1,1,1800) do (
   mkdir "%BOOTSTRAP_LOCK%" >nul 2>&1
   if not errorlevel 1 exit /b 0
   if exist "%VENV_PY%" (
-    "%VENV_PY%" -c "import sys; print(sys.executable)" >nul 2>&1
+    "%VENV_PY%" -I -c "%PYTHON_HEALTHCHECK%" >nul 2>&1
     if not errorlevel 1 exit /b 2
   )
   if %%L==1 echo [Prospectus AI] Python setup is already running. Waiting for it to finish...

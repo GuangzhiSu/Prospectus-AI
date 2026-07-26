@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   dashscopeModel: "qwen3.5-plus",
   anthropicModel: "claude-sonnet-4-6",
   qwenModel: "Qwen/Qwen3.5-4B",
+  localModelDir: getDefaultLocalModelDir(),
   useCpu: false,
   cudaDevice: "",
 };
@@ -41,12 +42,26 @@ export function getSettingsFilePath(): string {
 
 /** Default directory for HF snapshot_download of Qwen weights (first-run download). */
 export function getDefaultLocalModelDir(): string {
+  const configured = process.env.PROSPECTUS_MODEL_DIR?.trim();
+  if (configured) return path.resolve(configured);
   if (process.platform === "win32") {
     const base = process.env.LOCALAPPDATA || process.env.APPDATA || ".";
     return path.join(base, "ProspectusAI", "models", "Qwen3.5-4B");
   }
   const home = process.env.HOME || ".";
   return path.join(home, ".local", "share", "ProspectusAI", "models", "Qwen3.5-4B");
+}
+
+export function isAbsoluteLocalModelDir(value: string): boolean {
+  const candidate = value.trim();
+  if (!candidate) return false;
+  if (process.platform === "win32") {
+    return (
+      /^[a-zA-Z]:[\\/]/.test(candidate) ||
+      /^\\\\[^\\/]+[\\/][^\\/]+/.test(candidate)
+    );
+  }
+  return path.isAbsolute(candidate);
 }
 
 function normalizeProvider(raw: unknown): LlmProvider {
@@ -68,6 +83,11 @@ export async function readSettings(): Promise<AppSettings> {
       ...DEFAULT_SETTINGS,
       ...parsed,
       llmProvider: normalizeProvider(parsed.llmProvider),
+      localModelDir:
+        typeof parsed.localModelDir === "string" &&
+        isAbsoluteLocalModelDir(parsed.localModelDir)
+          ? parsed.localModelDir.trim()
+          : getDefaultLocalModelDir(),
     };
   } catch {
     return { ...DEFAULT_SETTINGS };

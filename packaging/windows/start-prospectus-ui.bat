@@ -3,6 +3,12 @@ setlocal EnableExtensions
 title Prospectus AI
 cd /d "%~dp0"
 
+REM Keep Conda and system Python settings out of the bundled runtime.
+set "PYTHONHOME="
+set "PYTHONPATH="
+set "PYTHONUSERBASE="
+set "PYTHONNOUSERSITE=1"
+
 echo Prospectus AI launcher folder: %CD%
 
 if not exist "%~dp0ensure-python-venv.bat" (

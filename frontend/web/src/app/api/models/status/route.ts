@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
-import { getDefaultLocalModelDir } from "@/lib/app-settings";
+import { getDefaultLocalModelDir, readSettings } from "@/lib/app-settings";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const dir = getDefaultLocalModelDir();
+  const settings = await readSettings();
+  const dir = settings.localModelDir?.trim() || getDefaultLocalModelDir();
   try {
     await fs.access(path.join(dir, "config.json"));
     const st = await fs.stat(dir);

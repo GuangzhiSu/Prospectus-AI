@@ -274,7 +274,7 @@ The middleware protects `/workspace` and operational API routes, while leaving `
 
 Download buttons currently point to GitHub Releases. The recommended Windows button points to a real installer:
 
-- `ProspectusAI-Setup-0.1.2.exe`
+- `ProspectusAI-Setup-0.1.3.exe`
 - `ProspectusAI-windows-x86_64.zip`
 - `ProspectusAI-mac-arm64-<timestamp>.dmg`
 - `ProspectusAI-mac-x64-<timestamp>.dmg`
@@ -289,7 +289,7 @@ powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
 
 To build it in GitHub Actions, run the **Windows release bundle** workflow and enable `upload_to_release`. The workflow creates:
 
-- `dist/ProspectusAI-Setup-0.1.2.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
+- `dist/ProspectusAI-Setup-0.1.3.exe` - standard installer with Start Menu shortcut, optional desktop shortcut, and Electron desktop window
 - `dist/ProspectusAI-windows-x86_64.zip` - portable backup package
 
 The **macOS and Linux release bundle** workflow creates and uploads:
@@ -309,7 +309,7 @@ To publish the public end-to-end test dataset, build the zip locally and upload 
 ```bash
 python3 scripts/package_public_test_dataset.py --force
 GITHUB_TOKEN=<token-with-contents-write> \
-  python3 scripts/upload_github_release_asset.py --tag 0.1.2 --clobber
+  python3 scripts/upload_github_release_asset.py --tag 0.1.3 --clobber
 ```
 
 The generated asset is `dist/public-datasets/ProspectusAI-test-dataset.zip`. It contains `prospectus_corpus/`, `prospectus_kg_output/inputs/`, and `prospectus_kg_output/native_docs/` so users can test the full input preparation and drafting path.

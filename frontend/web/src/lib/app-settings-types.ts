@@ -20,6 +20,7 @@ export type AppSettings = {
   anthropicApiKey?: string;
   anthropicModel?: string;
   qwenModel?: string;
+  localModelDir?: string;
   useCpu?: boolean;
   cudaDevice?: string;
 };

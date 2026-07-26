@@ -2,7 +2,11 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import { getProspectusRoot } from "@/lib/prospectus-root";
-import { getDefaultLocalModelDir } from "@/lib/app-settings";
+import {
+  getDefaultLocalModelDir,
+  isAbsoluteLocalModelDir,
+  readSettings,
+} from "@/lib/app-settings";
 import {
   formatPythonProcessError,
   resolvePythonCommand,
@@ -27,9 +31,18 @@ export async function POST(req: Request) {
     /* default */
   }
 
+  if (outDir && !isAbsoluteLocalModelDir(outDir)) {
+    return NextResponse.json(
+      { ok: false, error: "Model download directory must be an absolute path." },
+      { status: 400 }
+    );
+  }
+
   const root = getProspectusRoot();
   const script = path.join(root, "scripts", "download_qwen_model.py");
-  const targetDir = outDir || getDefaultLocalModelDir();
+  const settings = await readSettings();
+  const targetDir =
+    outDir || settings.localModelDir?.trim() || getDefaultLocalModelDir();
   const pythonResolution = await resolvePythonCommand(root);
   if (!pythonResolution.ok) {
     return NextResponse.json(

@@ -32,6 +32,24 @@ function venvPython(root: string): string {
     : path.join(root, "venv", "bin", "python3");
 }
 
+function sanitizedPythonEnv(source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const env = { ...source };
+  if (process.platform !== "win32") return env;
+  for (const key of Object.keys(env)) {
+    if (/^PYTHON/i.test(key)) delete env[key];
+  }
+  env.PYTHONNOUSERSITE = "1";
+  return env;
+}
+
+function isBundledVenvCandidate(candidate: PythonCommand, root: string): boolean {
+  return (
+    process.platform === "win32" &&
+    path.normalize(candidate.command).toLowerCase() ===
+      path.normalize(venvPython(root)).toLowerCase()
+  );
+}
+
 function candidateCommands(root: string): PythonCommand[] {
   const envPython = stripQuotes(process.env.AGENT1_PYTHON || "");
   const candidates: PythonCommand[] = [];
@@ -104,16 +122,18 @@ function testPython(
   }
 
   return new Promise((resolve) => {
+    const probePrefix = isBundledVenvCandidate(candidate, cwd) ? ["-I"] : [];
     const proc = spawn(
       candidate.command,
       [
         ...candidate.argsPrefix,
+        ...probePrefix,
         "-c",
-        "import sys; print(sys.executable)",
+        "import sys, pyexpat, pandas, langgraph; print(sys.executable)",
       ],
       {
         cwd,
-        env: process.env,
+        env: sanitizedPythonEnv(),
         windowsHide: true,
       }
     );
@@ -157,7 +177,7 @@ async function runWindowsVenvSetup(root: string): Promise<{ ok: boolean; message
   return new Promise((resolve) => {
     const proc = spawn(process.env.ComSpec || "cmd.exe", ["/d", "/c", "call", script], {
       cwd: root,
-      env: { ...process.env, PROSPECTUS_NO_PAUSE: "1" },
+      env: { ...sanitizedPythonEnv(), PROSPECTUS_NO_PAUSE: "1" },
       windowsHide: true,
     });
     let stdout = "";
@@ -264,6 +284,7 @@ export function spawnPython(
 ) {
   return spawn(python.command, [...python.argsPrefix, ...args], {
     ...options,
+    env: sanitizedPythonEnv(options.env ?? process.env),
     windowsHide: true,
   });
 }

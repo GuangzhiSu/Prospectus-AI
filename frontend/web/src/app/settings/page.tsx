@@ -49,6 +49,10 @@ type SettingsCopy = {
   localWeights: string;
   localWeightsDescription: string;
   defaultCache: string;
+  modelDownloadDir: string;
+  modelDownloadDirHelp: string;
+  modelDownloadDirPlaceholder: string;
+  modelDownloadDirRequired: string;
   installed: string;
   notFound: string;
   downloadQwen: string;
@@ -116,6 +120,7 @@ type FormState = {
   anthropicApiKey: string;
   anthropicModel: string;
   qwenModel: string;
+  localModelDir: string;
   useCpu: boolean;
   cudaDevice: string;
 };
@@ -135,6 +140,7 @@ function defaultForm(): FormState {
     anthropicApiKey: "",
     anthropicModel: PROVIDER_UI.anthropic.defaultModel,
     qwenModel: PROVIDER_UI.qwen_local.defaultModel,
+    localModelDir: "",
     useCpu: false,
     cudaDevice: "0",
   };
@@ -152,6 +158,7 @@ function settingsToForm(s: SettingsResp, prev: FormState): FormState {
     dashscopeModel: s.dashscopeModel || PROVIDER_UI.qwen_api.defaultModel,
     anthropicModel: s.anthropicModel || PROVIDER_UI.anthropic.defaultModel,
     qwenModel: s.qwenModel || PROVIDER_UI.qwen_local.defaultModel,
+    localModelDir: s.localModelDir || "",
     useCpu: Boolean(s.useCpu),
     cudaDevice: s.cudaDevice ?? "0",
     openaiApiKey: "",
@@ -210,7 +217,12 @@ const SETTINGS_COPY = {
     localWeights: "Local weights (Qwen)",
     localWeightsDescription:
       "Download once or point to an existing folder. Used only when “Local Qwen” is selected.",
-    defaultCache: "Default cache:",
+    defaultCache: "Current model folder:",
+    modelDownloadDir: "Model download folder",
+    modelDownloadDirHelp:
+      "Use an absolute path. For example, E:\\ProspectusAI\\models\\Qwen3.5-4B.",
+    modelDownloadDirPlaceholder: "E:\\ProspectusAI\\models\\Qwen3.5-4B",
+    modelDownloadDirRequired: "Enter an absolute model download folder.",
     installed: "Installed",
     notFound: "Not found",
     downloadQwen: "Download Qwen3.5-4B",
@@ -284,7 +296,11 @@ const SETTINGS_COPY = {
     refreshProbe: "刷新检测",
     localWeights: "本地权重（Qwen）",
     localWeightsDescription: "可下载一次，也可以指向已有模型文件夹。仅在选择“Local Qwen”时使用。",
-    defaultCache: "默认缓存：",
+    defaultCache: "当前模型目录：",
+    modelDownloadDir: "模型下载目录",
+    modelDownloadDirHelp: "请输入绝对路径，例如 E:\\ProspectusAI\\models\\Qwen3.5-4B。",
+    modelDownloadDirPlaceholder: "E:\\ProspectusAI\\models\\Qwen3.5-4B",
+    modelDownloadDirRequired: "请输入模型下载目录的绝对路径。",
     installed: "已安装",
     notFound: "未找到",
     downloadQwen: "下载 Qwen3.5-4B",
@@ -394,6 +410,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
         dashscopeModel: form.dashscopeModel || undefined,
         anthropicModel: form.anthropicModel || undefined,
         qwenModel: form.qwenModel || undefined,
+        localModelDir: form.localModelDir,
         useCpu: form.useCpu,
         cudaDevice: form.cudaDevice,
       };
@@ -420,6 +437,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
       if (!res.ok) throw new Error(data.error || t.saveFailed);
       setSettings(data);
       setForm((f) => settingsToForm(data, f));
+      await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.saveFailed);
     } finally {
@@ -499,6 +517,11 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
   }
 
   async function handleDownload() {
+    const targetDir = form.localModelDir.trim();
+    if (!targetDir) {
+      setError(t.modelDownloadDirRequired);
+      return;
+    }
     setDownloading(true);
     setDownloadLog(null);
     setError(null);
@@ -506,15 +529,33 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
       const res = await fetch("/api/models/download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoId: "Qwen/Qwen3.5-4B" }),
+        body: JSON.stringify({
+          repoId: "Qwen/Qwen3.5-4B",
+          outDir: targetDir,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.downloadFailed);
       setDownloadLog(data.log || "Done.");
-      await refresh();
       if (data.path) {
-        setForm((f) => ({ ...f, qwenModel: data.path as string }));
+        const settingsRes = await fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            localModelDir: data.path,
+            qwenModel: data.path,
+          }),
+        });
+        const saved = await settingsRes.json();
+        if (!settingsRes.ok) throw new Error(saved.error || t.saveFailed);
+        setSettings(saved);
+        setForm((f) => ({
+          ...f,
+          localModelDir: data.path as string,
+          qwenModel: data.path as string,
+        }));
       }
+      await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.downloadFailed);
     } finally {
@@ -522,9 +563,24 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     }
   }
 
-  function useDownloadedPath() {
-    if (modelStatus?.path) {
+  async function useDownloadedPath() {
+    if (!modelStatus?.path) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ qwenModel: modelStatus.path }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || t.saveFailed);
+      setSettings(data);
       setForm((f) => ({ ...f, qwenModel: modelStatus.path }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t.saveFailed);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -904,6 +960,20 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
             {t.localWeightsDescription}
           </p>
           <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
+            <label className="mb-4 flex flex-col gap-1 text-sm">
+              <span>{t.modelDownloadDir}</span>
+              <input
+                value={form.localModelDir}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, localModelDir: e.target.value }))
+                }
+                className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2 font-mono text-xs"
+                placeholder={t.modelDownloadDirPlaceholder}
+              />
+              <span className="text-xs text-[var(--muted)]">
+                {t.modelDownloadDirHelp}
+              </span>
+            </label>
             <p className="text-sm text-[var(--muted)]">
               {t.defaultCache}{" "}
               <code className="break-all text-xs text-[var(--foreground)]">{modelStatus?.path}</code>
@@ -925,8 +995,9 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
               {modelStatus?.installed && (
                 <button
                   type="button"
-                  onClick={useDownloadedPath}
-                  className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+                  disabled={saving}
+                  onClick={() => void useDownloadedPath()}
+                  className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50"
                 >
                   {t.useDownloadedPath}
                 </button>

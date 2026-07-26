@@ -3,6 +3,8 @@ import {
   readSettings,
   writeSettings,
   maskSettingsForClient,
+  getDefaultLocalModelDir,
+  isAbsoluteLocalModelDir,
   validateApiKeyInput,
   type AppSettings,
 } from "@/lib/app-settings";
@@ -63,6 +65,16 @@ export async function POST(req: Request) {
     if (body.dashscopeModel !== undefined) patch.dashscopeModel = trimOpt(body.dashscopeModel);
     if (body.anthropicModel !== undefined) patch.anthropicModel = trimOpt(body.anthropicModel);
     if (body.qwenModel !== undefined) patch.qwenModel = trimOpt(body.qwenModel);
+    if (body.localModelDir !== undefined) {
+      const localModelDir = trimOpt(body.localModelDir);
+      if (localModelDir && !isAbsoluteLocalModelDir(localModelDir)) {
+        return NextResponse.json(
+          { error: "Model download directory must be an absolute path." },
+          { status: 400 }
+        );
+      }
+      patch.localModelDir = localModelDir || getDefaultLocalModelDir();
+    }
 
     if (typeof body.useCpu === "boolean") patch.useCpu = body.useCpu;
     if (typeof body.cudaDevice === "string") patch.cudaDevice = body.cudaDevice.trim();

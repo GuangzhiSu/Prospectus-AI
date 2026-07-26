@@ -102,17 +102,32 @@ function venvPython(prospectusRoot) {
     : path.join(prospectusRoot, "venv", "bin", "python3");
 }
 
+function sanitizedPythonEnv(source = process.env) {
+  const env = { ...source };
+  if (process.platform !== "win32") return env;
+  for (const key of Object.keys(env)) {
+    if (/^PYTHON/i.test(key)) delete env[key];
+  }
+  env.PYTHONNOUSERSITE = "1";
+  return env;
+}
+
 function pythonIsUsable(pythonPath, cwd) {
   return new Promise((resolve) => {
     if (!fs.existsSync(pythonPath)) {
       resolve(false);
       return;
     }
-    const child = spawn(pythonPath, ["-c", "import sys; print(sys.executable)"], {
-      cwd,
-      windowsHide: true,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn(
+      pythonPath,
+      ["-I", "-c", "import sys, pyexpat, pandas, langgraph; print(sys.executable)"],
+      {
+        cwd,
+        env: sanitizedPythonEnv(),
+        windowsHide: true,
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
     const timer = setTimeout(() => {
       child.kill();
       resolve(false);
@@ -137,7 +152,7 @@ function runWindowsVenvSetup(prospectusRoot) {
     }
     const child = spawn(process.env.ComSpec || "cmd.exe", ["/d", "/c", "call", script], {
       cwd: prospectusRoot,
-      env: { ...process.env, PROSPECTUS_NO_PAUSE: "1" },
+      env: { ...sanitizedPythonEnv(), PROSPECTUS_NO_PAUSE: "1" },
       windowsHide: true,
       stdio: ["ignore", "pipe", "pipe"],
     });
@@ -292,7 +307,7 @@ async function startNextStandalone(layout, port) {
     const serverNode = fs.existsSync(embeddedNode) ? embeddedNode : process.execPath;
 
     const env = {
-      ...process.env,
+      ...sanitizedPythonEnv(),
       PROSPECTUS_ROOT: layout.prospectusRoot,
       AGENT1_PYTHON: venvPython(layout.prospectusRoot),
       PATH: `${venvBinDir(layout.prospectusRoot)}${path.delimiter}${process.env.PATH || ""}`,
