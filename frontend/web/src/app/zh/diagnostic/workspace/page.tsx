@@ -1,9 +1,9 @@
 import { DiagnosticWorkspacePageContent } from "@/components/DiagnosticWorkspacePageContent";
 
 export const metadata = {
-  title: "上市诊断工作台 | AI Prospectus",
+  title: "上市资格诊断工作区 | AI Prospectus",
   description:
-    "上市诊断专用工作台：CompanyProfile 录入、确定性阈值检查、软信号复核队列和只标缺口的报告预览。",
+    "上传发行人文件或填写结构化字段，运行多市场上市资格诊断，并获取准备度反馈与硬性门槛记分卡。",
   alternates: {
     canonical: "/zh/diagnostic/workspace",
     languages: {

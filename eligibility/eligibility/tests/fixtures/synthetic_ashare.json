@@ -1,0 +1,25 @@
+{
+  "_note": "Synthetic A-share issuer — ChiNext Std 2 passable in concept; SSE MB Std 1 short on profit.",
+  "schema_version": "v3",
+  "issuer_id": "SYNTHETIC_ASHARE_TESTCO",
+  "profile": {
+    "operating_track_record_years": 5,
+    "management_continuity_years": 3
+  },
+  "offering": {
+    "post_issue_share_capital": { "value": 50000000, "unit": "CNY" },
+    "public_float_pct": 25,
+    "expected_market_cap_at_listing": { "value": 2000000000, "unit": "CNY" }
+  },
+  "financials": {
+    "net_profit_positive_each_year": { "value": false, "unit": "bool" },
+    "net_profit_regulatory_cn_aggregate_3fy": { "value": 50000000, "unit": "CNY" },
+    "net_profit_regulatory_cn_latest": { "value": 80000000, "unit": "CNY" },
+    "income_statement": [
+      {
+        "period": "FY2024",
+        "revenue": { "value": 500000000, "unit": "CNY" }
+      }
+    ]
+  }
+}

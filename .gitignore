@@ -126,6 +126,10 @@ dist/data-bundles/
 # Temp / lock files
 ~$*
 
+# Local chapter-JSON compatibility dumps (large; keep out of GitHub)
+test dataset/
+testing dataset/
+
 # --- SenseTime sensitive data — NEVER on GitHub (Aliyun Codeup LFS only) ---
 sensetime.json
 compute_audit.json

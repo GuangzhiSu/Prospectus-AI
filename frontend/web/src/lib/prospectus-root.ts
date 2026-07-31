@@ -54,6 +54,7 @@ export function workspacePaths(root = getProspectusRoot()) {
     agent1Output: path.join(workspaceRoot, "agent1_output"),
     agent2Output: path.join(workspaceRoot, "agent2_output"),
     uploads: path.join(workspaceRoot, "uploads"),
+    eligibility: path.join(workspaceRoot, "uploads", "eligibility"),
     rag: path.join(workspaceRoot, "rag"),
     ragRaw: path.join(workspaceRoot, "rag_raw"),
     progress: path.join(workspaceRoot, ".progress.json"),

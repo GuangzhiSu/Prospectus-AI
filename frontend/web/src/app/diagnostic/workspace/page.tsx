@@ -1,9 +1,9 @@
 import { DiagnosticWorkspacePageContent } from "@/components/DiagnosticWorkspacePageContent";
 
 export const metadata = {
-  title: "IPO Diagnostic Workspace | AI Prospectus",
+  title: "IPO Eligibility Workspace | AI Prospectus",
   description:
-    "A dedicated IPO diagnostic workspace for CompanyProfile intake, deterministic threshold checks, soft-signal review queues, and gap-only report previews.",
+    "Upload issuer documents or enter structured fields, run multi-market listing eligibility diagnostics, and get readiness feedback with hard-gate scorecards.",
   alternates: {
     canonical: "/diagnostic/workspace",
     languages: {

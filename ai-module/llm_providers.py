@@ -31,8 +31,22 @@ def run_chat(
     model: Any = None,
     tokenizer: Any = None,
     max_new_tokens: int = 4096,
+    json_mode: bool = False,
 ) -> str:
     """Route a single-turn prompt to the configured backend."""
+    provider = llm_provider()
+    # Cloud OpenAI-compatible APIs: prefer non-streaming. Streaming SSE parsing
+    # sometimes yields empty content (DeepSeek / proxies), which breaks JSON
+    # extraction in eligibility.
+    if provider in ("openai", "deepseek", "qwen_api"):
+        from llm_openai import run_openai_chat
+
+        return run_openai_chat(
+            prompt,
+            max_new_tokens=max_new_tokens,
+            provider=provider,
+            json_mode=json_mode,
+        )
     return "".join(
         run_chat_stream(
             prompt,

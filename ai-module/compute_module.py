@@ -385,3 +385,263 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ==========================================================================
+# Regulatory computed fields (Task D)
+# --------------------------------------------------------------------------
+# One implementation per rulebook definition, NEVER aliased across markets
+# (CN / HK-GEM / 18C R&D ratios have different denominators; CN net profit is
+# the 扣非前后孰低 lower-of; SGX pre-tax profit excludes non-recurrent items).
+# Strict null discipline: any missing / null / non-numeric input propagates
+# None; nothing is ever fabricated (never 0 on a missing input). These feed the
+# eligibility HARD engine as RESOLVED inputs -- the engine reads them and never
+# computes. Pure Python; no LLM, no I/O.
+#
+# Expected v3 issuer shape (per-FY rows under financials.income_statement, each
+# {period, ...}; leaves may be bare scalars or {value, unit}):
+#   revenue, rd_expenditure, total_operating_expenditure,
+#   net_profit_before_nonrecurring, net_profit_after_nonrecurring,
+#   weighted_avg_roe
+# `periods` is the ordered list of FY period keys, OLDEST first.
+# ==========================================================================
+
+_CNY_M = "CNY million"
+
+
+def _rf_num(node: Any) -> float | None:
+    """Read a numeric leaf (bare scalar or {value,...} wrapper). None if the
+    node is absent / null / boolean / non-numeric. Booleans are rejected so a
+    stray True never reads as 1.0."""
+    if isinstance(node, bool):
+        return None
+    if isinstance(node, (int, float)):
+        return float(node)
+    if isinstance(node, dict) and "value" in node:
+        v = node.get("value")
+        if isinstance(v, bool):
+            return None
+        if isinstance(v, (int, float)):
+            return float(v)
+    return None
+
+
+def _income_row(root: dict, period: str) -> dict | None:
+    rows = ((root.get("financials") or {}).get("income_statement")) or []
+    for row in rows:
+        if isinstance(row, dict) and str(row.get("period")) == str(period):
+            return row
+    return None
+
+
+def _series(root: dict, periods, field: str) -> list | None:
+    """Per-FY values of one income-statement field across `periods`. None if any
+    period row or value is missing (no partial series -> no fabricated total)."""
+    if not periods:
+        return None
+    out = []
+    for p in periods:
+        row = _income_row(root, p)
+        if row is None:
+            return None
+        v = _rf_num(row.get(field))
+        if v is None:
+            return None
+        out.append(v)
+    return out
+
+
+def _wrap(value: float | None, unit: str) -> dict | None:
+    return None if value is None else {"value": value, "unit": unit}
+
+
+# --- CN net profit (扣非前后孰低, lower of before / after non-recurring) --------
+def net_profit_regulatory_cn(before: float | None, after: float | None) -> float | None:
+    """CN regulatory net profit for one FY: min(before, after non-recurring).
+    None if either side is missing -- never extracted directly."""
+    if before is None or after is None:
+        return None
+    return min(before, after)
+
+
+def _np_cn_series(root: dict, periods) -> list | None:
+    before = _series(root, periods, "net_profit_before_nonrecurring")
+    after = _series(root, periods, "net_profit_after_nonrecurring")
+    if before is None or after is None:
+        return None
+    return [net_profit_regulatory_cn(b, a) for b, a in zip(before, after)]
+
+
+def net_profit_regulatory_cn_aggregate(root: dict, periods) -> dict | None:
+    s = _np_cn_series(root, periods)
+    return _wrap(None if s is None else sum(s), _CNY_M)
+
+
+def net_profit_regulatory_cn_latest(root: dict, periods) -> dict | None:
+    s = _np_cn_series(root, periods)
+    return _wrap(None if s is None else s[-1], _CNY_M)
+
+
+def net_profit_regulatory_cn_min(root: dict, periods) -> dict | None:
+    """Minimum 孰低 net profit over the window (for 'each of N FYs >= X' limbs)."""
+    s = _np_cn_series(root, periods)
+    return _wrap(None if s is None else min(s), _CNY_M)
+
+
+def net_profit_positive_each_year(root: dict, periods) -> bool | None:
+    """True iff 孰低 net profit is positive in EVERY FY of the window."""
+    s = _np_cn_series(root, periods)
+    if s is None:
+        return None
+    return all(x > 0 for x in s)
+
+
+# --- R&D (three incompatible definitions; distinct functions per market) -------
+def rd_agg_cn(root: dict, periods) -> dict | None:
+    """CN: aggregate R&D 投入 over the window (sum)."""
+    s = _series(root, periods, "rd_expenditure")
+    return _wrap(None if s is None else sum(s), _CNY_M)
+
+
+def rd_ratio_cn(root: dict, periods) -> dict | None:
+    """CN: aggregate R&D / aggregate revenue over the window, as a percentage."""
+    rd = _series(root, periods, "rd_expenditure")
+    rev = _series(root, periods, "revenue")
+    if rd is None or rev is None:
+        return None
+    denom = sum(rev)
+    if denom == 0:
+        return None
+    return _wrap(sum(rd) / denom * 100.0, "%")
+
+
+def rd_agg_hk(root: dict, periods) -> dict | None:
+    """HK/GEM: aggregate R&D expenditure over the window (sum). HKD."""
+    s = _series(root, periods, "rd_expenditure")
+    return _wrap(None if s is None else sum(s), "HKD million")
+
+
+def rd_ratio_per_fy_hk_series(root: dict, periods) -> list | None:
+    """HK/GEM: per-FY R&D expenditure / TOTAL OPERATING EXPENDITURE (percent).
+    Denominator is opex, NOT revenue -- distinct from the CN definition."""
+    rd = _series(root, periods, "rd_expenditure")
+    opex = _series(root, periods, "total_operating_expenditure")
+    if rd is None or opex is None:
+        return None
+    out = []
+    for r, o in zip(rd, opex):
+        if o == 0:
+            return None
+        out.append(r / o * 100.0)
+    return out
+
+
+def rd_ratio_per_fy_hk_min(root: dict, periods) -> dict | None:
+    """Minimum per-FY HK R&D ratio (for 'each FY >= 15%' limbs)."""
+    s = rd_ratio_per_fy_hk_series(root, periods)
+    return _wrap(None if s is None else min(s), "%")
+
+
+# --- Revenue aggregates / growth ----------------------------------------------
+def revenue_aggregate(root: dict, periods, unit: str = _CNY_M) -> dict | None:
+    s = _series(root, periods, "revenue")
+    return _wrap(None if s is None else sum(s), unit)
+
+
+def revenue_avg(root: dict, periods, unit: str = _CNY_M) -> dict | None:
+    s = _series(root, periods, "revenue")
+    return _wrap(None if s is None else sum(s) / len(s), unit)
+
+
+def revenue_cagr(root: dict, periods) -> dict | None:
+    """Compound annual growth rate of revenue over the window (percent). None if
+    the first year is non-positive (CAGR undefined)."""
+    s = _series(root, periods, "revenue")
+    if s is None or len(s) < 2 or s[0] <= 0:
+        return None
+    n = len(s) - 1
+    return _wrap(((s[-1] / s[0]) ** (1.0 / n) - 1.0) * 100.0, "%")
+
+
+def revenue_yoy_growth_latest(root: dict, periods) -> dict | None:
+    s = _series(root, periods, "revenue")
+    if s is None or len(s) < 2 or s[-2] == 0:
+        return None
+    return _wrap((s[-1] / s[-2] - 1.0) * 100.0, "%")
+
+
+def revenue_yoy_growth_each_of(root: dict, periods) -> bool | None:
+    """True iff revenue grew year-on-year in EACH step of the window."""
+    s = _series(root, periods, "revenue")
+    if s is None or len(s) < 2:
+        return None
+    return all(s[i] > s[i - 1] for i in range(1, len(s)))
+
+
+# --- ROE ----------------------------------------------------------------------
+def weighted_avg_roe_avg(root: dict, periods) -> dict | None:
+    s = _series(root, periods, "weighted_avg_roe")
+    return _wrap(None if s is None else sum(s) / len(s), "%")
+
+
+# --- Deal-parameter derived ---------------------------------------------------
+def expected_market_cap_at_listing(offer_price: float | None,
+                                   post_offering_shares: float | None,
+                                   unit: str = _CNY_M) -> dict | None:
+    """Expected market cap = offer price x post-offering total shares (D-01 x
+    D-02 only). Both are hard-entered deal parameters; None if either missing."""
+    if offer_price is None or post_offering_shares is None:
+        return None
+    return _wrap(offer_price * post_offering_shares, unit)
+
+
+def public_float_pct(public_shares: float | None,
+                     total_post_offering_shares: float | None) -> dict | None:
+    """Public float % = public shares / total post-offering shares x 100."""
+    if public_shares is None or total_post_offering_shares in (None, 0):
+        return None
+    return _wrap(public_shares / total_post_offering_shares * 100.0, "%")
+
+
+def pe_ratio_at_issue(offer_price: float | None,
+                      diluted_eps: float | None) -> dict | None:
+    """INFORMATIONAL ONLY -- pricing context, NEVER a listing gate. Offer price /
+    diluted EPS (latest FY, CN 孰低 basis). Must not be referenced by any YAML
+    gate (asserted in eligibility/tests/test_pe_ratio_not_a_gate.py)."""
+    if offer_price is None or diluted_eps in (None, 0):
+        return None
+    return _wrap(offer_price / diluted_eps, "x")
+
+
+# Documentation registry: field name -> (callable, one-line rulebook definition).
+# One entry per rulebook definition; markets never share an implementation.
+REGULATORY_COMPUTED_FIELDS = {
+    "net_profit_regulatory_cn_aggregate": (net_profit_regulatory_cn_aggregate,
+        "CN 扣非前后孰低 net profit summed over the track record"),
+    "net_profit_regulatory_cn_latest": (net_profit_regulatory_cn_latest,
+        "CN 扣非前后孰低 net profit, latest FY"),
+    "net_profit_regulatory_cn_min": (net_profit_regulatory_cn_min,
+        "CN 扣非前后孰低 net profit, minimum over window (each-of-N-FYs limbs)"),
+    "net_profit_positive_each_year": (net_profit_positive_each_year,
+        "CN 孰低 net profit positive in every FY of the window (boolean)"),
+    "rd_agg_cn": (rd_agg_cn, "CN aggregate R&D 投入 (sum)"),
+    "rd_ratio_cn": (rd_ratio_cn, "CN aggregate R&D / aggregate revenue (%)"),
+    "rd_agg_hk": (rd_agg_hk, "HK/GEM aggregate R&D expenditure (sum)"),
+    "rd_ratio_per_fy_hk_min": (rd_ratio_per_fy_hk_min,
+        "HK/GEM min per-FY R&D / TOTAL OPERATING EXPENDITURE (%)"),
+    "revenue_aggregate": (revenue_aggregate, "aggregate revenue over the window"),
+    "revenue_avg": (revenue_avg, "average revenue over the window"),
+    "revenue_cagr": (revenue_cagr, "revenue CAGR over the window (%)"),
+    "revenue_yoy_growth_latest": (revenue_yoy_growth_latest,
+        "latest-FY revenue YoY growth (%)"),
+    "revenue_yoy_growth_each_of": (revenue_yoy_growth_each_of,
+        "revenue grew YoY in each step of the window (boolean)"),
+    "weighted_avg_roe_avg": (weighted_avg_roe_avg,
+        "average weighted ROE over the window (%)"),
+    "expected_market_cap_at_listing": (expected_market_cap_at_listing,
+        "offer price x post-offering shares (D-01 x D-02)"),
+    "public_float_pct": (public_float_pct,
+        "public shares / total post-offering shares (%)"),
+    "pe_ratio_at_issue": (pe_ratio_at_issue,
+        "INFORMATIONAL ONLY -- offer price / diluted EPS; never a gate"),
+}

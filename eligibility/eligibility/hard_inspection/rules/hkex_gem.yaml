@@ -1,0 +1,191 @@
+ruleset: HKEX_GEM
+ruleset_name: HKEX GEM listing eligibility
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: HKEX GEM Listing Rules Chapter 11 (reforms effective 2024-01-01)
+gates:
+- id: financial_eligibility_tests
+  title: Financial eligibility — meet at least one standard / test
+  rule_ref: GEM LR 11.12A
+  effective_from: '2024-01-01'
+  evaluated: false
+  human_signoff: false
+  stub_reason: multi-market pack v1 — no fixture this phase
+  requirement:
+    any_of:
+    - all_of:
+      - check:
+          id: gem_t1_1
+          metric: trading record
+          profile_field: operating_track_record_years
+          operator: '>='
+          threshold:
+            value: 2
+            unit: financial years
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: GEM LR 11.12A
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t1_2
+          metric: 2-yr aggregate positive operating cash flow
+          input_path: financials.operating_cash_flow_aggregate_2fy
+          operator: '>='
+          threshold:
+            value: 30000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t1_3
+          metric: expected market cap
+          input_path: offering.expected_market_cap_at_listing
+          operator: '>='
+          threshold:
+            value: 150000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: '11.23'
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+    - all_of:
+      - check:
+          id: gem_t2_1
+          metric: trading record
+          profile_field: operating_track_record_years
+          operator: '>='
+          threshold:
+            value: 2
+            unit: financial years
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t2_2
+          metric: expected market cap
+          input_path: offering.expected_market_cap_at_listing
+          operator: '>='
+          threshold:
+            value: 250000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t2_3
+          metric: 2-yr aggregate revenue
+          input_path: financials.revenue_aggregate_2fy
+          operator: '>='
+          threshold:
+            value: 100000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t2_4
+          metric: revenue YoY growth across the 2 FYs
+          input_path: financials.revenue_yoy_growth_each_of_2fy
+          operator: is_true
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: Growth required over the period
+      - check:
+          id: gem_t2_5
+          metric: 2-yr aggregate R&D expenditure
+          input_path: financials.rd_agg_2fy_hk
+          operator: '>='
+          threshold:
+            value: 30000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)(f)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: gem_t2_6
+          metric: R&D ratio each FY (vs total operating expenditure)
+          input_path: financials.rd_ratio_per_fy_hk
+          operator: '>='
+          threshold:
+            value: 15.0
+            unit: '%'
+          threshold_verified: true
+          effective_from: '2024-01-01'
+          effective_from_verified: true
+          verified_against: 11.12A(4)(g)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: Each of the 2 FYs
+- id: continuity_requirements
+  title: Management / ownership continuity
+  rule_ref: 11.12A
+  effective_from: '2024-01-01'
+  evaluated: false
+  human_signoff: false
+  stub_reason: multi-market pack v1 — no fixture this phase
+  requirement:
+    all_of:
+    - check:
+        id: gem_c_1
+        metric: management continuity
+        profile_field: management_continuity_years
+        operator: '>='
+        threshold:
+          value: 2
+          unit: financial years
+        threshold_verified: true
+        effective_from: '2024-01-01'
+        effective_from_verified: true
+        verified_against: 11.12A
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+    - check:
+        id: gem_c_2
+        metric: ownership continuity
+        profile_field: ownership_continuity_recent_audited_fy
+        operator: is_true
+        threshold_verified: true
+        effective_from: '2024-01-01'
+        effective_from_verified: true
+        verified_against: 11.12A
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+    - check:
+        id: gem_c_3
+        metric: controlling shareholder post-IPO lock-up
+        input_path: company.controlling_shareholder_lockup_months
+        operator: '>='
+        threshold:
+          value: 12
+          unit: months
+        threshold_verified: true
+        effective_from: '2024-01-01'
+        effective_from_verified: true
+        verified_against: GEM Ch.13
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Reduced from 24 (2024 reform), aligned to MB

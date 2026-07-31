@@ -1,0 +1,159 @@
+ruleset: CN_CSRC_Preconditions
+ruleset_name: CSRC IPO registration preconditions (MB/STAR/ChiNext)
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: 首次公开发行股票注册管理办法 (令205号) Arts.10–13
+gates:
+- id: csrc_art_10
+  title: CSRC precondition — Art.10
+  rule_ref: 注册管理办法 第十条
+  effective_from: '2023-02-17'
+  evaluated: true
+  human_signoff: false
+  stub_reason: ""
+  requirement:
+    all_of:
+    - check:
+        id: cs_10
+        metric: continuous operation years
+        profile_field: operating_track_record_years
+        operator: '>='
+        threshold:
+          value: 3
+          unit: years
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 注册管理办法 第十条
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: LLC whole-conversion counts from LLC inception
+- id: csrc_art_11
+  title: CSRC precondition — Art.11
+  rule_ref: 第十一条
+  effective_from: '2023-02-17'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: cs_11a
+        metric: audit opinions last 3 FYs
+        profile_field: audit_opinion_type[3fy]
+        operator: ==
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十一条
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        requires_llm: false
+        guidance_note: Complex / tiered threshold (standard unqualified (each FY)).
+    - check:
+        id: cs_11b
+        metric: internal-control assurance
+        profile_field: internal_control_assurance_unqualified
+        operator: is_true
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十一条
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Unqualified IC assurance report by CPA
+- id: csrc_art_12_1
+  title: CSRC precondition — Art.12(1)
+  rule_ref: 第十二条(一)
+  effective_from: '2023-02-17'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: cs_12a
+        metric: independence / no material adverse competition / no unfair RPTs
+        input_path: soft_connected_transaction_independence_competing_business
+        operator: ==
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十二条(一)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Maps to existing soft-signal registry
+        requires_llm: true
+- id: csrc_art_12_2
+  title: CSRC precondition — Art.12(2)
+  rule_ref: 第十二条(二)
+  effective_from: '2023-02-17'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: cs_12b
+        metric: 'main business & directors/senior mgmt: no material adverse change'
+        profile_field: management_continuity_years
+        operator: '>='
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十二条(二)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: 'STAR additionally: core technical personnel stable 2y Complex / tiered threshold
+          (3 (Main Board) / 2 (STAR, ChiNext)).'
+        requires_llm: false
+- id: csrc_art_12_3
+  title: CSRC precondition — Art.12(3)
+  rule_ref: 第十二条(三)
+  effective_from: '2023-02-17'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: cs_12c
+        metric: actual controller unchanged; share ownership clear
+        profile_field: control_unchanged_years
+        operator: '>='
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十二条(三)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Clear title; no disputes threatening control change Complex / tiered threshold
+          (3 (Main Board) / 2 (STAR, ChiNext)).
+        requires_llm: false
+- id: csrc_art_13
+  title: CSRC precondition — Art.13
+  rule_ref: 第十三条
+  effective_from: '2023-02-17'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: cs_13
+        metric: legal compliance negative list
+        input_path: soft_legal_compliance_cn
+        operator: ==
+        threshold_verified: true
+        effective_from: '2023-02-17'
+        effective_from_verified: true
+        verified_against: 第十三条
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Crimes/major violations lookbacks; deferred leaf
+        requires_llm: true

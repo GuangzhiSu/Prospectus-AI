@@ -4,6 +4,7 @@ import {
   writeSettings,
   maskSettingsForClient,
   validateApiKeyInput,
+  getSettingsFilePath,
   type AppSettings,
 } from "@/lib/app-settings";
 import { isLlmProviderId } from "@/lib/llm-provider-config";
@@ -36,7 +37,10 @@ function applyApiKeyPatch(
 export async function GET() {
   try {
     const s = await readSettings();
-    return NextResponse.json(maskSettingsForClient(s));
+    return NextResponse.json({
+      ...maskSettingsForClient(s),
+      settingsFile: getSettingsFilePath(),
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error";
     return NextResponse.json({ error: msg }, { status: 500 });
@@ -75,7 +79,10 @@ export async function POST(req: Request) {
     }
 
     const next = await writeSettings(patch);
-    return NextResponse.json(maskSettingsForClient(next));
+    return NextResponse.json({
+      ...maskSettingsForClient(next),
+      settingsFile: getSettingsFilePath(),
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error";
     return NextResponse.json({ error: msg }, { status: 500 });

@@ -5,7 +5,7 @@
 
 import path from "path";
 import fs from "fs/promises";
-import { existsSync } from "fs";
+import { existsSync, accessSync, constants as fsConstants } from "fs";
 import {
   isLlmProviderId,
   PROVIDER_UI,
@@ -26,17 +26,69 @@ const DEFAULT_SETTINGS: AppSettings = {
   cudaDevice: "",
 };
 
-function configDir(): string {
+function parentWritable(dir: string): boolean {
+  let cur = path.resolve(dir);
+  for (let i = 0; i < 8; i++) {
+    if (existsSync(cur)) {
+      try {
+        accessSync(cur, fsConstants.W_OK);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    const parent = path.dirname(cur);
+    if (parent === cur) return false;
+    cur = parent;
+  }
+  return false;
+}
+
+/**
+ * Writable app config directory.
+ *
+ * Prefer an existing ProspectusAI folder. Otherwise avoid unwritable parents
+ * (some machines have root-owned ~/.config, which blocks mkdir).
+ */
+export function getConfigDir(): string {
   if (process.platform === "win32") {
     const base = process.env.APPDATA || process.env.LOCALAPPDATA || ".";
     return path.join(base, "ProspectusAI");
   }
   const home = process.env.HOME || ".";
-  return path.join(home, ".config", "ProspectusAI");
+  const override = process.env.PROSPECTUSAI_CONFIG_DIR?.trim();
+  const xdg = process.env.XDG_CONFIG_HOME?.trim();
+  const candidates = [
+    override,
+    path.join(home, ".config", "ProspectusAI"),
+    process.platform === "darwin"
+      ? path.join(home, "Library", "Application Support", "ProspectusAI")
+      : null,
+    xdg ? path.join(xdg, "ProspectusAI") : null,
+    path.join(home, ".local", "share", "ProspectusAI"),
+    path.join(home, ".prospectusai"),
+  ].filter((p): p is string => Boolean(p));
+
+  for (const dir of candidates) {
+    if (existsSync(dir)) return dir;
+  }
+  for (const dir of candidates) {
+    if (parentWritable(dir)) return dir;
+  }
+  return candidates[candidates.length - 1] || path.join(home, ".prospectusai");
+}
+
+function configDir(): string {
+  return getConfigDir();
 }
 
 export function getSettingsFilePath(): string {
   return path.join(configDir(), "settings.json");
+}
+
+/** Separate settings file for IPO eligibility (not shared with drafting). */
+export function getEligibilitySettingsFilePath(): string {
+  return path.join(configDir(), "eligibility-settings.json");
 }
 
 /** Default directory for HF snapshot_download of Qwen weights (first-run download). */
@@ -49,6 +101,28 @@ export function getDefaultLocalModelDir(): string {
   return path.join(home, ".local", "share", "ProspectusAI", "models", "Qwen3.5-4B");
 }
 
+function isLocalModelDir(dir: string): boolean {
+  return Boolean(dir) && existsSync(path.join(dir, "config.json"));
+}
+
+/**
+ * Prefer an on-disk Qwen snapshot over a Hugging Face hub id.
+ * Hub ids hang for a long time when the machine cannot reach huggingface.co
+ * (corporate proxy / DNS). The Settings download path already stores weights
+ * under getDefaultLocalModelDir().
+ */
+export function resolveQwenModelPath(configured: string): string {
+  const trimmed = (configured || "").trim();
+  if (trimmed && isLocalModelDir(trimmed)) {
+    return trimmed;
+  }
+  const localDir = getDefaultLocalModelDir();
+  if (isLocalModelDir(localDir)) {
+    return localDir;
+  }
+  return trimmed || DEFAULT_SETTINGS.qwenModel!;
+}
+
 function normalizeProvider(raw: unknown): LlmProvider {
   if (typeof raw === "string" && isLlmProviderId(raw)) {
     return raw;
@@ -57,7 +131,24 @@ function normalizeProvider(raw: unknown): LlmProvider {
 }
 
 export async function readSettings(): Promise<AppSettings> {
-  const file = getSettingsFilePath();
+  return readSettingsFromFile(getSettingsFilePath());
+}
+
+export async function writeSettings(partial: Partial<AppSettings>): Promise<AppSettings> {
+  return writeSettingsToFile(getSettingsFilePath(), partial);
+}
+
+export async function readEligibilitySettings(): Promise<AppSettings> {
+  return readSettingsFromFile(getEligibilitySettingsFilePath());
+}
+
+export async function writeEligibilitySettings(
+  partial: Partial<AppSettings>
+): Promise<AppSettings> {
+  return writeSettingsToFile(getEligibilitySettingsFilePath(), partial);
+}
+
+async function readSettingsFromFile(file: string): Promise<AppSettings> {
   if (!existsSync(file)) {
     return { ...DEFAULT_SETTINGS };
   }
@@ -74,10 +165,13 @@ export async function readSettings(): Promise<AppSettings> {
   }
 }
 
-export async function writeSettings(partial: Partial<AppSettings>): Promise<AppSettings> {
+async function writeSettingsToFile(
+  file: string,
+  partial: Partial<AppSettings>
+): Promise<AppSettings> {
   const dir = configDir();
   await fs.mkdir(dir, { recursive: true });
-  const current = await readSettings();
+  const current = await readSettingsFromFile(file);
   const next: AppSettings = {
     ...current,
     ...partial,
@@ -85,7 +179,7 @@ export async function writeSettings(partial: Partial<AppSettings>): Promise<AppS
       ? normalizeProvider(partial.llmProvider)
       : current.llmProvider,
   };
-  await fs.writeFile(getSettingsFilePath(), JSON.stringify(next, null, 2), "utf8");
+  await fs.writeFile(file, JSON.stringify(next, null, 2), "utf8");
   return next;
 }
 
@@ -213,8 +307,15 @@ export function buildAgentProcessEnv(
   }
 
   const qwen = settings.qwenModel?.trim() || DEFAULT_SETTINGS.qwenModel!;
-  env.AGENT2_MODEL = qwen;
-  env.AGENT1_MODEL = qwen;
+  const resolvedQwen = resolveQwenModelPath(qwen);
+  env.AGENT2_MODEL = resolvedQwen;
+  env.AGENT1_MODEL = resolvedQwen;
+  // Local folder: force offline so from_pretrained never hangs on HF/proxy.
+  if (resolvedQwen !== qwen || isLocalModelDir(resolvedQwen)) {
+    env.HF_HUB_OFFLINE = env.HF_HUB_OFFLINE || "1";
+    env.TRANSFORMERS_OFFLINE = env.TRANSFORMERS_OFFLINE || "1";
+    env.HF_LOCAL_ONLY = env.HF_LOCAL_ONLY || "1";
+  }
 
   if (settings.useCpu) {
     env.AGENT1_USE_CPU = "1";
@@ -232,6 +333,20 @@ export function buildAgentProcessEnv(
   }
 
   if (!env.CUDA_DEVICE_ORDER) env.CUDA_DEVICE_ORDER = "PCI_BUS_ID";
+
+  // macOS/corporate SystemConfiguration proxies (e.g. Duke) often 403 CONNECT
+  // tunnels to api.deepseek.com / api.openai.com. Prefer direct egress unless
+  // the operator explicitly opts into env/system proxies.
+  if (env.PROSPECTUS_HTTP_TRUST_ENV !== "1") {
+    env.NO_PROXY = "*";
+    env.no_proxy = "*";
+    delete env.HTTP_PROXY;
+    delete env.HTTPS_PROXY;
+    delete env.ALL_PROXY;
+    delete env.http_proxy;
+    delete env.https_proxy;
+    delete env.all_proxy;
+  }
 
   return env;
 }

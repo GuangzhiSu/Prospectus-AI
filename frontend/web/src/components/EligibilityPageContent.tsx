@@ -10,104 +10,107 @@ const contactHref =
 
 const copy = {
   en: {
-    eyebrow: "IPO Diagnostic architecture",
-    title: "AI extracts facts. Deterministic rules compare thresholds.",
+    eyebrow: "IPO eligibility · standalone module",
+    title: "Upload documents. Run hard rules. Get readiness feedback.",
     description:
-      "The diagnostic module is not 'AI-free'. It is intentionally split: AI is used where issuer documents must be read and normalized into CompanyProfile; the hard rule engine then compares resolved values against listing thresholds without an LLM.",
-    primaryCta: "Open diagnostic workspace",
+      "Eligibility is a separate product from prospectus drafting. AI extracts facts and drafts feedback; a deterministic engine compares confirmed numbers to listing thresholds — never inventing values.",
+    primaryCta: "Open eligibility workspace",
     secondaryCta: "Request diagnostic demo",
     overviewCta: "Back to overview",
-    panelTitle: "Where AI is used",
-    panelSubtitle: "Extraction and soft signals use AI; hard thresholds do not.",
+    settingsCta: "Eligibility settings",
+    panelTitle: "Four stages",
+    panelSubtitle: "AI where reading text helps; code where thresholds must be exact.",
     panelItems: [
-      ["Uses AI", "Document, financial-statement, and table extraction through Agent1 + LLM."],
-      ["No AI by design", "Profit, revenue, market cap, continuity, and FX-gated threshold comparison."],
-      ["AI later", "Seven qualitative soft signals are modeled and waiting for LLM + retrieval wiring."],
+      ["1 · Extraction", "Reads PDF / DOCX / XLSX / JSON into quantifiable fields and narrative excerpts (Mode B: confirm before hard use)."],
+      ["2 · Hard inspection", "Pure Python vs versioned YAML thresholds across HK / A-share / SGX boards. No LLM imports."],
+      ["3 · Qualitative", "LLM reviews unquantifiable substance signals (concentration, independence, controls, …)."],
+      ["4 · Feedback", "Plain-language readiness + what to improve, tied to shortfalls and missing inputs."],
     ],
-    flowTitle: "Two input modes, one diagnostic truth source",
+    flowTitle: "End-to-end flow",
     flowSubtitle:
-      "The upload choice changes how CompanyProfile is filled. It does not change the downstream rule logic.",
+      "Structured fields and uploads both feed the same hard engine. Provider choice lives in eligibility settings — separate from drafting.",
     flow: {
-      structured: ["Structured fields", "Manual input · no AI"],
-      documents: ["Documents / financials / tables", "AI extraction · Agent1"],
-      profile: ["CompanyProfile", "Missing value -> MISSING_INPUT"],
-      hard: ["Hard rule engine", "Deterministic · deliberately no AI"],
-      soft: ["Soft signal layer", "7 signals · LLM/retrieval pending"],
-      report: ["Diagnostic report", "Gap-only · no listing verdict"],
+      structured: ["Structured fields", "Manual · no AI"],
+      documents: ["Uploaded documents", "AI extraction"],
+      confirm: ["Confirm values", "Mode B · unconfirmed = MISSING_INPUT"],
+      hard: ["Hard rule engine", "Deterministic · no AI"],
+      soft: ["Qualitative signals", "LLM"],
+      report: ["Feedback + scorecard", "Diagnostic · not legal advice"],
     },
     legend: [
       ["Uses AI", "bg-[#efedff] border-[#8c7ae6]"],
       ["Deterministic by design", "bg-[#e8f3ef] border-[#0f766e]"],
       ["Data / input / output", "bg-[#f7f8f2] border-[#9aa196]"],
     ],
-    modesTitle: "How companies can submit information",
+    modesTitle: "How companies submit information",
     modes: [
       {
         title: "Structured fields",
         tag: "No AI required",
-        text: "The issuer enters profit, revenue, market cap, dates, FX, continuity, WVR ownership, or other fixed fields directly. Those values flow into CompanyProfile and are compared by the deterministic engine.",
+        text: "Enter profit, revenue, market cap, continuity, FX, and related fields. Values go straight into the issuer envelope for hard comparison.",
       },
       {
         title: "Uploaded materials",
-        tag: "AI extraction required",
-        text: "The issuer uploads documents, financial statements, spreadsheets, or diligence files. Agent1 and the LLM extract facts into the same CompanyProfile before the same deterministic engine runs.",
+        tag: "AI extraction",
+        text: "Upload audited statements or diligence files. The eligibility extraction agent (not Agent1 drafting) pulls fields and narrative text; deal params stay hard-entered.",
       },
     ],
-    whyTitle: "Why hard thresholds deliberately avoid AI",
+    whyTitle: "Why hard thresholds never use AI",
     whyText:
-      "A 35 million profit test or 4 billion market-cap threshold is not a judgment call. Letting an LLM decide numeric gates risks invented values, mixed-up rule limbs, and non-repeatable results. The hard path must be auditable, reproducible, and regression-tested.",
+      "A profit test or market-cap floor is not a judgment call. LLMs must not invent numbers or pick rule limbs. The hard path is auditable, reproducible, and regression-tested.",
     boundaries: [
-      ["Extraction layer", "Uses AI when the source is a document or table; skipped when fields are manually supplied."],
-      ["CompanyProfile", "The shared resolved-value object. Missing resolved values become MISSING_INPUT rather than guessed numbers."],
-      ["Hard rule engine", "Reads CompanyProfile / issuer JSON and compares against versioned YAML thresholds. No LLM imports are allowed."],
-      ["Soft signal layer", "Customer concentration, supplier concentration, connected-party independence, competing business, internal controls, equity/WVR/pre-IPO clarity, and shell-company pattern need LLM + retrieval before they can be assessed."],
+      ["Standalone package", "Lives under eligibility/ — does not depend on Agent1 / Agent2 drafting graphs."],
+      ["Own inference settings", "/diagnostic/settings stores providers separately from drafting Settings."],
+      ["Hard rule engine", "YAML packs for HKEX, PRC boards, and SGX. No LLM imports on this path."],
+      ["Feedback layer", "Answers “ready to discuss?” and lists gaps — not exchange approval."],
     ],
-    statusesTitle: "User-facing status model",
+    statusesTitle: "Status model",
     statuses: [
-      ["PASS", "Resolved value exists and meets the modeled threshold."],
-      ["SHORTFALL", "Resolved value exists but falls below the modeled threshold."],
-      ["MISSING_INPUT", "CompanyProfile lacks a required value; the engine does not infer it."],
-      ["INDETERMINATE", "A value exists but cannot be compared, often because FX or date context is missing."],
-      ["REVIEW_REQUIRED", "A qualitative signal is detected or queued for professional judgment."],
-      ["DEFERRED_REVIEW", "A qualitative or not-yet-wired rule area is tracked but not deterministically scored."],
+      ["PASS", "Resolved value meets the threshold."],
+      ["SHORTFALL", "Resolved value falls short."],
+      ["MISSING_INPUT", "Value absent or not confirmed."],
+      ["INDETERMINATE", "Value present but cannot be compared (e.g. missing FX)."],
+      ["NOT_EVALUATED", "Gate authored but not run this phase / qualitative pending evidence."],
+      ["TRIGGERED", "Qualitative signal fired for review (soft layer)."],
     ],
-    pathwaysTitle: "Same rule engine after either input path",
+    pathwaysTitle: "Markets and boards covered",
     pathways: [
-      "HKEX Main Board Rule 8.05",
-      "Chapter 8A WVR quantitative subset",
-      "Chapter 18C specialist technology framework",
-      "Chapter 18A biotech and CSRC overseas filing stubs",
-      "Qualitative substance signals for later expert / LLM review",
+      "Hong Kong Main Board, GEM, Ch. 8A / 18A / 18C, public float",
+      "PRC Main Board, STAR, ChiNext, BSE + CSRC preconditions",
+      "SGX Mainboard and Catalist",
+      "Multi-market packs encoded from the update/ threshold master",
     ],
-    footerTitle: "The correction is precise: the hard engine is not the whole module.",
+    footerTitle: "Diagnostic only — humans finalize.",
     footerText:
-      "Engine.py is the deterministic comparison stage. The full diagnostic workflow has AI extraction before it and LLM-assisted soft-signal review after it.",
+      "Eligibility reconstructs issuer data, compares thresholds, and flags gaps. It does not decide listing approval or write a prospectus.",
   },
   zh: {
-    eyebrow: "上市诊断架构",
-    title: "AI 负责抽取事实，确定性规则负责比较阈值。",
+    eyebrow: "上市资格 · 独立模块",
+    title: "上传材料，跑硬性规则，获得准备度反馈。",
     description:
-      "这个模块不是“完全没用 AI”。它是故意拆成两段：当发行人上传档案、财报、统计表时，用 AI 抽取并归一化到 CompanyProfile；之后硬规则引擎只拿已解析值和上市阈值比较，不让 LLM 参与判定。",
-    primaryCta: "打开诊断工作台",
+      "上市资格与招股书起草是分开的产品。AI 负责抽取与反馈；确定性引擎用已确认数字对照上市门槛——从不编造数值。",
+    primaryCta: "打开资格诊断工作区",
     secondaryCta: "预约诊断演示",
     overviewCta: "返回产品概览",
-    panelTitle: "AI 用在哪里",
-    panelSubtitle: "抽取和软信号用 AI；硬阈值比对不用 AI。",
+    settingsCta: "资格诊断设置",
+    panelTitle: "四个阶段",
+    panelSubtitle: "适合读文本的地方用 AI；门槛必须精确的地方用代码。",
     panelItems: [
-      ["用 AI", "文档、财报、表格经 Agent1 + LLM 抽取。"],
-      ["故意不用 AI", "盈利、市值、收入、持续性、汇率等硬阈值比对。"],
-      ["后续接 AI", "7 个定性软信号已经建模，等待 LLM + 检索接入。"],
+      ["1 · 信息抽取", "读取 PDF / DOCX / XLSX / JSON，得到可量化字段与叙述摘录（Mode B：确认后才进硬性比对）。"],
+      ["2 · 硬性检查", "纯 Python 对照版本化 YAML（港股 / A 股 / 新交所）。此路径不导入 LLM。"],
+      ["3 · 定性分析", "LLM 审阅不可量化实质信号（集中度、独立性、内控等）。"],
+      ["4 · 反馈", "用白话说明准备度与待改进项，并挂钩短板与缺输入。"],
     ],
-    flowTitle: "两种输入形式，一个诊断事实源",
+    flowTitle: "端到端流程",
     flowSubtitle:
-      "上传形式只决定 CompanyProfile 怎么被填上；不改变后面的规则判定逻辑。",
+      "结构化字段与上传材料最终进入同一套硬性引擎。推理提供商在资格诊断设置中配置——与起草设置分开。",
     flow: {
-      structured: ["结构化字段", "手填 · 不经 AI"],
-      documents: ["文档 / 财报 / 表格", "AI 抽取 · Agent1"],
-      profile: ["CompanyProfile", "缺失值 -> MISSING_INPUT"],
-      hard: ["硬判定引擎", "确定性 · 故意不用 AI"],
-      soft: ["软信号层", "7 信号 · 待接 LLM/检索"],
-      report: ["诊断报告", "只标 gap · 不裁决"],
+      structured: ["结构化字段", "手填 · 不用 AI"],
+      documents: ["上传文件", "AI 抽取"],
+      confirm: ["确认数值", "Mode B · 未确认 = MISSING_INPUT"],
+      hard: ["硬性规则引擎", "确定性 · 不用 AI"],
+      soft: ["定性信号", "LLM"],
+      report: ["反馈 + 记分卡", "诊断意见 · 非法律结论"],
     },
     legend: [
       ["用 AI", "bg-[#efedff] border-[#8c7ae6]"],
@@ -119,43 +122,42 @@ const copy = {
       {
         title: "结构化字段",
         tag: "不需要 AI",
-        text: "发行人直接填写盈利、收入、市值、日期、汇率、管理层持续性、WVR 权益比例等固定字段。这些值进入 CompanyProfile，再由确定性引擎比较。",
+        text: "直接填写盈利、收入、市值、持续性、汇率等。数值进入发行人结构体，供硬性比对。",
       },
       {
         title: "上传材料",
         tag: "需要 AI 抽取",
-        text: "发行人上传档案、财报、统计表或尽调文件。Agent1 和 LLM 把事实抽进同一个 CompanyProfile，再运行同一套确定性判定引擎。",
+        text: "上传审计报表或尽调文件。由资格诊断抽取代理（不是起草 Agent1）提取字段与叙述；交易参数仍须手填。",
       },
     ],
-    whyTitle: "为什么硬阈值判定故意不用 AI",
+    whyTitle: "为什么硬性门槛从不使用 AI",
     whyText:
-      "3,500 万盈利测试、40 亿市值门槛不是判断题，而是数字比大小。让 LLM 判硬门槛会带来编数字、记混规则分支、结果不可复现的问题。硬路径必须可审计、可复现、可回归测试。",
+      "盈利测试或市值门槛不是判断题。不能让 LLM 编数字或选错规则分支。硬路径必须可审计、可复现、可回归测试。",
     boundaries: [
-      ["抽取层", "资料来源是文档或表格时用 AI；如果是手填字段，则跳过 AI。"],
-      ["CompanyProfile", "共享的已解析事实对象。缺少解析值就输出 MISSING_INPUT，而不是猜。"],
-      ["硬规则引擎", "读取 CompanyProfile / 发行人 JSON，对照版本化 YAML 阈值。禁止导入 LLM。"],
-      ["软信号层", "客户集中度、供应商集中度、关联交易独立性、同业竞争、内控、股权/WVR/pre-IPO 清晰度、壳公司模式，需要 LLM + 检索后才能评估。"],
+      ["独立程序包", "位于 eligibility/，不依赖 Agent1 / Agent2 起草图。"],
+      ["独立推理设置", "/diagnostic/settings 与招股书起草 Settings 分开存储。"],
+      ["硬性规则引擎", "覆盖港交所、A 股板块与新交所的 YAML 规则包。"],
+      ["反馈层", "回答「能否讨论上市」并列出缺口——不是交易所批复。"],
     ],
-    statusesTitle: "面向用户的状态模型",
+    statusesTitle: "状态模型",
     statuses: [
-      ["PASS", "解析值存在，并达到已建模阈值。"],
-      ["SHORTFALL", "解析值存在，但低于已建模阈值。"],
-      ["MISSING_INPUT", "CompanyProfile 缺必要值；引擎不会推断。"],
-      ["INDETERMINATE", "值存在但无法比较，常见原因是缺汇率或日期语境。"],
-      ["REVIEW_REQUIRED", "定性信号已触发或进入专业判断队列。"],
-      ["DEFERRED_REVIEW", "定性或尚未接入的规则领域已跟踪，但不纳入确定性评分。"],
+      ["PASS", "解析值达标。"],
+      ["SHORTFALL", "解析值未达标。"],
+      ["MISSING_INPUT", "缺值或未确认。"],
+      ["INDETERMINATE", "有值但无法比较（如缺汇率）。"],
+      ["NOT_EVALUATED", "规则已写但本阶段未评 / 定性证据不足。"],
+      ["TRIGGERED", "定性信号触发（软层）。"],
     ],
-    pathwaysTitle: "无论哪种输入形式，后端都是同一套规则引擎",
+    pathwaysTitle: "已覆盖的市场与板块",
     pathways: [
-      "港交所主板规则 8.05",
-      "第 8A 章 WVR 量化子集",
-      "第 18C 章特专科技公司框架",
-      "第 18A 章生物科技公司与中国证监会境外上市备案结构化占位",
-      "后续供专家 / LLM 复核的定性实质信号",
+      "港交所主板、GEM、第 8A / 18A / 18C 章、公众持股",
+      "A 股主板、科创板、创业板、北交所及证监会前置条件",
+      "新交所主板与 Catalist",
+      "规则包来自 update/ 阈值主表编码",
     ],
-    footerTitle: "准确的纠正是：硬判定引擎不等于整个模块。",
+    footerTitle: "仅作诊断 —— 由人最终拍板。",
     footerText:
-      "Engine.py 只是确定性比较阶段。完整上市诊断流程在它之前有 AI 抽取，在它之后还有 LLM 辅助的软信号复核。",
+      "资格诊断重建发行人数据、比对门槛并标出缺口。它不决定能否上市，也不自动撰写招股书。",
   },
 } satisfies Record<
   Locale,
@@ -166,12 +168,16 @@ const copy = {
     primaryCta: string;
     secondaryCta: string;
     overviewCta: string;
+    settingsCta: string;
     panelTitle: string;
     panelSubtitle: string;
     panelItems: Array<[string, string]>;
     flowTitle: string;
     flowSubtitle: string;
-    flow: Record<"structured" | "documents" | "profile" | "hard" | "soft" | "report", [string, string]>;
+    flow: Record<
+      "structured" | "documents" | "confirm" | "hard" | "soft" | "report",
+      [string, string]
+    >;
     legend: Array<[string, string]>;
     modesTitle: string;
     modes: Array<{ title: string; tag: string; text: string }>;
@@ -229,6 +235,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
   const href = {
     overview: locale === "zh" ? "/zh" : "/",
     workspace: locale === "zh" ? "/zh/diagnostic/workspace" : "/diagnostic/workspace",
+    settings: locale === "zh" ? "/zh/diagnostic/settings" : "/diagnostic/settings",
   };
 
   return (
@@ -247,15 +254,31 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
             <h1 className="text-4xl font-semibold leading-tight md:text-6xl">{t.title}</h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#dfe9e4] md:text-lg">{t.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={href.workspace} className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]">
+              <Link
+                href={href.workspace}
+                className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
+              >
                 {t.primaryCta}
                 <ArrowIcon />
               </Link>
-              <a href={contactHref} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link
+                href={href.settings}
+                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                {t.settingsCta}
+                <ArrowIcon />
+              </Link>
+              <a
+                href={contactHref}
+                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
                 {t.secondaryCta}
                 <ArrowIcon />
               </a>
-              <Link href={href.overview} className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link
+                href={href.overview}
+                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
                 {t.overviewCta}
                 <ArrowIcon />
               </Link>
@@ -294,7 +317,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
           </div>
           <div className="mx-auto my-3 h-8 w-px bg-[#9aa196]" />
           <div className="mx-auto max-w-xl">
-            <FlowCard item={t.flow.profile} tone="data" />
+            <FlowCard item={t.flow.confirm} tone="data" />
           </div>
           <div className="mx-auto my-3 h-8 w-px bg-[#9aa196]" />
           <div className="grid gap-4 md:grid-cols-2">
@@ -303,7 +326,7 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
           </div>
           <div className="mx-auto my-3 h-8 w-px bg-[#9aa196]" />
           <div className="mx-auto max-w-xl">
-            <FlowCard item={t.flow.report} tone="data" />
+            <FlowCard item={t.flow.report} tone="ai" />
           </div>
           <div className="mt-5 flex flex-wrap justify-center gap-4 text-xs text-[#4f5a52]">
             {t.legend.map(([label, colorClass]) => (
@@ -393,10 +416,22 @@ export function EligibilityPageContent({ locale = "en" }: { locale?: Locale }) {
             <h2 className="text-xl font-semibold">{t.footerTitle}</h2>
             <p className="mt-3 text-sm leading-6 text-[#dfe9e4]">{t.footerText}</p>
           </div>
-          <a href={contactHref} className="inline-flex h-11 w-fit items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#ffd36b]">
-            {t.secondaryCta}
-            <ArrowIcon />
-          </a>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={href.workspace}
+              className="inline-flex h-11 w-fit items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] hover:bg-[#ffd36b]"
+            >
+              {t.primaryCta}
+              <ArrowIcon />
+            </Link>
+            <Link
+              href={href.settings}
+              className="inline-flex h-11 w-fit items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              {t.settingsCta}
+              <ArrowIcon />
+            </Link>
+          </div>
         </div>
       </section>
     </main>

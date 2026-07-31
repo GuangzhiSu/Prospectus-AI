@@ -1,0 +1,478 @@
+{
+  "report_type": "listing_eligibility_diagnostic",
+  "schema": "eligibility.report.v1",
+  "disclaimer": "Diagnostic only. For each listing pathway this report states which quantitative criteria are met, fall short, lack inputs, or cannot be determined, and cites the governing rule reference. It does NOT decide whether the issuer can or cannot list, and renders no verdict or recommendation. All thresholds are pending manual source verification where source_verified is false.",
+  "verdict": null,
+  "issuer_id": "0020.HK",
+  "generated_at": "2026-06-29T18:20:41",
+  "as_of_date": null,
+  "fx_profile": {
+    "fx_rate_to_hkd": null
+  },
+  "path_vars": {
+    "latest_audited_fy": "FY2020",
+    "prior_fy_1": "FY2019",
+    "prior_fy_2": "FY2018"
+  },
+  "status_legend": {
+    "PASS": "Converted value present and meets the threshold.",
+    "SHORTFALL": "Converted value present but below the threshold.",
+    "MISSING_INPUT": "The value itself is null, absent, or not resolved.",
+    "INDETERMINATE": "Value present but cannot be compared because the currency conversion is missing.",
+    "NOT_EVALUATED": "Rule authored but intentionally not evaluated in this phase."
+  },
+  "rulesets": [
+    {
+      "ruleset": "HKEX_Chapter_8A_WVR",
+      "ruleset_name": "HKEX Chapter 8A weighted voting rights eligibility",
+      "version": "0.2.0-draft",
+      "source_file": "hkex_ch8a_wvr.yaml",
+      "all_thresholds_verified": false,
+      "all_human_signoff": false,
+      "in_regression_baseline": true,
+      "source_ref": "HKEX Main Board Listing Rules, Chapter 8A (weighted voting rights)",
+      "gates": [
+        {
+          "gate_id": "wvr_market_cap_test",
+          "title": "WVR applicant expected market capitalisation",
+          "rule_ref": "Main Board Listing Rule 8A.06",
+          "ruleset": "HKEX_Chapter_8A_WVR",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": true,
+          "effective_from_verified": false,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "MISSING_INPUT",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "market_cap_40bn",
+              "metric": "Expected market capitalisation at listing",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8A.06",
+              "operator": ">=",
+              "required": ">= 40000 HKD million",
+              "actual": null,
+              "used_path": "offering_use_of_proceeds.market_capitalisation_at_listing",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2018-04-30",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8A.06",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+            },
+            {
+              "check_id": "market_cap_10bn",
+              "metric": "Expected market capitalisation at listing",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8A.06",
+              "operator": ">=",
+              "required": ">= 10000 HKD million",
+              "actual": null,
+              "used_path": "offering_use_of_proceeds.market_capitalisation_at_listing",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2018-04-30",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8A.06",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+            },
+            {
+              "check_id": "revenue_1bn",
+              "metric": "Revenue, most recent audited financial year",
+              "status": "INDETERMINATE",
+              "rule_ref": "Main Board Listing Rule 8A.06",
+              "operator": ">=",
+              "required": ">= 1000 HKD million",
+              "actual": "3446.2 RMB million",
+              "used_path": "financials.income_statement[period=FY2020].revenue",
+              "note": "requires RMB->HKD conversion rate (no fx_rate_to_hkd supplied in the run profile)",
+              "threshold_verified": true,
+              "effective_from": "2018-04-30",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8A.06",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "WVR regime commenced 30 Apr 2018; effective date not verified against the rulebook this pass."
+            }
+          ]
+        },
+        {
+          "gate_id": "wvr_beneficiary_economic_interest",
+          "title": "Aggregate economic interest of WVR beneficiaries",
+          "rule_ref": "Main Board Listing Rule 8A.13 and related guidance",
+          "ruleset": "HKEX_Chapter_8A_WVR",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": false,
+          "effective_from_verified": false,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "PASS",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "beneficiary_aggregate_ownership",
+              "metric": "Aggregate underlying economic interest of WVR beneficiaries at listing",
+              "status": "PASS",
+              "rule_ref": "Main Board Listing Rule 8A.13 and related guidance",
+              "operator": ">=",
+              "required": ">= 10 %",
+              "actual": "31.67",
+              "used_path": "company_legal_entity.dwvr.aggregate_wvr_beneficiaries.total_ownership_pct",
+              "note": "",
+              "threshold_verified": false,
+              "effective_from": "2018-04-30",
+              "effective_from_verified": false,
+              "verified_against": "",
+              "verified_on": "",
+              "verified_by": "",
+              "date_note": ""
+            }
+          ]
+        },
+        {
+          "gate_id": "wvr_structure_present",
+          "title": "Weighted voting rights structure disclosed",
+          "rule_ref": "Main Board Listing Rule 8A.07",
+          "ruleset": "HKEX_Chapter_8A_WVR",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": false,
+          "effective_from_verified": false,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "PASS",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "structure_disclosed",
+              "metric": "WVR structure effectiveness disclosed in issuer input",
+              "status": "PASS",
+              "rule_ref": "Main Board Listing Rule 8A.07",
+              "operator": "exists",
+              "required": "must be present",
+              "actual": "immediately upon completion of the Global Offering",
+              "used_path": "company_legal_entity.dwvr.structure_effective",
+              "note": "",
+              "threshold_verified": false,
+              "effective_from": "2018-04-30",
+              "effective_from_verified": false,
+              "verified_against": "",
+              "verified_on": "",
+              "verified_by": "",
+              "date_note": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ruleset": "HKEX_Main_Board",
+      "ruleset_name": "HKEX Main Board financial eligibility tests",
+      "version": "0.2.0-draft",
+      "source_file": "hkex_main_board.yaml",
+      "all_thresholds_verified": true,
+      "all_human_signoff": false,
+      "in_regression_baseline": true,
+      "source_ref": "HKEX Main Board Listing Rules, Chapter 8 (Rule 8.05)",
+      "gates": [
+        {
+          "gate_id": "mb_8051_profit_test",
+          "title": "Profit test",
+          "rule_ref": "Main Board Listing Rule 8.05(1)",
+          "ruleset": "HKEX_Main_Board",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": true,
+          "effective_from_verified": true,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "MISSING_INPUT",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "profit_recent_year",
+              "metric": "Profit attributable to owners, most recent audited year",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(1)",
+              "operator": ">=",
+              "required": ">= 35 HKD million",
+              "actual": null,
+              "used_path": "financials.income_statement[period=FY2020].profit_attributable_to_owners",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2022-01-01",
+              "effective_from_verified": true,
+              "verified_against": "Main Board Listing Rule 8.05(1)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": ""
+            },
+            {
+              "check_id": "profit_two_preceding_years",
+              "metric": "Aggregate profit attributable to owners, two preceding years",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(1)",
+              "operator": ">=",
+              "required": ">= 45 HKD million",
+              "actual": null,
+              "used_path": "financials.profit_attributable_to_owners_aggregate_two_preceding_years",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2022-01-01",
+              "effective_from_verified": true,
+              "verified_against": "Main Board Listing Rule 8.05(1)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": ""
+            },
+            {
+              "check_id": "profit_three_year_aggregate",
+              "metric": "Aggregate profit attributable to owners, track record period",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(1)",
+              "operator": ">=",
+              "required": ">= 80 HKD million",
+              "actual": null,
+              "used_path": "financials.profit_attributable_to_owners_aggregate_track_record",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2022-01-01",
+              "effective_from_verified": true,
+              "verified_against": "Main Board Listing Rule 8.05(1)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": ""
+            },
+            {
+              "check_id": "market_cap_at_listing",
+              "metric": "Expected market capitalisation at listing",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(1)",
+              "operator": ">=",
+              "required": ">= 500 HKD million",
+              "actual": null,
+              "used_path": "offering_use_of_proceeds.market_capitalisation_at_listing",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2018-02-15",
+              "effective_from_verified": true,
+              "verified_against": "Main Board Listing Rule 8.05(1); minimum market capitalisation Rule 8.09(2)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": ""
+            }
+          ]
+        },
+        {
+          "gate_id": "mb_8052_market_cap_revenue_cashflow_test",
+          "title": "Market capitalisation / revenue / cash flow test",
+          "rule_ref": "Main Board Listing Rule 8.05(2)",
+          "ruleset": "HKEX_Main_Board",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": true,
+          "effective_from_verified": false,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "MISSING_INPUT",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "market_cap_at_listing",
+              "metric": "Expected market capitalisation at listing",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(2)",
+              "operator": ">=",
+              "required": ">= 2000 HKD million",
+              "actual": null,
+              "used_path": "offering_use_of_proceeds.market_capitalisation_at_listing",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2004-03-31",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8.05(2)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+            },
+            {
+              "check_id": "revenue_recent_year",
+              "metric": "Revenue, most recent audited financial year",
+              "status": "INDETERMINATE",
+              "rule_ref": "Main Board Listing Rule 8.05(2)",
+              "operator": ">=",
+              "required": ">= 500 HKD million",
+              "actual": "3446.2 RMB million",
+              "used_path": "financials.income_statement[period=FY2020].revenue",
+              "note": "requires RMB->HKD conversion rate (no fx_rate_to_hkd supplied in the run profile)",
+              "threshold_verified": true,
+              "effective_from": "2004-03-31",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8.05(2)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+            },
+            {
+              "check_id": "operating_cashflow_track_record",
+              "metric": "Aggregate operating cash flow, track record period",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(2)",
+              "operator": ">=",
+              "required": ">= 100 HKD million",
+              "actual": null,
+              "used_path": "financials.operating_cash_flow_aggregate_track_record",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2004-03-31",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8.05(2)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+            }
+          ]
+        },
+        {
+          "gate_id": "mb_8053_market_cap_revenue_test",
+          "title": "Market capitalisation / revenue test",
+          "rule_ref": "Main Board Listing Rule 8.05(3)",
+          "ruleset": "HKEX_Main_Board",
+          "rule_version": "0.2.0-draft",
+          "threshold_verified": true,
+          "effective_from_verified": false,
+          "human_signoff": false,
+          "evaluated": true,
+          "status": "MISSING_INPUT",
+          "verdict": null,
+          "note": "",
+          "checks": [
+            {
+              "check_id": "market_cap_at_listing",
+              "metric": "Expected market capitalisation at listing",
+              "status": "MISSING_INPUT",
+              "rule_ref": "Main Board Listing Rule 8.05(3)",
+              "operator": ">=",
+              "required": ">= 4000 HKD million",
+              "actual": null,
+              "used_path": "offering_use_of_proceeds.market_capitalisation_at_listing",
+              "note": "path not found in issuer input",
+              "threshold_verified": true,
+              "effective_from": "2004-03-31",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8.05(3)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+            },
+            {
+              "check_id": "revenue_recent_year",
+              "metric": "Revenue, most recent audited financial year",
+              "status": "INDETERMINATE",
+              "rule_ref": "Main Board Listing Rule 8.05(3)",
+              "operator": ">=",
+              "required": ">= 500 HKD million",
+              "actual": "3446.2 RMB million",
+              "used_path": "financials.income_statement[period=FY2020].revenue",
+              "note": "requires RMB->HKD conversion rate (no fx_rate_to_hkd supplied in the run profile)",
+              "threshold_verified": true,
+              "effective_from": "2004-03-31",
+              "effective_from_verified": false,
+              "verified_against": "Main Board Listing Rule 8.05(3)",
+              "verified_on": "2026-06-29",
+              "verified_by": "cc_websearch",
+              "date_note": "conservative lower-bound placeholder; test-specific thresholds predate 2018; exact introduction date not yet verified; unchanged by the 2018 min-mcap (Rule 8.09(2)) and 2022 profit amendments."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "soft_conditions": [
+    {
+      "condition_id": "suitability_for_listing",
+      "title": "Suitability of the issuer and its business for listing",
+      "rule_ref": "Main Board Listing Rule 8.04",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    },
+    {
+      "condition_id": "customer_concentration",
+      "title": "Customer concentration and reliance on major customers",
+      "rule_ref": "HKEX Guidance Letter HKEX-GL51-13",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    },
+    {
+      "condition_id": "supplier_concentration",
+      "title": "Supplier concentration and reliance on major suppliers",
+      "rule_ref": "HKEX Guidance Letter HKEX-GL51-13",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    },
+    {
+      "condition_id": "independence_from_controlling_shareholder",
+      "title": "Independence from the controlling shareholder",
+      "rule_ref": "Main Board Listing Rule 8.10 and related guidance",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    },
+    {
+      "condition_id": "management_continuity",
+      "title": "Continuity of management over the track record period",
+      "rule_ref": "Main Board Listing Rule 8.05(1)(b)",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    },
+    {
+      "condition_id": "ownership_continuity",
+      "title": "Continuity of ownership and control over the track record period",
+      "rule_ref": "Main Board Listing Rule 8.05(1)(c)",
+      "status": "NOT_EVALUATED",
+      "stub_reason": "LLM and retrieval backend not wired in this phase",
+      "evidence": []
+    }
+  ],
+  "summary": {
+    "verdict": null,
+    "status_counts": {
+      "PASS": 2,
+      "SHORTFALL": 0,
+      "MISSING_INPUT": 4,
+      "INDETERMINATE": 0,
+      "NOT_EVALUATED": 0
+    },
+    "gates_total": 6,
+    "unverified_thresholds": [
+      {
+        "ruleset": "HKEX_Chapter_8A_WVR",
+        "source_file": "hkex_ch8a_wvr.yaml",
+        "gate_id": "wvr_beneficiary_economic_interest",
+        "check_id": "beneficiary_aggregate_ownership",
+        "rule_ref": "Main Board Listing Rule 8A.13 and related guidance",
+        "operator": ">="
+      },
+      {
+        "ruleset": "HKEX_Chapter_8A_WVR",
+        "source_file": "hkex_ch8a_wvr.yaml",
+        "gate_id": "wvr_structure_present",
+        "check_id": "structure_disclosed",
+        "rule_ref": "Main Board Listing Rule 8A.07",
+        "operator": "exists"
+      }
+    ],
+    "human_signoff_complete": false
+  }
+}
