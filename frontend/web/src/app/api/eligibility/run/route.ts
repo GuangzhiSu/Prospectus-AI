@@ -510,6 +510,11 @@ function buildStructuredFallbackResponse(
   sessionId: string,
   reason: string
 ) {
+  const fallbackReason = body.use_uploaded_docs
+    ? `${reason}\nUploaded documents were not extracted because the public Vercel ` +
+      "runtime does not include the Python document engine. Enter structured fields " +
+      "here, or use the desktop/local app for full document extraction."
+    : reason;
   const form = body.structured_form || {};
   const marketKey = body.market_key || "structured";
   const marketHint =
@@ -559,7 +564,7 @@ function buildStructuredFallbackResponse(
     extraction: {
       quantifiable: quantifiableFields(form),
       llm_stub: true,
-      notes: [reason],
+      notes: [fallbackReason],
     },
   };
   return {
@@ -569,7 +574,7 @@ function buildStructuredFallbackResponse(
     llm: {
       provider: "vercel_structured_fallback",
       stub: true,
-      reason,
+      reason: fallbackReason,
     },
   };
 }
@@ -578,7 +583,10 @@ function canUseStructuredFallback(
   body: RunBody,
   documentPaths: string[] | undefined
 ): boolean {
-  return Boolean(process.env.VERCEL === "1" && !documentPaths?.length && body.structured_form);
+  return Boolean(
+    process.env.VERCEL === "1" &&
+      (body.structured_form || body.use_uploaded_docs || documentPaths?.length)
+  );
 }
 
 export async function POST(req: Request) {
