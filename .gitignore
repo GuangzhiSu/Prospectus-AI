@@ -83,6 +83,7 @@ docs/*.pdf
 
 # Python (platform/services/local-llm)
 .venv/
+.python_packages/
 **/__pycache__/
 *.py[cod]
 *.pyo

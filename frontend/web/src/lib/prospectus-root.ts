@@ -1,4 +1,5 @@
 import path from "path";
+import os from "os";
 import { existsSync } from "fs";
 
 /**
@@ -40,10 +41,17 @@ export function getAgentScriptPath(
 
 export function getWorkspaceRoot(root = getProspectusRoot()): string {
   const configured = process.env.WORKSPACE_ROOT?.trim();
-  if (!configured) return root;
-  return path.isAbsolute(configured)
-    ? configured
-    : path.resolve(root, configured);
+  if (configured) {
+    return path.isAbsolute(configured)
+      ? configured
+      : path.resolve(root, configured);
+  }
+
+  if (process.env.VERCEL === "1" || root.startsWith("/var/task")) {
+    return path.join(os.tmpdir(), "prospectus-ui-workspace");
+  }
+
+  return root;
 }
 
 export function workspacePaths(root = getProspectusRoot()) {

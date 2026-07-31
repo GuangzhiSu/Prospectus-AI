@@ -125,7 +125,13 @@ export async function POST(req: Request) {
     const env = buildAgentProcessEnv(process.env, settings);
     const eligibilityRoot = getEligibilityPackageRoot(root);
     const aiModuleRoot = getAiModuleRoot(root);
-    env.PYTHONPATH = [eligibilityRoot, aiModuleRoot, env.PYTHONPATH || ""]
+    const pythonPackagesRoot = path.join(root, ".python_packages");
+    env.PYTHONPATH = [
+      pythonPackagesRoot,
+      eligibilityRoot,
+      aiModuleRoot,
+      env.PYTHONPATH || "",
+    ]
       .filter(Boolean)
       .join(path.delimiter);
     env.AI_MODULE_ROOT = aiModuleRoot;
@@ -139,7 +145,14 @@ export async function POST(req: Request) {
     // Same provider as drafting Settings. Only force stub when the selected
     // cloud provider has no credentials; Local Qwen always attempts live load.
     const provider = String(env.LLM_PROVIDER || settings.llmProvider || "qwen_local");
-    const readiness = providerReady(provider, env);
+    const readiness =
+      process.env.VERCEL === "1" && provider === "qwen_local"
+        ? {
+            ready: false,
+            reason:
+              "Local Qwen is not available in Vercel serverless; using structured fallback.",
+          }
+        : providerReady(provider, env);
     if (env.ELIGIBILITY_LLM_STUB === undefined || env.ELIGIBILITY_LLM_STUB === "") {
       env.ELIGIBILITY_LLM_STUB = readiness.ready ? "0" : "1";
     }

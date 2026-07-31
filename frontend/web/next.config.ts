@@ -14,6 +14,16 @@ const nextConfig: NextConfig = {
   output: "standalone",
   /** Trace files from monorepo root when resolving server bundles. */
   outputFileTracingRoot: repoRoot,
+  /** Eligibility API spawns the standalone Python bridge; include those files in server bundles. */
+  outputFileTracingIncludes: {
+    "/api/eligibility/run": [
+      "../../.python_packages/**/*",
+      "../../eligibility/**/*",
+      "../../ai-module/llm_*.py",
+      "../../ai-module/llm_providers.py",
+      "../../ai-module/llm_sanitize.py",
+    ],
+  },
   /** Omit sharp / @img native addons so Linux-built standalone can run with Windows Node (no Linux .node files). */
   outputFileTracingExcludes: {
     "*": ["./node_modules/sharp/**/*", "./node_modules/@img/**/*"],
