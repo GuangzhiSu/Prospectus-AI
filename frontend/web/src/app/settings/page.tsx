@@ -23,13 +23,18 @@ type GpuResp = {
 
 type ModelStatus = { installed: boolean; path: string; mtimeMs?: number };
 
-type SettingsResp = MaskedAppSettings;
+type SettingsResp = MaskedAppSettings & { settingsFile?: string };
 type SettingsLocale = "en" | "zh";
 type SettingsCopy = {
   loading: string;
   backToWorkspace: string;
+  backToEligibility: string;
   pageTitle: string;
   pageDescription: string;
+  pageTitleEligibility: string;
+  pageDescriptionEligibility: string;
+  inferenceDescriptionEligibility: string;
+  localQwenNoRemoteApiEligibility: string;
   softwareUpdates: string;
   updatesDescription: string;
   checkingUpdates: string;
@@ -75,6 +80,7 @@ type SettingsCopy = {
   testSavedSettingsHint: string;
   localQwenNoRemoteApi: string;
   saveBeforeTest: string;
+  saveOk: string;
   connectionOk: string;
   requestFailed: (status: number) => string;
   testFailed: string;
@@ -189,6 +195,14 @@ const SETTINGS_COPY = {
     pageTitle: "Model & inference",
     pageDescription:
       "Agent1, Agent2, and document chat use the backend selected here. Saved to",
+    pageTitleEligibility: "Eligibility inference backend",
+    pageDescriptionEligibility:
+      "IPO eligibility extraction, qualitative analysis, and feedback use this backend only (separate from drafting). Saved to",
+    backToEligibility: "← Back to eligibility workspace",
+    inferenceDescriptionEligibility:
+      "Pick one provider for eligibility AI stages (extraction, qualitative signals, feedback). Hard threshold comparison never uses an LLM.",
+    localQwenNoRemoteApiEligibility:
+      "Local Qwen has no remote API — save settings and run an eligibility diagnostic to verify the model loads.",
     softwareUpdates: "Software updates",
     updatesDescription: "Check GitHub Releases for a newer Prospectus AI installer.",
     checkingUpdates: "Checking…",
@@ -246,7 +260,9 @@ const SETTINGS_COPY = {
     testSavedSettingsHint: "Uses saved settings on disk — save first, then test.",
     localQwenNoRemoteApi:
       "Local Qwen has no remote API — save settings and run Agent1 to verify the model loads.",
-    saveBeforeTest: "Test uses saved settings only. Click “Save settings” first, then try again.",
+    saveBeforeTest:
+      "You have unsaved changes (provider, model, or API key). Click “Save settings” below, then test again.",
+    saveOk: "Settings saved.",
     connectionOk: "Connection OK.",
     requestFailed: (status: number) => `Request failed (${status})`,
     testFailed: "Test failed",
@@ -265,6 +281,14 @@ const SETTINGS_COPY = {
     backToWorkspace: "← 返回中文工作区",
     pageTitle: "模型与推理",
     pageDescription: "Agent1、Agent2 和文档问答都会使用这里选择的后端。设置会保存到",
+    pageTitleEligibility: "上市资格 · 推理后端",
+    pageDescriptionEligibility:
+      "仅用于上市资格诊断的抽取、定性分析与反馈（与招股书起草设置分开）。设置会保存到",
+    backToEligibility: "← 返回上市资格工作区",
+    inferenceDescriptionEligibility:
+      "为上市资格诊断的 AI 阶段（抽取、定性信号、反馈）选择提供商。硬性门槛比对从不使用 LLM。",
+    localQwenNoRemoteApiEligibility:
+      "本地 Qwen 没有远程 API；请保存设置后运行一次上市资格诊断以确认模型可加载。",
     softwareUpdates: "软件更新",
     updatesDescription: "检查 GitHub Releases 中是否有更新的 Prospectus AI 安装包。",
     checkingUpdates: "正在检查…",
@@ -319,7 +343,8 @@ const SETTINGS_COPY = {
     testing: "测试中…",
     testSavedSettingsHint: "测试只读取已保存到本地的设置，请先保存，再测试。",
     localQwenNoRemoteApi: "本地 Qwen 没有远程 API；请保存设置后运行 Agent1 来确认模型可加载。",
-    saveBeforeTest: "测试只使用已保存的设置。请先点击“保存设置”，再重新测试。",
+    saveBeforeTest: "有未保存的更改（提供商、模型或 API Key）。请先点击下方“保存设置”，再重新测试。",
+    saveOk: "设置已保存。",
     connectionOk: "连接正常。",
     requestFailed: (status: number) => `请求失败（${status}）`,
     testFailed: "测试失败",
@@ -335,14 +360,48 @@ const SETTINGS_COPY = {
   },
 } satisfies Record<SettingsLocale, SettingsCopy>;
 
-export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale }) {
+export type SettingsProduct = "drafting" | "eligibility";
+
+export function SettingsPageContent({
+  locale = "en",
+  product = "drafting",
+}: {
+  locale?: SettingsLocale;
+  product?: SettingsProduct;
+}) {
   const t = SETTINGS_COPY[locale];
-  const workspaceHref = locale === "zh" ? "/zh/workspace" : "/workspace";
+  const isEligibility = product === "eligibility";
+  const workspaceHref = isEligibility
+    ? locale === "zh"
+      ? "/zh/diagnostic/workspace"
+      : "/diagnostic/workspace"
+    : locale === "zh"
+      ? "/zh/workspace"
+      : "/workspace";
+  const settingsApi = isEligibility ? "/api/eligibility/settings" : "/api/settings";
+  const testApi = isEligibility
+    ? "/api/eligibility/settings/test-llm"
+    : "/api/settings/test-llm";
+  const fallbackSettingsFileHint = isEligibility
+    ? "~/Library/Application Support/ProspectusAI/eligibility-settings.json"
+    : "~/Library/Application Support/ProspectusAI/settings.json";
+  const pageTitle = isEligibility ? t.pageTitleEligibility : t.pageTitle;
+  const pageDescription = isEligibility
+    ? t.pageDescriptionEligibility
+    : t.pageDescription;
+  const backLabel = isEligibility ? t.backToEligibility : t.backToWorkspace;
+  const inferenceDescription = isEligibility
+    ? t.inferenceDescriptionEligibility
+    : t.inferenceDescription;
+  const localQwenHint = isEligibility
+    ? t.localQwenNoRemoteApiEligibility
+    : t.localQwenNoRemoteApi;
   const [settings, setSettings] = useState<SettingsResp | null>(null);
   const [gpu, setGpu] = useState<GpuResp | null>(null);
   const [modelStatus, setModelStatus] = useState<ModelStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveOk, setSaveOk] = useState(false);
   const [downloadLog, setDownloadLog] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -353,12 +412,13 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
   const [form, setForm] = useState<FormState>(defaultForm);
 
   const activeMeta = PROVIDER_UI[form.llmProvider];
+  const settingsFileHint = settings?.settingsFile || fallbackSettingsFileHint;
 
   const refresh = useCallback(async () => {
     setError(null);
     try {
       const [s, g, m] = await Promise.all([
-        fetch("/api/settings").then((r) => r.json()),
+        fetch(settingsApi).then((r) => r.json()),
         fetch("/api/system/gpu").then((r) => r.json()),
         fetch("/api/models/status").then((r) => r.json()),
       ]);
@@ -372,7 +432,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     } finally {
       setLoading(false);
     }
-  }, [t.loadFailed]);
+  }, [t.loadFailed, settingsApi]);
 
   useEffect(() => {
     void refresh();
@@ -382,6 +442,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     e.preventDefault();
     setSaving(true);
     setError(null);
+    setSaveOk(false);
     setTestResult(null);
     try {
       const body: Record<string, unknown> = {
@@ -411,7 +472,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
         body[field] = k;
       }
 
-      const res = await fetch("/api/settings", {
+      const res = await fetch(settingsApi, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -420,10 +481,27 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
       if (!res.ok) throw new Error(data.error || t.saveFailed);
       setSettings(data);
       setForm((f) => settingsToForm(data, f));
+      setSaveOk(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.saveFailed);
+      setSaveOk(false);
     } finally {
       setSaving(false);
+    }
+  }
+
+  function activeProviderKeyField(): keyof FormState | null {
+    switch (form.llmProvider) {
+      case "openai":
+        return "openaiApiKey";
+      case "deepseek":
+        return "deepseekApiKey";
+      case "qwen_api":
+        return "dashscopeApiKey";
+      case "anthropic":
+        return "anthropicApiKey";
+      default:
+        return null;
     }
   }
 
@@ -432,13 +510,8 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     if (form.llmProvider !== settings.llmProvider) return true;
     if (form.llmProvider === "qwen_local") return false;
 
-    const keyDirty =
-      form.openaiApiKey.trim() ||
-      form.deepseekApiKey.trim() ||
-      form.dashscopeApiKey.trim() ||
-      form.anthropicApiKey.trim();
-
-    if (keyDirty) return true;
+    const keyField = activeProviderKeyField();
+    if (keyField && String(form[keyField] || "").trim()) return true;
 
     switch (form.llmProvider) {
       case "openai":
@@ -471,7 +544,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     if (form.llmProvider === "qwen_local") {
       setTestResult({
         ok: false,
-        text: t.localQwenNoRemoteApi,
+        text: localQwenHint,
       });
       return;
     }
@@ -484,7 +557,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
     }
     setTesting(true);
     try {
-      const res = await fetch("/api/settings/test-llm", { method: "POST" });
+      const res = await fetch(testApi, { method: "POST" });
       const data = (await res.json()) as { ok?: boolean; message?: string; error?: string };
       if (res.ok && data.ok) {
         setTestResult({ ok: true, text: data.message || t.connectionOk });
@@ -770,19 +843,19 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
       <div className="mx-auto max-w-3xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t.pageTitle}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              {t.pageDescription}{" "}
+              {pageDescription}{" "}
               <code className="rounded bg-[var(--surface)] px-1 text-xs">
-                ~/.config/ProspectusAI/settings.json
+                {settingsFileHint}
               </code>
               .
             </p>
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
-            <AppBackendStatus />
+            {!isEligibility ? <AppBackendStatus /> : null}
             <Link href={workspaceHref} className="text-sm text-[var(--accent)] hover:underline">
-              {t.backToWorkspace}
+              {backLabel}
             </Link>
           </div>
         </header>
@@ -793,6 +866,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
           </div>
         )}
 
+        {!isEligibility && (
         <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
@@ -861,6 +935,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
             </div>
           )}
         </section>
+        )}
 
         <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
@@ -949,7 +1024,7 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
               {t.inferenceBackend}
             </h2>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              {t.inferenceDescription}
+              {inferenceDescription}
             </p>
           </div>
 
@@ -1018,6 +1093,12 @@ export function SettingsPageContent({ locale = "en" }: { locale?: SettingsLocale
           >
             {saving ? t.saving : t.saveSettings}
           </button>
+          {saveOk && !error ? (
+            <p className="text-sm text-green-600">{t.saveOk}</p>
+          ) : null}
+          {error ? (
+            <p className="text-sm text-red-500">{error}</p>
+          ) : null}
         </form>
       </div>
     </div>

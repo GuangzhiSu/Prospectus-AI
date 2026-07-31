@@ -347,9 +347,17 @@ def run_qwen_with_model(
         max_new_tokens = int(os.environ.get("QWEN_MAX_NEW_TOKENS", "4096"))
 
     # Default input context budget. Qwen3.5 supports 262K natively, but KV cache
-    # dominates VRAM for long contexts. 16K is safe on a 24GB GPU with 4B/9B models.
-    is_cuda = next(model.parameters()).is_cuda
-    default_ctx = 16384 if is_cuda else 32768
+    # dominates VRAM for long contexts. 16K is safe on a 24GB CUDA GPU with 4B/9B.
+    # Apple MPS has a much smaller practical ceiling — keep this tight.
+    device = next(model.parameters()).device
+    is_cuda = device.type == "cuda"
+    is_mps = device.type == "mps"
+    if is_cuda:
+        default_ctx = 16384
+    elif is_mps:
+        default_ctx = 4096
+    else:
+        default_ctx = 4096
     max_length = int(os.environ.get("QWEN_MAX_CTX", str(default_ctx)))
 
     name = getattr(model.config, "_name_or_path", "") or ""
@@ -362,7 +370,7 @@ def run_qwen_with_model(
         truncation=True,
         max_length=max_length,
     )
-    target_device = next(model.parameters()).device
+    target_device = device
     inputs = {k: v.to(target_device) for k, v in inputs.items()}
 
     gen_kwargs = _build_generate_kwargs(tokenizer)
@@ -393,8 +401,15 @@ def run_qwen_with_model_stream(
     if max_new_tokens is None:
         max_new_tokens = int(os.environ.get("QWEN_MAX_NEW_TOKENS", "4096"))
 
-    is_cuda = next(model.parameters()).is_cuda
-    default_ctx = 16384 if is_cuda else 32768
+    device = next(model.parameters()).device
+    is_cuda = device.type == "cuda"
+    is_mps = device.type == "mps"
+    if is_cuda:
+        default_ctx = 16384
+    elif is_mps:
+        default_ctx = 4096
+    else:
+        default_ctx = 4096
     max_length = int(os.environ.get("QWEN_MAX_CTX", str(default_ctx)))
 
     name = getattr(model.config, "_name_or_path", "") or ""

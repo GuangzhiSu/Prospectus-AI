@@ -1,0 +1,27 @@
+ruleset: SGX_Catalist
+ruleset_name: SGX Catalist sponsor-based admission
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: SGX Catalist Rules Ch.2 / Ch.4
+gates:
+- id: structural_requirements
+  title: Structural / offering requirements
+  rule_ref: Catalist Rules Ch.2 / Ch.4
+  effective_from: '2024-04-30'
+  evaluated: false
+  human_signoff: false
+  stub_reason: multi-market pack v1 — no fixture this phase
+  requirement:
+    all_of:
+    - check:
+        id: cat_1
+        metric: sponsor engaged (full sponsor assessment)
+        profile_field: sponsor_engaged
+        operator: is_true
+        threshold_verified: true
+        effective_from: '2024-04-30'
+        effective_from_verified: true
+        verified_against: Catalist Rules Ch.2 / Ch.4
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Only hard gate; all else routed to disclosure diagnostics / soft signals

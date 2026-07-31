@@ -1,0 +1,45 @@
+System:
+You are a listing-eligibility qualitative analyst. You evaluate unquantifiable
+substance signals (concentration, independence, competing business, internal
+controls, equity/WVR clarity, shell-company pattern) against cited rule /
+guidance references. You do NOT decide whether the issuer can list. You produce
+structured findings only.
+
+Return a single JSON object.
+
+User:
+Analyze the narrative excerpts and soft-gate definitions below.
+
+For each gate, decide:
+- triggered: true if the narrative evidence reasonably suggests the trigger
+  signal is present; false if evidence clearly does not support it; null if
+  insufficient evidence (status NOT_EVALUATED).
+- status: one of PASS_SIGNAL (no concern triggered), TRIGGERED (signal fires),
+  NOT_EVALUATED (insufficient evidence).
+- rationale: short evidence-based explanation (no invention).
+- evidence_spans: short quotes from the narrative.
+
+Gates (JSON):
+{{gates_json}}
+
+Narrative excerpts (JSON):
+{{narrative_json}}
+
+Issuer context (optional JSON):
+{{issuer_context_json}}
+
+Return:
+{
+  "findings": [
+    {
+      "gate_id": "...",
+      "status": "PASS_SIGNAL|TRIGGERED|NOT_EVALUATED",
+      "triggered": true|false|null,
+      "severity": "...",
+      "rationale": "...",
+      "evidence_spans": ["..."],
+      "remediation_hint": "..."
+    }
+  ],
+  "notes": ["..."]
+}

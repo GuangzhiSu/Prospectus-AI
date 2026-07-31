@@ -1,0 +1,14 @@
+# Standalone listing-eligibility package
+# Python 3.10+
+#
+# Hard inspection (always required):
+PyYAML>=6.0
+
+# Document ingest for extraction (optional per file type):
+pymupdf>=1.24
+python-docx>=1.0
+pandas>=2.0
+openpyxl>=3.1
+
+# LLM stages (extraction / qualitative / feedback) — OpenAI-compatible HTTP API
+openai>=1.40.0

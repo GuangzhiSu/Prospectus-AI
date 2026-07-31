@@ -1,0 +1,344 @@
+ruleset: CN_Main_Board
+ruleset_name: SSE & SZSE Main Board (沪深主板)
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: SSE/SZSE 股票上市规则 (2024年4月修订) 3.1.1–3.1.5
+gates:
+- id: structural_requirements
+  title: Structural / offering requirements
+  rule_ref: SSE/SZSE 上市规则 3.1.1(二)
+  effective_from: '2024-04-30'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: mb_p0a
+        metric: post-issue share capital
+        input_path: offering.post_issue_share_capital
+        operator: '>='
+        threshold:
+          value: 50000000
+          unit: CNY
+        threshold_verified: true
+        effective_from: '2024-04-30'
+        effective_from_verified: true
+        verified_against: SSE/SZSE 上市规则 3.1.1(二)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+    - check:
+        id: mb_p0b
+        metric: publicly OFFERED shares as % of total share capital (公开发行比例)
+        input_path: offering.public_float_pct
+        operator: '>='
+        threshold_verified: true
+        effective_from: '2024-04-30'
+        effective_from_verified: true
+        verified_against: 3.1.1(三)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Offering-size condition at IPO — NOT an HK-style ongoing public float; two-tier
+          by post-issue share capital Complex / tiered threshold (25% (10% if share capital > CNY 400M)).
+        requires_llm: false
+- id: financial_eligibility_tests
+  title: Financial eligibility — meet at least one standard / test
+  rule_ref: 3.1.2(一)
+  effective_from: '2024-04-30'
+  evaluated: true
+  human_signoff: false
+  stub_reason: ""
+  requirement:
+    any_of:
+    - all_of:
+      - check:
+          id: mb_s1_1
+          metric: net profit positive each of last 3 FYs
+          input_path: financials.net_profit_positive_each_year[3fy]
+          operator: is_true
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(一)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 孰低 basis, audited
+      - check:
+          id: mb_s1_2
+          metric: 3-yr aggregate net profit
+          input_path: financials.net_profit_regulatory_cn_aggregate_3fy
+          operator: '>='
+          threshold:
+            value: 200000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(一)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 孰低 basis
+      - check:
+          id: mb_s1_3
+          metric: latest-FY net profit
+          input_path: financials.net_profit_regulatory_cn_latest
+          operator: '>='
+          threshold:
+            value: 100000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(一)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 孰低 basis
+      - any_of:
+        - check:
+            id: mb_s1_4a
+            metric: 3-yr aggregate operating cash flow
+            input_path: financials.operating_cash_flow_aggregate_track_record
+            operator: '>='
+            threshold:
+              value: 200000000
+              unit: CNY
+            threshold_verified: true
+            effective_from: '2024-04-30'
+            effective_from_verified: true
+            verified_against: 3.1.2(一)
+            verified_on: '2026-07-24'
+            verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+            guidance_note: OR-group with MB-S1-4b
+        - check:
+            id: mb_s1_4b
+            metric: 3-yr aggregate revenue
+            input_path: financials.revenue_aggregate_track_record
+            operator: '>='
+            threshold:
+              value: 1500000000
+              unit: CNY
+            threshold_verified: true
+            effective_from: '2024-04-30'
+            effective_from_verified: true
+            verified_against: 3.1.2(一)
+            verified_on: '2026-07-24'
+            verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+            guidance_note: OR-group with MB-S1-4a
+    - all_of:
+      - check:
+          id: mb_s2_1
+          metric: expected market cap
+          input_path: offering.expected_market_cap_at_listing
+          operator: '>='
+          threshold:
+            value: 5000000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(二)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: Deal parameter
+      - check:
+          id: mb_s2_2
+          metric: latest-FY net profit positive
+          input_path: financials.net_profit_regulatory_cn_latest
+          operator: '>'
+          threshold:
+            value: 0
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(二)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 孰低
+      - check:
+          id: mb_s2_3
+          metric: latest-FY revenue
+          input_path: financials.income_statement[period={latest_audited_fy}].revenue
+          operator: '>='
+          threshold:
+            value: 600000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(二)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: mb_s2_4
+          metric: 3-yr aggregate operating cash flow
+          input_path: financials.operating_cash_flow_aggregate_track_record
+          operator: '>='
+          threshold:
+            value: 250000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(二)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+    - all_of:
+      - check:
+          id: mb_s3_1
+          metric: expected market cap
+          input_path: offering.expected_market_cap_at_listing
+          operator: '>='
+          threshold:
+            value: 10000000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(三)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+      - check:
+          id: mb_s3_2
+          metric: latest-FY net profit positive
+          input_path: financials.net_profit_regulatory_cn_latest
+          operator: '>'
+          threshold:
+            value: 0
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(三)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 孰低
+      - check:
+          id: mb_s3_3
+          metric: latest-FY revenue
+          input_path: financials.income_statement[period={latest_audited_fy}].revenue
+          operator: '>='
+          threshold:
+            value: 1000000000
+            unit: CNY
+          threshold_verified: true
+          effective_from: '2024-04-30'
+          effective_from_verified: true
+          verified_against: 3.1.2(三)
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+- id: red_chip_alt_1
+  title: Red-chip route — alt_1
+  rule_ref: 3.1.4(一)
+  effective_from: '2024-04-30'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: mb_rc_l1
+        metric: market value
+        input_path: offering.listed_market_value
+        operator: '>='
+        threshold:
+          value: 200000000000
+          unit: CNY
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.4(一)
+        needs_human_verify: true
+        guidance_note: Already-listed red-chip route 1
+    - check:
+        id: mb_rc_u1a
+        metric: expected market cap
+        input_path: offering.expected_market_cap_at_listing
+        operator: '>='
+        threshold:
+          value: 20000000000
+          unit: CNY
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.5(一)
+        needs_human_verify: true
+    - check:
+        id: mb_rc_u1b
+        metric: latest-FY revenue
+        input_path: financials.income_statement[period={latest_audited_fy}].revenue
+        operator: '>='
+        threshold:
+          value: 3000000000
+          unit: CNY
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.5(一)
+        needs_human_verify: true
+- id: red_chip_alt_2
+  title: Red-chip route — alt_2
+  rule_ref: 3.1.4(二)
+  effective_from: '2024-04-30'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: mb_rc_l2
+        metric: market value + self-developed internationally leading technology, strong innovation, relative
+          competitive advantage
+        input_path: offering_listed_market_value_tech_leaf
+        operator: '>='
+        threshold: null
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.4(二)
+        needs_human_verify: true
+        guidance_note: Tech-leadership limb = deferred leaf
+        requires_llm: true
+    - check:
+        id: mb_rc_u2
+        metric: fast revenue growth + tech leadership + expected market cap
+        input_path: growth_leaf_offering_expected_market_cap_at_listing
+        operator: '>='
+        threshold: null
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.5(二)
+        needs_human_verify: true
+        requires_llm: true
+- id: red_chip_alt_3
+  title: Red-chip route — alt_3
+  rule_ref: 3.1.5(三)
+  effective_from: '2024-04-30'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: mb_rc_u3
+        metric: fast revenue growth + tech leadership + expected market cap >= CNY 5,000,000,000 AND latest-FY
+          revenue >= CNY 500,000,000 (pattern-consistent with STAR/ChiNext 2.1.3 — VERBATIM CONFIRMATION
+          STILL REQUIRED)
+        input_path: offering_expected_market_cap_at_listing_financials_income_statem
+        operator: '>='
+        threshold:
+          value: 5000000000500000000
+          unit: CNY
+        threshold_verified: false
+        effective_from: '2024-04-30'
+        effective_from_verified: false
+        verified_against: 3.1.5(三)
+        needs_human_verify: true
+        guidance_note: Transcribe verbatim from consolidated rule PDF Complex / tiered threshold (5,000,000,000
+          + 500,000,000).
+        requires_llm: false

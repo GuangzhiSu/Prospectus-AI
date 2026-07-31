@@ -1,0 +1,5 @@
+{
+  "path_vars": {"latest_audited_fy": "FY2020", "prior_fy_1": "FY2019", "prior_fy_2": "FY2018"},
+  "fx_rate_to_hkd": {"value": 1.18, "from_currency": "RMB", "as_of_date": "2020-12-31",
+                     "source_ref": "ILLUSTRATIVE rate, source_verified: false — for sanity demo only"}
+}

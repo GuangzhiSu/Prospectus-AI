@@ -1,0 +1,24 @@
+{
+  "_note": "Synthetic SGX issuer — 210(2)(b) passable (profit>0, mcap>=150M); 210(2)(a) fails on profit threshold.",
+  "schema_version": "v3",
+  "issuer_id": "SYNTHETIC_SGX_TESTCO",
+  "profile": {
+    "operating_track_record_years": 4,
+    "business_management_continuity_3y": true
+  },
+  "offering": {
+    "expected_market_cap_at_listing": { "value": 200000000, "unit": "SGD" }
+  },
+  "financials": {
+    "income_statement": [
+      {
+        "period": "FY2024",
+        "pre_tax_profit_ex_nonrecurrent": { "value": 5000000, "unit": "SGD" },
+        "revenue": { "value": 80000000, "unit": "SGD" }
+      }
+    ]
+  },
+  "company": {
+    "board_independence": true
+  }
+}

@@ -1,0 +1,192 @@
+ruleset: HKEX_Public_Float
+ruleset_name: HKEX initial public float & free float (MB + GEM)
+version: 0.1.0-draft
+in_regression_baseline: false
+source_ref: MB LR 8.08 / 8.08A / 8.09 + GEM Ch.11 (listing documents on/after 2025-08-04)
+gates:
+- id: public_float_tier_hk_f_1
+  title: public float where expected market value <= HK$6bn
+  rule_ref: MB 8.08(1) / GEM 13.37B
+  effective_from: '2025-08-04'
+  evaluated: true
+  human_signoff: false
+  stub_reason: ""
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_1
+        metric: public float where expected market value <= HK$6bn
+        input_path: offering.public_float_pct
+        operator: '>='
+        threshold:
+          value: 25.0
+          unit: '%'
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: MB 8.08(1) / GEM 13.37B
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: Tiered by expected market value of listed class
+- id: public_float_tier_hk_f_2
+  title: '>HK$6bn to <=HK$30bn'
+  rule_ref: 8.08(1) / 13.37B
+  effective_from: '2025-08-04'
+  evaluated: true
+  human_signoff: false
+  stub_reason: ""
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_2
+        metric: '>HK$6bn to <=HK$30bn'
+        input_path: offering.public_float_pct
+        operator: '>='
+        threshold:
+          value: 15.0
+          unit: '%'
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: 8.08(1) / 13.37B
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+- id: public_float_tier_hk_f_3
+  title: '>HK$30bn'
+  rule_ref: 8.08(1) / 13.37B
+  effective_from: '2025-08-04'
+  evaluated: true
+  human_signoff: false
+  requires_llm: false
+  stub_reason: ""
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_3
+        metric: '>HK$30bn'
+        input_path: offering.public_float_pct
+        operator: '>='
+        threshold:
+          value: 10.0
+          unit: '%'
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: 8.08(1) / 13.37B
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        requires_llm: false
+        guidance_note: 'Simplified floor (10%) for diagnostic scoring; full rule is tiered (higher of % giving HK$4.5bn public value; 10% for >HK$45bn case-by-case).'
+- id: public_float_or_hk_f_g1
+  title: Free float alternative (8.08A)
+  rule_ref: MB 8.08A / GEM 11.23A
+  effective_from: '2025-08-04'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    any_of:
+    - all_of:
+      - check:
+          id: hk_f_4
+          metric: 'unrestricted public shares: % and value'
+          input_path: offering.free_float_pct_and_value
+          operator: '>='
+          threshold_verified: true
+          effective_from: '2025-08-04'
+          effective_from_verified: true
+          verified_against: MB 8.08A / GEM 11.23A
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+          guidance_note: 'OR-group with HK-F-5 Complex / tiered threshold (10% of listed shares AND HK$50M
+            (GEM: HK$15M)).'
+          requires_llm: false
+    - all_of:
+      - check:
+          id: hk_f_5
+          metric: unrestricted public shares market value
+          input_path: offering.free_float_market_value_at_listing
+          operator: '>='
+          threshold:
+            value: 600000000
+            unit: HKD
+          threshold_verified: true
+          effective_from: '2025-08-04'
+          effective_from_verified: true
+          verified_against: 8.08A / 11.23A
+          verified_on: '2026-07-24'
+          verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+- id: public_float_hk_f_6
+  title: market value of publicly held listed shares
+  rule_ref: 8.09(1) / 11.23(2)
+  effective_from: '2025-08-04'
+  evaluated: true
+  human_signoff: false
+  requires_llm: false
+  stub_reason: ""
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_6
+        metric: market value of publicly held listed shares
+        input_path: offering.public_hands_market_value
+        operator: '>='
+        threshold:
+          value: 125
+          unit: HKD million
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: 8.09(1) / 11.23(2)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: 'HK-listed publicly held shares only. Diagnostic uses HKD million scale.'
+        requires_llm: false
+- id: public_float_hk_f_7
+  title: minimum shareholders at listing
+  rule_ref: 8.08(2) / 11.23(2)(b)
+  effective_from: '2025-08-04'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_7
+        metric: minimum shareholders at listing
+        input_path: offering.shareholders_at_listing
+        operator: '>='
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: 8.08(2) / 11.23(2)(b)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        requires_llm: false
+        guidance_note: 'Complex / tiered threshold (300 (GEM: 100)).'
+- id: public_float_hk_f_8
+  title: H shares listed on HKEX
+  rule_ref: 19A rules (amended)
+  effective_from: '2025-08-04'
+  evaluated: false
+  human_signoff: false
+  requires_llm: true
+  stub_reason: deferred / complex / pending verification — not hard-evaluated this phase
+  requirement:
+    all_of:
+    - check:
+        id: hk_f_8
+        metric: H shares listed on HKEX
+        input_path: offering.h_share_portion
+        operator: '>='
+        threshold_verified: true
+        effective_from: '2025-08-04'
+        effective_from_verified: true
+        verified_against: 19A rules (amended)
+        verified_on: '2026-07-24'
+        verified_by: 'claude_web_verification_2026-07-24 (internal review: Yuanjun 2026-07-24)'
+        guidance_note: A+H issuers; publicly held H shares same thresholds; A shares no longer count toward
+          float numerator Complex / tiered threshold (10% of issued shares OR expected value HK$3bn).
+        requires_llm: false

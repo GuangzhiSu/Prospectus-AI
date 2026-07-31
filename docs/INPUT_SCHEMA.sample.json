@@ -52,6 +52,56 @@
         "inputs": ["financials.income_statement[period=<FYxxxx>].gross_profit", "financials.income_statement[period=<FYxxxx>].revenue"],
         "unit": "%", "value": null, "generated_by": "compute_module"
       }
+    },
+
+    "_regulatory_eligibility_inputs_comment": "Task-D computed fields consumed by the eligibility hard engine as RESOLVED inputs. One definition per rulebook; NEVER aliased across markets. Booleans / CAGR / 孰低-min exceed the generic arithmetic formula grammar, so generated_by names the compute_module.REGULATORY_COMPUTED_FIELDS implementation. Null discipline: any missing input -> value null (no fabrication).",
+    "net_profit_regulatory_cn_aggregate_3fy": {
+      "$kind": "computed",
+      "formula": "sum over 3 FYs of min(net_profit_before_nonrecurring, net_profit_after_nonrecurring)  (扣非前后孰低)",
+      "inputs": ["financials.income_statement[period=<FY>].net_profit_before_nonrecurring", "financials.income_statement[period=<FY>].net_profit_after_nonrecurring"],
+      "unit": "CNY million", "value": null, "generated_by": "compute_module.net_profit_regulatory_cn_aggregate"
+    },
+    "net_profit_regulatory_cn_latest": {
+      "$kind": "computed",
+      "formula": "min(net_profit_before_nonrecurring, net_profit_after_nonrecurring), latest FY (孰低)",
+      "inputs": ["financials.income_statement[period=<latest_FY>].net_profit_before_nonrecurring", "financials.income_statement[period=<latest_FY>].net_profit_after_nonrecurring"],
+      "unit": "CNY million", "value": null, "generated_by": "compute_module.net_profit_regulatory_cn_latest"
+    },
+    "net_profit_positive_each_year_3fy": {
+      "$kind": "computed",
+      "formula": "all( 孰低 net profit > 0 for each of the last 3 FYs )  (boolean)",
+      "inputs": ["financials.income_statement[period=<FY>].net_profit_before_nonrecurring", "financials.income_statement[period=<FY>].net_profit_after_nonrecurring"],
+      "unit": "bool", "value": null, "generated_by": "compute_module.net_profit_positive_each_year"
+    },
+    "rd_ratio_3fy_cn": {
+      "$kind": "computed",
+      "formula": "sum(rd_expenditure, 3 FYs) / sum(revenue, 3 FYs) * 100   (CN definition: denominator = revenue)",
+      "inputs": ["financials.income_statement[period=<FY>].rd_expenditure", "financials.income_statement[period=<FY>].revenue"],
+      "unit": "%", "value": null, "generated_by": "compute_module.rd_ratio_cn"
+    },
+    "rd_ratio_per_fy_hk": {
+      "$kind": "computed",
+      "formula": "per-FY rd_expenditure / total_operating_expenditure * 100   (HK/GEM definition: denominator = TOTAL OPERATING EXPENDITURE, not revenue)",
+      "inputs": ["financials.income_statement[period=<FY>].rd_expenditure", "financials.income_statement[period=<FY>].total_operating_expenditure"],
+      "unit": "%", "value": null, "generated_by": "compute_module.rd_ratio_per_fy_hk_min"
+    },
+    "revenue_cagr_3yr": {
+      "$kind": "computed",
+      "formula": "(revenue[latest] / revenue[first]) ** (1/(n-1)) - 1) * 100  (null if first year <= 0)",
+      "inputs": ["financials.income_statement[period=<FY>].revenue"],
+      "unit": "%", "value": null, "generated_by": "compute_module.revenue_cagr"
+    },
+    "revenue_yoy_growth_each_of_2fy": {
+      "$kind": "computed",
+      "formula": "all( revenue grew YoY in each step of the 2-FY window )  (boolean)",
+      "inputs": ["financials.income_statement[period=<FY>].revenue"],
+      "unit": "bool", "value": null, "generated_by": "compute_module.revenue_yoy_growth_each_of"
+    },
+    "weighted_avg_roe_avg_2fy": {
+      "$kind": "computed",
+      "formula": "average of weighted_avg_roe over the last 2 FYs",
+      "inputs": ["financials.income_statement[period=<FY>].weighted_avg_roe"],
+      "unit": "%", "value": null, "generated_by": "compute_module.weighted_avg_roe_avg"
     }
   },
 
@@ -108,7 +158,26 @@
       "inputs": ["offering_use_of_proceeds.offer.total_offer_shares", "offering_use_of_proceeds.offer.offer_price.mid", "offering_use_of_proceeds.underwriting.aggregate_offering_expenses"],
       "unit": "<CCY>", "value": null, "generated_by": "compute_module"
     },
-    "use_of_proceeds": [ { "purpose": "<use of proceeds purpose>", "pct": "<percent>" } ]
+    "use_of_proceeds": [ { "purpose": "<use of proceeds purpose>", "pct": "<percent>" } ],
+    "market_capitalisation_at_listing": {
+      "$kind": "computed",
+      "formula": "offer price (D-01) x post-offering total shares (D-02)  [D-01 x D-02 only]",
+      "inputs": ["offering_use_of_proceeds.offer.offer_price.mid", "offering_use_of_proceeds.offer.post_offering_total_shares"],
+      "unit": "<CCY> million", "value": null, "generated_by": "compute_module.expected_market_cap_at_listing"
+    },
+    "public_float_pct": {
+      "$kind": "computed",
+      "formula": "public shares / total post-offering shares * 100  (per-market definition; distinct from HK free float and SGX public-hands %)",
+      "inputs": ["offering_use_of_proceeds.public_shares", "offering_use_of_proceeds.offer.post_offering_total_shares"],
+      "unit": "%", "value": null, "generated_by": "compute_module.public_float_pct"
+    },
+    "pe_ratio_at_issue": {
+      "$kind": "computed",
+      "_note": "INFORMATIONAL ONLY -- pricing context, NEVER a listing gate. Asserted by eligibility/tests/test_pe_ratio_not_a_gate.py that no YAML gate references it.",
+      "formula": "offer price / diluted EPS (latest FY, CN 孰低 basis)",
+      "inputs": ["offering_use_of_proceeds.offer.offer_price.mid", "financials.diluted_eps_latest"],
+      "unit": "x", "value": null, "generated_by": "compute_module.pe_ratio_at_issue"
+    }
   },
 
   "related_party_transactions": {
