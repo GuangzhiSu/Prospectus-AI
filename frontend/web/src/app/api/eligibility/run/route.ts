@@ -613,6 +613,15 @@ export async function POST(req: Request) {
     }
 
     if (!document_paths && !body.structured_form && !body.issuer) {
+      if (canUseStructuredFallback(body, document_paths)) {
+        return NextResponse.json(
+          buildStructuredFallbackResponse(
+            body,
+            sessionId,
+            "Uploaded documents were not available to this Vercel function invocation."
+          )
+        );
+      }
       return NextResponse.json(
         {
           error:
