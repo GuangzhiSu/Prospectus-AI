@@ -59,7 +59,142 @@ def scalar_value(value: Any) -> str | None:
     return None
 
 
-def company_name(record: dict[str, Any], document_id: str) -> str:
+LEGAL_NAME_ENDING = re.compile(
+    r"(?:"
+    r"Joint\s+Stock\s+Limited\s+Company|"
+    r"Company\s+Limited|"
+    r"Co\.,?\s*Ltd\.?|"
+    r"Holdings?\s+Limited|"
+    r"Group\s+Limited|"
+    r"Technology\s+Limited|"
+    r"Technologies\s+Limited|"
+    r"Corporation|"
+    r"Inc\.?|"
+    r"Limited|"
+    r"Ltd\.?|"
+    r"Group"
+    r")",
+    re.IGNORECASE,
+)
+
+DEFINITION_TITLE = re.compile(r"definitions?", re.IGNORECASE)
+COMPANY_DEFINITION = re.compile(
+    r"[\"“'](?:our\s+)?Company,?[\"”']", re.IGNORECASE
+)
+
+INCORPORATION_LINE = re.compile(
+    r"(?:incorporated|joint\s+stock\s+(?:limited\s+)?company|"
+    r"company\s+controlled\s+through\s+weighted\s+voting\s+rights)",
+    re.IGNORECASE,
+)
+
+NON_ISSUER_LINE = re.compile(
+    r"^(?:important|if\s+you|global\s+offering|hong\s+kong\s+public|"
+    r"international\s+placing|joint\s+|sole\s+|stock\s+code|number\s+of|"
+    r"maximum\s+offer|nominal\s+value|the\s+stock\s+exchange)",
+    re.IGNORECASE,
+)
+
+
+def clean_company_name(value: str) -> str:
+    """Normalize a legal name without changing its source capitalization."""
+
+    value = re.sub(r"\s+", " ", value).strip(" \t\n\r,*")
+    return value.replace("ﬁ", "fi").replace("ﬂ", "fl")
+
+
+def legal_name_candidate(value: str) -> str | None:
+    """Return a full-line legal-name candidate from prospectus front matter."""
+
+    value = clean_company_name(value)
+    if NON_ISSUER_LINE.search(value) or not re.search(r"[A-Za-z]", value):
+        return None
+    match = re.fullmatch(
+        rf"[A-Za-z0-9][A-Za-z0-9&'’.,()\-/ ]{{2,180}}?{LEGAL_NAME_ENDING.pattern}",
+        value,
+        re.IGNORECASE,
+    )
+    if not match or len(value.split()) < 2:
+        return None
+    return value
+
+
+def name_from_front_matter(toc: dict[str, Any]) -> str | None:
+    """Extract the displayed issuer name immediately above incorporation text."""
+
+    for section in toc.get("sections", [])[:3]:
+        title = str(
+            section.get("canonical_section") or section.get("raw_title") or ""
+        )
+        if not re.search(r"cover|important", title, re.IGNORECASE):
+            continue
+        lines = [
+            re.sub(r"\s+", " ", line).strip()
+            for line in str(section.get("text") or "").splitlines()
+            if line.strip()
+        ]
+        for index, line in enumerate(lines[:250]):
+            if not INCORPORATION_LINE.search(line):
+                continue
+            # The legal English name is normally one of the last few lines above
+            # the incorporation statement, with an optional Chinese name between.
+            for candidate_line in reversed(lines[max(0, index - 7) : index]):
+                candidate = legal_name_candidate(candidate_line)
+                if candidate:
+                    return candidate
+    return None
+
+
+def name_from_definition(toc: dict[str, Any]) -> str | None:
+    """Read the issuer's legal name from the prospectus Definitions section.
+
+    Covers sometimes render the issuer name as a logo, so PDF text extraction can
+    omit it entirely.  The Definitions section is the authoritative text fallback:
+    it normally defines ``Company``/``our Company`` followed by the full legal
+    English name.
+    """
+
+    for section in toc.get("sections", []):
+        title = str(
+            section.get("canonical_section") or section.get("raw_title") or ""
+        )
+        if not DEFINITION_TITLE.search(title):
+            continue
+        lines = [
+            re.sub(r"\s+", " ", line).strip()
+            for line in str(section.get("text") or "").splitlines()
+            if line.strip()
+        ]
+        for index, line in enumerate(lines):
+            if not COMPANY_DEFINITION.search(line) or re.search(
+                r"Company\s+(?:Law|Ordinance)", line, re.IGNORECASE
+            ):
+                continue
+
+            # A glossary key can wrap across several quoted lines, e.g.
+            # “Company”, “our Company”, / “Group”, “our Group”, “we” or / “us”.
+            start = index + 1
+            while start < min(len(lines), index + 6) and re.search(
+                r"[“”\"]", lines[start]
+            ):
+                start += 1
+            window = " ".join(lines[start : start + 12])
+            match = re.match(
+                rf"(?P<name>[A-Za-z0-9][A-Za-z0-9&'’.,()\-/ ]{{2,180}}?"
+                rf"{LEGAL_NAME_ENDING.pattern})"
+                r"(?=\s*(?:[（(,，*]|$))",
+                window,
+                re.IGNORECASE,
+            )
+            if not match:
+                continue
+            name = clean_company_name(match.group("name"))
+            if len(name.split()) >= 2:
+                return name
+    return None
+
+
+def company_name(record: dict[str, Any], toc: dict[str, Any], document_id: str) -> str:
     cover = record.get("record", {}).get("section_Cover", {})
     for key in (
         "Cover.issuer_name_en",
@@ -69,9 +204,16 @@ def company_name(record: dict[str, Any], document_id: str) -> str:
         "company_name",
     ):
         value = scalar_value(cover.get(key))
-        if value:
-            return value
-    return f"Issuer {document_id.split('_', 1)[0]}"
+        if value and not re.fullmatch(r"Issuer\s+\d+", value, re.IGNORECASE):
+            return clean_company_name(value)
+
+    extracted = name_from_front_matter(toc) or name_from_definition(toc)
+    if extracted:
+        return extracted
+    raise RuntimeError(
+        f"Could not determine the legal company name for {document_id}; "
+        "refusing to publish an Issuer XXXXX placeholder"
+    )
 
 
 def file_entry(path: Path, category: str, root: Path = ROOT, **extra: Any) -> dict[str, Any]:
@@ -263,7 +405,7 @@ def main() -> None:
         sections = section_payload(document_id, toc)
         payload = {
             "id": document_id,
-            "name": company_name(record, document_id),
+            "name": company_name(record, toc, document_id),
             "sourceFile": toc.get("source_file") or f"{document_id}.pdf",
             "totalPages": toc.get("metadata", {}).get("total_pages"),
             "files": company_files(document_id, toc),
