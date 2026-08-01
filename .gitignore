@@ -22,6 +22,10 @@ frontend/web/uploads/
 frontend/web/rag/
 frontend/web/rag_raw/
 frontend/web/.progress.json
+# Full prospectus text packaged for direct deployment. Keep this generated
+# corpus out of the public GitHub repository; rebuild it locally with
+# scripts/build_devtools_dataset.py before a production deployment.
+frontend/web/devtools-data/
 
 # Legacy runtime at root (if app was run from root before reorg)
 .next/

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 type PublicNavProps = {
-  active: "home" | "overview" | "download" | "eligibility" | "drafting";
+  active: "home" | "overview" | "download" | "eligibility" | "drafting" | "developer";
   locale?: "en" | "zh";
 };
 
@@ -13,6 +13,7 @@ const labels = {
     drafting: "Drafting",
     download: "Download",
     workspace: "Draft Workspace",
+    developer: "Developer Tools",
     github: "Docs / GitHub",
     language: "中文",
     languageHref: "/zh",
@@ -20,6 +21,7 @@ const labels = {
     draftingHref: "/drafting",
     downloadHref: "/download",
     workspaceHref: "/workspace",
+    developerHref: "/developer-tools",
   },
   zh: {
     home: "产品概览",
@@ -27,6 +29,7 @@ const labels = {
     drafting: "招股书生成",
     download: "下载",
     workspace: "起草工作区",
+    developer: "开发者工具",
     github: "文档 / GitHub",
     language: "English",
     languageHref: "/",
@@ -34,6 +37,7 @@ const labels = {
     draftingHref: "/zh/drafting",
     downloadHref: "/zh/download",
     workspaceHref: "/zh/workspace",
+    developerHref: "/developer-tools",
   },
 };
 
@@ -71,6 +75,9 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
           </Link>
           <Link href={t.workspaceHref} className={navClass(false)}>
             {t.workspace}
+          </Link>
+          <Link href={t.developerHref} className={navClass(active === "developer")}>
+            {t.developer}
           </Link>
           <a
             href="https://github.com/GuangzhiSu/Prospectus-AI"

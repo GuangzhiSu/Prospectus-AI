@@ -63,8 +63,21 @@ class TitleNormalizer:
         """Lowercase, NFKC, strip numbering prefixes, collapse whitespace."""
         s = unicodedata.normalize("NFKC", raw_title or "")
         s = s.strip().lower()
-        s = re.sub(r"^\s*(chapter\s+)?[\divxlcdm\.]+\s*[:\.\)\-–—]*\s*", "", s, flags=re.I)
-        s = re.sub(r"^\s*[\d]+(?:\.\d+)*\s*[:\.\)\-–—]*\s*", "", s)
+        # A Roman numeral is a prefix only when it is a complete token.  The
+        # previous character-class expression consumed the leading "di" from
+        # "directors" and "d" from "definitions", breaking variant matching.
+        s = re.sub(
+            r"^\s*chapter\s+(?:\d+(?:\.\d+)*|[ivxlcdm]+)\s*[:\.\)\-–—]?\s+",
+            "",
+            s,
+            flags=re.I,
+        )
+        s = re.sub(
+            r"^\s*\d+(?:\.\d+)*\s*(?:[:\.\)\-–—]\s*|\s+)", "", s
+        )
+        s = re.sub(
+            r"^\s*[ivxlcdm]+\s*(?:[:\.\)\-–—]\s*|\s+)", "", s, flags=re.I
+        )
         s = re.sub(r"\s+", " ", s)
         return s.strip()
 
