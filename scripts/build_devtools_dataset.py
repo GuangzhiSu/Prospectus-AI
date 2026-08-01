@@ -12,12 +12,23 @@ from __future__ import annotations
 import gzip
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.prospectus_kg.reference_text import (  # noqa: E402
+    fragmented_line_runs,
+    non_whitespace_text,
+    reflow_reference_text,
+)
+
+
 TOC_DIR = ROOT / "prospectus_kg_output" / "sections_toc"
 INPUT_DIR = ROOT / "prospectus_kg_output" / "inputs" / "input_records"
 RECORD_DIR = ROOT / "prospectus_kg_output" / "inputs" / "records"
@@ -266,9 +277,29 @@ def section_payload(document_id: str, toc: dict[str, Any]) -> list[dict[str, Any
     for section_id in order:
         item = grouped[section_id]
         prepared = load_json(prepared_dir / f"{section_id}.json", {})
-        item["referenceText"] = "".join(item.pop("referenceParts"))
+        raw_reference_text = "".join(item.pop("referenceParts"))
+        reference_text = reflow_reference_text(raw_reference_text, section_id)
+        if non_whitespace_text(reference_text) != non_whitespace_text(
+            raw_reference_text
+        ):
+            raise RuntimeError(
+                f"Reference-text reflow changed content tokens for "
+                f"{document_id}/{section_id}"
+            )
+        fragments_before = fragmented_line_runs(raw_reference_text)
+        fragments_after = fragmented_line_runs(reference_text)
+        if fragments_after:
+            raise RuntimeError(
+                f"Reference-text layout audit failed for {document_id}/{section_id}: "
+                f"{fragments_after} fragmented line run(s) remain"
+            )
+        item["referenceText"] = reference_text
         item["preparedData"] = prepared
         item["referenceCharacters"] = len(item["referenceText"])
+        item["rawReferenceCharacters"] = len(raw_reference_text)
+        item["fragmentedLineRunsBefore"] = fragments_before
+        item["fragmentedLineRunsAfter"] = fragments_after
+        item["referenceFormatting"] = "lossless_reflow_v1"
         sections.append(item)
     return sections
 
@@ -395,6 +426,9 @@ def main() -> None:
     prompts = build_prompts()
     prompt_by_section = {item["sectionId"]: item["id"] for item in prompts}
     companies: list[dict[str, Any]] = []
+    layout_sections_checked = 0
+    fragmented_runs_before = 0
+    fragmented_runs_after = 0
 
     for toc_path in sorted(TOC_DIR.glob("*.json")):
         if toc_path.name.startswith("_"):
@@ -403,6 +437,13 @@ def main() -> None:
         toc = load_json(toc_path, {})
         record = load_json(RECORD_DIR / f"{document_id}.json", {})
         sections = section_payload(document_id, toc)
+        layout_sections_checked += len(sections)
+        fragmented_runs_before += sum(
+            section["fragmentedLineRunsBefore"] for section in sections
+        )
+        fragmented_runs_after += sum(
+            section["fragmentedLineRunsAfter"] for section in sections
+        )
         payload = {
             "id": document_id,
             "name": company_name(record, toc, document_id),
@@ -441,6 +482,12 @@ def main() -> None:
         "companyCount": len(companies),
         "promptCount": len(prompts),
         "groundTruthAudit": audit_summary,
+        "referenceLayoutAudit": {
+            "format": "lossless_reflow_v1",
+            "sectionsChecked": layout_sections_checked,
+            "fragmentedLineRunsBefore": fragmented_runs_before,
+            "fragmentedLineRunsAfter": fragmented_runs_after,
+        },
         "companies": companies,
     }
     (OUT_DIR / "index.json").write_text(
