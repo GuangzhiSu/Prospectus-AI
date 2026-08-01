@@ -22,6 +22,29 @@ def test_match_section_alias_examples() -> None:
     assert r.confidence >= 0.9
 
 
+@pytest.mark.parametrize(
+    ("raw_title", "expected"),
+    [
+        ("Table of Contents", "Contents"),
+        ("Our History and Structure", "History_Reorganization_Corporate_Structure"),
+        (
+            "Structure and Conditions of the Global Offering",
+            "Structure_of_the_Global_Offering",
+        ),
+        (
+            "Terms and Conditions of the Hong Kong Public Offering",
+            "How_to_Apply_for_Hong_Kong_Offer_Shares",
+        ),
+        (
+            "Controlling Shareholders and Substantial Shareholders",
+            "Substantial_Shareholders",
+        ),
+    ],
+)
+def test_match_legacy_exchange_titles(raw_title: str, expected: str) -> None:
+    assert TitleNormalizer().match_section(raw_title).canonical_name == expected
+
+
 def test_match_section_exact_display() -> None:
     n = TitleNormalizer()
     r = n.match_section("Risk Factors")
