@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: repoRoot,
   /** Eligibility API spawns the standalone Python bridge; include those files in server bundles. */
   outputFileTracingIncludes: {
+    "/api/developer-tools/**/*": [
+      "./devtools-data/**/*",
+      "../../frontend/web/devtools-data/**/*",
+    ],
     "/api/eligibility/run": [
       "../../.python_packages/**/*",
       "../../eligibility/**/*",
