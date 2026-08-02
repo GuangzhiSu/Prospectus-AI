@@ -271,7 +271,7 @@ function PromptManagement({
         </div>
         <div className="grid gap-0 xl:grid-cols-[1fr_340px]">
           <div className="p-5">
-            <label className="text-xs font-semibold uppercase tracking-[0.16em] text-[#65736a]">Section requirements · 可编辑</label>
+            <label className="text-xs font-semibold uppercase tracking-[0.16em] text-[#65736a]">Runtime SectionSpec · 可编辑</label>
             <textarea
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
@@ -304,10 +304,10 @@ function PromptManagement({
             {mutation.status === "error" && mutation.promptId === selected.id ? (
               <div className="mt-4 border-l-2 border-[#c75b45] bg-white p-3 text-xs leading-5 text-[#8b3f31]">{mutation.message}</div>
             ) : null}
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#65736a]">Baseline requirements</p>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#65736a]">Baseline runtime SectionSpec</p>
             <div className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border border-[#d5ddd4] bg-white p-3 text-xs leading-5 text-[#536158]">{selected.requirements}</div>
             <div className="mt-6 border-l-2 border-[#d3a52c] bg-[#fff8e5] p-3 text-xs leading-5 text-[#69551b]">
-              保存或采纳 RCA diff 会直接提交此 section 的 requirements 到 GitHub；公共模板、Exchange 规则和运行时公司数据仍由 pipeline 动态组合。
+              保存或采纳 RCA diff 会把此 section 的 runtime SectionSpec override 提交到 GitHub；Writer 模板、全局 Exchange 规则和公司证据仍由 pipeline 动态组合。
             </div>
           </aside>
         </div>
@@ -1079,7 +1079,8 @@ export function DeveloperToolsApp() {
   const [promptSync, setPromptSync] = useState<DeveloperPromptSyncStatus | null>(null);
   const [promptMutation, setPromptMutation] = useState<PromptMutationState>({ status: "idle" });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [promptError, setPromptError] = useState("");
+  const [datasetError, setDatasetError] = useState("");
   const companyCache = useRef(new Map<string, DeveloperCompany>());
 
   useEffect(() => {
@@ -1091,21 +1092,37 @@ export function DeveloperToolsApp() {
     } catch {
       localOverrides = {};
     }
-    Promise.all([
+    Promise.allSettled([
       apiJson<DeveloperDatasetIndex>("/api/developer-tools/dataset"),
       apiJson<DeveloperPromptsResponse>("/api/developer-tools/prompts"),
     ])
-      .then(([dataset, promptData]) => {
-        setIndex(dataset);
-        setPrompts(promptData.prompts);
-        setPromptSync(promptData.sync);
-        const nextOverrides = promptData.sync.configured
-          ? promptData.overrides
-          : { ...localOverrides, ...promptData.overrides };
-        setOverrides(nextOverrides);
-        localStorage.setItem(PROMPT_STORAGE_KEY, JSON.stringify(nextOverrides));
+      .then(([datasetResult, promptResult]) => {
+        if (datasetResult.status === "fulfilled") {
+          setIndex(datasetResult.value);
+        } else {
+          setDatasetError(
+            datasetResult.reason instanceof Error
+              ? datasetResult.reason.message
+              : "Dataset Management 数据包不可用。"
+          );
+        }
+        if (promptResult.status === "fulfilled") {
+          const promptData = promptResult.value;
+          setPrompts(promptData.prompts);
+          setPromptSync(promptData.sync);
+          const nextOverrides = promptData.sync.configured
+            ? promptData.overrides
+            : { ...localOverrides, ...promptData.overrides };
+          setOverrides(nextOverrides);
+          localStorage.setItem(PROMPT_STORAGE_KEY, JSON.stringify(nextOverrides));
+        } else {
+          setPromptError(
+            promptResult.reason instanceof Error
+              ? promptResult.reason.message
+              : "Prompt Management 数据不可用。"
+          );
+        }
       })
-      .catch((reason) => setError(reason instanceof Error ? reason.message : "开发者数据加载失败。"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -1215,14 +1232,12 @@ export function DeveloperToolsApp() {
       </header>
       <div className="mx-auto max-w-[1800px] p-4 sm:p-6">
         {loading ? <EmptyPanel>正在加载 Prompt 与 125 家公司数据索引…</EmptyPanel> : null}
-        {error ? <EmptyPanel>{error}</EmptyPanel> : null}
-        {!loading && !error && index ? (
-          <>
-            {tab === "prompts" ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
-            {tab === "dataset" ? <DatasetManagement index={index} getCompany={getCompany} /> : null}
-            {tab === "rca" ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getCompany={getCompany} /> : null}
-          </>
-        ) : null}
+        {!loading && tab === "prompts" && promptError ? <EmptyPanel>{promptError}</EmptyPanel> : null}
+        {!loading && tab === "prompts" && !promptError ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
+        {!loading && tab === "dataset" && datasetError ? <EmptyPanel>{datasetError}</EmptyPanel> : null}
+        {!loading && tab === "dataset" && !datasetError && index ? <DatasetManagement index={index} getCompany={getCompany} /> : null}
+        {!loading && tab === "rca" && (datasetError || promptError) ? <EmptyPanel>{datasetError || promptError}</EmptyPanel> : null}
+        {!loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getCompany={getCompany} /> : null}
       </div>
     </main>
   );

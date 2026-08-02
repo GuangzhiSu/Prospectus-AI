@@ -320,8 +320,13 @@ def augment_requirements(
     if locked:
         parts.append(locked)
     if reqs is not None:
-        structured = format_structured_requirements(
-            section_id, reqs, meta, known_metadata_keys
+        developer_override = reqs.get("developer_compiled_override")
+        structured = (
+            str(developer_override).strip()
+            if isinstance(developer_override, str) and developer_override.strip()
+            else format_structured_requirements(
+                section_id, reqs, meta, known_metadata_keys
+            )
         )
         if structured:
             parts.append("---\nSECTION SPEC (single runtime contract):\n" + structured)

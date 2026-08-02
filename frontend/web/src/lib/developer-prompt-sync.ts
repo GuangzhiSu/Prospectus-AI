@@ -11,9 +11,9 @@ const GITHUB_API_VERSION = "2022-11-28";
 
 type RequirementsEntry = Record<string, unknown> & {
   requirements?: string;
+  developer_compiled_override?: string;
   developer_updated_at?: string;
   developer_source?: "manual" | "rca";
-  developer_baseline_requirements?: string;
 };
 type RequirementsStore = Record<string, RequirementsEntry>;
 
@@ -73,12 +73,12 @@ function extractOverrides(
   const overrides: Record<string, DeveloperPromptOverride> = {};
   for (const [id, entry] of Object.entries(document)) {
     if (
-      typeof entry.requirements === "string" &&
+      typeof entry.developer_compiled_override === "string" &&
       typeof entry.developer_updated_at === "string" &&
       (entry.developer_source === "manual" || entry.developer_source === "rca")
     ) {
       overrides[id] = {
-        requirements: entry.requirements,
+        requirements: entry.developer_compiled_override,
         updatedAt: entry.developer_updated_at,
         source: entry.developer_source,
       };
@@ -218,7 +218,7 @@ export async function savePromptOverride(
   validateRequirements(requirements);
   const current = await readGitHubDocument();
   const entry = current.document[id];
-  if (!entry || typeof entry.requirements !== "string") {
+  if (!entry) {
     throw new Error(`Unknown prompt id: ${id}`);
   }
   const updatedAt = new Date().toISOString();
@@ -226,9 +226,7 @@ export async function savePromptOverride(
     ...current.document,
     [id]: {
       ...entry,
-      requirements,
-      developer_baseline_requirements:
-        entry.developer_baseline_requirements || entry.requirements,
+      developer_compiled_override: requirements,
       developer_updated_at: updatedAt,
       developer_source: source,
     },
@@ -250,17 +248,16 @@ export async function removePromptOverride(
   assertWritableConfig();
   const current = await readGitHubDocument();
   const entry = current.document[id];
-  if (!entry || typeof entry.requirements !== "string") {
+  if (!entry) {
     throw new Error(`Unknown prompt id: ${id}`);
   }
-  if (typeof entry.developer_baseline_requirements !== "string") {
+  if (typeof entry.developer_compiled_override !== "string") {
     return { removed: false, sync: status("github") };
   }
   const restored: RequirementsEntry = {
     ...entry,
-    requirements: entry.developer_baseline_requirements,
   };
-  delete restored.developer_baseline_requirements;
+  delete restored.developer_compiled_override;
   delete restored.developer_updated_at;
   delete restored.developer_source;
   await writeGitHubDocument(

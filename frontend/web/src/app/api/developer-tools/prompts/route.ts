@@ -21,20 +21,8 @@ export async function GET() {
       loadDeveloperPrompts(),
       loadPromptOverrides(),
     ]);
-    const baselinePrompts = prompts.map((prompt) => {
-      const entry = snapshot.document[prompt.id];
-      const baseline = entry?.developer_baseline_requirements;
-      if (typeof baseline !== "string" || baseline === prompt.requirements) {
-        return prompt;
-      }
-      return {
-        ...prompt,
-        prompt: prompt.prompt.replace(prompt.requirements, baseline),
-        requirements: baseline,
-      };
-    });
     return NextResponse.json({
-      prompts: baselinePrompts,
+      prompts,
       overrides: snapshot.overrides,
       sync: snapshot.sync,
     }, {

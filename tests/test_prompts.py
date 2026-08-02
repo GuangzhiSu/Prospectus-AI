@@ -114,6 +114,23 @@ def test_structured_spec_compiles_into_prompt():
     assert "weighted voting rights upon Listing" not in text
 
 
+def test_developer_compiled_override_replaces_structured_spec():
+    data = json.loads(resolve_requirements_path().read_text(encoding="utf-8"))
+    reqs = {
+        **data["Business"],
+        "developer_compiled_override": (
+            "SECTION FUNCTION:\nDeveloper-approved runtime contract.\n\n"
+            "WRITER SELF-CHECK:\n- Confirm the approved contract was used."
+        ),
+    }
+    text = augment_requirements(
+        "Business", reqs["requirements"], None, reqs=reqs
+    )
+    assert "Developer-approved runtime contract" in text
+    assert "Confirm the approved contract was used" in text
+    assert "GENERATION MODE: evidence_based_drafting" not in text
+
+
 def test_runtime_section_specs_are_materially_smaller_than_layered_prompts():
     path = resolve_requirements_path()
     data = json.loads(path.read_text(encoding="utf-8"))

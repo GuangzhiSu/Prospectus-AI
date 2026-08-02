@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
     "/api/developer-tools/**/*": [
       "./devtools-data/**/*",
       "../../frontend/web/devtools-data/**/*",
+      "./prospectus_section_prompts.json",
+      "../../frontend/web/prospectus_section_prompts.json",
+      "../../ai-module/prompts/agents/writer.txt",
+      "../../ai-module/prompts/core/*.md",
+      "../../ai-module/prompts/sections/requirements.json",
     ],
     "/api/eligibility/run": [
       "../../.python_packages/**/*",

@@ -13,7 +13,7 @@ _AI_MODULE = _REPO_ROOT / "ai-module"
 if str(_AI_MODULE) not in sys.path:
     sys.path.insert(0, str(_AI_MODULE))
 
-from prospectus_graph.config import SECTIONS, load_section_requirements  # noqa: E402
+from prospectus_graph.config import load_section_requirements  # noqa: E402
 from prompts.composer import augment_requirements, compose_legacy_writer_system  # noqa: E402
 from prompts.paths import resolve_requirements_path  # noqa: E402
 
@@ -29,8 +29,12 @@ def export_legacy_section_prompts(
         raise FileNotFoundError(f"No section requirements loaded from {req_path}")
 
     sections_out: list[dict[str, str]] = []
-    for section_id, display_name in SECTIONS:
-        entry = requirements.get(section_id, {})
+    # Export every canonical SectionSpec, including deterministic/template-rendered
+    # sections that are not part of Agent2's ordinary LLM generation loop. Developer
+    # Tools needs the complete 31-section inventory even when a section is produced
+    # without a model call in the production pipeline.
+    for section_id, entry in requirements.items():
+        display_name = str(entry.get("name") or section_id)
         base = (entry.get("requirements") or "").strip()
         if not base:
             base = f"Write the {display_name} section for an Exchange prospectus."

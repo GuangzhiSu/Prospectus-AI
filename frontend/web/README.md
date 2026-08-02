@@ -23,9 +23,11 @@ conda run -n prospectus python scripts/build_devtools_dataset.py
 excluded from the public GitHub repository. It is included in direct Vercel
 deployments.
 
-Prompt Management edits the section-specific `requirements` field and shows the
-fully assembled writer prompt as a live preview. Saving or accepting an RCA diff
-uses a server-side GitHub token to commit the selected section back to
-`ai-module/prompts/sections/requirements.json`. Configure the variables in
+Prompt Management reads the current compiled runtime SectionSpec and Writer
+template directly from the canonical prompt files, then shows the fully assembled
+writer prompt as a live preview. Saving or accepting an RCA diff stores a
+section-specific `developer_compiled_override` in
+`ai-module/prompts/sections/requirements.json`; Agent2 consumes that override at
+runtime. Configure the variables in
 [`.env.example`](.env.example); the token must be a fine-grained repository token
 with Contents read/write access and is never returned to the browser.
