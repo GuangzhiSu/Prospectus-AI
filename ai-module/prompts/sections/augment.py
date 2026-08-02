@@ -1,4 +1,9 @@
-"""Section requirements augmentation (issuer metadata, KG, gating docs, generation rules)."""
+"""Compile the runtime SectionSpec used by Agent2.
+
+The KG, corpus style guides and legacy generation rules remain useful authoring
+assets, but they are intentionally not concatenated into every model request.
+Runtime prompts receive one compact, section-specific contract instead.
+"""
 
 from __future__ import annotations
 
@@ -6,261 +11,65 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ..paths import resolve_generation_rules_path, sections_dir
-
-# Behavioural constraints per generation mode (spec §39.6).
+# Positive drafting recipes and output contracts per generation mode.
 GENERATION_MODE_RULES: dict[str, str] = {
     "controlled_template_fill": (
         "GENERATION MODE: controlled_template_fill.\n"
-        "- The model may NOT create new facts. Mainly fill fixed slots from verified inputs.\n"
-        "- Output should be table/list/template-heavy, not free narrative.\n"
-        "- Every slot without verified input must be [●] plus a missing-input flag."
+        "OUTPUT CONTRACT: Use the section's natural filing format: cover block, registry, "
+        "definition list, timetable or table. Do not add narrative headings or two-sentence "
+        "paragraphs merely for length.\n"
+        "DRAFTING PATTERN: For each required slot, write exact label -> verified value -> "
+        "qualifier/note -> citation. Preserve the slot when missing, for example "
+        "`Stock code | [● stock code]`. Use short prose only for a required warning or "
+        "mechanics explanation. Do not infer one slot from another."
     ),
     "evidence_based_drafting": (
         "GENERATION MODE: evidence_based_drafting.\n"
-        "- Narrative drafting is allowed, but every material claim must carry an evidence tag "
-        "or source pointer traceable to the provided context.\n"
-        "- Claims without support must be [●] / **DATA_MISSING** with an [[AI:VERIFY|...]] pointer."
+        "OUTPUT CONTRACT: Use `##` for genuine prospectus subsections and developed paragraphs "
+        "where evidence exists; use tables for comparable numeric series. A missing subsection "
+        "may contain only the standard missing-input block.\n"
+        "DRAFTING PATTERN: Each paragraph should perform one disclosure job: (1) narrow topic "
+        "sentence, (2) issuer-specific facts and period/scale, (3) supported explanation of why "
+        "the facts matter, and (4) cross-reference where another section carries detail. Place "
+        "citations immediately after the facts they support. Do not manufacture a causal "
+        "explanation from numbers alone."
     ),
     "legal_checklist_drafting": (
         "GENERATION MODE: legal_checklist_drafting.\n"
-        "- Follow the checklist order exactly.\n"
-        "- Include rule references (Listing Rules / ordinance provisions) and issuer relevance "
-        "for each checklist item.\n"
-        "- Do not skip items; unsupported items get [●] placeholders and missing-input flags."
+        "OUTPUT CONTRACT: Follow the checklist order exactly. Use one heading per legal topic "
+        "or transaction category and a table where the SectionSpec prescribes fields.\n"
+        "DRAFTING PATTERN: For each item state (1) rule/document and authority, if supported, "
+        "(2) requirement or contractual term, (3) facts making it relevant to the issuer, "
+        "(4) compliance/grant/approval status supported by professional evidence, and (5) "
+        "residual issue and cross-reference. Never convert silence into a legal conclusion."
+    ),
+    "risk_narrative_drafting": (
+        "GENERATION MODE: risk_narrative_drafting.\n"
+        "OUTPUT CONTRACT: Use grouped risk headings followed by long-form prospectus paragraphs; "
+        "do not use a risk table, memo labels or checklist prose.\n"
+        "DRAFTING PATTERN: Each risk heading must express trigger plus consequence. Paragraph 1 "
+        "states the issuer-specific exposure and supporting facts. Paragraph 2 explains the "
+        "credible failure mechanism and operational/financial/legal effect. End with the "
+        "investor consequence or controlled material-adverse-effect formulation. Mention controls "
+        "only to explain residual risk; do not neutralize the risk."
     ),
     "professional_source_assembly_only": (
         "GENERATION MODE: professional_source_assembly_only.\n"
-        "- Assemble ONLY from verified professional source documents (signed reports, legal "
-        "opinions, constitutional documents, financial models).\n"
-        "- The model must NOT invent professional opinions or legal/accounting conclusions.\n"
-        "- If the source document is unavailable, generate a skeleton only and flag the section "
-        "as a blocker-level missing input."
+        "OUTPUT CONTRACT: Preserve the professional document's headings, tables, qualifications "
+        "and opinion boundaries. If the document is unavailable, output only the required "
+        "skeleton and a blocker-level missing-input block.\n"
+        "DRAFTING PATTERN: Map each supplied professional-source paragraph/table to the matching "
+        "required slot, retain its scope and caveats, and cite the source. Assemble and normalize "
+        "formatting only; do not draft, summarize or strengthen an accountant/legal opinion."
     ),
 }
 
 
-def format_kg_guidance(reqs: dict) -> str:
-    """Render KG-derived fields into a prompt-ready block."""
-    kg_keys = [
-        "kg_function",
-        "kg_purpose",
-        "kg_typical_structure",
-        "kg_writing_rules",
-        "kg_required_input_fields",
-        "kg_evidence_types",
-        "kg_common_pitfalls",
-    ]
-    if not any(reqs.get(k) for k in kg_keys):
-        return ""
-
-    lines: list[str] = [
-        "KNOWLEDGE-GRAPH SECTION GUIDANCE (derived from 125 Exchange prospectuses):"
-    ]
-    if reqs.get("kg_function"):
-        lines.append(f"Function: {reqs['kg_function']}")
-    if reqs.get("kg_purpose"):
-        lines.append(f"Purpose: {reqs['kg_purpose']}")
-
-    struct = reqs.get("kg_typical_structure") or []
-    structure_mode = str(reqs.get("kg_structure_mode") or "narrative").strip().lower()
-    if struct:
-        lines.append("Typical structure:")
-        for item in struct:
-            sub = item.get("subsection") or ""
-            desc = item.get("description") or ""
-            lines.append(f"  - {sub}: {desc}")
-        if structure_mode == "narrative":
-            lines.append("")
-            lines.append(
-                "STRUCTURE GUIDANCE: Treat the Typical structure above as corpus-derived guidance, "
-                "not automatic company facts. Use it as a scaffold only when it fits the section "
-                "requirements and retrieved evidence. Mandatory subsections from the structured "
-                "specification must be preserved; optional unsupported headings may be omitted. "
-                "For a mandatory but unsupported item, keep the heading with **DATA_MISSING** plus "
-                "an [[AI:VERIFY|...]] pointer."
-            )
-        else:
-            lines.append("")
-            lines.append(
-                "FORMAT LOCK (dictionary mode): do NOT force subsection headings from Typical structure. "
-                "Prefer a table or alphabetical list of entries, with concise row/term definitions. "
-                "Avoid adding narrative-only blocks unless the section requirements explicitly demand them."
-            )
-
-    rules = reqs.get("kg_writing_rules") or []
-    if rules:
-        lines.append("Writing rules:")
-        for r in rules:
-            lines.append(f"  - {r}")
-
-    fields = reqs.get("kg_required_input_fields") or []
-    if fields:
-        lines.append("Required input fields (fill from context or mark DATA_MISSING):")
-        for f in fields:
-            name = f.get("field") or f.get("field_id") or ""
-            desc = f.get("description") or ""
-            lines.append(f"  - {name}: {desc}")
-
-    evidence = reqs.get("kg_evidence_types") or []
-    if evidence:
-        lines.append("Evidence types: " + ", ".join(str(e) for e in evidence))
-
-    pitfalls = reqs.get("kg_common_pitfalls") or []
-    if pitfalls:
-        lines.append("Common pitfalls to avoid:")
-        for p in pitfalls:
-            lines.append(f"  - {p}")
-    return "\n".join(lines)
-
-
-def format_gating_docs_block(section_id: str) -> str:
-    try:
-        from prospectus_graph.crosswalk import format_gating_block
-    except Exception:  # noqa: BLE001
-        return ""
-    try:
-        return format_gating_block(section_id)
-    except Exception:  # noqa: BLE001
-        return ""
-
-
-def _load_generation_rules() -> dict[str, list[str]]:
-    path = resolve_generation_rules_path()
-    if not path.is_file():
-        return {}
-    with open(path, encoding="utf-8") as f:
-        data = json.load(f)
-    return {k: list(v) for k, v in data.items() if isinstance(v, list)}
-
-
-def load_corpus_style_guides() -> dict[str, dict[str, Any]]:
-    path = sections_dir() / "corpus_style_guides.json"
-    if not path.is_file():
-        return {}
-    try:
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception:  # noqa: BLE001
-        return {}
-    return {k: v for k, v in data.items() if isinstance(v, dict)}
-
-
-def get_corpus_style_guide(section_id: str) -> dict[str, Any]:
-    return load_corpus_style_guides().get(section_id, {})
-
-
-def format_corpus_style_guide_block(section_id: str) -> str:
-    guide = get_corpus_style_guide(section_id)
-    if not guide:
-        return ""
-    lines = [
-        "CORPUS STYLE GUIDE (derived from real HK prospectuses; structure/style only, not company facts):"
-    ]
-    outline = guide.get("preferred_outline") or []
-    if outline:
-        lines.append("Preferred prospectus outline:")
-        for item in outline:
-            if not isinstance(item, dict):
-                continue
-            sub = str(item.get("subsection") or "").strip()
-            desc = str(item.get("description") or "").strip()
-            if sub:
-                lines.append(f"  - {sub}: {desc}")
-    rules = guide.get("style_rules") or []
-    if rules:
-        lines.append("Style rules:")
-        for rule in rules:
-            if str(rule).strip():
-                lines.append(f"  - {str(rule).strip()}")
-    source_priorities = guide.get("source_priorities") or []
-    if source_priorities:
-        lines.append("Source priority order:")
-        for item in source_priorities:
-            if str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    slots = guide.get("required_content_slots") or []
-    if slots:
-        lines.append("Required content slots and evidence anchors:")
-        for item in slots:
-            if isinstance(item, dict):
-                slot = str(item.get("slot") or "").strip()
-                anchors = item.get("evidence_prefixes") or item.get("evidence") or []
-                required = item.get("required", True)
-                action = str(item.get("missing_action") or "").strip()
-                if slot:
-                    req_label = "required" if required else "conditional"
-                    anchor_text = ", ".join(str(a) for a in anchors) if anchors else "source context"
-                    line = f"  - {slot} ({req_label}; evidence: {anchor_text})"
-                    if action:
-                        line += f"; if missing: {action}"
-                    lines.append(line)
-            elif str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    table_patterns = guide.get("table_patterns") or []
-    if table_patterns:
-        lines.append("Prospectus table patterns:")
-        for item in table_patterns:
-            if isinstance(item, dict):
-                name = str(item.get("name") or "").strip()
-                columns = item.get("columns") or []
-                when = str(item.get("when") or "").strip()
-                if name:
-                    col_text = ", ".join(str(c) for c in columns) if columns else "prospectus-standard columns"
-                    line = f"  - {name}: columns = {col_text}"
-                    if when:
-                        line += f"; use when {when}"
-                    lines.append(line)
-            elif str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    phrases = guide.get("prospectus_phrases") or []
-    if phrases:
-        lines.append("Prospectus phrase bank (adapt only when supported; do not copy mechanically):")
-        for phrase in phrases:
-            if str(phrase).strip():
-                lines.append(f"  - {str(phrase).strip()}")
-    quality_checks = guide.get("quality_checks") or []
-    if quality_checks:
-        lines.append("Self-check before finalising:")
-        for item in quality_checks:
-            if str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    missing_policy = guide.get("missing_data_policy") or []
-    if missing_policy:
-        lines.append("Missing-data policy:")
-        for item in missing_policy:
-            if str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    forbidden = guide.get("forbidden_patterns") or []
-    if forbidden:
-        lines.append("Forbidden output patterns:")
-        for item in forbidden:
-            if str(item).strip():
-                lines.append(f"  - {str(item).strip()}")
-    if guide.get("heading_lock"):
-        lines.append(
-            "Heading lock: use the preferred outline headings exactly unless a template renderer handles this section."
-        )
-    else:
-        lines.append(
-            "Heading guidance: use the preferred outline as the default scaffold, but do not invent facts to fill it. "
-            "If a preferred heading is not relevant or unsupported and is not mandatory, omit it; if mandatory, keep it with DATA_MISSING."
-        )
-    return "\n".join(lines)
-
-
-def format_generation_rules_block(section_id: str) -> str:
-    rules_map = _load_generation_rules()
-    rules = rules_map.get(section_id) or []
-    if not rules:
-        return ""
-    lines = ["SECTION GENERATION RULES (apply before drafting narrative):"]
-    for rule in rules:
-        lines.append(f"- {rule}")
-    return "\n".join(lines)
-
-
-def _condition_applies(condition: str, meta: dict[str, Any]) -> bool | None:
+def _condition_applies(
+    condition: str,
+    meta: dict[str, Any],
+    known_keys: set[str] | None = None,
+) -> bool | None:
     """Evaluate a conditional-rule trigger against issuer metadata.
 
     Supported forms: ``"flag"``, ``"not flag"``, ``"issuer_type=VALUE"``.
@@ -277,12 +86,18 @@ def _condition_applies(condition: str, meta: dict[str, Any]) -> bool | None:
     if "=" in cond:
         key, _, value = cond.partition("=")
         key, value = key.strip(), value.strip()
+        if known_keys is not None and key not in known_keys:
+            return None if negate else False
         actual = meta.get(key)
         if actual is None or str(actual).strip() == "":
             return None
         result = str(actual).strip().lower() == value.lower()
         return not result if negate else result
     if cond in meta:
+        if known_keys is not None and cond not in known_keys:
+            # An omitted positive flag does not activate a module. An omitted
+            # negated flag remains unresolved rather than being treated as false.
+            return None if negate else False
         result = bool(meta[cond])
         return not result if negate else result
     return None
@@ -290,17 +105,69 @@ def _condition_applies(condition: str, meta: dict[str, Any]) -> bool | None:
 
 def _render_lines(title: str, items: list[Any]) -> str:
     lines = [title]
+    seen: set[str] = set()
     for item in items:
         text = str(item).strip()
-        if text:
+        key = " ".join(text.lower().split())
+        if text and key not in seen:
             lines.append(f"- {text}")
+            seen.add(key)
     return "\n".join(lines) if len(lines) > 1 else ""
+
+
+def _fallback_outline(reqs: dict[str, Any]) -> list[str]:
+    """Use KG headings only when the maintained SectionSpec has no outline."""
+    if reqs.get("mandatory_subsections"):
+        return [
+            str(item).strip()
+            for item in reqs["mandatory_subsections"]
+            if str(item).strip()
+        ]
+    outline: list[str] = []
+    for item in reqs.get("kg_typical_structure") or []:
+        if isinstance(item, dict):
+            name = str(item.get("subsection") or "").strip()
+        else:
+            name = str(item).strip()
+        if name:
+            outline.append(name)
+    return outline
+
+
+def _required_inputs(reqs: dict[str, Any]) -> list[str]:
+    """Return compact input names, falling back to KG field names only."""
+    configured = reqs.get("required_input_fields") or []
+    if configured:
+        return [str(item).strip() for item in configured if str(item).strip()]
+    fields: list[str] = []
+    for item in reqs.get("kg_required_input_fields") or []:
+        if isinstance(item, dict):
+            name = str(item.get("field") or item.get("field_id") or "").strip()
+        else:
+            name = str(item).strip()
+        if name:
+            fields.append(name)
+    return fields
+
+
+def _format_active_metadata(meta: dict[str, Any]) -> str:
+    """Expose only metadata that can affect this draft, not every false flag."""
+    issuer_type = str(meta.get("issuer_type") or "other")
+    active = sorted(
+        key
+        for key, value in meta.items()
+        if key != "issuer_type" and value is True
+    )
+    lines = [f"- issuer_type: {issuer_type}"]
+    lines.append("- active_flags: " + (", ".join(active) if active else "none"))
+    return "ISSUER CONDITIONS:\n" + "\n".join(lines)
 
 
 def _render_conditional_rules(
     title: str,
     rules: list[Any],
     meta: dict[str, Any],
+    known_keys: set[str] | None = None,
 ) -> str:
     """Render conditional rules, filtering by issuer metadata where possible."""
     active: list[str] = []
@@ -316,7 +183,7 @@ def _render_conditional_rules(
         entry_rules = [str(r).strip() for r in entry.get("rules", []) if str(r).strip()]
         if not entry_rules:
             continue
-        applies = _condition_applies(condition, meta)
+        applies = _condition_applies(condition, meta, known_keys)
         if applies is True:
             active.extend(entry_rules)
         elif applies is None:
@@ -327,8 +194,10 @@ def _render_conditional_rules(
         lines.append(title + " (APPLICABLE to this issuer per metadata):")
         lines.extend(f"- {r}" for r in active)
     if unresolved:
-        if not lines:
-            lines.append(title + ":")
+        lines.append(
+            title
+            + " (UNRESOLVED — do not apply until metadata is confirmed; request verification):"
+        )
         lines.extend(f"- {r}" for r in unresolved)
     return "\n".join(lines)
 
@@ -337,8 +206,9 @@ def format_structured_requirements(
     section_id: str,
     reqs: dict,
     meta: dict[str, Any],
+    known_metadata_keys: set[str] | None = None,
 ) -> str:
-    """Compile structured section spec fields into a prompt block (spec §39.4 order)."""
+    """Compile one de-duplicated runtime SectionSpec."""
     del section_id  # reserved for section-specific compilation overrides
     parts: list[str] = []
 
@@ -351,20 +221,20 @@ def format_structured_requirements(
         parts.append(GENERATION_MODE_RULES.get(mode, f"GENERATION MODE: {mode}."))
     if reqs.get("requires_verified_source"):
         parts.append(
-            "SOURCE GATING: this section requires verified source input. Company-specific "
-            "facts without verified support must be [●] plus a missing-input flag."
+            "SOURCE REQUIREMENT: verified issuer evidence is required; apply the global "
+            "Missing-Input Policy when it is absent."
         )
 
     block = _render_lines(
-        "MANDATORY SUBSECTIONS (keep this order; unsupported items get [●] placeholders):",
-        reqs.get("mandatory_subsections") or [],
+        "MANDATORY STRUCTURE (keep this order; apply the Missing-Input Policy when unsupported):",
+        _fallback_outline(reqs),
     )
     if block:
         parts.append(block)
 
     block = _render_lines(
-        "REQUIRED INPUT FIELDS (fill from context or mark as missing input):",
-        reqs.get("required_input_fields") or [],
+        "REQUIRED INPUT FIELDS (fill from EvidencePacket; use [● field name] only for missing slot values):",
+        _required_inputs(reqs),
     )
     if block:
         parts.append(block)
@@ -373,6 +243,7 @@ def format_structured_requirements(
         "ISSUER-TYPE CONDITIONAL RULES",
         reqs.get("issuer_type_conditional_rules") or [],
         meta,
+        known_metadata_keys,
     )
     if block:
         parts.append(block)
@@ -381,6 +252,7 @@ def format_structured_requirements(
         "TRANSACTION CONDITIONAL RULES",
         reqs.get("transaction_conditional_rules") or [],
         meta,
+        known_metadata_keys,
     )
     if block:
         parts.append(block)
@@ -408,7 +280,7 @@ def format_structured_requirements(
         parts.append(block)
 
     block = _render_lines(
-        "VALIDATION CHECKLIST (the verifier will enforce these):",
+        "WRITER SELF-CHECK (high-risk Reviewer and final validators also apply where available):",
         reqs.get("validation_checklist") or [],
     )
     if block:
@@ -418,13 +290,9 @@ def format_structured_requirements(
     if sources:
         parts.append(
             _render_lines(
-                "ALLOWED SOURCES (draft this section only from these inputs):", sources
+                "SOURCE PRIORITY / RECONCILIATION TARGETS:", sources
             )
         )
-
-    fallback = str(reqs.get("fallback_if_missing_data", "")).strip()
-    if fallback:
-        parts.append(f"MISSING-DATA FALLBACK:\n{fallback}")
 
     return "\n\n".join(p for p in parts if p)
 
@@ -435,40 +303,29 @@ def augment_requirements(
     issuer_metadata_path: Path | None,
     reqs: dict | None = None,
 ) -> str:
-    from prospectus_graph.issuer_metadata import (
-        conditional_section_emphasis,
-        format_metadata_for_prompt,
-        load_issuer_metadata,
-    )
+    from prospectus_graph.issuer_metadata import load_issuer_metadata
     from prospectus_graph.locked_snippets import format_locked_snippets_for_section
 
     meta = load_issuer_metadata(issuer_metadata_path)
-    parts: list[str] = [
-        format_metadata_for_prompt(meta),
-        conditional_section_emphasis(meta),
-    ]
+    known_metadata_keys: set[str] = {"issuer_type"}
+    if issuer_metadata_path is not None and issuer_metadata_path.is_file():
+        try:
+            raw_meta = json.loads(issuer_metadata_path.read_text(encoding="utf-8"))
+            if isinstance(raw_meta, dict):
+                known_metadata_keys.update(str(key) for key in raw_meta)
+        except (OSError, json.JSONDecodeError):
+            pass
+    parts: list[str] = [_format_active_metadata(meta)]
     locked = format_locked_snippets_for_section(section_id, meta)
     if locked:
         parts.append(locked)
-    gen_rules = format_generation_rules_block(section_id)
-    if gen_rules:
-        parts.append(gen_rules)
-    style_guide = format_corpus_style_guide_block(section_id)
-    if style_guide:
-        parts.append(style_guide)
-    parts.append("---\nSECTION-SPECIFIC REQUIREMENTS:\n" + base_requirements)
     if reqs is not None:
-        structured = format_structured_requirements(section_id, reqs, meta)
+        structured = format_structured_requirements(
+            section_id, reqs, meta, known_metadata_keys
+        )
         if structured:
-            parts.append(
-                "---\nSECTION DRAFTING SPECIFICATION (structured; follow exactly):\n"
-                + structured
-            )
-    gating_block = format_gating_docs_block(section_id)
-    if gating_block:
-        parts.append(gating_block)
-    if reqs is not None:
-        kg_block = format_kg_guidance(reqs)
-        if kg_block:
-            parts.append(kg_block)
+            parts.append("---\nSECTION SPEC (single runtime contract):\n" + structured)
+    else:
+        # Compatibility for callers that still supply only the legacy prose.
+        parts.append("---\nSECTION SPEC:\n" + base_requirements)
     return "\n\n".join(p for p in parts if p.strip())

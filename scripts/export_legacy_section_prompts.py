@@ -14,7 +14,7 @@ if str(_AI_MODULE) not in sys.path:
     sys.path.insert(0, str(_AI_MODULE))
 
 from prospectus_graph.config import SECTIONS, load_section_requirements  # noqa: E402
-from prompts.composer import compose_legacy_writer_system  # noqa: E402
+from prompts.composer import augment_requirements, compose_legacy_writer_system  # noqa: E402
 from prompts.paths import resolve_requirements_path  # noqa: E402
 
 
@@ -31,9 +31,15 @@ def export_legacy_section_prompts(
     sections_out: list[dict[str, str]] = []
     for section_id, display_name in SECTIONS:
         entry = requirements.get(section_id, {})
-        content = (entry.get("requirements") or "").strip()
-        if not content:
-            content = f"Write the {display_name} section for an Exchange prospectus."
+        base = (entry.get("requirements") or "").strip()
+        if not base:
+            base = f"Write the {display_name} section for an Exchange prospectus."
+        content = augment_requirements(
+            section_id,
+            base,
+            issuer_metadata_path=None,
+            reqs=entry or None,
+        )
         sections_out.append({"section": display_name, "content": content})
 
     prompts_dir = web_dir / "prompts"

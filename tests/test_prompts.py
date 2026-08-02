@@ -68,7 +68,7 @@ def test_build_prompt_positional_wrapper():
     assert "Context line." in prompt
 
 
-def test_augment_requirements_injects_generation_rules():
+def test_augment_requirements_keeps_legacy_prose_without_runtime_layers():
     text = augment_requirements(
         "RiskFactors",
         "Base risk requirements.",
@@ -76,8 +76,10 @@ def test_augment_requirements_injects_generation_rules():
         reqs=None,
     )
     assert "Base risk requirements." in text
-    assert "SECTION GENERATION RULES" in text
-    assert "mitigation language" in text.lower()
+    assert "SECTION SPEC" in text
+    assert "SECTION GENERATION RULES" not in text
+    assert "CORPUS STYLE GUIDE" not in text
+    assert "KNOWLEDGE-GRAPH SECTION GUIDANCE" not in text
 
 
 def test_requirements_have_structured_spec_fields():
@@ -87,6 +89,7 @@ def test_requirements_have_structured_spec_fields():
         "controlled_template_fill",
         "evidence_based_drafting",
         "legal_checklist_drafting",
+        "risk_narrative_drafting",
         "professional_source_assembly_only",
     }
     valid_groups = {"FrontMatter", "CoreBody", "Offering", "Appendices", "BackMatter"}
@@ -103,12 +106,69 @@ def test_structured_spec_compiles_into_prompt():
     data = json.loads(path.read_text(encoding="utf-8"))
     reqs = data["Cover"]
     text = augment_requirements("Cover", reqs["requirements"], None, reqs=reqs)
-    assert "SECTION DRAFTING SPECIFICATION" in text
+    assert "SECTION SPEC (single runtime contract)" in text
     assert "GENERATION MODE: controlled_template_fill" in text
     assert "NEGATIVE RULES" in text
-    assert "VALIDATION CHECKLIST" in text
+    assert "WRITER SELF-CHECK" in text
     # Default metadata (all flags false): WVR conditional wording must be filtered out.
     assert "weighted voting rights upon Listing" not in text
+
+
+def test_runtime_section_specs_are_materially_smaller_than_layered_prompts():
+    path = resolve_requirements_path()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    prompts = [
+        augment_requirements(sid, reqs["requirements"], None, reqs=reqs)
+        for sid, reqs in data.items()
+    ]
+    assert sum(map(len, prompts)) < 120_000
+    assert all("SECTION GENERATION RULES" not in text for text in prompts)
+    assert all("CORPUS STYLE GUIDE" not in text for text in prompts)
+    assert all("KNOWLEDGE-GRAPH SECTION GUIDANCE" not in text for text in prompts)
+
+
+def test_writer_prompt_teaches_evidence_conversion_without_stale_tags():
+    prompt = compose_writer_prompt(
+        section_id="Business",
+        section_name="Business",
+        requirements="SECTION SPEC\nGENERATION MODE: evidence_based_drafting.",
+        context="[1] (Source: business.pdf / page 4)\nThe Group provides software.",
+    )
+    assert "EVIDENCE-TO-DRAFT METHOD" in prompt
+    assert "evidence=evidence_id" in prompt
+    assert "Missing value inside an otherwise supported sentence" in prompt
+    assert "DD evidence needed" not in prompt
+    assert "REPORT-DRIVEN GATING DOCUMENTS" not in prompt
+    assert "[Information not provided in the documents]" not in prompt
+
+
+def test_generation_modes_include_positive_pattern_and_output_contract():
+    data = json.loads(resolve_requirements_path().read_text(encoding="utf-8"))
+    for sid, reqs in data.items():
+        text = augment_requirements(sid, reqs["requirements"], None, reqs=reqs)
+        assert "OUTPUT CONTRACT:" in text, sid
+        assert "DRAFTING PATTERN:" in text, sid
+        assert "WRITER SELF-CHECK" in text, sid
+
+    risk = augment_requirements(
+        "RiskFactors",
+        data["RiskFactors"]["requirements"],
+        None,
+        reqs=data["RiskFactors"],
+    )
+    assert "GENERATION MODE: risk_narrative_drafting" in risk
+    assert "Paragraph 1 states the issuer-specific exposure" in risk
+
+
+def test_global_writer_overhead_is_bounded():
+    prompt = compose_writer_prompt(
+        section_id="BackCover",
+        section_name="Back Cover",
+        requirements="X",
+        context="Y",
+    )
+    assert len(prompt) - 2 < 7000
+    assert "not subject to a two-sentence minimum" in prompt
 
 
 def test_conditional_rules_filtered_by_issuer_metadata(tmp_path):
@@ -129,6 +189,25 @@ def test_conditional_rules_filtered_by_issuer_metadata(tmp_path):
     assert "model suite and modalities" not in summary
 
 
+def test_negated_condition_is_not_activated_when_metadata_is_unknown(tmp_path):
+    data = json.loads(resolve_requirements_path().read_text(encoding="utf-8"))
+    reqs = data["ImportantNotice"]
+
+    unknown = augment_requirements(
+        "ImportantNotice", reqs["requirements"], None, reqs=reqs
+    )
+    assert "If not uses_fini_eapp:" in unknown
+    assert "UNRESOLVED — do not apply" in unknown
+    assert "TRANSACTION CONDITIONAL RULES (APPLICABLE" not in unknown
+
+    meta_path = tmp_path / "issuer_metadata.json"
+    meta_path.write_text(json.dumps({"uses_fini_eapp": False}), encoding="utf-8")
+    known_false = augment_requirements(
+        "ImportantNotice", reqs["requirements"], meta_path, reqs=reqs
+    )
+    assert "TRANSACTION CONDITIONAL RULES (APPLICABLE" in known_false
+
+
 def test_master_instruction_and_source_gating_in_writer_prompt():
     prompt = compose_writer_prompt(
         section_id="Summary",
@@ -138,7 +217,7 @@ def test_master_instruction_and_source_gating_in_writer_prompt():
     )
     assert "MASTER INSTRUCTION" in prompt
     assert "GLOBAL SOURCE GATING RULES" in prompt
-    assert "[\u25cf]" in prompt
+    assert "[\u25cf field name]" in prompt
 
 
 def test_cross_section_validation():
@@ -172,6 +251,24 @@ def test_cross_section_validation():
     sections = split_sections(doc)
     assert set(sections) >= {"Summary", "RiskFactors", "ShareCapital", "GlobalOfferingStructure"}
     assert collect_missing_inputs(sections)[0]["severity"] == "medium"
+
+
+def test_evidence_context_preserves_citable_id_and_locators():
+    from prospectus_graph.retrievers import build_context
+
+    context = build_context(
+        [
+            {
+                "chunk_id": "chunk_business_7",
+                "source_file": "business.pdf",
+                "page": 12,
+                "sheet_name": "Products",
+                "text": "The Group provides enterprise software.",
+            }
+        ]
+    )
+    assert "[chunk_business_7]" in context
+    assert "Source: business.pdf; page=12; section=Products" in context
 
 
 def test_issuer_metadata_extended_fields(tmp_path):
@@ -215,6 +312,8 @@ def test_export_legacy_section_prompts_matches_sections():
     assert len(sections) == summary["sections"]
     assert sections[0].get("section")
     assert sections[0].get("content")
+    assert "SECTION SPEC (single runtime contract)" in sections[0]["content"]
+    assert "OUTPUT CONTRACT:" in sections[0]["content"]
 
     system_path = ROOT / "frontend" / "web" / "prompts" / "legacy_writer_system.txt"
     assert system_path.is_file()

@@ -44,8 +44,19 @@ def build_context(chunks: list[EvidenceChunk]) -> str:
             seen_texts.add(normalized)
         src = chunk.get("source_file", "unknown")
         sheet_name = chunk.get("sheet_name")
-        source_label = f"{src} / {sheet_name}" if sheet_name else src
-        parts.append(f"[{idx}] (Source: {source_label})\n{text}")
+        metadata = chunk.get("metadata") or {}
+        page = chunk.get("page") or metadata.get("page")
+        section = chunk.get("section") or metadata.get("section")
+        evidence_id = chunk.get("chunk_id") or f"chunk_{idx}"
+        locators: list[str] = []
+        if page not in (None, ""):
+            locators.append(f"page={page}")
+        if sheet_name:
+            locators.append(f"section={sheet_name}")
+        elif section:
+            locators.append(f"section={section}")
+        locator_text = "; " + "; ".join(locators) if locators else ""
+        parts.append(f"[{evidence_id}] (Source: {src}{locator_text})\n{text}")
         idx += 1
     return "\n\n".join(parts)
 
@@ -97,7 +108,11 @@ def format_facts_for_prompt(
             unit = g.get("unit") or ""
             value_text = f"{value} {unit}".strip() if unit else str(value)
             cite = f" [{fact_id}]" if fact_id else ""
-            indexed_rows.setdefault(field, []).append(f"{metric}={value_text}{cite}")
+            source = (g.get("metadata") or {}).get("source_file", "")
+            source_text = f" (source: {source})" if source else ""
+            indexed_rows.setdefault(field, []).append(
+                f"{metric}={value_text}{cite}{source_text}"
+            )
         if indexed_rows:
             lines.append("Indexed schedule rows (same bracket index belongs to the same table row):")
             for row_key, items in list(indexed_rows.items())[:24]:
@@ -809,6 +824,8 @@ class HybridRetriever:
                 "sheet_name": ch.get("sheet_name", ch.get("topic", "")),
                 "text": ch.get("text", ""),
                 "sheet_summary": ch.get("topic", ch.get("sheet_summary", "")),
+                "page": ch.get("page"),
+                "metadata": ch.get("metadata") or {},
             })
 
         facts_raw = self._get_facts()

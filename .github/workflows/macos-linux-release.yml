@@ -1,4 +1,4 @@
-# Builds macOS DMG and Linux tar.gz release assets and uploads them to GitHub Releases.
+# Builds thin macOS and Linux clients and uploads them to GitHub Releases.
 
 name: macOS and Linux release bundle
 
@@ -65,19 +65,9 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: frontend/web/package-lock.json
+          cache-dependency-path: platform/desktop/package-lock.json
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install frontend dependencies
-        run: npm ci --prefix frontend/web
-
-      - name: Build Linux bundle
-        env:
-          TORCH_CPU: "1"
+      - name: Build Linux client
         run: bash packaging/linux/build-full-release.sh
 
       - name: List dist output
@@ -87,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ProspectusAI-linux-x86_64
-          path: dist/ProspectusAI-linux-x86_64-*.tar.gz
+          path: dist/ProspectusAI-linux-x64.AppImage
           if-no-files-found: error
           retention-days: 30
 
@@ -102,7 +92,7 @@ jobs:
             gh release create "$RELEASE_TAG" \
               --title "AI Prospectus v$RELEASE_VERSION" \
               --notes "Automated desktop release for Prospectus AI $RELEASE_VERSION."
-          gh release upload "$RELEASE_TAG" dist/ProspectusAI-linux-x86_64-*.tar.gz --clobber
+          gh release upload "$RELEASE_TAG" dist/ProspectusAI-linux-x64.AppImage --clobber
 
   macos:
     name: macOS ${{ matrix.arch }} DMG
@@ -157,19 +147,10 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: frontend/web/package-lock.json
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install frontend dependencies
-        run: npm ci --prefix frontend/web
+          cache-dependency-path: platform/desktop/package-lock.json
 
       - name: Build macOS DMG
         env:
-          TORCH_CPU: "1"
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: bash packaging/mac/build-full-release.sh
 

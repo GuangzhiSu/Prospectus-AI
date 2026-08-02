@@ -223,7 +223,8 @@ def compose_legacy_writer_system() -> str:
         "in sponsor-counsel working draft mode. Follow the requirements exactly. "
         "Use only the provided context. "
         "Wrap the output between <<<SECTION_START>>> and <<<SECTION_END>>>. "
-        "If the context is insufficient, state so explicitly and keep placeholders concise."
+        "If context is insufficient, apply the global Missing-Input Policy; do not use TBD "
+        "or an alternative placeholder phrase."
     )
 
 

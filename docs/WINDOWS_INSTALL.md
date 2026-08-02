@@ -1,67 +1,64 @@
-# Windows install (desktop packaging)
+# Windows desktop client
 
-## Windows folder built on your Linux server (for `dist/ProspectusAI`)
+The public Windows installer is a thin Electron client. It connects to the
+protected server workspace over HTTPS and does not install prompts, Python
+agents, model code, Node.js server code, model weights, or provider API keys on
+the user's computer.
 
-From the repo root on Linux:
+## Runtime boundary
 
-```bash
-npm run pack:windows-dist
+- Client: `platform/desktop/main.cjs` and the Electron runtime.
+- Server: the hosted Next.js workspace, API routes, Python agents, prompts, and
+  model/provider configuration.
+- Default server: `https://ai-prospectus.com`.
+- Override for staging: launch with `PROSPECTUS_SERVER_URL=https://staging.example.com`.
+- Authentication: configure `WORKSPACE_USER` and `WORKSPACE_PASSWORD` on the
+  server. Never embed shared API credentials in the installer.
+
+Documents selected in the workspace are uploaded to the configured server for
+processing. The desktop client therefore requires an internet connection.
+
+## Build the portable client
+
+On Windows x64 with Node.js 20:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1
 ```
 
-This fills **`dist/ProspectusAI/`** with **`start-prospectus-ui.bat`**, **`node/`** (Windows Node), **`python-embed/`**, **`web/`**, and agents. End users **double-click `start-prospectus-ui.bat`** (first run installs Python packages into `venv\`, then the server starts). No separate Node.js install.
+Outputs:
 
----
+- `dist\ProspectusAI\` — unpacked thin client.
+- `dist\ProspectusAI-windows-x86_64.zip` — portable client archive.
 
-## Download a ready-made portable ZIP from CI (no local Node for end users)
+## Build the installer
 
-If you do **not** use the Linux script above, note: a **`dist/ProspectusAI` produced only by the older Linux script** (`pack:linux`) is **not** a Windows app (Linux `venv`). For a **Windows double-click** bundle with embedded Node.js and a Windows Python `venv`, use either:
+Install Inno Setup 6, then run:
 
-1. **GitHub Actions** (after this workflow is on your default branch): open **Actions → “Windows portable bundle” → Run workflow**. When it finishes, download the artifact **`ProspectusAI-windows-portable`** (contains `ProspectusAI-windows-x86_64-*.zip`). Unzip, then double-click **`start-prospectus-ui.bat`** and open `http://127.0.0.1:3000`.
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
+```
 
-2. **Build on a Windows x64 PC**:  
-   `powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1`  
-   Output: `dist\ProspectusAI\` and `dist\ProspectusAI-windows-*.zip`.
+Output:
 
----
+- `dist\ProspectusAI-Setup-<version>.exe`
 
-This repo runs as **Next.js + Python**: the web UI spawns `agent1.py` / `agent2.py` on the machine. The recommended consumer layout is:
+The GitHub Actions workflow `.github/workflows/windows-portable.yml` performs
+the same build and can upload both artifacts to a GitHub Release.
 
-1. **Installer** (Inno Setup template: [`packaging/windows/ProspectusAI.iss`](../packaging/windows/ProspectusAI.iss)) copies:
-   - Next **standalone** output from `frontend/web/.next/standalone/`
-   - Python **venv** with dependencies from [`requirements.txt`](../requirements.txt) (CUDA or CPU PyTorch wheel chosen at install time)
-   - Application files under `app/` (`agent1.py`, `agent2.py`, `llm_qwen.py`, `llm_openai.py`, `prospectus_graph/`, `scripts/`, etc.)
+## Verify that server assets are absent
 
-2. **Environment**
-   - `PROSPECTUS_ROOT` must point at the folder that contains **`agent1.py` and `prospectus_kg_output/`**. Agent2 loads the crosswalk from **`prospectus_kg_output/inputs/input_schema.json`** and **`input_schema_crosswalk.json`** only. The [`build.ps1`](../packaging/windows/build.ps1) stage copies that **slim** `inputs/` tree — not `native_docs/`, bulk `records/`, `structure/docgraph.json`, or other internal KG pipeline outputs. The **Knowledge Graph** page in the UI needs a full repo-style `prospectus_kg_output` (with `structure/docgraph.json`); it shows a short notice if that file is absent.
-   - Launcher: [`packaging/windows/start-prospectus-ui.bat`](../packaging/windows/start-prospectus-ui.bat) (adjust `web\server.js` path to match your `next build` output).
+After building, inspect `dist\ProspectusAI`. It must not contain any of these:
 
-3. **First-run model (split download)**
-   - Open **Inference & GPU settings** in the web UI (`/settings`).
-   - Click **Download Qwen3.5-4B** or set **Qwen model** to a local folder that already contains Hugging Face files (must include `config.json`).
-   - Default download directory: `%LOCALAPPDATA%\ProspectusAI\models\Qwen3.5-4B`.
+- `prompts/` or `web/prompts/`
+- `agent1.py`, `agent2.py`, or other `ai-module` files
+- `python-embed/`, `venv/`, or embedded Node.js
+- `.env` files or model-provider API keys
 
-4. **Offline inference**
-   - After download, set `TRANSFORMERS_OFFLINE=1` optionally; the UI saves model path in user settings, which sets `AGENT2_MODEL` / `AGENT1_MODEL` for Python.
+Electron's `app.asar` will still contain `main.cjs`; this is expected. It only
+contains navigation and window logic, including the public server URL.
 
-5. **Cloud API**
-   - In `/settings`, choose a cloud backend: **OpenAI / compatible**, **DeepSeek**, **Qwen (DashScope API)**, or **Anthropic (Claude / Opus)**. Enter the API key, optional base URL (OpenAI-compatible providers), and model id, then **Save** and **Test connection**. Agent1, Agent2, and document chat use the same saved backend (`LLM_PROVIDER` env: `openai`, `deepseek`, `qwen_api`, or `anthropic`).
+## Signing
 
-6. **GPU**
-   - Install an NVIDIA driver that matches your **PyTorch CUDA** build. If CUDA is unavailable or the GPU architecture is unsupported, enable **Force CPU** in settings (slow).
-
-7. **Build scripts (on Windows x64)**
-   - **All-in-one portable bundle (recommended for end users):** [`packaging/windows/build-full-release.ps1`](../packaging/windows/build-full-release.ps1) — builds Next, stages `web` + agents + slim KG inputs, creates a **Python venv**, downloads and embeds **Node.js win-x64** under `node\`, and copies [`start-prospectus-ui.bat`](../packaging/windows/start-prospectus-ui.bat). Recipients do **not** need to install Node.js separately; they run the `.bat` and open `http://127.0.0.1:3000`. Optional `-SkipZip` to skip creating `dist\ProspectusAI-windows-*.zip`.
-   - **Stage only (no venv / no embedded Node):** [`packaging/windows/build.ps1`](../packaging/windows/build.ps1) — for custom installers; you supply Python and Node on target machines yourself.
-
-8. **Development: standalone start**
-   - From `frontend/web` after `npm run build`:
-   - `npm run start:standalone` — if `server.js` path differs, run `node` on the path printed by Next under `.next/standalone/`.
-
-## Disk and memory
-
-- **Qwen3.5-4B**: roughly **8GB+** disk for weights; **8GB+** VRAM recommended for GPU inference (quantization env vars in `llm_qwen.py` may help).
-- **PyTorch + dependencies**: several GB in the venv.
-
-## Code signing
-
-Unsigned installers trigger Windows SmartScreen. For public distribution, use an Authenticode certificate.
+Unsigned installers trigger Windows SmartScreen. Use an Authenticode
+certificate for public distribution.

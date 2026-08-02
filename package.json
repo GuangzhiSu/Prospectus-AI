@@ -1,7 +1,7 @@
 {
   "name": "prospectus-ui-monorepo",
   "private": true,
-  "description": "Prospectus draft generator — web app + optional local LLM",
+  "description": "Prospectus draft generator — hosted AI service + thin desktop clients",
   "scripts": {
     "dev": "npm run dev --prefix frontend/web",
     "dev:web": "npm run dev --prefix frontend/web",
@@ -15,7 +15,6 @@
     "desktop:dist": "npm run dist --prefix platform/desktop",
     "pack:linux": "bash packaging/linux/build-full-release.sh",
     "pack:mac": "bash packaging/mac/build-full-release.sh",
-    "pack:windows-dist": "bash packaging/linux/build-prospectusai-windows.sh",
     "pack:windows": "echo 'Native Windows build (optional): powershell -ExecutionPolicy Bypass -File packaging/windows/build-full-release.ps1'"
   }
 }

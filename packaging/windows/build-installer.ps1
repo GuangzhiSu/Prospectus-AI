@@ -19,8 +19,8 @@ Push-Location $RepoRoot
 
 try {
     $Stage = Join-Path $RepoRoot $InstallRoot
-    if (-not $SkipStage -or -not (Test-Path (Join-Path $Stage "Open-Prospectus-UI.cmd"))) {
-        Write-Host "Staging Windows app bundle..."
+    if (-not $SkipStage -or -not (Test-Path (Join-Path $Stage "Prospectus AI.exe"))) {
+        Write-Host "Staging thin Windows client..."
         & (Join-Path $PSScriptRoot "build-full-release.ps1") -InstallRoot $InstallRoot -SkipZip
     }
 

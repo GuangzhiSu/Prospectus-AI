@@ -1,56 +1,46 @@
-# Prospectus AI - desktop (Electron)
+# Prospectus AI desktop client
 
-This folder wraps the Next.js app in an **Electron** window and uses your **app icon** (`build/icon.png`).
+This folder contains the thin Electron client. Packaged applications load the
+protected workspace from `https://ai-prospectus.com/workspace`. They do not run
+a local Next.js server, Python agents, prompts, or model inference.
 
-## Development (browser UI + desktop window)
+## Development
 
-1. Terminal A — start the web app from repo root:
-
-   ```bash
-   npm run dev
-   ```
-
-2. Terminal B — install Electron once, then open the shell:
-
-   ```bash
-   npm run desktop:install
-   npm run desktop:dev
-   ```
-
-   The window loads `http://127.0.0.1:3000`. Optional: `PROSPECTUS_ELECTRON_DEVTOOLS=1` to open DevTools.
-
-## Packaged app + shortcuts (Windows)
-
-The normal Windows release path is the repo-level installer script:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
-```
-
-That script runs `packaging/windows/build-full-release.ps1`, which:
-
-- builds the Next.js standalone server
-- creates the Python runtime/venv for the AI agents
-- builds `platform/desktop` with Electron Builder
-- copies `Prospectus AI.exe` and its Electron support files into `dist/ProspectusAI/`
-- compiles the Inno Setup installer
-
-The installed Start Menu and desktop shortcuts open `Prospectus AI.exe`. The older `Open-Prospectus-UI.cmd` browser launcher remains in the install folder as a fallback.
-
-The Electron executable expects to run next to `agent1.py` and `web/server.js`; the release scripts preserve that layout.
-
-Packaged desktop apps open **`/workspace`** (the drafting UI) instead of the public marketing homepage. Override with `PROSPECTUS_ELECTRON_ENTRY=/other/path` when starting Electron.
-
-## macOS DMG
-
-From the repo root:
+Start the web/server application from the repository root:
 
 ```bash
-npm run pack:mac
+npm run dev
 ```
 
-See [`packaging/mac/README.md`](../../packaging/mac/README.md) for build requirements and distribution notes.
+In another terminal:
 
-## Icon
+```bash
+npm run desktop:install
+npm run desktop:dev
+```
 
-Replace `build/icon.png` with your branding (square PNG, at least 512x512 recommended for app windows). The Windows release script copies `frontend/web/src/app/favicon.ico` to `build/icon.ico` before packaging.
+Development defaults to `http://127.0.0.1:3000/workspace`. Override either
+development or packaged builds with:
+
+```bash
+PROSPECTUS_SERVER_URL=https://staging.example.com npm run desktop:dev
+```
+
+`PROSPECTUS_ELECTRON_ENTRY` can override `/workspace` when testing another path.
+
+## Authentication
+
+The hosted workspace currently uses HTTP Basic Authentication. Electron's
+default behavior is to cancel authentication challenges, so `main.cjs` handles
+the challenge and displays the local `login.html` credential dialog. Credentials
+are supplied to Chromium for the authenticated server session and are not
+written into the application bundle.
+
+## Release builds
+
+- Windows: `packaging/windows/build-installer.ps1`
+- macOS: `packaging/mac/build-full-release.sh`
+- Linux: `packaging/linux/build-full-release.sh`
+
+The release package contains Electron, `main.cjs`, the login dialog, and icons.
+It must not contain `prompts/`, Python agents, `.env` files, or provider keys.

@@ -19,7 +19,7 @@ The current `Agent2` output is intentionally **not** a fully complete final fili
 
 - prospectus-style prose where the source materials support it
 - section scaffolding and sub-headings where materials are incomplete
-- explicit gaps such as `[Information not provided in the documents]`
+- explicit gaps using `[● field name]`, `DATA_MISSING`, or `COUNSEL_INPUT_REQUIRED`
 - AI work tags such as `[[AI:VERIFY|...]]`, `[[AI:CITE|...]]`, `[[AI:XREF|...]]`, and `[[AI:LPD|...]]`
 
 This makes the output more suitable as a sponsor-counsel working draft than as a final prospectus.
@@ -278,10 +278,17 @@ Download buttons currently point to GitHub Releases. The recommended Windows but
 - `ProspectusAI-windows-x86_64.zip`
 - `ProspectusAI-mac-arm64-<timestamp>.dmg`
 - `ProspectusAI-mac-x64-<timestamp>.dmg`
-- `ProspectusAI-linux-x86_64-<timestamp>.tar.gz`
+- `ProspectusAI-linux-x64.AppImage`
 - `ProspectusAI-test-dataset.zip`
 
-To create the Windows installer locally, run this on a Windows machine with Node.js, Python 3.11, and Inno Setup 6:
+Desktop releases are thin HTTPS clients. They do not contain the Next.js server,
+Python agents, prompts, model runtimes, issuer data, or provider API keys. The
+packaged app opens `https://ai-prospectus.com/workspace`; set
+`PROSPECTUS_SERVER_URL` before launch to target a different server. The server
+deployment still uses this repository and must provide the protected workspace
+and `/api/*` routes.
+
+To create the Windows installer locally, run this on a Windows machine with Node.js and Inno Setup 6:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
@@ -296,7 +303,7 @@ The **macOS and Linux release bundle** workflow creates and uploads:
 
 - `dist/ProspectusAI-mac-arm64-<timestamp>.dmg` - Apple Silicon macOS app DMG
 - `dist/ProspectusAI-mac-x64-<timestamp>.dmg` - Intel macOS app DMG
-- `dist/ProspectusAI-linux-x86_64-<timestamp>.tar.gz` - Linux bundle with embedded Node.js and Python venv
+- `dist/ProspectusAI-linux-x64.AppImage` - thin Linux client for the hosted workspace
 
 The installed app checks for updates on startup in desktop/local runtimes and also includes **Settings -> Software updates** for manual checks. It checks the latest GitHub Release and offers the new Windows installer when `frontend/web/src/lib/app-version.ts` is older than the latest release tag. When publishing a new version:
 
@@ -368,12 +375,12 @@ Outputs:
 
 ## Agent2
 
-`Agent2` consumes `Agent1` output and runs a LangGraph pipeline using `ai-module/prompts/sections/requirements.json`. It supports two retrieval modes:
+`Agent2` consumes `Agent1` output and runs a LangGraph pipeline using `ai-module/prompts/sections/requirements.json`. It supports two retrieval modes, but both now use the same lean generation path:
 
-- **Legacy** (when only `rag_chunks.jsonl` exists): Retriever → Section Writer → Verifier → Revision → Assembler
-- **Hybrid** (when `text_chunks.jsonl` and/or `fact_store.jsonl` exist): Retriever (semantic + fact filtering) → **Section Planner** → Section Writer → Verifier → Revision → Assembler
+- **Legacy**: retrieval over `rag_chunks.jsonl`
+- **Hybrid**: semantic retrieval plus structured facts from `text_chunks.jsonl` / `fact_store.jsonl`
 
-The **Section Planner** (Hybrid mode only) prepares an evidence outline before drafting. The **Expected Timetable** section can be rendered from `fact_store` data via `ai-module/prospectus_graph/timetable_template.py`.
+The default graph is Retriever → Writer → deterministic validation → optional risk-based Reviewer → optional single Revision → Assembler. A deterministic outline compiled from the SectionSpec replaces the former automatic Planner call. Set `AGENT2_ENABLE_PLANNER=1` to opt into the LLM Planner for complex sections, or `AGENT2_ENABLE_PLANNER=all` for every Hybrid section. The **Expected Timetable** section remains a deterministic template rendered from `fact_store` data via `ai-module/prospectus_graph/timetable_template.py`.
 
 Current behavior:
 
@@ -381,10 +388,10 @@ Current behavior:
 - drafts through a dedicated writer agent in sponsor-counsel working draft mode
 - writes prospectus-ready prose where evidence exists
 - preserves required section structure where evidence is incomplete
-- inserts `[Information not provided in the documents]` for unsupported company-specific content
+- uses `[● field name]` for a missing slot, `DATA_MISSING` for missing factual evidence, and `COUNSEL_INPUT_REQUIRED` for missing professional judgment
 - may insert `[[AI:VERIFY|...]]`, `[[AI:CITE|...]]`, `[[AI:XREF|...]]`, and `[[AI:LPD|...]]`
-- reviews each section through a dedicated verifier agent plus deterministic rule checks
-- sends failed sections through a revision agent loop before assembly
+- runs deterministic checks on every section and calls the LLM Reviewer only for high-risk sections or detected issues (`AGENT2_REVIEW_MODE=all` restores review on every section)
+- sends fixable high-severity writing failures through at most one revision pass, followed by deterministic re-checking
 - avoids promotional language, unqualified forward-looking statements, and explicit or implicit profit forecasts
 - appends verification notes when unresolved issues remain
 

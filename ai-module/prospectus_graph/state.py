@@ -9,6 +9,7 @@ class EvidenceChunk(TypedDict, total=False):
     section: str
     source_file: str
     sheet_name: str
+    page: int | str
     chunk_index: int
     text: str
     sheet_summary: str
@@ -62,6 +63,7 @@ class SectionDraftState(TypedDict, total=False):
     revision_instructions: list[str]
     verifier_summary: str
     verifier_raw_output: str
+    llm_review_performed: bool
     mechanical_verification_issues: list[VerificationIssue]
     verification_issues: list[VerificationIssue]
     verifier_passed: bool

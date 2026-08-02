@@ -1,6 +1,6 @@
 # PIPELINE_MAP — Prospectus-AI 流水线梳理
 
-> 只读梳理，未改动仓库任何代码或数据。所有路径相对 `Prospectus-AI-main/`，除非另注。
+> 所有路径相对 `Prospectus-AI-main/`，除非另注。
 > 当前实验对象：商汤（SenseTime, 0020.HK）招股书；当前仓库内可跑的真实输入样本是优必选（UBTECH, 9880）的 `data.json`。
 
 ---
@@ -41,24 +41,26 @@
 一个用 **LangGraph** 编排的小型多 agent 状态机。图的拓扑（`prospectus_graph/graph.py:12`）：
 
 ```
-START → retriever → [planner] → section_writer → verifier ──┬── should_revise? ──▶ revision ──▶（回到 verifier）
-                                                            └── 否 ──▶ assembler → END
+START → retriever → [opt-in planner] → section_writer → deterministic checks
+       → [risk-based LLM reviewer] ──┬── fixable high-severity issue ──▶ revision（最多一次）
+                                     └── otherwise ──▶ assembler → END
 ```
 
 | 节点 | 吃 | 吐 | 代码 |
 |------|----|----|------|
 | **retriever** | `agent1_output/` 的 `text_chunks`+`fact_store`（Hybrid）或 `rag_chunks`（Legacy） | `retrieval_context`, `text_evidence`, `retrieved_facts` | `agent2.py:553`(`_hybrid_supported`), `:559`(选检索器), `:567`(节点) |
-| **planner**（仅 Hybrid） | 检索证据 + KG 结构骨架 | `planner_outline`, `planner_fact_mapping` | 在 retriever 与 writer 之间 |
+| **planner**（默认关闭） | 检索证据 + SectionSpec 结构 | `planner_outline`, `planner_fact_mapping` | `AGENT2_ENABLE_PLANNER=1` 时仅复杂 Hybrid section 启用 |
 | **section_writer** | 证据 + `ai-module/prompts/sections/requirements.json` 的本节要求 + crosswalk 门控文档块 | `draft_text` | `prompts/composer.py` + `agent2.py` |
-| **verifier** | `draft_text` | `verification_issues`, `should_revise`, `verifier_summary` | `prospectus_graph/verifier.py` |
-| **revision** | 草稿 + verifier 问题 | 修订后的 `draft_text`（回 verifier，受 `max_revision_loops` 限制） | — |
+| **verifier** | `draft_text` | 确定性检查；高风险/有问题时才调用 LLM Reviewer | `prospectus_graph/verifier.py` |
+| **revision** | 草稿 + verifier 问题 | 修订后的 `draft_text`；最多一次，之后只做确定性复检 | — |
 | **assembler** | 通过校验的文本 | `section_*.md` / `all_sections.md` | `prospectus_graph/output_bundle.py` |
 
-- **检索两种模式**：存在 `text_chunks.jsonl`/`fact_store.jsonl` → **Hybrid**（语义+事实过滤，带 planner）；只有 `rag_chunks.jsonl` → **Legacy**（无 planner）。判定在 `agent2.py:553`。
+- **检索两种模式**：存在 `text_chunks.jsonl`/`fact_store.jsonl` → **Hybrid**（语义+事实过滤）；只有 `rag_chunks.jsonl` → **Legacy**。两种模式默认都不调用 Planner。
+- **Prompt**：运行时只组合 GlobalPolicy + 单一 SectionSpec + EvidencePacket + UserInstruction；generation rules、corpus style、KG prose 保留为离线参考，不再逐层注入。
 - **每节由 `ai-module/prompts/sections/requirements.json` 驱动**（repo 根 `agent2_section_requirements.json` 仅为兼容回退）：共 **31 个 section**（key 见 §2.4），每节含 `name / requirements（起草指令）/ kg_section_id / kg_function / kg_typical_structure`。
 - **门控与 DD 证据**：`input_schema_crosswalk.json` 给每个 section 列出必须就位的 Schema A 门控文档；缺失则 writer 插 `[[AI: DD evidence needed — <field_id>]]`（见 `_coverage_vs_report.md` 第 268 行起）。
 - 状态对象全字段见 `prospectus_graph/state.py:35`（`SectionDraftState`）。
-- 输出是 **sponsor-counsel 工作稿**，不是终版；会留 `[Information not provided in the documents]` 和 `[[AI:VERIFY|…]] / [[AI:CITE|…]] / [[AI:XREF|…]] / [[AI:LPD|…]]` 标记。
+- 输出是 **sponsor-counsel 工作稿**，不是终版；缺失字段使用 `[● field name]`，缺失事实使用 `DATA_MISSING`，缺失专业判断使用 `COUNSEL_INPUT_REQUIRED`，并配合 `[[AI:VERIFY|…]] / [[AI:CITE|…]] / [[AI:XREF|…]] / [[AI:LPD|…]]` 标记。
 
 ### 1.3 旁路 / 遗留
 - **Legacy RAG 路由**：`frontend/web` 的 `/api/chat` → `lib/rag.ts` + `platform/services/local-llm/`（实验用，非主页流程）。

@@ -55,10 +55,10 @@ export const DOWNLOAD_ASSETS: DownloadAsset[] = [
     id: "linux",
     title: "Linux x86_64",
     platform: "Linux",
-    description: "Full Linux archive for workstation or server deployment.",
+    description: "Thin AppImage client for the hosted workspace.",
     href: RELEASE_PAGE_URL,
     fallbackHref: RELEASE_PAGE_URL,
-    dynamicAssetPattern: "^ProspectusAI-linux-x86_64-.*\\.tar\\.gz$",
+    dynamicAssetPattern: "^ProspectusAI-linux-x64\\.AppImage$",
   },
   {
     id: "test-dataset",

@@ -63,7 +63,7 @@ const assetLabels = {
     },
     linux: {
       title: "Linux x86_64",
-      description: "Full Linux archive for workstation or server deployment.",
+      description: "Thin AppImage client for the hosted workspace.",
     },
     "test-dataset": {
       title: "Test dataset",
@@ -86,7 +86,7 @@ const assetLabels = {
     },
     linux: {
       title: "Linux x86_64",
-      description: "适用于工作站或服务器部署的完整 Linux 压缩包。",
+      description: "连接托管工作区的轻量 AppImage 客户端。",
     },
     "test-dataset": {
       title: "测试数据集",
@@ -111,9 +111,9 @@ const copy = {
     export: "Export",
     includedTitle: "Included",
     included: [
-      "Isolated AI module and web workspace",
-      "Windows installer, macOS DMG workflow, and Linux archive options",
-      "Local file workflow for confidential issuer materials",
+      "Thin desktop clients for the protected web workspace",
+      "Windows installer, macOS DMG, and Linux AppImage options",
+      "Server-side prompts, AI agents, and model execution",
       "Downloadable test dataset for validating the full generation path",
     ],
     downloadsTitle: "Downloads",
@@ -135,7 +135,7 @@ const copy = {
           "Close any existing Prospectus AI windows before upgrading.",
           "Run ProspectusAI-Setup-0.1.2.exe and follow the installer.",
           "Launch Prospectus AI from the Start Menu or desktop shortcut.",
-          "First launch creates the local Python environment. Keep the window open and allow 5-20 minutes.",
+          "Sign in with your workspace credentials. An internet connection is required.",
         ],
       },
       {
@@ -145,17 +145,17 @@ const copy = {
           "Download the DMG matching your Mac chip.",
           "Open the DMG and run 双击安装 Install.command inside the window.",
           "If macOS blocks the script, right-click it, choose Open, then Open again.",
-          "Launch Prospectus AI from Applications or Launchpad.",
+          "Launch it from Applications and sign in to the hosted workspace.",
         ],
       },
       {
-        title: "Linux Archive",
+        title: "Linux AppImage",
         badge: "x86_64",
         steps: [
-          "Extract the tar.gz archive.",
-          "Open a terminal in the extracted folder.",
-          "Run ./start-prospectus-ui.sh.",
-          "Open the local URL printed in the terminal.",
+          "Download ProspectusAI-linux-x64.AppImage.",
+          "Make it executable if your browser removed that permission.",
+          "Run the AppImage and sign in to the hosted workspace.",
+          "Keep an internet connection while using AI features.",
         ],
       },
       {
@@ -171,10 +171,10 @@ const copy = {
     ],
     guideNoteTitle: "First-run setup",
     guideNote:
-      "The desktop app starts a local server and may install Python packages on first launch. This is expected. If an upgrade fails because a DLL is locked, close Prospectus AI and any remaining node.exe or python.exe process, then rerun the installer.",
+      "The desktop package is a thin client. Prompts, agents, model execution, and provider keys remain on the protected server; documents selected in the workspace are uploaded to that server for processing.",
     footerTitle: "Designed for controlled drafting",
     footerDescription:
-      "The app keeps the main workflow local: upload issuer materials, prepare evidence, generate sections, then export a Word draft for review.",
+      "The protected server prepares evidence, generates sections, and returns drafts and Word exports to authenticated clients.",
     workflowTitle: "Workflow",
     workflowText: "Data upload, Agent1 evidence preparation, Agent2 section drafting, and DOCX export.",
     deploymentTitle: "Deployment",
@@ -195,9 +195,9 @@ const copy = {
     export: "导出",
     includedTitle: "包含内容",
     included: [
-      "独立 AI 模块与网页工作区",
-      "Windows 安装包、macOS DMG 流程和 Linux 压缩包选项",
-      "适合敏感发行人材料的本地文件工作流",
+      "连接受保护网页工作区的轻量桌面客户端",
+      "Windows 安装包、macOS DMG 和 Linux AppImage",
+      "服务端保存 prompt、AI Agent 并执行模型调用",
       "可下载测试数据集，用于验证完整生成链路",
     ],
     downloadsTitle: "下载",
@@ -218,7 +218,7 @@ const copy = {
           "升级前先关闭所有 Prospectus AI 窗口。",
           "运行 ProspectusAI-Setup-0.1.2.exe，并按安装器提示完成安装。",
           "从开始菜单或桌面快捷方式启动 Prospectus AI。",
-          "首次启动会创建本地 Python 环境，请保持窗口打开，通常需要 5-20 分钟。",
+          "使用工作区账号登录；软件运行时需要网络连接。",
         ],
       },
       {
@@ -228,17 +228,17 @@ const copy = {
           "按你的 Mac 芯片下载对应 DMG。",
           "打开 DMG，双击窗口里的 双击安装 Install.command。",
           "如果 macOS 阻止脚本，请右键选择打开，再点打开。",
-          "之后从应用程序或启动台打开 Prospectus AI。",
+          "之后从应用程序打开 Prospectus AI，并登录托管工作区。",
         ],
       },
       {
-        title: "Linux 压缩包",
+        title: "Linux AppImage",
         badge: "x86_64",
         steps: [
-          "解压 tar.gz 文件。",
-          "在解压后的文件夹中打开终端。",
-          "运行 ./start-prospectus-ui.sh。",
-          "在浏览器打开终端中显示的本地地址。",
+          "下载 ProspectusAI-linux-x64.AppImage。",
+          "如果浏览器移除了执行权限，请先把它设为可执行。",
+          "运行 AppImage，并登录托管工作区。",
+          "使用 AI 功能期间需要保持网络连接。",
         ],
       },
       {
@@ -254,10 +254,10 @@ const copy = {
     ],
     guideNoteTitle: "首次启动说明",
     guideNote:
-      "桌面应用会启动本地服务，首次打开可能会安装 Python 依赖，这是正常现象。如果升级安装时提示 DLL 被占用，请关闭 Prospectus AI，并在任务管理器结束残留的 node.exe 或 python.exe 后再安装。",
+      "桌面安装包是轻量客户端。Prompt、Agent、模型调用和供应商密钥都保留在受保护服务端；你在工作区选择的文档会上传至该服务端处理。",
     footerTitle: "为受控起草流程而设计",
     footerDescription:
-      "应用将核心流程保留在本地：上传发行人材料、整理证据、生成章节，然后导出 Word 草稿供审阅。",
+      "受保护服务端负责整理证据、生成章节，并向已认证客户端返回草稿和 Word 导出文件。",
     workflowTitle: "工作流",
     workflowText: "数据上传、Agent1 证据整理、Agent2 章节起草和 DOCX 导出。",
     deploymentTitle: "部署",

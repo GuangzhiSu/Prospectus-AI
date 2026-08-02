@@ -1,5 +1,5 @@
-# Builds the full Windows portable bundle and installer (embedded Node + local-first Python bootstrap + Next standalone).
-# Linux-produced dist/ProspectusAI is NOT usable on Windows (wrong native modules).
+# Builds the thin Windows Electron client and installer. AI prompts, Python
+# agents, model execution, and credentials remain on the hosted server.
 
 name: Windows release bundle
 
@@ -57,12 +57,7 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-          cache-dependency-path: frontend/web/package-lock.json
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+          cache-dependency-path: platform/desktop/package-lock.json
 
       - name: Build bundle (PowerShell)
         shell: pwsh

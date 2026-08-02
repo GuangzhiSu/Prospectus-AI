@@ -49,7 +49,8 @@ Single Next.js app that provides both the **frontend** and the **backend API** u
 |------|------|
 | `prompts/composer.py` | Assembles Layer 1–3 prompts for Agent1/Agent2 and legacy RAG |
 | `prompts/sections/requirements.json` | Canonical section requirements (SSOT) |
-| `prompts/sections/generation_rules.json` | Per-section pre-draft rules |
+| `prompts/sections/generation_rules.json` | Legacy authoring/reference rules (not injected at runtime) |
+| `prompts/sections/corpus_style_guides.json` | Legacy corpus style reference (not injected at runtime) |
 | `prompts/core/` | Global Exchange drafting constraints and AI tag schema |
 | `prompts/agents/` | Role templates (planner, writer, verifier, revision, Agent1, legacy) |
 

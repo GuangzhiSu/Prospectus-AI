@@ -394,7 +394,12 @@ function buildContext(topChunks: RagChunk[]) {
 
 function buildPlainContext(topChunks: RagChunk[]) {
   return topChunks
-    .map((c) => c.text.replace(/\n{3,}/g, "\n\n"))
+    .map((c, index) => {
+      const evidenceId = c.id || `chunk_${index + 1}`;
+      const doc = c.docName || c.docStoredName || "unknown_document";
+      const text = c.text.replace(/\n{3,}/g, "\n\n");
+      return `[${evidenceId}] (Source: ${doc})\n${text}`;
+    })
     .join("\n\n");
 }
 
@@ -488,7 +493,7 @@ export async function generateSectionDraft(
   }
 
   if (topChunks.length === 0) {
-    return "TBD: No relevant evidence found in the uploaded documents.";
+    return "**DATA_MISSING** No relevant evidence was retrieved from the uploaded documents. [[AI:VERIFY|evidence=Upload section-specific supporting documents.]]";
   }
 
   const context = buildPlainContext(topChunks);

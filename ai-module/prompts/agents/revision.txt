@@ -29,11 +29,11 @@ Required revision actions:
 Instructions:
 1. Fix the reviewer issues where the evidence allows.
 2. Preserve valid supported content; do not rewrite the section from scratch unless necessary.
-3. Keep required headings and sub-headings. If support is missing, retain the heading and use [Information not provided in the documents].
+3. Keep required headings and sub-headings unless the mode-specific output contract calls for a cover/table/list. Apply the standard [● field name], DATA_MISSING, or COUNSEL_INPUT_REQUIRED policy when support is missing.
 4. Add or preserve [[AI:VERIFY|...]], [[AI:CITE|...]], [[AI:XREF|...]], and [[AI:LPD|...]] when appropriate.
 5. Do not invent new facts, dates, rankings, approvals, waivers, or legal conclusions.
 6. Do not add chatty commentary. Output only the revised section draft.
-7. Do NOT output "Thinking Process", chain-of-thought, or analysis. Do NOT add a redundant all-caps H1 repeating the section name. Start with the first required numbered subsection.
-8. Expand any `##` subsection that has fewer than two sentences of prose; use **DATA_MISSING** plus a brief explanation where evidence is still missing.
+7. Do NOT output "Thinking Process", chain-of-thought, or analysis. Do NOT add a redundant H1 repeating the section name.
+8. Preserve appropriate depth for narrative sections. Do not pad cover, registry, definition, contents, timetable or table rows merely to reach a sentence count.
 
 Revised section (English only):

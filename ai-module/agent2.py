@@ -2,11 +2,11 @@
 """
 Agent2: Generate prospectus sections from Agent1 output through a LangGraph pipeline.
 
-Legacy (rag_chunks only):
-    Retriever -> Section Writer -> Verifier -> Revision -> Assembler
+Default:
+    Retriever -> Section Writer -> deterministic checks -> [risk-based Reviewer]
+    -> [single Revision] -> Assembler
 
-Hybrid (text_chunks + fact_store):
-    Retriever (semantic + fact filtering) -> Section Planner -> Section Writer -> Verifier -> Revision -> Assembler
+The LLM Planner is opt-in for complex sections via ``AGENT2_ENABLE_PLANNER=1``.
 
 Issuer metadata: edit issuer_metadata.json (or pass --issuer-metadata). Conditional warnings and
 locked regulatory snippets are injected from prospectus_graph/locked_snippets.json.
@@ -74,6 +74,56 @@ def _issuer_metadata_default_path() -> Path:
 
 def _lookup_section_name(section_id: str) -> str:
     return next((name for sid, name in SECTIONS if sid == section_id), section_id)
+
+
+HIGH_RISK_REVIEW_SECTIONS = frozenset(
+    {
+        "RiskFactors",
+        "Cover",
+        "Waivers",
+        "Regulation",
+        "IndustryOverview",
+        "ContractualArrangements",
+        "ConnectedTransactions",
+        "ShareCapital",
+        "FinancialInfo",
+        "CornerstoneInvestors",
+        "Underwriting",
+        "GlobalOfferingStructure",
+        "HowToApply",
+        "Appendices",
+    }
+)
+
+COMPLEX_PLANNER_SECTIONS = frozenset(
+    {"Summary", "Business", "RiskFactors", "FinancialInfo", "IndustryOverview"}
+)
+
+
+def _should_run_llm_review(
+    section_id: str,
+    mechanical_issues: list[dict[str, Any]],
+    revision_count: int,
+) -> bool:
+    """Risk-based reviewer policy; the post-revision pass is deterministic only."""
+    if revision_count > 0:
+        return False
+    mode = os.environ.get("AGENT2_REVIEW_MODE", "risk_based").strip().lower()
+    if mode == "all":
+        return True
+    if mode in {"none", "off", "0", "false"}:
+        return False
+    return section_id in HIGH_RISK_REVIEW_SECTIONS or bool(mechanical_issues)
+
+
+def _planner_enabled(section_id: str, rag_dir: str | Path) -> bool:
+    """Planner is off by default; opt-in remains available for complex sections."""
+    setting = os.environ.get("AGENT2_ENABLE_PLANNER", "").strip().lower()
+    if setting not in {"1", "true", "yes", "all"}:
+        return False
+    if not _supports_hybrid_retrieval(rag_dir):
+        return False
+    return setting == "all" or section_id in COMPLEX_PLANNER_SECTIONS
 
 
 def _resolve_max_new_tokens(role: str, override: int | None) -> int:
@@ -365,24 +415,36 @@ class VerifierAgent:
             retrieval_context=state.get("retrieval_context", ""),
         )
 
-        verifier_prompt = build_verifier_prompt(
-            section_name=state["section_name"],
-            requirements=state["requirements"],
-            retrieval_context=state.get("retrieval_context", ""),
-            draft_text=state.get("draft_text", ""),
-            mechanical_issues=mechanical_issues,
-            revision_count=state.get("revision_count", 0),
+        run_llm_review = _should_run_llm_review(
+            section_id, mechanical_issues, revision_pass
         )
-        verifier_raw_output = generate_with_llm(
-            verifier_prompt,
-            model_name=self.model_name,
-            model=self.model,
-            tokenizer=self.tokenizer,
-            role="verifier",
-        )
-        agent_pass, verifier_summary, agent_issues, revision_instructions = (
-            parse_verifier_agent_output(verifier_raw_output)
-        )
+        verifier_raw_output = ""
+        agent_issues: list[dict[str, Any]] = []
+        revision_instructions: list[str] = []
+        agent_pass: bool | None = None
+        if run_llm_review:
+            verifier_prompt = build_verifier_prompt(
+                section_name=state["section_name"],
+                requirements=state["requirements"],
+                retrieval_context=state.get("retrieval_context", ""),
+                draft_text=state.get("draft_text", ""),
+                mechanical_issues=mechanical_issues,
+                revision_count=revision_pass,
+            )
+            verifier_raw_output = generate_with_llm(
+                verifier_prompt,
+                model_name=self.model_name,
+                model=self.model,
+                tokenizer=self.tokenizer,
+                role="verifier",
+            )
+            agent_pass, verifier_summary, agent_issues, revision_instructions = (
+                parse_verifier_agent_output(verifier_raw_output)
+            )
+        elif revision_pass > 0:
+            verifier_summary = "Post-revision deterministic validation completed."
+        else:
+            verifier_summary = "Deterministic validation passed; risk-based LLM review was not required."
         issues = merge_verification_issues(mechanical_issues, agent_issues)
         only_parse_failure = (
             not mechanical_issues
@@ -430,6 +492,7 @@ class VerifierAgent:
             "verifier_passed": passed,
             "verifier_summary": verifier_summary,
             "verifier_raw_output": verifier_raw_output,
+            "llm_review_performed": run_llm_review,
             "revision_instructions": revision_instructions,
             "should_revise": should_revise,
             "verified_text": verified_text,
@@ -944,15 +1007,6 @@ def _build_section_state(
 ) -> SectionDraftState:
     section_name = _lookup_section_name(section_id)
     reqs = dict(requirements_map.get(section_id, {}))
-    try:
-        from prompts.sections.augment import get_corpus_style_guide
-
-        guide = get_corpus_style_guide(section_id)
-        if guide.get("preferred_outline"):
-            reqs["kg_typical_structure"] = guide["preferred_outline"]
-            reqs["kg_heading_lock"] = bool(guide.get("heading_lock"))
-    except Exception:  # noqa: BLE001
-        pass
     base_req = reqs.get("requirements", f"Write the {section_name} section.")
     requirements = augment_requirements(
         section_id, base_req, issuer_metadata_path, reqs=reqs
@@ -968,7 +1022,8 @@ def _build_section_state(
         "model_name": model_name,
         "max_context_chars": max_context_chars,
         "revision_count": 0,
-        "max_revision_loops": max_revision_loops,
+        # A second reviewer/revision loop adds cost and frequently churns wording.
+        "max_revision_loops": min(max(0, max_revision_loops), 1),
         "should_revise": False,
         "revision_instructions": [],
         "modification_instructions": modification_instructions,
@@ -1067,7 +1122,9 @@ def _run_section_graph(
     model: Any = None,
     tokenizer: Any = None,
 ) -> SectionDraftState:
-    use_planner = _supports_hybrid_retrieval(section_state.get("rag_dir", ""))
+    use_planner = _planner_enabled(
+        section_state["section_id"], section_state.get("rag_dir", "")
+    )
     graph = build_section_graph(
         retriever_node=RetrieverNode(retriever),
         section_writer_agent=SectionWriterAgent(
@@ -1395,7 +1452,7 @@ def main() -> None:
         "--max-revisions",
         type=int,
         default=1,
-        help="Maximum number of revision-agent passes per section",
+        help="Revision-agent passes per section (runtime is capped at one)",
     )
     parser.add_argument(
         "--modification-file",

@@ -29,8 +29,8 @@ Review focus:
 5. Explicit or implicit profit-forecast wording.
 6. Missing [[AI:CITE|...]], [[AI:VERIFY|...]], or [[AI:XREF|...]] where needed.
 7. Any material mismatch between the evidence and the draft.
-8. VALIDATION CHECKLIST enforcement: if the section requirements contain a "VALIDATION CHECKLIST" block, verify each checklist item explicitly and raise an issue for every item the draft fails (checklist failures that the writer can fix are WRITING_ERROR).
-9. GENERATION MODE compliance: if the requirements declare a generation mode (e.g. controlled_template_fill, professional_source_assembly_only), flag drafting behaviour that violates that mode (e.g. invented narrative in a template-fill section).
+8. WRITER SELF-CHECK enforcement: verify each self-check item that can be tested from the supplied draft/evidence and raise a specific issue for each failure. Do not claim to verify a cross-section fact that is absent from the EvidencePacket.
+9. GENERATION MODE and OUTPUT CONTRACT compliance: flag drafting that violates the declared format or positive drafting pattern, including padded narrative in a template section, checklist prose in a risk section, or invented professional conclusions.
 
 Return JSON only, with this exact schema:
 {
@@ -45,7 +45,7 @@ Return JSON only, with this exact schema:
 }
 
 CRITICAL - Issue categories (use exactly):
-- DATA_MISSING: The required information is NOT in the source documents. The Writer correctly used [Information not provided] or a placeholder. The Writer cannot fix this; do NOT request revision.
+- DATA_MISSING: The required factual information is NOT in the source documents. The Writer correctly used `[● field name]` or `DATA_MISSING` with a verification request. The Writer cannot fix this; do NOT request revision.
 - WRITING_ERROR: The Writer made an error (invented facts, wrong structure, promotional language, unsupported claims, missing AI tags where evidence exists but was not cited). Revision can fix this.
 
 Examples of DATA_MISSING: missing application dates (timetable not in data), missing CCASS details (not in documents), missing allotment info (not provided).

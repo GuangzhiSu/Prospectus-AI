@@ -433,6 +433,12 @@
       "13. Business sustainability / loss-making discussion — required if loss-making, net liabilities, operating cash outflow or pre-commercial",
       "14. Special structure disclosures — WVR structure and beneficiaries; Contractual Arrangement / VIE; Controlling Shareholders; Chapter 18C / Pre-Commercial status; goodwill / intangible assets if material; dividend policy; use of proceeds; listing expenses"
     ],
+    "drafting_sequence": [
+      "Draft the Summary only after identifying the supported propositions for Business, Industry Overview, Financial Information, Risk Factors and offering terms; omit immaterial detail rather than compressing every source fact.",
+      "For each overview paragraph: state the supported headline fact, add the minimum scale/period needed to understand it, then cross-reference the substantive section; do not add a conclusion stronger than that section.",
+      "Build financial and operating highlights as compact comparable tables first, then add only sourced trend explanation. For each key risk, give one issuer-specific trigger/consequence sentence followed by the Risk Factors cross-reference.",
+      "End by reconciling every number, defined term and special-regime statement against the corresponding substantive section."
+    ],
     "issuer_type_conditional_rules": [
       {
         "when": "issuer_type=AI_foundation_model",
@@ -662,6 +668,7 @@
     "section_function": "Explains industry, technical and operating metric terms to investors. Legal terms belong in Definitions, not the Glossary.",
     "drafting_sequence": [
       "Include only technical, operational, industry or product-specific terms, explained in plain English.",
+      "Use concise Request-for-Elaboration-style entries rather than narrative disclosure.",
       "Define metrics before they appear in Summary, Business or Financial Information.",
       "For operating metrics, specify calculation method, period basis and limitation."
     ],
@@ -769,7 +776,8 @@
       "State no obligation to update except as required by law or Listing Rules."
     ],
     "negative_rules": [
-      "Do not include new business claims or projections here — this section is purely cautionary."
+      "Do not include new business claims or projections here — this section is purely cautionary.",
+      "No specific profit, margin or dated profitability outlook; use generic safe-harbour wording unless a formal profit-forecast process applies."
     ],
     "validation_checklist": [
       "Contains the Risk Factors cross-reference and the no-obligation-to-update statement."
@@ -894,7 +902,7 @@
       "Omitting important details that could affect the reader's understanding of the risks."
     ],
     "section_group": "FrontMatter",
-    "generation_mode": "legal_checklist_drafting",
+    "generation_mode": "risk_narrative_drafting",
     "requires_verified_source": true,
     "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
     "section_function": "Issuer-specific risk disclosure, not generic boilerplate. Each risk item must show risk trigger -> issuer exposure -> risk mechanism -> investor impact.",
@@ -966,7 +974,9 @@
     ],
     "negative_rules": [
       "No generic boilerplate risks without issuer-specific facts.",
-      "No mitigation language that neutralizes the risk within the same narrative."
+      "No mitigation language that neutralizes the risk within the same narrative; cross-reference Business or Regulation instead.",
+      "Do not use memo labels such as Factual Cause, Harm to Issuer or Harm to Investors.",
+      "Do not produce a risk table or risk matrix; use a risk heading followed by cause and adverse-effect paragraphs."
     ],
     "validation_checklist": [
       "Every Summary key risk appears here in full form.",
@@ -1610,7 +1620,8 @@
       "Each topic ends with cross-references to Risk Factors, Business and Contractual Arrangements where triggered."
     ],
     "negative_rules": [
-      "Do not invent regulation names, dates, issuing authorities or compliance status."
+      "Do not invent regulation names, dates, issuing authorities or compliance status.",
+      "Do not state a legal compliance conclusion without legal-opinion or regulatory evidence; use COUNSEL_INPUT_REQUIRED when that evidence is absent."
     ],
     "validation_checklist": [
       "Every regulation cited in Business or Risk Factors appears here with issuer relevance.",
@@ -1731,6 +1742,12 @@
       "7. Competitive landscape — ranking; market share; benchmark; peer comparison; basis, year and source",
       "8. Entry barriers / threats / cost trends — technology; capital; infrastructure; talent; regulation; IP; data; customer acquisition; cost structure"
     ],
+    "drafting_sequence": [
+      "Open with the source basis and market definition before presenting any statistic.",
+      "For each market statistic write: metric and unit -> geography/scope -> historical or forecast period -> value/CAGR/ranking -> source and methodology caveat -> citation.",
+      "Separate historical data from forecasts and separate third-party market observations from issuer-specific ranking claims. Explain a driver only when the source supplies the causal basis.",
+      "Mention the issuer only where needed to define its relevant segment or report a specifically sourced ranking/share; direct company discussion to Business."
+    ],
     "issuer_type_conditional_rules": [
       {
         "when": "issuer_type=AI_foundation_model",
@@ -1749,7 +1766,9 @@
       "Every statistic must include: source; period; geography; metric; scope; unit/currency."
     ],
     "negative_rules": [
-      "No promotional industry writing; no unsourced rankings or market-size claims."
+      "No promotional industry writing; no unsourced rankings or market-size claims.",
+      "If consultant or source evidence is missing, produce a source-request skeleton rather than a generic market essay.",
+      "Keep issuer promotion out of the market narrative except for a sourced ranking/share claim or necessary market-segment definition."
     ],
     "validation_checklist": [
       "Rankings and market shares cited in Summary/Business appear here with full source basis."
@@ -1985,7 +2004,11 @@
     "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
     "section_function": "Core commercial disclosure: who the issuer is, how it makes money, why it is competitive, how it operates, and what compliance controls support the business.",
     "drafting_sequence": [
-      "Before drafting, classify issuer_type (AI / foundation model / technology platform; AI software / computer vision; online game / IP-based content operator; SaaS / enterprise software; biotech / healthcare; manufacturing / consumer / other) and activate the matching modules."
+      "Before drafting, classify issuer_type (AI / foundation model / technology platform; AI software / computer vision; online game / IP-based content operator; SaaS / enterprise software; biotech / healthcare; manufacturing / consumer / other) and activate the matching modules.",
+      "Draft the Overview as identity -> products/services -> customers/geography -> revenue model -> supported scale, with citations at each material factual unit.",
+      "For each competitive strength use: neutral heading -> supported capability/asset -> quantitative or concrete proof -> demonstrated commercial relevance. If proof is absent, do not retain the strength as promotional prose.",
+      "For each strategy use: objective -> specific implementation actions -> existing capability/evidence -> expected operational direction without forecasting success -> Use of Proceeds cross-reference where funded.",
+      "For each product/business-model subsection explain the transaction, service or data flow and who pays whom; distinguish current operations from pipeline, plans and unsupported aspirations."
     ],
     "mandatory_subsections": [
       "1. Overview / Who We Are — core identity; principal products/services; business model; geography; Track Record Period metrics; market ranking if supported",
@@ -2015,7 +2038,9 @@
     ],
     "evidence_requirements": [
       "Every competitive strength claim needs quantitative or factual support from context.",
-      "Market rankings require consultant source, metric, geography and period."
+      "Market rankings require consultant source, metric, geography and period.",
+      "Mission, vision, strengths, strategies, awards, customer scale, R&D scale and product lists require direct retrieved support.",
+      "When evidence contains customer/supplier concentration, segment revenue, R&D/IP or data-privacy facts, disclose them in the corresponding subsection."
     ],
     "cross_reference_rules": [
       "Strategies must link to Use of Proceeds where funded by offering proceeds.",
@@ -2868,6 +2893,12 @@
       "11. Financial risks — FX; interest rate; credit; liquidity; price; sensitivity",
       "12. Dividends and distributable reserves"
     ],
+    "drafting_sequence": [
+      "Prepare and reconcile the historical tables before drafting narrative. Use consistent periods, units and line-item names from Appendix I.",
+      "For each material movement write: line item -> compared periods -> absolute movement -> percentage movement -> sourced business/accounting driver -> citation. If the driver is not in evidence, report the movement and mark the explanation DATA_MISSING.",
+      "Explain revenue and cost components through the issuer's actual business model; do not infer causation from correlation or restate every immaterial line.",
+      "For liquidity, move from cash-flow table -> funding sources -> working-capital/indebtedness facts -> supported management or professional conclusion. Reserve sufficiency, going-concern and accounting judgments for explicit professional evidence."
+    ],
     "issuer_type_conditional_rules": [
       {
         "when": "issuer_type=AI_foundation_model",
@@ -2893,14 +2924,17 @@
       "Revenue breakdown tables by segment/nature consistent with the Accountants' Report."
     ],
     "evidence_requirements": [
-      "All figures must be traceable to the Accountants' Report, management accounts or structured input tables."
+      "All figures must be traceable to the Accountants' Report, management accounts or structured input tables.",
+      "Every period-to-period explanation must identify the line item, compared periods, amount/percentage movement and evidence pointer.",
+      "If management explanations are absent, mark the driver DATA_MISSING instead of inventing a cause."
     ],
     "cross_reference_rules": [
       "Cross-reference Appendix I for historical financial information and related party details."
     ],
     "negative_rules": [
       "Do not create explicit or implicit profit forecasts or margin forecasts.",
-      "Do not invent accounting policies or non-IFRS reconciliations."
+      "Do not invent accounting policies or non-IFRS reconciliations.",
+      "Do not create a non-IFRS measure unless its definition and reconciliation are supported."
     ],
     "validation_checklist": [
       "All tables reconcile with Appendix I (Accountants' Report).",
@@ -3018,7 +3052,8 @@
       "Each major use links back to Business strategies."
     ],
     "negative_rules": [
-      "Do not state only broad categories: each major use must include sub-uses, rationale, percentage, amount and expected timeline."
+      "Do not state only broad categories: each major use must include sub-uses, rationale, percentage, amount and expected timeline.",
+      "Do not invent net proceeds, offer-price assumptions, expansion plans, R&D budgets or acquisitions; mark missing inputs DATA_MISSING or COUNSEL_INPUT_REQUIRED."
     ],
     "validation_checklist": [
       "Net proceeds figures match Cover assumptions and Appendix II pro forma.",
@@ -3104,6 +3139,11 @@
       "5. Underwriters' interests and independence — fees; relationships; connected client consent/waivers",
       "6. Indemnity — summarize if included",
       "7. Expenses — underwriting fees; listing expenses; accounting treatment if relevant"
+    ],
+    "drafting_sequence": [
+      "Use the underwriting agreement as the controlling source and separate Hong Kong and International arrangements.",
+      "For each contractual topic state: agreement/date/parties -> operative term -> trigger or condition -> consequence -> relevant undertaking/exception -> cross-reference. Summarize rather than reinterpret the contract.",
+      "Present underwriter names, commitments, fees and expenses in tables or lists where comparable; retain exact defined terms from the agreement."
     ],
     "negative_rules": [
       "Do not invent termination events, indemnities or fee percentages — use only underwriting agreement input."
@@ -3212,6 +3252,11 @@
       "7. Stabilization — stabilizing manager; permitted actions; time limit; no obligation; price cap; disclosure",
       "8. Pricing and allocation — Offer Price range; Price Determination Date; lapse if no agreement; final pricing announcement",
       "9. Conditions — Listing Committee approval; Offer Price agreement; underwriting agreements; mutual conditionality; lapse/refund"
+    ],
+    "drafting_sequence": [
+      "Start with one reconciled offering-size table showing total shares, tranche split, percentages and assumptions.",
+      "For each mechanic state: starting allocation -> triggering event/threshold -> permitted reallocation or option -> resulting maximum allocation -> timing/announcement -> affected section cross-reference.",
+      "Keep pricing, conditions, refunds, settlement and application procedures in chronological order. Do not repeat operational detail carried by How to Apply or Expected Timetable."
     ],
     "transaction_conditional_rules": [
       {
@@ -3373,9 +3418,24 @@
     "kg_common_pitfalls": [],
     "section_group": "BackMatter",
     "generation_mode": "controlled_template_fill",
-    "requires_verified_source": false,
+    "requires_verified_source": true,
     "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
     "section_function": "Back cover page: repeat company name, stock code and key parties exactly as on the Cover; no new information.",
+    "mandatory_subsections": [
+      "Back-cover identity block — exact English/Chinese company name, stock code and Global Offering label",
+      "Key professional parties — repeat only the sponsor/coordinator labels and names required by the approved cover design",
+      "Prospectus date or website line only if it appears on the approved Cover"
+    ],
+    "required_input_fields": [
+      "Company legal name in English and Chinese, if applicable",
+      "Stock code",
+      "Global Offering label",
+      "Required sponsor/coordinator names",
+      "Prospectus date or approved website line, if applicable"
+    ],
+    "table_requirements": [
+      "Render as a compact back-cover identity/party block without numbered narrative headings or explanatory paragraphs."
+    ],
     "negative_rules": [
       "Do not introduce any information not already on the Cover."
     ],
@@ -3578,6 +3638,9 @@
       "Investors should read Risk Factors before investing",
       "Hong Kong Underwriting Agreement termination cross-reference"
     ],
+    "table_requirements": [
+      "Render as a filing cover block, not numbered narrative: issuer identity and stock code; Global Offering terms table; professional parties; mandatory warnings and conditional attention boxes."
+    ],
     "transaction_conditional_rules": [
       {
         "when": "is_wr",
@@ -3714,6 +3777,11 @@
       "8. Publication of results",
       "9. Share certificates and refunds",
       "10. Personal data, if precedent includes"
+    ],
+    "drafting_sequence": [
+      "Draft by application channel. For each channel state: eligible applicant -> access point/form -> required instructions -> payment basis -> deadline -> result/refund/share-certificate outcome.",
+      "State common eligibility, multiple-application, weather and personal-data rules once; do not repeat them under every channel.",
+      "Keep all operational events chronological and reconcile each date/time, amount and channel with Expected Timetable, Important Notice and the registrar/receiving-bank materials."
     ],
     "evidence_requirements": [
       "Generate from transaction timetable, registrar, receiving bank and application channel data."

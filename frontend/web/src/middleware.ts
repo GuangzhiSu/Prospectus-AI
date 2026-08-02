@@ -9,6 +9,7 @@ const PROTECTED_API_PREFIXES = [
   "/api/agent1",
   "/api/agent2",
   "/api/chat",
+  "/api/eligibility",
   "/api/files",
   "/api/models",
   "/api/progress",

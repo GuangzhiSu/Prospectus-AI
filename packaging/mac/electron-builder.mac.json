@@ -7,15 +7,11 @@
   },
   "files": [
     "main.cjs",
+    "login.html",
+    "login-preload.cjs",
     "build/icon.png"
   ],
-  "extraResources": [
-    {
-      "from": "prospectus-bundle",
-      "to": "prospectus",
-      "filter": ["**/*"]
-    }
-  ],
+  "extraResources": [],
   "mac": {
     "target": ["dmg"],
     "category": "public.app-category.productivity",
