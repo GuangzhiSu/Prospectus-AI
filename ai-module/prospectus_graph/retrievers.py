@@ -28,6 +28,33 @@ def _tokenize(text: str) -> set[str]:
     return tokens
 
 
+def _freeze_dedupe_value(value: Any) -> Any:
+    """Convert JSON-shaped values into stable, hashable equivalents."""
+    if isinstance(value, dict):
+        return tuple(
+            sorted(
+                ((str(key), _freeze_dedupe_value(item)) for key, item in value.items()),
+                key=lambda pair: pair[0],
+            )
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_dedupe_value(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted((_freeze_dedupe_value(item) for item in value), key=repr))
+    try:
+        hash(value)
+    except TypeError:
+        return repr(value)
+    return value
+
+
+def _fact_dedupe_key(fact: RetrievedFact) -> tuple[Any, ...]:
+    return tuple(
+        _freeze_dedupe_value(fact.get(name))
+        for name in ("field", "period", "metric", "value")
+    )
+
+
 def build_context(chunks: list[EvidenceChunk]) -> str:
     """Build an evidence context string from retrieved chunks.
     Skips chunks with identical text to avoid redundant context that can trigger LLM repetition loops.
@@ -643,7 +670,7 @@ class HybridRetriever:
             if section_id == "UseOfProceeds" and p == "offering_use_of_proceeds.use_of_proceeds":
                 prefix_limit = min(self.fact_limit, max(per_prefix, 45))
             for f in by_prefix[p][:prefix_limit]:
-                key = (f.get("field"), f.get("period"), f.get("metric"), f.get("value"))
+                key = _fact_dedupe_key(f)
                 if key not in seen:
                     seen.add(key)
                     selected.append(f)
@@ -651,7 +678,7 @@ class HybridRetriever:
         for f in other:
             if len(selected) >= self.fact_limit:
                 break
-            key = (f.get("field"), f.get("period"), f.get("metric"), f.get("value"))
+            key = _fact_dedupe_key(f)
             if key not in seen:
                 seen.add(key)
                 selected.append(f)

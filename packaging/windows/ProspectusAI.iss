@@ -10,7 +10,7 @@
 #endif
 
 #ifndef MyAppVersion
-#define MyAppVersion "0.1.2"
+#define MyAppVersion "0.1.4"
 #endif
 
 #define MyAppName "Prospectus AI"

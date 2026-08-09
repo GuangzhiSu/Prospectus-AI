@@ -1214,10 +1214,10 @@ def run_agent2_single(
             only_sections_up_to=None if modification_instructions else section_id,
         )
         _emit_phase_end(section_id, "template")
-        _emit_section_done(section_id)
         if finalize_bundle:
             _rebuild_all_sections(out_path)
             _finalize_output_bundle(out_path, meta_path)
+        _emit_section_done(section_id)
         return text
 
     if section_id == "Contents":
@@ -1246,10 +1246,10 @@ def run_agent2_single(
                 only_sections_up_to=None if modification_instructions else section_id,
             )
             _emit_phase_end(section_id, "template")
-            _emit_section_done(section_id)
             if finalize_bundle:
                 _rebuild_all_sections(out_path)
                 _finalize_output_bundle(out_path, meta_path)
+            _emit_section_done(section_id)
             return text
         _emit_phase_end(section_id, "template")
 
@@ -1290,10 +1290,10 @@ def run_agent2_single(
         tokenizer=tokenizer,
     )
     out_text = result.get("verified_text") or result.get("draft_text", "")
-    _emit_section_done(section_id)
     if finalize_bundle:
         _rebuild_all_sections(out_path)
         _finalize_output_bundle(out_path, meta_path)
+    _emit_section_done(section_id)
     return out_text
 
 
@@ -1344,11 +1344,9 @@ def run_agent2(
             text = _render_expected_timetable(rag_path, out_path)
             results[section_id] = text
             _emit_phase_end(section_id, "template")
-            _emit_section_done(section_id)
         elif section_id == "Contents":
             _rebuild_all_sections(out_path)
             results[section_id] = _generate_contents_body(_load_existing_sections(out_path))
-            _emit_section_done(section_id)
         elif section_id == "UseOfProceeds":
             _emit_phase_start(section_id, "template")
             text = _render_use_of_proceeds_template(rag_path)
@@ -1360,7 +1358,6 @@ def run_agent2(
                 print(f"Saved: {out_file}")
                 results[section_id] = text
                 _emit_phase_end(section_id, "template")
-                _emit_section_done(section_id)
             else:
                 _emit_phase_end(section_id, "template")
                 state = _build_section_state(
@@ -1384,7 +1381,6 @@ def run_agent2(
                     tokenizer=tokenizer,
                 )
                 results[section_id] = result.get("verified_text") or result.get("draft_text", "")
-                _emit_section_done(section_id)
         else:
             state = _build_section_state(
                 section_id=section_id,
@@ -1407,9 +1403,9 @@ def run_agent2(
                 tokenizer=tokenizer,
             )
             results[section_id] = result.get("verified_text") or result.get("draft_text", "")
-            _emit_section_done(section_id)
         # Rebuild all_sections.md after each section so UI can show incremental progress
         _rebuild_all_sections(out_path)
+        _emit_section_done(section_id)
 
     if finalize_bundle:
         _finalize_output_bundle(out_path, meta_path)

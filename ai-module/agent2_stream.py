@@ -17,7 +17,14 @@ def stream_enabled() -> bool:
 def emit(event: dict[str, Any]) -> None:
     if not stream_enabled():
         return
-    print(f"{PREFIX}{json.dumps(event, ensure_ascii=False)}", flush=True)
+    line = f"{PREFIX}{json.dumps(event, ensure_ascii=False)}\n"
+    stdout_buffer = getattr(sys.stdout, "buffer", None)
+    if stdout_buffer is not None:
+        stdout_buffer.write(line.encode("utf-8"))
+        stdout_buffer.flush()
+        return
+    sys.stdout.write(line)
+    sys.stdout.flush()
 
 
 def enable_stream() -> None:

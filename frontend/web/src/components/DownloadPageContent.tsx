@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { AppleLogo, ArrowRight, CheckCircle, DownloadSimple, HardDrives, LinuxLogo, WindowsLogo } from "@phosphor-icons/react/dist/ssr";
 
 import { PublicNav } from "@/components/PublicNav";
 import { DOWNLOAD_ASSETS, RELEASE_LABEL, type DownloadAsset } from "@/lib/download-assets";
@@ -281,22 +281,6 @@ function getAssets(locale: "en" | "zh"): DisplayAsset[] {
   }));
 }
 
-function DownloadIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v11m0 0 4-4m-4 4-4-4M5 21h14" />
-    </svg>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-6-6 6 6-6 6" />
-    </svg>
-  );
-}
-
 export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" }) {
   const t = copy[locale];
   const assets = getAssets(locale);
@@ -305,141 +289,60 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
     settings: locale === "zh" ? "/zh/settings" : "/settings",
   };
 
+  const platformIcon = (id: string) => id === "windows" ? WindowsLogo : id.startsWith("macos") ? AppleLogo : id === "linux" ? LinuxLogo : HardDrives;
   return (
-    <main className="min-h-screen bg-[#f6f8f4] text-[#17201b]">
+    <main className="min-h-screen bg-[#f3f5f1] text-[#15221c]">
       <PublicNav active="download" locale={t.navLocale} />
-      <section className="relative overflow-hidden bg-[#16231d] text-white">
-        <div className="absolute inset-0 opacity-20">
-          <Image
-            src="/app-icon-512.png"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
-        <div className="relative mx-auto grid min-h-[680px] max-w-7xl grid-cols-1 items-center gap-10 px-6 pb-14 pt-28 md:grid-cols-[1fr_420px]">
-          <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase text-[#dce8df]">
-              {t.eyebrow}
-            </div>
-            <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
-              {t.title}
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#dce8df] md:text-lg">
-              {t.description}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#downloads"
-                className="inline-flex h-11 items-center gap-2 bg-[#f2c14e] px-5 text-sm font-semibold text-[#17201b] transition hover:bg-[#ffd36b]"
-              >
-                <DownloadIcon />
-                {t.primaryCta}
-              </a>
-              <Link
-                href={href.workspace}
-                className="inline-flex h-11 items-center gap-2 border border-white/25 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                {t.workspaceCta}
-                <ArrowIcon />
-              </Link>
-            </div>
-          </div>
-
-          <div className="border border-white/15 bg-[#f7faf6] p-5 text-[#17201b] shadow-2xl">
-            <div className="flex items-center gap-3 border-b border-[#d8ded6] pb-4">
-              <Image src="/app-icon.png" alt="Prospectus AI icon" width={44} height={44} />
-              <div>
-                <p className="text-sm font-semibold">{t.releaseTitle}</p>
-                <p className="text-xs text-[#647064]">{t.releaseDescription}</p>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-[#eef3ec] px-2 py-3">
-                <p className="font-semibold">Agent1</p>
-                <p className="mt-1 text-[#647064]">{t.evidence}</p>
-              </div>
-              <div className="bg-[#eef3ec] px-2 py-3">
-                <p className="font-semibold">Agent2</p>
-                <p className="mt-1 text-[#647064]">{t.drafting}</p>
-              </div>
-              <div className="bg-[#eef3ec] px-2 py-3">
-                <p className="font-semibold">DOCX</p>
-                <p className="mt-1 text-[#647064]">{t.export}</p>
-              </div>
-            </div>
-            <div className="mt-5 border-t border-[#d8ded6] pt-4">
-              <p className="text-xs font-semibold uppercase text-[#6b735f]">{t.includedTitle}</p>
-              <ul className="mt-3 space-y-2 text-sm text-[#334139]">
-                {t.included.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+      <section className="border-b border-[var(--border)] bg-[#f7f9f6] pt-16">
+        <div className="mx-auto grid max-w-[1380px] gap-12 px-5 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-24">
+          <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--accent)]">{t.eyebrow}</p><h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">{t.title}</h1><p className="mt-6 max-w-xl text-base leading-7 text-[var(--muted)]">{t.description}</p><div className="mt-8 flex flex-wrap gap-3"><a href="#downloads" className="inline-flex h-11 items-center gap-2 rounded-md bg-[var(--accent)] px-5 text-sm font-bold text-white"><DownloadSimple size={17} weight="bold" />{t.primaryCta}</a><Link href={href.workspace} className="inline-flex h-11 items-center gap-2 rounded-md border border-[var(--border)] bg-white px-5 text-sm font-bold">{t.workspaceCta}<ArrowRight size={17} weight="bold" /></Link></div></div>
+          <div className="rounded-[14px] border border-[var(--border)] bg-[#173128] p-7 text-white shadow-[var(--shadow-soft)]"><p className="text-sm font-semibold">{t.releaseTitle}</p><p className="mt-1 text-xs text-[#b9cbc1]">{t.releaseDescription}</p><div className="mt-8 grid gap-5 sm:grid-cols-2">{t.included.map(item=><div key={item} className="flex items-start gap-3"><CheckCircle size={19} weight="fill" className="mt-0.5 shrink-0 text-[#82b8a8]"/><p className="text-sm leading-6 text-[#d6e1db]">{item}</p></div>)}</div></div>
         </div>
       </section>
 
-      <section id="downloads" className="mx-auto max-w-7xl px-6 py-14">
-        <div className="mb-6 flex flex-col justify-between gap-3 border-b border-[#d5ddd2] pb-5 md:flex-row md:items-end">
-          <div>
-            <h2 className="text-2xl font-semibold">{t.downloadsTitle}</h2>
-            <p className="mt-2 text-sm text-[#637064]">{t.downloadsDescription}</p>
-          </div>
+      <section id="downloads" className="mx-auto max-w-[1380px] px-5 py-20 lg:px-8 lg:py-28">
+        <div className="mb-10 max-w-3xl"><h2 className="text-3xl font-semibold tracking-[-0.035em] lg:text-5xl">{t.downloadsTitle}</h2><p className="mt-4 text-sm leading-7 text-[var(--muted)]">{t.downloadsDescription}</p>
           <div className="flex flex-wrap gap-4">
-            <a href="#install-guide" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
-              {t.guideCta}
-              <ArrowIcon />
-            </a>
-            <Link href={href.settings} className="inline-flex items-center gap-2 text-sm font-semibold text-[#0f766e] hover:underline">
-              {t.settingsCta}
-              <ArrowIcon />
-            </Link>
+            <a href="#install-guide" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)]">{t.guideCta}<ArrowRight size={16} weight="bold" /></a><Link href={href.settings} className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--accent)]">{t.settingsCta}<ArrowRight size={16} weight="bold" /></Link>
           </div>
         </div>
-
-        <div className="grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {assets.map((asset) => (
-            <article key={asset.id} className="flex h-full flex-col border border-[#d5ddd2] bg-white p-5 shadow-sm">
+        <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {assets.map((asset) => { const Icon=platformIcon(asset.id); return (
+            <article key={asset.id} className={`flex min-h-[250px] flex-col rounded-[14px] border border-[var(--border)] p-6 ${asset.recommended ? "bg-[#e5efeb] md:col-span-2 xl:col-span-1" : "bg-white"}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase text-[#6b735f]">
-                    {asset.platform}
-                  </p>
+                  <Icon size={25} weight="duotone" className="text-[var(--accent)]" />
                   <h3 className="mt-2 text-lg font-semibold">{asset.title}</h3>
                 </div>
                 {asset.recommended && (
-                  <span className="bg-[#e8f3ef] px-2 py-1 text-xs font-semibold text-[#0f766e]">
+                  <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-[var(--accent)]">
                     {t.recommended}
                   </span>
                 )}
               </div>
-              <p className="mt-3 flex-1 text-sm leading-6 text-[#637064]">{asset.description}</p>
-              <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#edf0eb] pt-4">
-                <span className="text-sm font-medium text-[#334139]">{asset.platform}</span>
+              <p className="mt-4 flex-1 text-sm leading-6 text-[var(--muted)]">{asset.description}</p>
+              <div className="mt-6 flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-[var(--muted)]">{asset.platform}</span>
                 <a
                   href={asset.downloadHref}
-                  className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap bg-[#17201b] px-4 text-sm font-semibold text-white transition hover:bg-[#2b3a32]"
+                  className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md bg-[var(--accent)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent-hover)]"
                 >
-                  <DownloadIcon />
+                  <DownloadSimple size={16} weight="bold" />
                   {asset.actionLabel}
                 </a>
               </div>
             </article>
-          ))}
+          )})}
         </div>
       </section>
 
-      <section id="install-guide" className="border-y border-[#d5ddd2] bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-14">
+      <section id="install-guide" className="border-y border-[var(--border)] bg-[#e7ede8]">
+        <div className="mx-auto max-w-[1380px] px-5 py-20 lg:px-8">
           <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:items-start">
             <div>
-              <p className="text-xs font-semibold uppercase text-[#6b735f]">{t.guideCta}</p>
-              <h2 className="mt-3 text-2xl font-semibold">{t.guideTitle}</h2>
-              <p className="mt-4 text-sm leading-6 text-[#637064]">{t.guideDescription}</p>
-              <div className="mt-6 border border-[#d5ddd2] bg-[#f6f8f4] p-4">
+              <h2 className="text-3xl font-semibold tracking-[-0.035em]">{t.guideTitle}</h2>
+              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{t.guideDescription}</p>
+              <div className="mt-6 rounded-[10px] border border-[#bec9c0] bg-white p-5">
                 <p className="text-sm font-semibold">{t.guideNoteTitle}</p>
                 <p className="mt-2 text-sm leading-6 text-[#637064]">{t.guideNote}</p>
               </div>
@@ -447,20 +350,20 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
 
             <div className="grid gap-4 sm:grid-cols-2">
               {t.guideItems.map((item) => (
-                <article key={item.title} className="border border-[#d5ddd2] bg-[#f8faf6] p-5">
+                <article key={item.title} className="rounded-[10px] border border-[#cbd4cd] bg-white p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <h3 className="text-base font-semibold">{item.title}</h3>
-                    <span className="bg-[#e8f3ef] px-2 py-1 text-xs font-semibold text-[#0f766e]">
+                    <span className="rounded-md bg-[var(--accent-soft)] px-2 py-1 text-xs font-semibold text-[var(--accent)]">
                       {item.badge}
                     </span>
                   </div>
                   <ol className="mt-4 space-y-3 text-sm leading-6 text-[#334139]">
                     {item.steps.map((step, index) => (
                       <li key={step} className="grid grid-cols-[26px_1fr] gap-3">
-                        <span className="flex h-6 w-6 items-center justify-center bg-[#17201b] text-xs font-semibold text-white">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--accent)] text-xs font-semibold text-white">
                           {index + 1}
                         </span>
-                        <span>{step}</span>
+                        <span className="min-w-0 [overflow-wrap:anywhere]">{step}</span>
                       </li>
                     ))}
                   </ol>
@@ -471,7 +374,7 @@ export function DownloadPageContent({ locale = "en" }: { locale?: "en" | "zh" })
         </div>
       </section>
 
-      <section className="border-t border-[#d5ddd2] bg-white">
+      <section className="bg-[#f7f9f6]">
         <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-3">
           <div>
             <h2 className="text-xl font-semibold">{t.footerTitle}</h2>

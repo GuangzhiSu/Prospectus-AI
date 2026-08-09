@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import Link from "next/link";
+import { ArrowLeft, CaretRight, Graph } from "@phosphor-icons/react/dist/ssr";
 
 import { getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 
@@ -55,7 +56,7 @@ function KgExplorerMissing({ docgraphPath }: { docgraphPath: string }) {
           <code className="text-xs">{docgraphPath}</code> (and optional{" "}
           <code className="text-xs">writing/section_cards/</code>). Consumer / installer builds only
           ship the slim crosswalk files under <code className="text-xs">prospectus_kg_output/inputs/</code>{" "}
-          for drafting — not corpus graphs or <code className="text-xs">native_docs</code>.
+          for drafting, not corpus graphs or <code className="text-xs">native_docs</code>.
         </p>
         <p className="text-sm text-[var(--muted)]">
           Use the main workspace to run Agent1 → Agent2; the graph tree is for development and QA.
@@ -224,22 +225,20 @@ export default async function KgViewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <div className="mx-auto max-w-[1400px] px-6 py-6 space-y-5">
-        <header>
-          <h1 className="text-2xl font-semibold">Knowledge Graph — Tree View</h1>
-          <p className="text-sm text-[var(--muted)] mt-1">
-            Source: <code>prospectus_kg_output/structure/docgraph.json</code> · Click any row to
+    <div className="min-h-screen bg-[#f1f4f1] text-[var(--foreground)]">
+      <header className="border-b border-[#29483d] bg-[#173128] text-white"><div className="mx-auto max-w-[1480px] px-5 py-8 lg:px-8"><Graph size={28} weight="duotone" className="text-[#9ac7b9]" /><h1 className="mt-5 text-3xl font-semibold tracking-[-0.035em]">Knowledge Graph Tree View</h1><p className="mt-2 max-w-3xl text-sm text-[#bfd0c7]">
+            Source: <code className="text-white">prospectus_kg_output/structure/docgraph.json</code>. Click any row to
             expand.
           </p>
-          <div className="mt-2">
-            <Link href="/workspace" className="text-xs text-[var(--accent)] hover:underline">
-              ← Back to drafting workspace
+          <div className="mt-5">
+            <Link href="/workspace" className="inline-flex items-center gap-2 rounded-md border border-white/20 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10">
+              <ArrowLeft size={15} weight="bold" />Back to drafting workspace
             </Link>
           </div>
-        </header>
+        </div></header>
+      <div className="mx-auto max-w-[1480px] space-y-5 px-5 py-6 lg:px-8">
 
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--border)] md:grid-cols-6">
           <Stat label="Total nodes" value={totals.nodes} />
           <Stat label="Total edges" value={totals.edges} />
           <Stat label="Section types" value={totals.sectionTypes} />
@@ -257,7 +256,7 @@ export default async function KgViewPage() {
         </div>
 
         {/* Tree-table: 4 columns via CSS grid */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
+        <div className="overflow-x-auto rounded-[14px] border border-[var(--border)] bg-white shadow-[var(--shadow-soft)]">
           <HeaderRow />
 
           {/* ROOT */}
@@ -267,7 +266,7 @@ export default async function KgViewPage() {
             name="Prospectus Knowledge Graph"
             type="Root"
             count={totals.nodes}
-            detail={`${totals.sectionTypes} section types · ${totals.docs} documents · ${totals.instances} section instances`}
+            detail={`${totals.sectionTypes} section types, ${totals.docs} documents, ${totals.instances} section instances`}
           >
             {/* ONTOLOGY BRANCH */}
             <TreeRow
@@ -299,7 +298,7 @@ export default async function KgViewPage() {
                 const deliverableCount = cwEntry?.deliverables?.length ?? 0;
                 const anchor = cwEntry?.report_anchor || "";
                 const reportCoverageLabel = cwEntry
-                  ? `${anchor || "§5"} · ${gatingCount} gating + ${deliverableCount} deliverable`
+                  ? `${anchor || "§5"}: ${gatingCount} gating + ${deliverableCount} deliverable`
                   : bKey
                   ? "no crosswalk entry"
                   : "not mapped";
@@ -313,7 +312,7 @@ export default async function KgViewPage() {
                     typeTone={n.mandatory ? "accent" : "muted"}
                     count={coverage}
                     reportCoverage={reportCoverageLabel}
-                    detail={`order #${n.typical_order_index ?? "?"} · ${coveragePct}% corpus coverage`}
+                    detail={`order #${n.typical_order_index ?? "?"}, ${coveragePct}% corpus coverage`}
                   >
                     {card?.function && (
                       <LeafRow
@@ -396,7 +395,7 @@ export default async function KgViewPage() {
                     {cwEntry ? (
                       <TreeRow
                         depth={3}
-                        name={`Report ${anchor || "§5"} — gating docs & deliverables`}
+                        name={`Report ${anchor || "§5"}: gating docs and deliverables`}
                         type="Report"
                         count={gatingCount + deliverableCount}
                       >
@@ -456,11 +455,11 @@ export default async function KgViewPage() {
                             [
                               s.raw_title,
                               s.page_start != null && s.page_end != null
-                                ? `pp. ${s.page_start}–${s.page_end}`
+                                ? `pp. ${s.page_start}-${s.page_end}`
                                 : "",
                             ]
                               .filter(Boolean)
-                              .join("  ·  ") || ""
+                              .join(" | ") || ""
                           }
                           mono
                         />
@@ -490,10 +489,10 @@ function Stat({
   sublabel?: string;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
+    <div className="bg-white p-4">
       <div className="text-xs text-[var(--muted)]">{label}</div>
       <div className="text-xl font-semibold mt-1">
-        {valueText ?? (value != null ? value.toLocaleString() : "—")}
+        {valueText ?? (value != null ? value.toLocaleString() : "-")}
       </div>
       {sublabel ? (
         <div className="text-[10px] text-[var(--muted)] mt-1">{sublabel}</div>
@@ -508,7 +507,7 @@ const GRID_COLS =
 function HeaderRow() {
   return (
     <div
-      className={`grid ${GRID_COLS} items-center gap-3 border-b border-[var(--border)] bg-[var(--background)]/60 px-4 py-2 text-[11px] uppercase tracking-wide text-[var(--muted)]`}
+      className={`grid min-w-[920px] ${GRID_COLS} items-center gap-3 border-b border-[var(--border)] bg-[#f7f9f7] px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]`}
     >
       <div>Item</div>
       <div>Type</div>
@@ -543,17 +542,11 @@ function TreeRow({
   return (
     <details open={defaultOpen} className="group">
       <summary
-        className={`grid ${GRID_COLS} items-center gap-3 cursor-pointer list-none border-b border-[var(--border)]/60 px-4 py-2 hover:bg-[var(--background)]/50`}
+        className={`grid min-w-[920px] ${GRID_COLS} cursor-pointer list-none items-center gap-3 border-b border-[var(--border)]/60 px-4 py-2.5 hover:bg-[#f2f5f2]`}
         style={{ paddingLeft: 16 + depth * 18 }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <svg
-            className="h-3 w-3 shrink-0 text-[var(--muted)] transition-transform group-open:rotate-90"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path d="M6 5l8 5-8 5V5z" />
-          </svg>
+          <CaretRight size={13} weight="bold" className="shrink-0 text-[var(--muted)] transition-transform group-open:rotate-90" />
           <span className="truncate text-sm font-medium">{name}</span>
         </div>
         <TypePill type={type} tone={typeTone} />
@@ -581,13 +574,13 @@ function LeafRow({
 }) {
   return (
     <div
-      className={`grid ${GRID_COLS} items-start gap-3 border-b border-[var(--border)]/40 px-4 py-1.5 text-xs`}
+      className={`grid min-w-[920px] ${GRID_COLS} items-start gap-3 border-b border-[var(--border)]/40 px-4 py-2 text-xs`}
       style={{ paddingLeft: 16 + depth * 18 + 18 }}
     >
       <div className={`min-w-0 ${mono ? "font-mono" : ""} text-[var(--foreground)]`}>
         {label}
       </div>
-      <div className="text-[var(--muted)]">—</div>
+      <div className="text-[var(--muted)]">-</div>
       <div className="text-right text-[var(--muted)]">&nbsp;</div>
       <div className="text-[var(--muted)]">&nbsp;</div>
       <div className="text-[var(--muted)] whitespace-normal break-words">{value}</div>
