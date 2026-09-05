@@ -13,6 +13,7 @@ import type {
   DeveloperPromptSyncStatus,
   DeveloperPromptsResponse,
   DeveloperSection,
+  DeveloperToolsHealth,
   ModelConfig,
   ModelProviderId,
   PromptSuggestion,
@@ -294,6 +295,11 @@ function PromptManagement({
                 ? `${sync.repository} · ${sync.branch} · ${sync.path}`
                 : "服务端尚未配置 GITHUB_PROMPT_TOKEN；为防止只保存在浏览器，保存按钮已禁用。"}
               {sync?.error ? <span className="mt-1 block">{sync.error}</span> : null}
+              {sync?.verifiedAt ? (
+                <span className="mt-1 block">
+                  写后校验：{new Date(sync.verifiedAt).toLocaleString("zh-CN")}
+                </span>
+              ) : null}
             </div>
             {mutation.status === "success" && mutation.promptId === selected.id ? (
               <div className="mt-4 border-l-2 border-[#3e806f] bg-white p-3 text-xs leading-5 text-[#286456]">
@@ -563,9 +569,11 @@ function RcaWorkspace({
   onAdoptPrompt: (id: string, requirements: string, source?: StoredPrompt["source"]) => Promise<boolean>;
   getCompany: (id: string) => Promise<DeveloperCompany>;
 }) {
-  const [scope, setScope] = useState<"company" | "all">("company");
+  const [scope, setScope] = useState<"section" | "company" | "all">("section");
   const [companyId, setCompanyId] = useState(index.companies[0]?.id || "");
+  const [sectionId, setSectionId] = useState(index.companies[0]?.sections[0]?.id || "");
   const [concurrency, setConcurrency] = useState(1);
+  const [preflighting, setPreflighting] = useState(false);
   const [modelConfig, setModelConfig] = useState<ModelConfig>({ provider: "openai", model: PROVIDERS.openai.model, baseUrl: PROVIDERS.openai.baseUrl, apiKey: "" });
   const [batch, setBatch] = useState<BatchState | null>(null);
   const [caseFilter, setCaseFilter] = useState("");
@@ -604,6 +612,14 @@ function RcaWorkspace({
   }
 
   const promptBySection = useMemo(() => new Map(prompts.map((item) => [item.sectionId, item])), [prompts]);
+  const selectedCompany = index.companies.find((item) => item.id === companyId);
+
+  useEffect(() => {
+    const sections = selectedCompany?.sections || [];
+    if (!sections.some((item) => item.id === sectionId)) {
+      setSectionId(sections[0]?.id || "");
+    }
+  }, [sectionId, selectedCompany]);
 
   const mutateBatch = useCallback((mutator: (current: BatchState) => BatchState) => {
     setBatch((current) => {
@@ -618,6 +634,7 @@ function RcaWorkspace({
     const companies = scope === "all" ? index.companies : index.companies.filter((item) => item.id === companyId);
     return companies.flatMap((company) =>
       company.sections.flatMap((section) => {
+        if (scope === "section" && section.id !== sectionId) return [];
         const prompt = promptBySection.get(section.id);
         if (!prompt) return [];
         return [
@@ -668,7 +685,7 @@ function RcaWorkspace({
     const sectionIds = Array.from(
       new Set(
         current.cases
-          .filter((item) => item.result?.diagnosis.primaryAttribution === "prompt_incomplete")
+          .filter((item) => Boolean(item.result))
           .map((item) => item.sectionId)
       )
     );
@@ -758,7 +775,7 @@ function RcaWorkspace({
     await synthesizeSuggestions();
   }
 
-  function startBatch() {
+  async function startBatch() {
     if (!modelConfig.model.trim()) return window.alert("请填写模型名称。");
     if (!modelConfig.apiKey?.trim()) {
       const proceed = window.confirm("当前没有填写 API Key。只有服务端已配置对应密钥时才能运行。仍要继续吗？");
@@ -766,15 +783,34 @@ function RcaWorkspace({
     }
     const cases = buildCases();
     if (!cases.length) return window.alert("当前范围内没有可运行的 section。");
-    const estimatedCalls = cases.length * 2 + new Set(cases.map((item) => item.sectionId)).size;
+    const estimatedCalls = 1 + cases.length * 2 + new Set(cases.map((item) => item.sectionId)).size;
     const confirmed = window.confirm(
-      `将运行 ${formatNumber(cases.length)} 个 case，预计调用模型约 ${formatNumber(estimatedCalls)} 次（生成 + 逐 case RCA + 每 section 一轮 batch 建议）。\n\n该操作可能产生较高 API 费用，确认开始？`
+      `将运行 ${formatNumber(cases.length)} 个 case，预计调用模型约 ${formatNumber(estimatedCalls)} 次（凭据预检 + 生成 + 逐 case RCA + 每 section 一轮 batch 建议）。\n\n该操作可能产生 API 费用，确认开始？`
     );
     if (!confirmed) return;
-    const selectedCompany = index.companies.find((item) => item.id === companyId);
+    setPreflighting(true);
+    try {
+      await apiJson<{ ok: boolean }>("/api/developer-tools/rca/preflight", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: modelConfig }),
+      });
+    } catch (reason) {
+      window.alert(
+        `模型预检失败，Batch 尚未开始：${reason instanceof Error ? reason.message : "未知错误"}`
+      );
+      return;
+    } finally {
+      setPreflighting(false);
+    }
     const next: BatchState = {
       id: crypto.randomUUID(),
-      scopeLabel: scope === "all" ? `全部 ${index.companyCount} 家公司` : selectedCompany?.name || companyId,
+      scopeLabel:
+        scope === "all"
+          ? `全部 ${index.companyCount} 家公司`
+          : scope === "section"
+            ? `${selectedCompany?.name || companyId} · ${promptBySection.get(sectionId)?.name || sectionId}`
+            : selectedCompany?.name || companyId,
       createdAt: new Date().toISOString(),
       status: "running",
       cases,
@@ -848,7 +884,7 @@ function RcaWorkspace({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#267267]">Batch configuration</p>
             <h2 className="mt-1 text-xl font-semibold">RCA 实验范围</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#637067]">
-              选择单家公司时运行该公司的所有可用 section；选择全部公司时运行整个 125 家公司语料。每个 case 独立生成并归因，batch 完成后每个 section 只产生一轮通用 prompt 建议。
+              单章节验证适合低成本 smoke test；单家公司会运行其全部可用 section；全部公司会运行完整语料。开始前先验证模型凭据，每个 case 独立生成并归因，batch 完成后每个 section 只产生一轮通用 prompt 建议。
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -857,17 +893,28 @@ function RcaWorkspace({
             ) : batch?.status === "paused" ? (
               <button onClick={resumeBatch} className="h-10 bg-[#267267] px-4 text-sm font-semibold text-white">继续 Batch</button>
             ) : null}
-            <button disabled={Boolean(batch && ["running", "suggesting"].includes(batch.status))} onClick={startBatch} className="h-10 bg-[#17201b] px-5 text-sm font-semibold text-white disabled:opacity-40">
-              {batch ? "新建并运行 Batch" : "开始 Batch"}
+            <button disabled={preflighting || Boolean(batch && ["running", "suggesting"].includes(batch.status))} onClick={() => void startBatch()} className="h-10 bg-[#17201b] px-5 text-sm font-semibold text-white disabled:opacity-40">
+              {preflighting ? "正在预检模型…" : batch ? "新建并运行 Batch" : "开始 Batch"}
             </button>
           </div>
         </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-[180px_1fr_120px]">
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-[180px_1fr_1fr_120px]">
           <label>
             <span className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#69766e]">Scope</span>
-            <select value={scope} onChange={(event) => setScope(event.target.value as "company" | "all")} className="mt-1 h-10 w-full border border-[#cad4cc] bg-white px-3 text-sm">
+            <select value={scope} onChange={(event) => setScope(event.target.value as "section" | "company" | "all")} className="mt-1 h-10 w-full border border-[#cad4cc] bg-white px-3 text-sm">
+              <option value="section">单章节验证</option>
               <option value="company">单家公司 · 全部 sections</option>
               <option value="all">全部公司 · 全部 sections</option>
+            </select>
+          </label>
+          <label className={scope !== "section" ? "opacity-45" : ""}>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#69766e]">Section</span>
+            <select disabled={scope !== "section"} value={sectionId} onChange={(event) => setSectionId(event.target.value)} className="mt-1 h-10 w-full border border-[#cad4cc] bg-white px-3 text-sm disabled:bg-[#eef1ec]">
+              {(selectedCompany?.sections || []).map((item) => (
+                <option key={item.id} value={item.id}>
+                  {promptBySection.get(item.id)?.name || item.title}
+                </option>
+              ))}
             </select>
           </label>
           <label className={scope === "all" ? "opacity-45" : ""}>
@@ -1077,6 +1124,7 @@ export function DeveloperToolsApp() {
   const [prompts, setPrompts] = useState<DeveloperPrompt[]>([]);
   const [overrides, setOverrides] = useState<Record<string, StoredPrompt>>({});
   const [promptSync, setPromptSync] = useState<DeveloperPromptSyncStatus | null>(null);
+  const [health, setHealth] = useState<DeveloperToolsHealth | null>(null);
   const [promptMutation, setPromptMutation] = useState<PromptMutationState>({ status: "idle" });
   const [loading, setLoading] = useState(true);
   const [promptError, setPromptError] = useState("");
@@ -1095,8 +1143,9 @@ export function DeveloperToolsApp() {
     Promise.allSettled([
       apiJson<DeveloperDatasetIndex>("/api/developer-tools/dataset"),
       apiJson<DeveloperPromptsResponse>("/api/developer-tools/prompts"),
+      apiJson<DeveloperToolsHealth>("/api/developer-tools/health"),
     ])
-      .then(([datasetResult, promptResult]) => {
+      .then(([datasetResult, promptResult, healthResult]) => {
         if (datasetResult.status === "fulfilled") {
           setIndex(datasetResult.value);
         } else {
@@ -1122,6 +1171,7 @@ export function DeveloperToolsApp() {
               : "Prompt Management 数据不可用。"
           );
         }
+        if (healthResult.status === "fulfilled") setHealth(healthResult.value);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -1231,6 +1281,25 @@ export function DeveloperToolsApp() {
         </nav>
       </header>
       <div className="mx-auto max-w-[1800px] p-4 sm:p-6">
+        {health ? (
+          <section className="mb-4 grid gap-px overflow-hidden border border-[#cbd5cc] bg-[#cbd5cc] sm:grid-cols-3">
+            <HealthCard
+              label="Dataset"
+              ok={health.dataset.ready}
+              detail={health.dataset.ready ? `${health.dataset.companyCount} companies · ${health.dataset.sectionCount} sections` : health.dataset.error || "不可用"}
+            />
+            <HealthCard
+              label="Prompt sync"
+              ok={health.promptSync.ready}
+              detail={health.promptSync.ready ? `${health.promptSync.repository} · ${health.promptSync.branch}` : health.promptSync.error || "GitHub 未就绪"}
+            />
+            <HealthCard
+              label="RCA server keys"
+              ok={health.rca.configuredProviders.length > 0}
+              detail={health.rca.configuredProviders.length ? health.rca.configuredProviders.join(" · ") : "可在当前浏览器会话填写 API Key"}
+            />
+          </section>
+        ) : null}
         {loading ? <EmptyPanel>正在加载 Prompt 与 125 家公司数据索引…</EmptyPanel> : null}
         {!loading && tab === "prompts" && promptError ? <EmptyPanel>{promptError}</EmptyPanel> : null}
         {!loading && tab === "prompts" && !promptError ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
@@ -1240,5 +1309,17 @@ export function DeveloperToolsApp() {
         {!loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getCompany={getCompany} /> : null}
       </div>
     </main>
+  );
+}
+
+function HealthCard({ label, ok, detail }: { label: string; ok: boolean; detail: string }) {
+  return (
+    <div className="bg-white px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#69766e]">{label}</p>
+        <span className={`h-2.5 w-2.5 rounded-full ${ok ? "bg-[#2f806c]" : "bg-[#c45b45]"}`} aria-label={ok ? "ready" : "attention"} />
+      </div>
+      <p className="mt-1 truncate text-xs text-[#3f4d45]" title={detail}>{detail}</p>
+    </div>
   );
 }
