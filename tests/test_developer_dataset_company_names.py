@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.build_devtools_dataset import company_name, name_from_definition
+from scripts.build_devtools_dataset import (
+    company_name,
+    developer_prepared_data,
+    name_from_definition,
+)
 
 
 def section(canonical: str, text: str) -> dict[str, str]:
@@ -72,3 +76,23 @@ Limited
 def test_builder_refuses_an_issuer_number_placeholder() -> None:
     with pytest.raises(RuntimeError, match="refusing to publish"):
         company_name({}, {"sections": []}, "00285_global_offering_1")
+
+
+def test_developer_payload_keeps_atoms_once_without_duplicate_text() -> None:
+    atom = {"id": "ev_1", "value": "Stock Code: 1234", "text": "Stock Code: 1234"}
+    prepared = {
+        "contract_values": {"Cover.stock_code": {"value": "1234"}},
+        "evidence_atoms": [atom],
+        "section_units": [{"unitId": "Cover:01", "evidenceAtomIds": ["ev_1"]}],
+        "extracted_source_materials": {
+            "counts": {"evidence_atoms": 1},
+            "evidence_atoms": [atom],
+            "key_numeric_facts": [atom],
+        },
+    }
+
+    compact = developer_prepared_data(prepared)
+
+    assert compact["evidence_atoms"] == [{"id": "ev_1", "value": "Stock Code: 1234"}]
+    assert compact["extracted_source_materials"] == {"counts": {"evidence_atoms": 1}}
+    assert compact["section_units"] == prepared["section_units"]

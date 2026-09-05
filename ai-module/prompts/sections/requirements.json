@@ -53,48 +53,39 @@
     "kg_required_input_fields": [
       {
         "field": "commencement_date",
-        "description": "The date when the Hong Kong Public Offering starts.",
-        "example": "9:00 a.m. on Tuesday, December 7, 2021"
+        "description": "The date when the Hong Kong Public Offering starts."
       },
       {
         "field": "deadline_for_electronic_applications",
-        "description": "The last time electronic applications can be submitted.",
-        "example": "11:30 a.m. on Friday, December 10, 2021"
+        "description": "The last time electronic applications can be submitted."
       },
       {
         "field": "opening_of_application_lists",
-        "description": "The time when application lists are made available.",
-        "example": "11:45 a.m. on Friday, December 10, 2021"
+        "description": "The time when application lists are made available."
       },
       {
         "field": "deadline_for_payment_and_instructions",
-        "description": "The last time payments for applications and instructions to HKSCC must be completed.",
-        "example": "12:00 noon on Friday, December 10, 2021"
+        "description": "The last time payments for applications and instructions to HKSCC must be completed."
       },
       {
         "field": "closing_of_application_lists",
-        "description": "The exact time when applications lists are closed.",
-        "example": "12:00 noon on Friday, December 10, 2021"
+        "description": "The exact time when applications lists are closed."
       },
       {
         "field": "price_determination_date",
-        "description": "The date when the offer price is determined.",
-        "example": "Friday, December 10, 2021"
+        "description": "The date when the offer price is determined."
       },
       {
         "field": "announcement_of_offer_price",
-        "description": "The date and method of announcing the offer price.",
-        "example": "Wednesday, December 16, 2021"
+        "description": "The date and method of announcing the offer price."
       },
       {
         "field": "results_of_allocations",
-        "description": "The date and method of releasing the results of allocations.",
-        "example": "Wednesday, December 16, 2021"
+        "description": "The date and method of releasing the results of allocations."
       },
       {
         "field": "dispatch_collection_of_share_certificates_refunds",
-        "description": "The date and method of dispatching or collecting share certificates and refunds.",
-        "example": "Or before such other date as notified by us as the date of dispatch/collection of Share certificates/e-Refund payment instructions/refund checks."
+        "description": "The date and method of dispatching or collecting share certificates and refunds."
       }
     ],
     "kg_evidence_types": [
@@ -254,43 +245,35 @@
     "kg_required_input_fields": [
       {
         "field": "expected_timetable",
-        "description": "Key dates and milestones for the offering process.",
-        "example": "Application period: 1st January 2023 - 31st January 2023; Listing date: 1st February 2023"
+        "description": "Key dates and milestones for the offering process."
       },
       {
         "field": "summary",
-        "description": "Brief overview of the company, its business, and the offering.",
-        "example": "Our company is a leading provider of AI solutions in the technology sector."
+        "description": "Brief overview of the company, its business, and the offering."
       },
       {
         "field": "financial_information",
-        "description": "Audited and unaudited financial statements and other financial data.",
-        "example": "Annual financial statements for the years ended 31 December 2021 and 2020."
+        "description": "Audited and unaudited financial statements and other financial data."
       },
       {
         "field": "future_plans_and_use_of_proceeds",
-        "description": "Detailed plans for the use of proceeds from the offering.",
-        "example": "Proceeds will be used to expand our R&D capabilities and market presence."
+        "description": "Detailed plans for the use of proceeds from the offering."
       },
       {
         "field": "cornerstone_investors",
-        "description": "Details of cornerstone investors and their commitments.",
-        "example": "Cornerstone investor A committed to invest $10 million in the offering."
+        "description": "Details of cornerstone investors and their commitments."
       },
       {
         "field": "underwriting",
-        "description": "Information on underwriting arrangements and the role of underwriters.",
-        "example": "Underwriting agreement with XYZ Investment Bank."
+        "description": "Information on underwriting arrangements and the role of underwriters."
       },
       {
         "field": "structure_of_the_global_offering",
-        "description": "Description of the structure of the global offering, including the roles of various parties.",
-        "example": "The offering will be structured as a global offering with joint bookrunners and lead managers."
+        "description": "Description of the structure of the global offering, including the roles of various parties."
       },
       {
         "field": "how_to_apply_for_hong_kong_offer_shares",
-        "description": "Instructions on how to apply for the Hong Kong offer shares.",
-        "example": "Applications can be submitted online through the company’s website."
+        "description": "Instructions on how to apply for the Hong Kong offer shares."
       }
     ],
     "kg_evidence_types": [
@@ -368,33 +351,27 @@
     "kg_required_input_fields": [
       {
         "field": "Issuer Name",
-        "description": "Name of the company issuing the shares.",
-        "example": "Amind Holdings Limited"
+        "description": "Name of the company issuing the shares."
       },
       {
         "field": "Business Overview",
-        "description": "Brief description of the issuer’s business, products, and services.",
-        "example": "Leading AI software company with a focus on computer vision technologies."
+        "description": "Brief description of the issuer’s business, products, and services."
       },
       {
         "field": "Market Position",
-        "description": "Details on the issuer’s market position and competitive landscape.",
-        "example": "Largest AI software company in Asia, with a market share of 11% in China."
+        "description": "Details on the issuer’s market position and competitive landscape."
       },
       {
         "field": "Risk Factors",
-        "description": "Summary of the main risks associated with the investment.",
-        "example": "Risks related to technological obsolescence and regulatory changes."
+        "description": "Summary of the main risks associated with the investment."
       },
       {
         "field": "Use of Proceeds",
-        "description": "Description of how the proceeds from the offering will be used.",
-        "example": "Enhancing R&D capabilities, commercialization capabilities, and potential strategic investments."
+        "description": "Description of how the proceeds from the offering will be used."
       },
       {
         "field": "Financial Highlights",
-        "description": "Key financial metrics, such as revenue, profit margins, and growth trends.",
-        "example": "Revenue of HK$1,000 million in the last fiscal year, with a 10% year-over-year growth."
+        "description": "Key financial metrics, such as revenue, profit margins, and growth trends."
       }
     ],
     "kg_evidence_types": [
@@ -531,33 +508,27 @@
     "kg_required_input_fields": [
       {
         "field": "Term",
-        "description": "The term to be defined.",
-        "example": "affiliate"
+        "description": "The term to be defined."
       },
       {
         "field": "Definition",
-        "description": "The definition of the term.",
-        "example": "any other person, directly or indirectly, controlling or controlled by or under direct or indirect common control with such specified person"
+        "description": "The definition of the term."
       },
       {
         "field": "Acronym",
-        "description": "The acronym to be expanded.",
-        "example": "CAC"
+        "description": "The acronym to be expanded."
       },
       {
         "field": "Full Name",
-        "description": "The full name of the entity or organization.",
-        "example": "Cyberspace Administration of China"
+        "description": "The full name of the entity or organization."
       },
       {
         "field": "Rounding Note",
-        "description": "Note on rounding of figures and its impact.",
-        "example": "Figures shown as totals in certain tables may not be an arithmetic aggregation of the figures preceding them."
+        "description": "Note on rounding of figures and its impact."
       },
       {
         "field": "Cross-Reference",
-        "description": "Section or part of the document where the term is further explained.",
-        "example": "Appendix III to this Prospectus"
+        "description": "Section or part of the document where the term is further explained."
       }
     ],
     "kg_evidence_types": [
@@ -629,23 +600,19 @@
     "kg_required_input_fields": [
       {
         "field": "term",
-        "description": "The technical term to be defined.",
-        "example": "AI"
+        "description": "The technical term to be defined."
       },
       {
         "field": "definition",
-        "description": "A clear and concise definition of the term.",
-        "example": "Artificial intelligence, an area of computer science that focuses on machinery simulation of intelligence displayed by humans and other animals."
+        "description": "A clear and concise definition of the term."
       },
       {
         "field": "context",
-        "description": "Any additional context or examples to clarify the term's usage.",
-        "example": "AI is used in our company to develop autonomous intelligent entities leveraging LLM technology."
+        "description": "Any additional context or examples to clarify the term's usage."
       },
       {
         "field": "cross_reference",
-        "description": "Any related terms or sections that should be cross-referenced.",
-        "example": "See also 'AI Agent', 'AI Infrastructure'"
+        "description": "Any related terms or sections that should be cross-referenced."
       }
     ],
     "kg_evidence_types": [
@@ -734,18 +701,15 @@
     "kg_required_input_fields": [
       {
         "field": "forward-looking_statements",
-        "description": "List of all forward-looking statements in the prospectus.",
-        "example": "We believe our revenue will grow by 20% next year."
+        "description": "List of all forward-looking statements in the prospectus."
       },
       {
         "field": "risks_and_uncertainties",
-        "description": "List of factors that could impact the accuracy of forward-looking statements.",
-        "example": "Economic downturn, regulatory changes, competition, etc."
+        "description": "List of factors that could impact the accuracy of forward-looking statements."
       },
       {
         "field": "disclaimer",
-        "description": "Text of the disclaimer to caution against relying on forward-looking statements.",
-        "example": "We do not undertake any obligation to update or revise any forward-looking statements."
+        "description": "Text of the disclaimer to caution against relying on forward-looking statements."
       }
     ],
     "kg_evidence_types": [
@@ -830,61 +794,35 @@
     "kg_required_input_fields": [
       {
         "field": "issuer_name",
-        "description": "Name of the issuing company.",
-        "example": "Tech Innovations Ltd."
+        "description": "Name of the issuing company."
       },
       {
         "field": "latest_practicable_date",
-        "description": "Date up to which the information in the risk factors section is current.",
-        "example": "31 December 2022"
+        "description": "Date up to which the information in the risk factors section is current."
       },
       {
         "field": "industry_risks",
-        "description": "List of industry-specific risks faced by the issuer.",
-        "example": [
-          "Technological obsolescence",
-          "Competition from new entrants"
-        ]
+        "description": "List of industry-specific risks faced by the issuer."
       },
       {
         "field": "operational_risks",
-        "description": "List of operational risks faced by the issuer.",
-        "example": [
-          "Supply chain disruptions",
-          "Cybersecurity threats"
-        ]
+        "description": "List of operational risks faced by the issuer."
       },
       {
         "field": "financial_risks",
-        "description": "List of financial risks faced by the issuer.",
-        "example": [
-          "Liquidity issues",
-          "Credit risks"
-        ]
+        "description": "List of financial risks faced by the issuer."
       },
       {
         "field": "regulatory_risks",
-        "description": "List of regulatory risks faced by the issuer.",
-        "example": [
-          "Compliance with data protection laws",
-          "Penalties for non-compliance"
-        ]
+        "description": "List of regulatory risks faced by the issuer."
       },
       {
         "field": "market_risks",
-        "description": "List of market risks faced by the issuer.",
-        "example": [
-          "Fluctuations in exchange rates",
-          "Commodity price volatility"
-        ]
+        "description": "List of market risks faced by the issuer."
       },
       {
         "field": "other_material_risks",
-        "description": "Any other significant risks that are material to the issuer's business.",
-        "example": [
-          "Dependence on key suppliers",
-          "Risks associated with international operations"
-        ]
+        "description": "Any other significant risks that are material to the issuer's business."
       }
     ],
     "kg_evidence_types": [
@@ -1018,28 +956,23 @@
     "kg_required_input_fields": [
       {
         "field": "waiver_date",
-        "description": "The date the waiver or exemption was granted by Exchange.",
-        "example": "2023-10-15"
+        "description": "The date the waiver or exemption was granted by Exchange."
       },
       {
         "field": "waiver_rule",
-        "description": "The specific rule or ordinance being waived or exempted.",
-        "example": "Rule 8.17 of the Listing Rules"
+        "description": "The specific rule or ordinance being waived or exempted."
       },
       {
         "field": "waiver_reason",
-        "description": "The reason for seeking the waiver or exemption.",
-        "example": "Management presence in Hong Kong is impractical due to the company's operations in the PRC."
+        "description": "The reason for seeking the waiver or exemption."
       },
       {
         "field": "waiver_expiration_date",
-        "description": "The expiration date of the waiver or exemption.",
-        "example": "2026-10-15"
+        "description": "The expiration date of the waiver or exemption."
       },
       {
         "field": "waiver_grantor",
-        "description": "The entity granting the waiver or exemption.",
-        "example": "The Stock Exchange"
+        "description": "The entity granting the waiver or exemption."
       }
     ],
     "kg_evidence_types": [
@@ -1122,33 +1055,27 @@
     "kg_required_input_fields": [
       {
         "field": "directors_responsibility_statement",
-        "description": "Statement confirming the directors' responsibility for the contents of the prospectus.",
-        "example": "Our Directors, having made all reasonable enquiries, confirm that, to the best of their knowledge and belief, the information contained in this prospectus is accurate and complete in all material respects and not misleading or deceptive."
+        "description": "Statement confirming the directors' responsibility for the contents of the prospectus."
       },
       {
         "field": "number_of_hong_kong_offer_shares",
-        "description": "Number of Hong Kong offer shares to be issued.",
-        "example": "70,612,000"
+        "description": "Number of Hong Kong offer shares to be issued."
       },
       {
         "field": "number_of_international_offer_shares",
-        "description": "Number of international offer shares to be issued.",
-        "example": "635,494,000"
+        "description": "Number of international offer shares to be issued."
       },
       {
         "field": "underwriting_agreement_details",
-        "description": "Details of the underwriting agreement, including the names of the underwriters and the terms of the agreement.",
-        "example": "The Hong Kong Offer Shares are offered solely on the basis of the information contained and representations made in this prospectus and the Application Forms and on the terms and subject to the conditions set out herein and therein."
+        "description": "Details of the underwriting agreement, including the names of the underwriters and the terms of the agreement."
       },
       {
         "field": "exchange_rate_conversions",
-        "description": "Exchange rate conversions for amounts denominated in different currencies.",
-        "example": "The translations between Renminbi and Hong Kong dollars were made at the rate of RMB0.78623 to HK$1.00."
+        "description": "Exchange rate conversions for amounts denominated in different currencies."
       },
       {
         "field": "language_precedence",
-        "description": "Precedence of the English version in case of inconsistencies with the Chinese translation.",
-        "example": "If there is any inconsistency between this prospectus and the Chinese translation of this prospectus, this prospectus shall prevail."
+        "description": "Precedence of the English version in case of inconsistencies with the Chinese translation."
       }
     ],
     "kg_evidence_types": [
@@ -1234,73 +1161,59 @@
     "kg_required_input_fields": [
       {
         "field": "director_name",
-        "description": "Full name of the director.",
-        "example": "Dr. Xu Li"
+        "description": "Full name of the director."
       },
       {
         "field": "director_address",
-        "description": "Physical address of the director.",
-        "example": "Flat A2, 1/F, Block A Grandview Tower, 130 Kennedy Road, Wan Chai, Hong Kong"
+        "description": "Physical address of the director."
       },
       {
         "field": "director_nationality",
-        "description": "Nationality of the director.",
-        "example": "Chinese (Hong Kong)"
+        "description": "Nationality of the director."
       },
       {
         "field": "director_role",
-        "description": "Role of the director within the company.",
-        "example": "Executive Director"
+        "description": "Role of the director within the company."
       },
       {
         "field": "joint_sponsor_name",
-        "description": "Name of the joint sponsor.",
-        "example": "China International Capital Corporation Hong Kong Securities Limited"
+        "description": "Name of the joint sponsor."
       },
       {
         "field": "joint_sponsor_address",
-        "description": "Physical address of the joint sponsor.",
-        "example": "29th Floor, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+        "description": "Physical address of the joint sponsor."
       },
       {
         "field": "legal_advisor_name",
-        "description": "Name of the legal advisor.",
-        "example": "Clifford Chance"
+        "description": "Name of the legal advisor."
       },
       {
         "field": "legal_advisor_address",
-        "description": "Physical address of the legal advisor.",
-        "example": "27/F, Jardine House, One Connaught Place, Central, Hong Kong"
+        "description": "Physical address of the legal advisor."
       },
       {
         "field": "reporting_accountant_name",
-        "description": "Name of the reporting accountant.",
-        "example": "PricewaterhouseCoopers"
+        "description": "Name of the reporting accountant."
       },
       {
         "field": "reporting_accountant_address",
-        "description": "Physical address of the reporting accountant.",
-        "example": "22/F, Prince’s Building, Central, Hong Kong"
+        "description": "Physical address of the reporting accountant."
       },
       {
         "field": "industry_consultant_name",
-        "description": "Name of the industry consultant.",
-        "example": "Frost & Sullivan International Limited"
+        "description": "Name of the industry consultant."
       },
       {
         "field": "industry_consultant_address",
-        "description": "Physical address of the industry consultant.",
-        "example": "1706, One Exchange Square, 8 Connaught Place, Central, Hong Kong"
+        "description": "Physical address of the industry consultant."
       },
       {
         "field": "receiving_bank_name",
-        "description": "Name of the receiving bank.",
-        "example": "Bank of China (Hong Kong) Limited"
+        "description": "Name of the receiving bank."
       },
       {
         "field": "receiving_bank_address",
-        "description": "Physical address of the receiving bank.",
-        "example": "1 Garden Road, Hong Kong"
+        "description": "Physical address of the receiving bank."
       }
     ],
     "kg_evidence_types": [
@@ -1407,68 +1320,55 @@
     "kg_required_input_fields": [
       {
         "field": "registered_office_address",
-        "description": "Address of the issuer's registered office.",
-        "example": "3-212 Governors Square, 23 Lime Tree Bay Avenue, P.O. Box 30746, Seven Mile Beach, Grand Cayman KY1-1203, Cayman Islands"
+        "description": "Address of the issuer's registered office."
       },
       {
         "field": "head_office_address",
-        "description": "Address of the issuer's head office in the PRC.",
-        "example": "No. 1900 Hongmei Road, Xuhui District, Shanghai 200233, PRC"
+        "description": "Address of the issuer's head office in the PRC."
       },
       {
         "field": "principal_place_of_business_hk",
-        "description": "Address of the issuer's principal place of business in Hong Kong.",
-        "example": "2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+        "description": "Address of the issuer's principal place of business in Hong Kong."
       },
       {
         "field": "company_website",
-        "description": "URL of the issuer's official website.",
-        "example": "https://www.sensetime.com"
+        "description": "URL of the issuer's official website."
       },
       {
         "field": "joint_company_secretaries",
-        "description": "Names and contact details of the joint company secretaries.",
-        "example": "Ms. Lin Jiemin (林潔敏), 2/F, Harbor View 1, 12 Science Park East Avenue, Hong Kong Science & Technology Park, Shatin, Hong Kong"
+        "description": "Names and contact details of the joint company secretaries."
       },
       {
         "field": "authorized_representatives",
-        "description": "Names and contact details of authorized representatives.",
-        "example": "Mr. Xu Bing (徐冰), Flat A, 62/F, Luna Sky, The Cullinan, 1 Austin Road West, Tsim Sha Tsui, Kowloon, Hong Kong"
+        "description": "Names and contact details of authorized representatives."
       },
       {
         "field": "audit_committee_members",
-        "description": "Names and roles of members of the audit committee.",
-        "example": "Mr. Lyn Frank Yee Chon (林怡仲) (Chairperson), Ms. Fan Yuanyuan (范瑗瑗), Mr. Li Wei (厲偉)"
+        "description": "Names and roles of members of the audit committee."
       },
       {
         "field": "remuneration_and_evaluation_committee_members",
-        "description": "Names and roles of members of the remuneration and evaluation committee.",
-        "example": "Mr. Li Wei (厲偉) (Chairperson), Mr. Lyn Frank Yee Chon (林怡仲), Dr. Xu Li (徐立)"
+        "description": "Names and roles of members of the remuneration and evaluation committee."
       },
       {
         "field": "nomination_committee_members",
-        "description": "Names and roles of members of the nomination committee.",
-        "example": "Mr. Li Wei (厲偉) (Chairperson), Dr. Xu Li (徐立), Prof. Xue Lan (薛瀾)"
+        "description": "Names and roles of members of the nomination committee."
       },
       {
         "field": "strategy_committee_members",
-        "description": "Names and roles of members of the strategy committee.",
-        "example": "Mr. Li Zhen (李真) (Chairman), Mr. Zhang Guangping (張廣平), Mr. Li Yi (李一)"
+        "description": "Names and roles of members of the strategy committee."
       },
       {
         "field": "compliance_advisor",
-        "description": "Name and contact details of the compliance advisor.",
-        "example": "Haitong International Capital Limited, Suites 3001-3006 and 3015-3016, One International Finance Centre, 1 Harbour View Street, Central, Hong Kong"
+        "description": "Name and contact details of the compliance advisor."
       },
       {
         "field": "share_registrars",
-        "description": "Names and contact details of the share registrars.",
-        "example": "Computershare Hong Kong Investor Services Limited, Shops 1712-1716, 17th Floor, Hopewell Centre, 183 Queen’s Road East, Wan Chai, Hong Kong"
+        "description": "Names and contact details of the share registrars."
       },
       {
         "field": "principal_banks",
-        "description": "Names and addresses of the principal banks.",
-        "example": "China Construction Bank, No. 25, Finance Street, Xicheng District, Beijing, PRC"
+        "description": "Names and addresses of the principal banks."
       }
     ],
     "kg_evidence_types": [
@@ -1544,28 +1444,23 @@
     "kg_required_input_fields": [
       {
         "field": "latest_negative_list",
-        "description": "The most recent version of the Negative List for Foreign Investment Access.",
-        "example": "Special Administrative Measures (Negative List) for Foreign Investment Access (2020 Version)"
+        "description": "The most recent version of the Negative List for Foreign Investment Access."
       },
       {
         "field": "encouraged_industries_catalog",
-        "description": "The current version of the Catalog of Industries for Encouraging Foreign Investment.",
-        "example": "Catalog of Industries for Encouraging Foreign Investment (2020 Version)"
+        "description": "The current version of the Catalog of Industries for Encouraging Foreign Investment."
       },
       {
         "field": "government_policies",
-        "description": "Key government policies supporting the issuer's industry.",
-        "example": "Made in China 2025 Plan"
+        "description": "Key government policies supporting the issuer's industry."
       },
       {
         "field": "product_liability_laws",
-        "description": "Laws and regulations related to product liability and consumer protection.",
-        "example": "PRC Product Quality Law"
+        "description": "Laws and regulations related to product liability and consumer protection."
       },
       {
         "field": "cross_border_transaction_regulations",
-        "description": "Regulations governing cross-border transactions and foreign exchange controls.",
-        "example": "SAFE Circular 28"
+        "description": "Regulations governing cross-border transactions and foreign exchange controls."
       }
     ],
     "kg_evidence_types": [
@@ -1670,53 +1565,44 @@
     "kg_required_input_fields": [
       {
         "field": "industry_name",
-        "description": "Name of the industry in which the issuer operates.",
-        "example": "Artificial Intelligence"
+        "description": "Name of the industry in which the issuer operates."
       },
       {
         "field": "market_size",
-        "description": "Current market size of the industry.",
-        "example": "USD 10 billion"
+        "description": "Current market size of the industry."
       },
       {
         "field": "growth_rate",
-        "description": "Annual growth rate of the industry.",
-        "example": "15%"
+        "description": "Annual growth rate of the industry."
       },
       {
         "field": "projected_market_size",
-        "description": "Projected market size of the industry in the next 5 years.",
-        "example": "USD 15 billion"
+        "description": "Projected market size of the industry in the next 5 years."
       },
       {
         "field": "key_drivers",
-        "description": "Main factors driving industry growth.",
-        "example": "Advancements in AI technology, increased adoption of automation, regulatory support"
+        "description": "Main factors driving industry growth."
       },
       {
         "field": "challenges",
-        "description": "Challenges faced by the industry.",
-        "example": "High initial investment costs, talent shortage, data privacy concerns"
+        "description": "Challenges faced by the industry."
       },
       {
         "field": "major_competitors",
-        "description": "Names and market shares of major competitors.",
-        "example": "Company A (30%), Company B (25%), Company C (20%)"
+        "description": "Names and market shares of major competitors."
       },
       {
         "field": "regulatory_environment",
-        "description": "Relevant regulations and their impact on the industry.",
-        "example": "Data protection laws, patent regulations, industry-specific standards"
+        "description": "Relevant regulations and their impact on the industry."
       },
       {
         "field": "emerging_technologies",
-        "description": "Emerging technologies and their potential impact on the industry.",
-        "example": "Quantum computing, blockchain, edge computing"
+        "description": "Emerging technologies and their potential impact on the industry."
       }
     ],
     "kg_evidence_types": [
       "Official government publications",
-      "Market research reports (e.g., Frost & Sullivan)",
+      "Independent market research reports",
       "Industry association reports",
       "Publicly available industry statistics"
     ],
@@ -1812,28 +1698,23 @@
     "kg_required_input_fields": [
       {
         "field": "Company_Incorporation_Date",
-        "description": "The date the company was incorporated.",
-        "example": "October 15, 2014"
+        "description": "The date the company was incorporated."
       },
       {
         "field": "Key_Milestones",
-        "description": "List of significant events and achievements in the company's history.",
-        "example": "2014 - Our Company was incorporated; 2015 - We started R&D on our deep learning training framework, SenseParrots."
+        "description": "List of significant events and achievements in the company's history."
       },
       {
         "field": "Corporate_Structure",
-        "description": "Description of the current corporate structure, including ownership and subsidiaries.",
-        "example": "Our Company is the holding company of the Group with businesses conducted through its subsidiaries and the Consolidated Affiliated Entities."
+        "description": "Description of the current corporate structure, including ownership and subsidiaries."
       },
       {
         "field": "Reorganizations",
-        "description": "Details of any significant corporate reorganizations, mergers, acquisitions, or divestitures.",
-        "example": "2019 - We co-founded China Augmented Reality Core Technology Industry Alliance."
+        "description": "Details of any significant corporate reorganizations, mergers, acquisitions, or divestitures."
       },
       {
         "field": "Cross_Border_Operations",
-        "description": "Information on the issuer's operations and investments outside its home jurisdiction.",
-        "example": "Pursuant to Circular 37, promulgated by SAFE, a PRC resident must register with the local SAFE branch in connection with their contribution of offshore or domestic assets."
+        "description": "Information on the issuer's operations and investments outside its home jurisdiction."
       }
     ],
     "kg_evidence_types": [
@@ -1933,54 +1814,39 @@
     "kg_required_input_fields": [
       {
         "field": "mission_statement",
-        "description": "The issuer's mission statement.",
-        "example": "To create a better AI-empowered future through innovation."
+        "description": "The issuer's mission statement."
       },
       {
         "field": "vision_statement",
-        "description": "The issuer's vision statement.",
-        "example": "To advance the interconnection of the physical and digital worlds with artificial intelligence, driving sustainable productivity growth and seamless interactive experiences."
+        "description": "The issuer's vision statement."
       },
       {
         "field": "core_products_services",
-        "description": "List of the issuer's core products or services.",
-        "example": [
-          "AI software platforms",
-          "computer vision technologies"
-        ]
+        "description": "List of the issuer's core products or services."
       },
       {
         "field": "market_position",
-        "description": "Details on the issuer's market position, including market share and competitive advantages.",
-        "example": "Largest AI software company in Asia with a market share of 11% in China."
+        "description": "Details on the issuer's market position, including market share and competitive advantages."
       },
       {
         "field": "competitors",
-        "description": "List of the issuer's main competitors.",
-        "example": [
-          "Company A",
-          "Company B"
-        ]
+        "description": "List of the issuer's main competitors."
       },
       {
         "field": "regulatory_environment",
-        "description": "Description of the regulatory environment in which the issuer operates.",
-        "example": "Compliance with data protection regulations such as GDPR and CCPA."
+        "description": "Description of the regulatory environment in which the issuer operates."
       },
       {
         "field": "intellectual_property",
-        "description": "Details on the issuer's intellectual property rights.",
-        "example": "Over 8,000 AI patents and patent applications."
+        "description": "Details on the issuer's intellectual property rights."
       },
       {
         "field": "data_security_and_privacy",
-        "description": "Policies and practices related to data security and privacy.",
-        "example": "Encryption of processed data and data desensitization technologies."
+        "description": "Policies and practices related to data security and privacy."
       },
       {
         "field": "risk_factors",
-        "description": "Material risks that could affect the issuer's business, financial condition, or operating results.",
-        "example": "Risks related to data breaches and cybersecurity threats."
+        "description": "Material risks that could affect the issuer's business, financial condition, or operating results."
       }
     ],
     "kg_evidence_types": [
@@ -2094,30 +1960,23 @@
     "kg_required_input_fields": [
       {
         "field": "VIE_WFOE_name",
-        "description": "Name of the Variable Interest Entity (VIE) and the Wholly Foreign-Owned Enterprise (WFOE).",
-        "example": "Shanghai SenseTime Technology Development Co., Ltd."
+        "description": "Name of the Variable Interest Entity (VIE) and the Wholly Foreign-Owned Enterprise (WFOE)."
       },
       {
         "field": "Relevant_businesses",
-        "description": "List of businesses subject to foreign investment restrictions in the PRC.",
-        "example": [
-          "Value-added telecommunication service business"
-        ]
+        "description": "List of businesses subject to foreign investment restrictions in the PRC."
       },
       {
         "field": "Control_mechanisms",
-        "description": "Detailed description of control mechanisms (e.g., equity pledges, exclusive call options).",
-        "example": "Jilin Yutai pledged their equity interest in Jiaxiang Interactive to Homeland PRC."
+        "description": "Detailed description of control mechanisms (e.g., equity pledges, exclusive call options)."
       },
       {
         "field": "Consolidation_basis",
-        "description": "Explanation of the basis for consolidating the VIE’s financial results into the applicant’s financial statements.",
-        "example": "Services fee equals to Consolidated Affiliated Entities’ profit before tax, deducting any accumulated losses of Consolidated Affiliated Entities and its subsidiaries from the preceding fiscal year."
+        "description": "Explanation of the basis for consolidating the VIE’s financial results into the applicant’s financial statements."
       },
       {
         "field": "Legal_advisory_opinion",
-        "description": "Opinion from the PRC legal advisor on the compliance of the VIE structure with PRC laws and regulations.",
-        "example": "Advised by the PRC Legal Advisor, a summary of our business/operation that is subject to foreign investment restriction..."
+        "description": "Opinion from the PRC legal advisor on the compliance of the VIE structure with PRC laws and regulations."
       }
     ],
     "kg_evidence_types": [
@@ -2199,28 +2058,23 @@
     "kg_required_input_fields": [
       {
         "field": "controlling_shareholder_name",
-        "description": "Name of the controlling shareholder.",
-        "example": "Prof. Tang"
+        "description": "Name of the controlling shareholder."
       },
       {
         "field": "controlling_shareholder_shareholding",
-        "description": "Percentage of shareholding by the controlling shareholder.",
-        "example": "26.43%"
+        "description": "Percentage of shareholding by the controlling shareholder."
       },
       {
         "field": "voting_rights_details",
-        "description": "Details of the voting rights associated with different classes of shares.",
-        "example": "Each Class A Share has 10 votes per share, while each Class B Share has one vote per share."
+        "description": "Details of the voting rights associated with different classes of shares."
       },
       {
         "field": "concert_party_agreements",
-        "description": "Details of any concert party agreements or similar arrangements.",
-        "example": "Agreement among Sinovation Ventures, Sinovation Ventures Yucheng, Mr. Wang Hua, Ms. Tao Ning, Ms. Lang Chunhui, and Mr. Zhang Ying."
+        "description": "Details of any concert party agreements or similar arrangements."
       },
       {
         "field": "internal_control_mechanisms",
-        "description": "Description of internal control mechanisms to manage conflicts of interest.",
-        "example": "Annual review by independent non-executive directors."
+        "description": "Description of internal control mechanisms to manage conflicts of interest."
       }
     ],
     "kg_evidence_types": [
@@ -2295,23 +2149,19 @@
     "kg_required_input_fields": [
       {
         "field": "connected_persons",
-        "description": "Names and details of the connected persons involved in the transactions.",
-        "example": "SoftBank SPV, WeWork HK, WeWork Abu Dhabi, ST Solutions Taiwan, JCV"
+        "description": "Names and details of the connected persons involved in the transactions."
       },
       {
         "field": "transaction_details",
-        "description": "Specific details of the transactions, including parties involved, nature of the transactions, and amounts or terms.",
-        "example": "Providing customized image detection technology services to Inner Mongolia Yili Industrial Group Co., Ltd. for RMB 3,500,000 annually."
+        "description": "Specific details of the transactions, including parties involved, nature of the transactions, and amounts or terms."
       },
       {
         "field": "waivers_and_exemptions",
-        "description": "Details of any waivers or exemptions sought from the Listing Rules, including the rationale and conditions.",
-        "example": "Waiver from the announcement requirement under Rule 14A.35 for the Image Detection Technology Service Framework Agreement."
+        "description": "Details of any waivers or exemptions sought from the Listing Rules, including the rationale and conditions."
       },
       {
         "field": "review_process",
-        "description": "Description of the review and approval process for the transactions, including the roles of the board of directors and independent non-executive directors.",
-        "example": "The independent non-executive directors and auditors will review the transactions and confirm their fairness and reasonableness annually."
+        "description": "Description of the review and approval process for the transactions, including the roles of the board of directors and independent non-executive directors."
       }
     ],
     "kg_evidence_types": [
@@ -2396,43 +2246,35 @@
     "kg_required_input_fields": [
       {
         "field": "director_name",
-        "description": "The full name of the director.",
-        "example": "Dr. Xu Li"
+        "description": "The full name of the director."
       },
       {
         "field": "director_age",
-        "description": "The age of the director.",
-        "example": "39"
+        "description": "The age of the director."
       },
       {
         "field": "director_position",
-        "description": "The position held by the director in the company.",
-        "example": "Co-founder, executive Chairman of our Board, executive Director, chief executive officer and member of the remuneration committee and the nomination committee"
+        "description": "The position held by the director in the company."
       },
       {
         "field": "director_join_date",
-        "description": "The date the director joined the company.",
-        "example": "March 2015"
+        "description": "The date the director joined the company."
       },
       {
         "field": "director_appointment_date",
-        "description": "The date the director was appointed as a director.",
-        "example": "December 15, 2015"
+        "description": "The date the director was appointed as a director."
       },
       {
         "field": "director_roles",
-        "description": "The roles and responsibilities of the director.",
-        "example": "Responsible for our Group’s vision strategy, business development and daily operations"
+        "description": "The roles and responsibilities of the director."
       },
       {
         "field": "director_relationships",
-        "description": "Any relationships between the director and other directors or senior management.",
-        "example": "Brother-in-law of Dr. Wang"
+        "description": "Any relationships between the director and other directors or senior management."
       },
       {
         "field": "remuneration_details",
-        "description": "Details of the remuneration received by the director, including salaries, bonuses, and other benefits.",
-        "example": "RMB60,730,000"
+        "description": "Details of the remuneration received by the director, including salaries, bonuses, and other benefits."
       }
     ],
     "kg_evidence_types": [
@@ -2517,28 +2359,23 @@
     "kg_required_input_fields": [
       {
         "field": "name_of_substantial_shareholder",
-        "description": "The name of the substantial shareholder.",
-        "example": "Amind"
+        "description": "The name of the substantial shareholder."
       },
       {
         "field": "capacity_nature_of_interest",
-        "description": "The nature of the interest held by the shareholder, e.g., beneficial interest, interest in a controlled corporation.",
-        "example": "Beneficial interest"
+        "description": "The nature of the interest held by the shareholder, e.g., beneficial interest, interest in a controlled corporation."
       },
       {
         "field": "number_and_class_of_shares_held",
-        "description": "The number and class of shares held by the substantial shareholder.",
-        "example": "6,906,080,602 Class A Shares"
+        "description": "The number and class of shares held by the substantial shareholder."
       },
       {
         "field": "approximate_percentage_of_shareholding_of_each_class_of_shares",
-        "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder.",
-        "example": "91.73%"
+        "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder."
       },
       {
         "field": "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
-        "description": "The approximate percentage of the shareholding in the issued and outstanding share capital of the company.",
-        "example": "20.75%"
+        "description": "The approximate percentage of the shareholding in the issued and outstanding share capital of the company."
       }
     ],
     "kg_evidence_types": [
@@ -2613,28 +2450,23 @@
     "kg_required_input_fields": [
       {
         "field": "authorized_share_capital",
-        "description": "Total number of shares the company is authorized to issue.",
-        "example": "500,000,000"
+        "description": "Total number of shares the company is authorized to issue."
       },
       {
         "field": "issued_share_capital",
-        "description": "Number of shares that have been issued and the nominal value of these shares.",
-        "example": "100,000,000 shares with a nominal value of $0.001 each"
+        "description": "Number of shares that have been issued and the nominal value of these shares."
       },
       {
         "field": "share_capital_after_offering",
-        "description": "Breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares.",
-        "example": "122,323,870 Class A Shares, 14,835,491 Class B Shares, 7,219,000 Class A Shares to be issued"
+        "description": "Breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares."
       },
       {
         "field": "voting_rights_structure",
-        "description": "Details of the voting rights structure, if applicable, including the ranking of shares and any special voting rights.",
-        "example": "Class A Shares rank equally with all other Class A Shares and Class B Shares rank below Class A Shares."
+        "description": "Details of the voting rights structure, if applicable, including the ranking of shares and any special voting rights."
       },
       {
         "field": "repurchase_mandate_details",
-        "description": "Details of any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates.",
-        "example": "Directors can repurchase up to 10% of the total number of shares in issue, excluding certain classes of shares."
+        "description": "Details of any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates."
       }
     ],
     "kg_evidence_types": [
@@ -2751,111 +2583,43 @@
     "kg_required_input_fields": [
       {
         "field": "issuer_name",
-        "description": "Name of the issuing entity.",
-        "example": "Tech Innovations Ltd."
+        "description": "Name of the issuing entity."
       },
       {
         "field": "financial_years",
-        "description": "List of financial years covered in the prospectus.",
-        "example": [
-          "2022",
-          "2023",
-          "2024"
-        ]
+        "description": "List of financial years covered in the prospectus."
       },
       {
         "field": "revenue",
-        "description": "Annual revenue figures.",
-        "example": [
-          100000000,
-          120000000,
-          150000000
-        ]
+        "description": "Annual revenue figures."
       },
       {
         "field": "net_income",
-        "description": "Annual net income figures.",
-        "example": [
-          20000000,
-          25000000,
-          30000000
-        ]
+        "description": "Annual net income figures."
       },
       {
         "field": "assets",
-        "description": "Balance sheet assets at year-end.",
-        "example": [
-          200000000,
-          250000000,
-          300000000
-        ]
+        "description": "Balance sheet assets at year-end."
       },
       {
         "field": "liabilities",
-        "description": "Balance sheet liabilities at year-end.",
-        "example": [
-          100000000,
-          120000000,
-          150000000
-        ]
+        "description": "Balance sheet liabilities at year-end."
       },
       {
         "field": "cash_flows",
-        "description": "Cash flow statement figures.",
-        "example": [
-          15000000,
-          20000000,
-          25000000
-        ]
+        "description": "Cash flow statement figures."
       },
       {
         "field": "key_ratios",
-        "description": "Financial ratios like ROE, ROA, EPS, etc.",
-        "example": {
-          "ROE": [
-            15,
-            18,
-            20
-          ],
-          "ROA": [
-            10,
-            12,
-            15
-          ],
-          "EPS": [
-            2,
-            2.5,
-            3
-          ]
-        }
+        "description": "Financial ratios like ROE, ROA, EPS, etc."
       },
       {
         "field": "segment_data",
-        "description": "Revenue and profit breakdown by segments.",
-        "example": [
-          {
-            "segment": "Product A",
-            "revenue": [
-              30000000,
-              35000000,
-              40000000
-            ],
-            "profit": [
-              5000000,
-              6000000,
-              7000000
-            ]
-          }
-        ]
+        "description": "Revenue and profit breakdown by segments."
       },
       {
         "field": "risk_factors",
-        "description": "List of risk factors affecting the issuer.",
-        "example": [
-          "Market competition",
-          "Regulatory changes",
-          "Supply chain disruptions"
-        ]
+        "description": "List of risk factors affecting the issuer."
       }
     ],
     "kg_evidence_types": [
@@ -2987,33 +2751,27 @@
     "kg_required_input_fields": [
       {
         "field": "Offer_Price",
-        "description": "The price per share at which the shares are being offered.",
-        "example": "HK$3.92"
+        "description": "The price per share at which the shares are being offered."
       },
       {
         "field": "Net_Proceeds",
-        "description": "The total net proceeds from the offering, calculated after deducting underwriting commissions and other expenses.",
-        "example": "HK$5,655 million"
+        "description": "The total net proceeds from the offering, calculated after deducting underwriting commissions and other expenses."
       },
       {
         "field": "Percentage_Allocation",
-        "description": "The percentage of net proceeds allocated to each use of proceeds.",
-        "example": "60.0%"
+        "description": "The percentage of net proceeds allocated to each use of proceeds."
       },
       {
         "field": "Amount_Allocation",
-        "description": "The specific amount of net proceeds allocated to each use of proceeds.",
-        "example": "HK$3,393 million"
+        "description": "The specific amount of net proceeds allocated to each use of proceeds."
       },
       {
         "field": "Purpose_Description",
-        "description": "A brief description of the purpose for which the proceeds will be used.",
-        "example": "Enhancing research and development capabilities"
+        "description": "A brief description of the purpose for which the proceeds will be used."
       },
       {
         "field": "Pro_Rata_Adjustment_Policy",
-        "description": "The policy for adjusting the use of proceeds if the actual net proceeds differ from the estimated amount.",
-        "example": "Adjust the use of proceeds on a pro rata basis."
+        "description": "The policy for adjusting the use of proceeds if the actual net proceeds differ from the estimated amount."
       }
     ],
     "kg_evidence_types": [
@@ -3090,28 +2848,23 @@
     "kg_required_input_fields": [
       {
         "field": "Underwriters",
-        "description": "Names and details of the underwriters involved in the offering.",
-        "example": "China International Capital Corporation Hong Kong Securities Limited"
+        "description": "Names and details of the underwriters involved in the offering."
       },
       {
         "field": "Underwriting Agreement Date",
-        "description": "Date the underwriting agreement was signed.",
-        "example": "Monday, December 6, 2021"
+        "description": "Date the underwriting agreement was signed."
       },
       {
         "field": "Offer Price",
-        "description": "Price at which the shares will be offered to the public.",
-        "example": "HKD 10.00 per share"
+        "description": "Price at which the shares will be offered to the public."
       },
       {
         "field": "Number of Offer Shares",
-        "description": "Total number of offer shares for the Hong Kong Public Offering and International Offering.",
-        "example": "150,000,000 Hong Kong Offer Shares and 1,350,000,000 International Offer Shares"
+        "description": "Total number of offer shares for the Hong Kong Public Offering and International Offering."
       },
       {
         "field": "Over-allotment Option",
-        "description": "Details of the over-allotment option, if applicable.",
-        "example": "The International Offering includes an over-allotment option for up to 20% additional shares."
+        "description": "Details of the over-allotment option, if applicable."
       }
     ],
     "kg_evidence_types": [
@@ -3195,33 +2948,27 @@
     "kg_required_input_fields": [
       {
         "field": "joint_representatives",
-        "description": "Names of the joint representatives for the global offering.",
-        "example": "China International Capital Corporation Hong Kong Securities Limited, Haitong International Securities Company Limited"
+        "description": "Names of the joint representatives for the global offering."
       },
       {
         "field": "number_of_hong_kong_shares",
-        "description": "Number of Hong Kong public offering shares.",
-        "example": "150,000,000"
+        "description": "Number of Hong Kong public offering shares."
       },
       {
         "field": "number_of_international_shares",
-        "description": "Number of international offering shares.",
-        "example": "1,350,000,000"
+        "description": "Number of international offering shares."
       },
       {
         "field": "price_determination_date",
-        "description": "Date by which the offer price must be agreed upon.",
-        "example": "Thursday, December 16, 2021"
+        "description": "Date by which the offer price must be agreed upon."
       },
       {
         "field": "over_allotment_option",
-        "description": "Details of the over-allotment option, if applicable.",
-        "example": "Up to 18,750,000 additional shares"
+        "description": "Details of the over-allotment option, if applicable."
       },
       {
         "field": "share_dealing_start_date",
-        "description": "Date when share dealings are expected to commence.",
-        "example": "Friday, December 17, 2021"
+        "description": "Date when share dealings are expected to commence."
       }
     ],
     "kg_evidence_types": [
@@ -3307,28 +3054,23 @@
     "kg_required_input_fields": [
       {
         "field": "Auditor’s Name",
-        "description": "Name of the auditing firm.",
-        "example": "PricewaterhouseCoopers"
+        "description": "Name of the auditing firm."
       },
       {
         "field": "Date of Report",
-        "description": "Date the report was issued.",
-        "example": "December 7, 2021"
+        "description": "Date the report was issued."
       },
       {
         "field": "Historical Financial Information",
-        "description": "Consolidated financial statements and notes.",
-        "example": "Balance sheets, income statements, and notes for multiple periods."
+        "description": "Consolidated financial statements and notes."
       },
       {
         "field": "Pro Forma Adjustments",
-        "description": "Details of how the offering will affect the company’s financials.",
-        "example": "Impact on net tangible assets, earnings per share, etc."
+        "description": "Details of how the offering will affect the company’s financials."
       },
       {
         "field": "Significant Accounting Policies",
-        "description": "Explanation of key accounting policies used.",
-        "example": "Impairment testing, revenue recognition, etc."
+        "description": "Explanation of key accounting policies used."
       }
     ],
     "kg_evidence_types": [
@@ -3473,28 +3215,23 @@
     "kg_required_input_fields": [
       {
         "field": "cornerstone_investors_names",
-        "description": "Names of the cornerstone investors.",
-        "example": "Guosen Securities (HK) Capital Co., Ltd., Macquarie Capital Limited"
+        "description": "Names of the cornerstone investors."
       },
       {
         "field": "cornerstone_investment_amounts",
-        "description": "Amounts of money to be invested by each cornerstone investor.",
-        "example": "US$450 million"
+        "description": "Amounts of money to be invested by each cornerstone investor."
       },
       {
         "field": "cornerstone_investment_agreements",
-        "description": "Details of the cornerstone investment agreements, including the subscription terms.",
-        "example": "Subscription for 879,605,000 Offer Shares at HK$3.99 per Offer Share"
+        "description": "Details of the cornerstone investment agreements, including the subscription terms."
       },
       {
         "field": "lock_up_period",
-        "description": "Duration of the lock-up period for the cornerstone investors.",
-        "example": "Six months from the Listing Date"
+        "description": "Duration of the lock-up period for the cornerstone investors."
       },
       {
         "field": "conditions_precedent",
-        "description": "List of conditions that must be met for the cornerstone placing to proceed.",
-        "example": "Regulatory approvals, pricing agreements, representations and warranties"
+        "description": "List of conditions that must be met for the cornerstone placing to proceed."
       }
     ],
     "kg_evidence_types": [
@@ -3571,32 +3308,23 @@
     "kg_required_input_fields": [
       {
         "field": "stock_code",
-        "description": "The stock code assigned by the Hong Kong Stock Exchange.",
-        "example": "0020"
+        "description": "The stock code assigned by the Hong Kong Stock Exchange."
       },
       {
         "field": "issuer_name_en",
-        "description": "The English name of the issuer.",
-        "example": "SenseTime Group Inc."
+        "description": "The English name of the issuer."
       },
       {
         "field": "issuer_name_ch",
-        "description": "The Chinese name of the issuer.",
-        "example": "感性科技有限公司"
+        "description": "The Chinese name of the issuer."
       },
       {
         "field": "corporate_structure",
-        "description": "Details of the issuer’s corporate structure, especially if it includes weighted voting rights.",
-        "example": "a company controlled through weighted voting rights and incorporated in the Cayman Islands with limited liability"
+        "description": "Details of the issuer’s corporate structure, especially if it includes weighted voting rights."
       },
       {
         "field": "key_underwriters",
-        "description": "Names of the joint sponsors, global coordinators, bookrunners, and lead managers.",
-        "example": [
-          "Joint Sponsors",
-          "Joint Global Coordinators",
-          "Joint Bookrunners and Joint Lead Managers"
-        ]
+        "description": "Names of the joint sponsors, global coordinators, bookrunners, and lead managers."
       }
     ],
     "kg_evidence_types": [
@@ -3725,28 +3453,23 @@
     "kg_required_input_fields": [
       {
         "field": "application_channels",
-        "description": "List of application channels available for investors.",
-        "example": "HK eIPO White Form service, HKSCC EIPO channel"
+        "description": "List of application channels available for investors."
       },
       {
         "field": "application_period_start_date",
-        "description": "Start date of the application period.",
-        "example": "2023-10-23"
+        "description": "Start date of the application period."
       },
       {
         "field": "application_period_end_date",
-        "description": "End date of the application period.",
-        "example": "2023-10-28"
+        "description": "End date of the application period."
       },
       {
         "field": "payment_deadline",
-        "description": "Deadline for completing full payment of application monies.",
-        "example": "2023-10-28T12:00:00+08:00"
+        "description": "Deadline for completing full payment of application monies."
       },
       {
         "field": "contact_information",
-        "description": "Contact details for inquiries and support.",
-        "example": "+852 2862 8558, www.eipo.com.hk"
+        "description": "Contact details for inquiries and support."
       }
     ],
     "kg_evidence_types": [
@@ -3827,33 +3550,27 @@
     "kg_required_input_fields": [
       {
         "field": "issuer_name",
-        "description": "Name of the issuing company.",
-        "example": "SenseTime Group Inc."
+        "description": "Name of the issuing company."
       },
       {
         "field": "stock_code",
-        "description": "Stock code assigned to the offer shares.",
-        "example": "0020"
+        "description": "Stock code assigned to the offer shares."
       },
       {
         "field": "number_of_hk_offershares",
-        "description": "Number of Hong Kong offer shares available for sale.",
-        "example": "150,000,000"
+        "description": "Number of Hong Kong offer shares available for sale."
       },
       {
         "field": "maximum_offer_price",
-        "description": "Maximum offer price per share, including fees and levies.",
-        "example": "HK$3.99 per Offer Share"
+        "description": "Maximum offer price per share, including fees and levies."
       },
       {
         "field": "minimum_application_amount",
-        "description": "Minimum number of shares that can be applied for.",
-        "example": "1,000 Hong Kong Offer Shares"
+        "description": "Minimum number of shares that can be applied for."
       },
       {
         "field": "price_determination_date",
-        "description": "Date when the offer price is expected to be determined.",
-        "example": "Price Determination Date"
+        "description": "Date when the offer price is expected to be determined."
       }
     ],
     "kg_evidence_types": [

@@ -114,7 +114,8 @@ JSON_CATEGORY_TO_SECTION: dict[str, str] = {
 # must not become facts; and `$`-prefixed keys are always skipped.
 RESERVED_KEYS: set[str] = {
     "schema_version", "issuer_id", "language", "source_defaults",
-    "_comment", "_note", "_meta",
+    "_comment", "_note", "_meta", "evidence_atoms", "section_units",
+    "execution_contract",
 }
 META_KEYS: set[str] = {
     "provenance", "source", "schema_a_field",
@@ -122,6 +123,8 @@ META_KEYS: set[str] = {
     "evidence_status", "extraction_notes", "likely_source_document",
     "original_input_shape", "section_id", "section_sentence_index",
     "char_count", "word_count", "counts", "extraction_method",
+    "char_start", "char_end", "contract_source_key", "evidence_atom_ids",
+    "missing_reason", "priority", "unit_id", "field_id",
 }
 _SKIP_KEYS: set[str] = RESERVED_KEYS | META_KEYS
 
@@ -549,6 +552,82 @@ def extract_source_material_texts(path: Path) -> list[dict[str, Any]]:
     seen_material_ids: set[int] = set()
     seen_text_keys: set[tuple[str, str, str]] = set()
 
+    atomic_evidence = data.get("evidence_atoms")
+    section_units = data.get("section_units")
+    has_atomic_evidence = isinstance(atomic_evidence, list) and bool(atomic_evidence)
+    if has_atomic_evidence:
+        atoms_by_id = {
+            str(atom.get("id")): atom
+            for atom in atomic_evidence
+            if isinstance(atom, dict) and atom.get("id")
+        }
+        canonical = str(data.get("section_id") or _canonical_from_path(path) or "")
+        section = CANONICAL_TO_LEGACY.get(canonical, "A")
+        units = section_units if isinstance(section_units, list) else []
+        for unit_index, unit in enumerate(units):
+            if not isinstance(unit, dict):
+                continue
+            atom_ids = unit.get("evidenceAtomIds") or []
+            unit_atoms = [atoms_by_id.get(str(atom_id)) for atom_id in atom_ids]
+            unit_atoms = [atom for atom in unit_atoms if isinstance(atom, dict)]
+            if not unit_atoms:
+                continue
+            # Keep retrieval chunks bounded while retaining every selected atom.
+            batch: list[str] = []
+            batch_chars = 0
+            batch_index = 1
+            for atom in unit_atoms:
+                value = str(atom.get("value") or atom.get("text") or "").strip()
+                if not value:
+                    continue
+                metadata = [f"field={atom.get('field_id') or 'unmapped'}"]
+                if atom.get("unit"):
+                    metadata.append(f"unit={atom['unit']}")
+                if atom.get("period"):
+                    metadata.append(f"period={atom['period']}")
+                if atom.get("source_file"):
+                    metadata.append(f"source={atom['source_file']}")
+                page_start = atom.get("page_start")
+                page_end = atom.get("page_end")
+                if page_start:
+                    metadata.append(
+                        f"pages={page_start}-{page_end or page_start}"
+                    )
+                if atom.get("char_start") is not None:
+                    metadata.append(
+                        f"chars={atom.get('char_start')}-{atom.get('char_end')}"
+                    )
+                line = f"[{atom.get('id')}] ({'; '.join(metadata)}) {value}"
+                if batch and batch_chars + len(line) > 6000:
+                    item = _make_text_item(
+                        text="\n".join(batch),
+                        source=source,
+                        section=section,
+                        canonical=canonical or None,
+                        topic=f"section_unit.{unit.get('unitId', unit_index)}.{batch_index}",
+                        importance="high",
+                        source_type_hint="evidence_atom_unit",
+                    )
+                    if item:
+                        out.append(item)
+                    batch = []
+                    batch_chars = 0
+                    batch_index += 1
+                batch.append(line)
+                batch_chars += len(line)
+            if batch:
+                item = _make_text_item(
+                    text="\n".join(batch),
+                    source=source,
+                    section=section,
+                    canonical=canonical or None,
+                    topic=f"section_unit.{unit.get('unitId', unit_index)}.{batch_index}",
+                    importance="high",
+                    source_type_hint="evidence_atom_unit",
+                )
+                if item:
+                    out.append(item)
+
     def emit(material: dict[str, Any], fieldpath: str, fallback_category: str) -> None:
         material_id = id(material)
         if material_id in seen_material_ids:
@@ -586,6 +665,10 @@ def extract_source_material_texts(path: Path) -> list[dict[str, Any]]:
             for k, v in node.items():
                 if k.startswith("$") or k in RESERVED_KEYS:
                     continue
+                if has_atomic_evidence and k == "extracted_source_materials":
+                    # The v2 atom chunks above supersede the legacy chapter-wide
+                    # fact blocks and avoid duplicate retrieval context.
+                    continue
                 child_category = k if k in JSON_CATEGORY_TO_SECTION or k in CANONICAL_TO_LEGACY else fallback_category
                 walk(v, f"{fieldpath}.{k}" if fieldpath else k, child_category)
         elif isinstance(node, list):
@@ -594,6 +677,8 @@ def extract_source_material_texts(path: Path) -> list[dict[str, Any]]:
 
     for category, value in data.items():
         if category.startswith("$") or category in RESERVED_KEYS:
+            continue
+        if has_atomic_evidence and category == "extracted_source_materials":
             continue
         walk(value, category, category)
     return out

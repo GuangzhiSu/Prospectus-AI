@@ -23,7 +23,7 @@ _TABLE_ROW_RE = re.compile(r"^\|")
 _TABLE_SEP_RE = re.compile(r"^\|[\s:\-|]+\|$")
 _AI_TAG_INLINE_RE = re.compile(r"\[\[AI:[^\]]*\]\]")
 
-# Agent1 bucket E (Use of Proceeds) had zero chunks for sensetime run.
+# Use of Proceeds may be rendered from a deterministic structured-data template.
 _EVIDENCE_GAP_SECTIONS = frozenset({"UseOfProceeds"})
 
 # Template / auto sections skip prose-depth checks.

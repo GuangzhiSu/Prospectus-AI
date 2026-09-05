@@ -8,6 +8,7 @@ import type {
   DeveloperDatasetIndex,
   DeveloperPrompt,
   DeveloperSection,
+  SectionExecutionContract,
 } from "@/lib/developer-tools-types";
 
 const unzip = promisify(gunzip);
@@ -19,6 +20,13 @@ type PromptRequirementsEntry = Record<string, unknown> & {
 
 type CompiledPromptDocument = {
   sections?: Array<{ section?: string; content?: string }>;
+};
+
+type ExecutionContractsDocument = {
+  version?: string;
+  sourceHash?: string;
+  contractCount?: number;
+  contracts?: Record<string, SectionExecutionContract>;
 };
 
 function dataRoot(): string {
@@ -46,11 +54,44 @@ async function readFromCandidates(filename: string): Promise<Buffer> {
 }
 
 async function readRepoFile(filename: string): Promise<Buffer> {
-  const candidates = [
-    path.join(process.cwd(), filename),
-    path.join(process.cwd(), "frontend", "web", filename),
-    path.join(process.cwd(), "..", "..", filename),
-  ];
+  // Keep every trace target literal. A dynamic `../../${filename}` makes
+  // Turbopack conservatively include most of the monorepo in every route.
+  const knownFiles: Record<string, string[]> = {
+    "prospectus_section_prompts.json": [
+      path.join(process.cwd(), "prospectus_section_prompts.json"),
+      path.join(process.cwd(), "frontend", "web", "prospectus_section_prompts.json"),
+      path.join(process.cwd(), "..", "..", "prospectus_section_prompts.json"),
+    ],
+    "ai-module/prompts/agents/writer.txt": [
+      path.join(process.cwd(), "ai-module", "prompts", "agents", "writer.txt"),
+      path.join(process.cwd(), "frontend", "web", "ai-module", "prompts", "agents", "writer.txt"),
+      path.join(process.cwd(), "..", "..", "ai-module", "prompts", "agents", "writer.txt"),
+    ],
+    "ai-module/prompts/core/exchange_drafting.md": [
+      path.join(process.cwd(), "ai-module", "prompts", "core", "exchange_drafting.md"),
+      path.join(process.cwd(), "frontend", "web", "ai-module", "prompts", "core", "exchange_drafting.md"),
+      path.join(process.cwd(), "..", "..", "ai-module", "prompts", "core", "exchange_drafting.md"),
+    ],
+    "ai-module/prompts/core/ai_tags.md": [
+      path.join(process.cwd(), "ai-module", "prompts", "core", "ai_tags.md"),
+      path.join(process.cwd(), "frontend", "web", "ai-module", "prompts", "core", "ai_tags.md"),
+      path.join(process.cwd(), "..", "..", "ai-module", "prompts", "core", "ai_tags.md"),
+    ],
+    "ai-module/prompts/sections/execution_contracts.json": [
+      path.join(process.cwd(), "ai-module", "prompts", "sections", "execution_contracts.json"),
+      path.join(process.cwd(), "frontend", "web", "ai-module", "prompts", "sections", "execution_contracts.json"),
+      path.join(process.cwd(), "..", "..", "ai-module", "prompts", "sections", "execution_contracts.json"),
+    ],
+    "ai-module/prompts/sections/requirements.json": [
+      path.join(process.cwd(), "ai-module", "prompts", "sections", "requirements.json"),
+      path.join(process.cwd(), "frontend", "web", "ai-module", "prompts", "sections", "requirements.json"),
+      path.join(process.cwd(), "..", "..", "ai-module", "prompts", "sections", "requirements.json"),
+    ],
+  };
+  const candidates = knownFiles[filename];
+  if (!candidates) {
+    throw new Error(`Repository prompt file is not allow-listed: ${filename}`);
+  }
   let lastError: unknown;
   for (const candidate of candidates) {
     try {
@@ -74,9 +115,10 @@ export async function loadDeveloperIndex(): Promise<DeveloperDatasetIndex> {
 }
 
 export async function loadDeveloperPrompts(): Promise<DeveloperPrompt[]> {
-  const [requirements, compiledRaw, writerRaw, exchangeRaw, tagsRaw] =
+  const [requirements, contractsDocument, compiledRaw, writerRaw, exchangeRaw, tagsRaw] =
     await Promise.all([
       loadDeveloperPromptRequirements(),
+      loadDeveloperExecutionContracts(),
       readRepoFile("prospectus_section_prompts.json"),
       readRepoFile("ai-module/prompts/agents/writer.txt"),
       readRepoFile("ai-module/prompts/core/exchange_drafting.md"),
@@ -117,8 +159,23 @@ export async function loadDeveloperPrompts(): Promise<DeveloperPrompt[]> {
       name,
       requirements: sectionSpec,
       prompt: cleanPrompt(prompt),
+      executionContract: contractsDocument.contracts?.[id],
     };
   });
+}
+
+export async function loadDeveloperExecutionContracts(): Promise<ExecutionContractsDocument> {
+  let raw: Buffer;
+  try {
+    raw = await readFromCandidates("execution-contracts.json");
+  } catch {
+    raw = await readRepoFile("ai-module/prompts/sections/execution_contracts.json");
+  }
+  const document = JSON.parse(raw.toString("utf8")) as ExecutionContractsDocument;
+  if (document.contractCount !== 31 || !document.contracts) {
+    throw new Error("Developer execution contracts are missing or invalid.");
+  }
+  return document;
 }
 
 export async function loadDeveloperPromptRequirements(): Promise<Record<string, Record<string, unknown>>> {

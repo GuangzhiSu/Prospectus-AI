@@ -18,6 +18,8 @@ import type {
   ModelProviderId,
   PromptSuggestion,
   RcaCaseResult,
+  RcaPlanResponse,
+  RcaUnitResult,
 } from "@/lib/developer-tools-types";
 
 type TabId = "prompts" | "dataset" | "rca";
@@ -34,6 +36,7 @@ type ExperimentCase = {
   status: CaseStatus;
   result?: RcaCaseResult;
   error?: string;
+  unitProgress?: { completed: number; total: number; current?: string };
 };
 
 type SuggestionState = {
@@ -580,6 +583,8 @@ function RcaWorkspace({
   const [visibleCases, setVisibleCases] = useState(100);
   const [expandedCaseId, setExpandedCaseId] = useState("");
   const [suggestionSection, setSuggestionSection] = useState("");
+  const [generateSuggestions, setGenerateSuggestions] = useState(false);
+  const [runLegacyJudge, setRunLegacyJudge] = useState(false);
   const stopRef = useRef(false);
   const runningRef = useRef(false);
   const batchRef = useRef<BatchState | null>(null);
@@ -659,14 +664,61 @@ function RcaWorkspace({
 
   async function runCase(item: ExperimentCase): Promise<ExperimentCase> {
     try {
-      const result = await apiJson<RcaCaseResult>("/api/developer-tools/rca/run", {
+      const plan = await apiJson<RcaPlanResponse>("/api/developer-tools/rca/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyId: item.companyId,
           sectionId: item.sectionId,
           prompt: item.promptSnapshot,
-          model: modelConfig,
+        }),
+      });
+      const unitDrafts: RcaUnitResult[] = [];
+      for (const [unitIndex, unit] of plan.units.entries()) {
+        mutateBatch((value) => ({
+          ...value,
+          cases: value.cases.map((candidate) =>
+            candidate.id === item.id
+              ? {
+                  ...candidate,
+                  unitProgress: {
+                    completed: unitIndex,
+                    total: plan.units.length,
+                    current: unit.title,
+                  },
+                }
+              : candidate
+          ),
+        }));
+        const unitResult = await apiJson<RcaUnitResult>("/api/developer-tools/rca/run-unit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyId: item.companyId,
+            sectionId: item.sectionId,
+            unitId: unit.unitId,
+            targetCharacters: unit.targetCharacters,
+            prompt: item.promptSnapshot,
+            contractSourceHash: plan.contract.sourceHash,
+            model: modelConfig,
+          }),
+        });
+        unitDrafts.push(unitResult);
+      }
+      const last = unitDrafts.at(-1);
+      const result = await apiJson<RcaCaseResult>("/api/developer-tools/rca/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyId: item.companyId,
+          sectionId: item.sectionId,
+          prompt: item.promptSnapshot,
+          contractSourceHash: plan.contract.sourceHash,
+          unitDrafts,
+          model: last?.model || modelConfig.model,
+          provider: last?.provider || modelConfig.provider,
+          legacyModelJudge: runLegacyJudge,
+          judgeModel: runLegacyJudge ? modelConfig : undefined,
         }),
       });
       return { ...item, status: "completed", result };
@@ -773,7 +825,11 @@ function RcaWorkspace({
       mutateBatch((value) => ({ ...value, status: "paused" }));
       return;
     }
-    await synthesizeSuggestions();
+    if (generateSuggestions) {
+      await synthesizeSuggestions();
+    } else {
+      mutateBatch((value) => ({ ...value, status: "completed" }));
+    }
   }
 
   async function startBatch() {
@@ -784,9 +840,14 @@ function RcaWorkspace({
     }
     const cases = buildCases();
     if (!cases.length) return window.alert("当前范围内没有可运行的 section。");
-    const estimatedCalls = 1 + cases.length * 2 + new Set(cases.map((item) => item.sectionId)).size;
+    const generationCalls = cases.reduce((total, item) => {
+      const prompt = promptBySection.get(item.sectionId);
+      return total + Math.max(1, prompt?.executionContract?.units.length || 1);
+    }, 0);
+    const suggestionCalls = generateSuggestions ? new Set(cases.map((item) => item.sectionId)).size : 0;
+    const estimatedCalls = 1 + generationCalls + suggestionCalls;
     const confirmed = window.confirm(
-      `将运行 ${formatNumber(cases.length)} 个 case，预计调用模型约 ${formatNumber(estimatedCalls)} 次（凭据预检 + 生成 + 逐 case RCA + 每 section 一轮 batch 建议）。\n\n该操作可能产生 API 费用，确认开始？`
+      `将运行 ${formatNumber(cases.length)} 个 case，共 ${formatNumber(generationCalls)} 个 section units，预计调用模型约 ${formatNumber(estimatedCalls)} 次（凭据预检 + 分段生成${generateSuggestions ? " + 每 section 一轮可选建议" : ""}；确定性评测不调用模型）。\n\n该操作可能产生 API 费用，确认开始？`
     );
     if (!confirmed) return;
     setPreflighting(true);
@@ -844,7 +905,7 @@ function RcaWorkspace({
       if (key) counts[key] += 1;
       return counts;
     },
-    { data_incomplete: 0, prompt_incomplete: 0, model_limitation: 0 }
+    { data_incomplete: 0, prompt_incomplete: 0, prompt_or_workflow: 0, model_limitation: 0, none: 0 }
   );
 
   const filteredCases = (batch?.cases || []).filter((item) =>
@@ -885,7 +946,7 @@ function RcaWorkspace({
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#267267]">Batch configuration</p>
             <h2 className="mt-1 text-xl font-semibold">RCA 实验范围</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#637067]">
-              单章节验证适合低成本 smoke test；单家公司会运行其全部可用 section；全部公司会运行完整语料。开始前先验证模型凭据，每个 case 独立生成并归因，batch 完成后每个 section 只产生一轮通用 prompt 建议。
+              单章节验证适合低成本 smoke test；长章节会按 contract 拆成可恢复的 section units。模型只负责起草，事实、数值、结构、顺序、长度和占位符均由确定性规则评测；Prompt 建议默认关闭且不会自动采纳。
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -932,6 +993,16 @@ function RcaWorkspace({
           </label>
         </div>
         <div className="mt-4"><ModelSettings config={modelConfig} onChange={updateModelConfig} /></div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <label className="flex items-start gap-3 border border-[#d5ddd4] bg-[#fafcf9] p-3 text-xs leading-5 text-[#536158]">
+            <input type="checkbox" checked={generateSuggestions} onChange={(event) => setGenerateSuggestions(event.target.checked)} className="mt-1" />
+            <span><strong className="block text-[#26332c]">生成可选 Prompt 建议</strong>Batch 完成后每个 section 额外调用一次模型汇总建议；只有你点击采纳后才会同步到 GitHub。</span>
+          </label>
+          <label className="flex items-start gap-3 border border-[#d5ddd4] bg-[#fafcf9] p-3 text-xs leading-5 text-[#536158]">
+            <input type="checkbox" checked={runLegacyJudge} onChange={(event) => setRunLegacyJudge(event.target.checked)} className="mt-1" />
+            <span><strong className="block text-[#26332c]">可选 Legacy Model Judge</strong>每个 case 额外调用一次当前模型，并把真实 section 片段发送给该模型做主观对照。结果单独显示，永不改变确定性总分或自动修改 Prompt。</span>
+          </label>
+        </div>
       </section>
 
       {batch ? (
@@ -950,8 +1021,8 @@ function RcaWorkspace({
                 <Metric label="Done" value={completed} />
                 <Metric label="Failed" value={failed} />
                 <Metric label="Data" value={attributionCounts?.data_incomplete || 0} />
-                <Metric label="Prompt" value={attributionCounts?.prompt_incomplete || 0} />
-                <Metric label="Model" value={attributionCounts?.model_limitation || 0} />
+                <Metric label="Workflow" value={(attributionCounts?.prompt_or_workflow || 0) + (attributionCounts?.prompt_incomplete || 0)} />
+                <Metric label="Hard fail" value={batch.cases.filter((item) => Boolean(item.result?.deterministicEvaluation?.hardFailures.length)).length} />
               </div>
             </div>
             <div className="mt-5 h-2 bg-white/10"><div className="h-full bg-[#f2c14e] transition-all" style={{ width: `${progress}%` }} /></div>
@@ -962,7 +1033,7 @@ function RcaWorkspace({
             <div className="flex flex-col gap-3 border-b border-[#d5ddd4] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="font-semibold">Case-by-case RCA</h3>
-                <p className="mt-1 text-xs text-[#738078]">点击每一行右侧箭头，查看真实数据、生成结果、当前 prompt 与准备数据。</p>
+                <p className="mt-1 text-xs text-[#738078]">点击每一行右侧箭头，查看确定性指标、clean / annotated draft、真实 section、运行快照与准备数据。</p>
               </div>
               <input value={caseFilter} onChange={(event) => { setCaseFilter(event.target.value); setVisibleCases(100); }} placeholder="筛选公司 / section / 状态…" className="h-9 w-full border border-[#cbd4cc] px-3 text-sm sm:w-72" />
             </div>
@@ -1038,15 +1109,16 @@ function Metric({ label, value }: { label: string; value: number }) {
 
 function CaseRow({ item, open, onToggle, getCompany }: { item: ExperimentCase; open: boolean; onToggle: () => void; getCompany: (id: string) => Promise<DeveloperCompany> }) {
   const diagnosis = item.result?.diagnosis;
-  const labels = { data_incomplete: "数据不全", prompt_incomplete: "Prompt 不全", model_limitation: "模型能力限制" };
+  const evaluation = item.result?.deterministicEvaluation;
+  const labels = { data_incomplete: "数据不全", prompt_incomplete: "Prompt 不全", prompt_or_workflow: "Prompt / Workflow", model_limitation: "模型能力限制", none: "通过" };
   return (
     <>
       <tr className="border-b border-[#e8ede8] text-xs hover:bg-[#fafcf9]">
         <td className="max-w-xs px-4 py-3"><p className="truncate font-semibold">{item.companyName}</p><p className="mt-1 font-mono text-[9px] text-[#7b877f]">{item.companyId}</p></td>
         <td className="px-4 py-3"><p className="font-semibold">{item.sectionName}</p><p className="mt-1 font-mono text-[9px] text-[#7b877f]">{item.sectionId}</p></td>
-        <td className="px-4 py-3"><StatusPill status={item.status} />{item.error ? <p className="mt-1 max-w-xs truncate text-[10px] text-[#a64934]" title={item.error}>{item.error}</p> : null}</td>
+        <td className="px-4 py-3"><StatusPill status={item.status} />{item.status === "running" && item.unitProgress ? <p className="mt-1 max-w-xs truncate text-[10px] text-[#507069]" title={item.unitProgress.current}>unit {item.unitProgress.completed + 1}/{item.unitProgress.total} · {item.unitProgress.current}</p> : null}{item.error ? <p className="mt-1 max-w-xs truncate text-[10px] text-[#a64934]" title={item.error}>{item.error}</p> : null}</td>
         <td className="px-4 py-3">{diagnosis ? <><span className="font-semibold">{labels[diagnosis.primaryAttribution]}</span><span className="ml-2 font-mono text-[10px] text-[#7b877f]">{diagnosis.confidence}%</span></> : "—"}</td>
-        <td className="px-4 py-3 font-mono text-[10px] text-[#59675e]">{diagnosis ? `C ${diagnosis.dimensions.completeness} · F ${diagnosis.dimensions.factuality} · S ${diagnosis.dimensions.structure} · T ${diagnosis.dimensions.style}` : "—"}</td>
+        <td className="px-4 py-3 font-mono text-[10px] text-[#59675e]">{evaluation ? `O ${evaluation.overallScore} · R ${evaluation.requiredFactRecall} · N ${evaluation.numericFidelity.precision}/${evaluation.numericFidelity.recall} · S ${evaluation.structureCoverage}` : "—"}</td>
         <td className="px-4 py-3 text-right"><button disabled={!item.result} onClick={onToggle} aria-label="展开 RCA 详情" className="inline-flex h-8 w-8 items-center justify-center border border-[#ccd5cd] disabled:opacity-30"><Chevron open={open} /></button></td>
       </tr>
       {open && item.result ? <tr className="border-b border-[#d5ddd4]"><td colSpan={6} className="bg-[#f5f8f3] p-4"><CaseDetails item={item} getCompany={getCompany} /></td></tr> : null}
@@ -1057,6 +1129,7 @@ function CaseRow({ item, open, onToggle, getCompany }: { item: ExperimentCase; o
 function CaseDetails({ item, getCompany }: { item: ExperimentCase; getCompany: (id: string) => Promise<DeveloperCompany> }) {
   const [section, setSection] = useState<DeveloperSection | null>(null);
   const [error, setError] = useState("");
+  const [draftView, setDraftView] = useState<"clean" | "annotated">("clean");
   useEffect(() => {
     let active = true;
     getCompany(item.companyId)
@@ -1067,28 +1140,77 @@ function CaseDetails({ item, getCompany }: { item: ExperimentCase; getCompany: (
     return () => { active = false; };
   }, [getCompany, item.companyId, item.sectionId]);
   const diagnosis = item.result!.diagnosis;
+  const evaluation = item.result!.deterministicEvaluation;
+  const manifest = item.result!.runManifest;
+  const legacyJudge = item.result!.legacyModelJudge;
+  const attributionLabels = { data_incomplete: "数据不全", prompt_incomplete: "Prompt 不全", prompt_or_workflow: "Prompt / Workflow", model_limitation: "模型能力限制", none: "无硬失败" };
   if (error) return <p className="text-sm text-[#a64934]">{error}</p>;
   if (!section) return <p className="text-sm text-[#6c7971]">正在加载对照数据…</p>;
   return (
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-[220px_1fr_1fr]">
-        <div className="border border-[#d5ddd4] bg-white p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">Primary attribution</p><p className="mt-2 text-lg font-semibold">{{ data_incomplete: "数据不全", prompt_incomplete: "Prompt 不全", model_limitation: "模型能力限制" }[diagnosis.primaryAttribution]}</p><p className="mt-1 font-mono text-xs text-[#66746b]">confidence {diagnosis.confidence}%</p></div>
+        <div className="border border-[#d5ddd4] bg-white p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">Primary attribution</p><p className="mt-2 text-lg font-semibold">{attributionLabels[diagnosis.primaryAttribution]}</p><p className="mt-1 font-mono text-xs text-[#66746b]">confidence {diagnosis.confidence}%</p></div>
         <div className="border border-[#d5ddd4] bg-white p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">RCA summary</p><p className="mt-2 text-sm leading-6">{diagnosis.summary}</p></div>
         <div className="border border-[#d5ddd4] bg-white p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">Recommended action</p><p className="mt-2 text-sm leading-6">{diagnosis.recommendedAction}</p></div>
       </div>
+      {evaluation ? (
+        <div className="border border-[#d5ddd4] bg-white p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">Deterministic evaluation</p><p className="mt-1 text-2xl font-semibold">{evaluation.overallScore}<span className="text-sm font-normal text-[#748078]"> / 100</span></p></div>
+            {manifest ? <p className="max-w-3xl text-right font-mono text-[9px] leading-5 text-[#758179]">contract {manifest.contractVersion} · {manifest.contractSourceHash.slice(0, 12)}<br />prompt {manifest.promptSha.slice(0, 12)} · {manifest.provider}/{manifest.model}<br />data {manifest.dataAuditVersion || manifest.datasetGeneratedAt || "unknown"} · profile {manifest.structureProfileSource || "contract only"}</p> : null}
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+            <ScoreTile label="Input fields" value={evaluation.inputFieldCoverage} />
+            <ScoreTile label="Required facts" value={evaluation.requiredFactRecall} />
+            <ScoreTile label="Numeric P / R" value={`${evaluation.numericFidelity.precision} / ${evaluation.numericFidelity.recall}`} />
+            <ScoreTile label="Grounded claims" value={evaluation.groundedClaimPrecision} />
+            <ScoreTile label="Structure" value={evaluation.structureCoverage} />
+            <ScoreTile label="Outline order" value={evaluation.outlineOrderSimilarity} />
+            <ScoreTile label="Reference outline" value={evaluation.referenceOutlineSimilarity} />
+            <ScoreTile label="Length profile" value={evaluation.lengthProfile} />
+            <ScoreTile label="Placeholders" value={evaluation.placeholderIntegrity} />
+            <ScoreTile label="Cross-section" value={evaluation.crossSectionConsistency} />
+          </div>
+          {evaluation.hardFailures.length ? <div className="mt-3 border-l-2 border-[#c75b45] bg-[#fff1ed] p-3 text-xs leading-5 text-[#8b3f31]"><strong>硬失败</strong><ul className="mt-1 list-disc pl-4">{evaluation.hardFailures.map((failure) => <li key={failure}>{failure}</li>)}</ul></div> : <p className="mt-3 border-l-2 border-[#3e806f] bg-[#edf7f3] p-3 text-xs text-[#286456]">未触发无依据数字、日期、主体或非通用硬编码等硬失败。</p>}
+        </div>
+      ) : null}
+      {legacyJudge ? (
+        <div className="border border-[#d5ddd4] bg-[#fafcf9] p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#708078]">Legacy model judge · optional</p><p className="mt-2 text-sm leading-6 text-[#47544c]">{legacyJudge.summary}</p></div>
+            <p className="font-mono text-xs text-[#66746b]">confidence {legacyJudge.confidence}% · does not affect score</p>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <ScoreTile label="Completeness" value={legacyJudge.dimensions.completeness} />
+            <ScoreTile label="Factuality" value={legacyJudge.dimensions.factuality} />
+            <ScoreTile label="Structure" value={legacyJudge.dimensions.structure} />
+            <ScoreTile label="Style" value={legacyJudge.dimensions.style} />
+          </div>
+        </div>
+      ) : item.result!.legacyModelJudgeError ? (
+        <p className="border-l-2 border-[#c75b45] bg-[#fff1ed] p-3 text-xs text-[#8b3f31]">Legacy model judge 未完成：{item.result!.legacyModelJudgeError}</p>
+      ) : null}
       <div className="grid gap-3 md:grid-cols-3">
         <ListPanel title="数据缺口" items={diagnosis.dataGaps} />
         <ListPanel title="Prompt 缺口" items={diagnosis.promptGaps} />
         <ListPanel title="模型限制" items={diagnosis.modelLimitations} />
       </div>
+      <div className="flex justify-end bg-[#e9eee8] p-1">
+        <button onClick={() => setDraftView("clean")} className={`h-8 px-3 text-xs font-semibold ${draftView === "clean" ? "bg-white shadow-sm" : "text-[#66746b]"}`}>Clean draft</button>
+        <button onClick={() => setDraftView("annotated")} className={`h-8 px-3 text-xs font-semibold ${draftView === "annotated" ? "bg-white shadow-sm" : "text-[#66746b]"}`}>Annotated draft</button>
+      </div>
       <div className="grid gap-4 2xl:grid-cols-2">
         <TextPanel title="真实招股说明书 Section" meta={`${item.result!.contextCoverage.referenceCharactersUsed}/${item.result!.contextCoverage.referenceCharacters} chars used`} text={section.referenceText} />
-        <TextPanel title="模型生成结果" meta={`${item.result!.model} · ${item.result!.provider}`} text={item.result!.generatedOutput} />
+        <TextPanel title={draftView === "clean" ? "Clean Draft" : "Annotated Draft"} meta={draftView === "clean" ? `${item.result!.model} · ${item.result!.provider}` : "证据引用 · 缺口 · 核验记录"} text={draftView === "clean" ? item.result!.cleanDraft || item.result!.generatedOutput : item.result!.annotatedDraft || item.result!.generatedOutput} code={draftView === "annotated"} />
         <TextPanel title="当前 Prompt（运行快照）" meta={`${item.promptSnapshot.length} chars`} text={item.promptSnapshot} code />
         <TextPanel title="准备数据" meta={`${item.result!.contextCoverage.preparedDataCharactersUsed}/${item.result!.contextCoverage.preparedDataCharacters} chars used`} text={JSON.stringify(section.preparedData, null, 2)} code />
       </div>
     </div>
   );
+}
+
+function ScoreTile({ label, value }: { label: string; value: number | string }) {
+  return <div className="bg-[#f5f8f3] px-3 py-2"><p className="font-mono text-sm font-semibold text-[#26332c]">{value}</p><p className="mt-1 text-[9px] uppercase tracking-[0.11em] text-[#718077]">{label}</p></div>;
 }
 
 function ListPanel({ title, items }: { title: string; items: string[] }) {
@@ -1287,7 +1409,7 @@ export function DeveloperToolsApp() {
             <HealthCard
               label="Dataset"
               ok={health.dataset.ready}
-              detail={health.dataset.ready ? `${health.dataset.companyCount} companies · ${health.dataset.sectionCount} sections` : health.dataset.error || "不可用"}
+              detail={health.dataset.ready ? `${health.dataset.companyCount} companies · ${health.dataset.sectionCount} sections · contract ${health.dataset.contractCount}/31 · profiles ${health.dataset.structureProfileCount}/31 · coverage S ${health.dataset.shortSectionCoveragePercent}% / L ${health.dataset.longSectionCoveragePercent}%` : health.dataset.error || "审计、contract 或结构 profile 未达标"}
             />
             <HealthCard
               label="Prompt sync"

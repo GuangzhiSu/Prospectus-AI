@@ -5,12 +5,16 @@ import { gunzipSync } from "node:zlib";
 
 const DEFAULT_COMPANY_COUNT = 125;
 const DEFAULT_PROMPT_COUNT = 31;
+const DEFAULT_SECTION_COUNT = 3653;
+const MIN_SHORT_FIELD_COVERAGE = 95;
+const MIN_LONG_FIELD_COVERAGE = 90;
 
 export async function verifyDeveloperData(
   dataRoot,
   {
     expectedCompanyCount = DEFAULT_COMPANY_COUNT,
     expectedPromptCount = DEFAULT_PROMPT_COUNT,
+    expectedSectionCount = DEFAULT_SECTION_COUNT,
   } = {}
 ) {
   const indexPath = path.join(dataRoot, "index.json");
@@ -132,13 +136,92 @@ export async function verifyDeveloperData(
           `Developer dataset prepared-data audit is invalid: ${company.id}/${section.id}.`
         );
       }
+      if (summary.rcaReady) {
+        const coverage = summary.contractCoverage || {};
+        if (
+          !Number.isInteger(coverage.required) ||
+          coverage.required <= 0 ||
+          !Number.isInteger(coverage.applicable) ||
+          !Number.isInteger(coverage.populated) ||
+          coverage.populated > coverage.applicable ||
+          !Number.isFinite(coverage.percent) ||
+          !summary.contractVersion ||
+          !summary.contractSourceHash
+        ) {
+          throw new Error(
+            `Developer dataset execution-contract coverage is invalid: ${company.id}/${section.id}.`
+          );
+        }
+      }
     }
   }
 
-  for (const name of ["prompts.json", "prompt-requirements.json"]) {
+  if (sectionCount !== expectedSectionCount) {
+    throw new Error(
+      `Developer dataset section count mismatch: expected ${expectedSectionCount}, got ${sectionCount}.`
+    );
+  }
+
+  const contractAudit = index.executionContractAudit || {};
+  if (
+    contractAudit.contractCount !== expectedPromptCount ||
+    contractAudit.rcaReadySections <= 0 ||
+    contractAudit.shortSectionCoveragePercent < MIN_SHORT_FIELD_COVERAGE ||
+    contractAudit.longSectionCoveragePercent < MIN_LONG_FIELD_COVERAGE
+  ) {
+    throw new Error(
+      "Developer dataset execution-contract audit failed: " +
+        `contracts=${contractAudit.contractCount}, ` +
+        `short=${contractAudit.shortSectionCoveragePercent}%, ` +
+        `long=${contractAudit.longSectionCoveragePercent}%.`
+    );
+  }
+  if (expectedCompanyCount === DEFAULT_COMPANY_COUNT && (
+    index.benchmarkSplit?.trainingCompanyCount !== 100 ||
+    index.benchmarkSplit?.holdoutCompanyCount !== 25 ||
+    !Array.isArray(index.benchmarkSplit?.holdoutCompanyIds) ||
+    index.benchmarkSplit.holdoutCompanyIds.length !== 25
+  )) {
+    throw new Error("Developer dataset benchmark split must contain 100 training and 25 holdout companies.");
+  }
+
+  const profiles = index.sectionProfiles || {};
+  if (expectedCompanyCount === DEFAULT_COMPANY_COUNT && Object.keys(profiles).length !== expectedPromptCount) {
+    throw new Error(
+      `Developer dataset must contain ${expectedPromptCount} training-only section profiles.`
+    );
+  }
+  for (const [sectionId, profile] of Object.entries(profiles)) {
+    const lengths = profile?.lengthCharacters || {};
+    if (
+      profile?.source !== "training_split_aggregate_v1" ||
+      !Number.isInteger(profile?.sampleCount) ||
+      profile.sampleCount <= 0 ||
+      !Number.isFinite(lengths.p25) ||
+      !Number.isFinite(lengths.median) ||
+      !Number.isFinite(lengths.p75) ||
+      lengths.p25 > lengths.median ||
+      lengths.median > lengths.p75 ||
+      !Array.isArray(profile?.commonOutline)
+    ) {
+      throw new Error(`Developer dataset structure profile is invalid: ${sectionId}.`);
+    }
+  }
+
+  for (const name of ["prompts.json", "prompt-requirements.json", "execution-contracts.json"]) {
     const stat = await fs.stat(path.join(dataRoot, name));
     if (!stat.isFile() || stat.size === 0) {
       throw new Error(`Developer dataset support file is empty: ${name}`);
+    }
+  }
+  const requirements = JSON.parse(
+    await fs.readFile(path.join(dataRoot, "prompt-requirements.json"), "utf8")
+  );
+  for (const [sectionId, requirement] of Object.entries(requirements)) {
+    for (const field of requirement?.kg_required_input_fields || []) {
+      if (field && typeof field === "object" && "example" in field) {
+        throw new Error(`Concrete SectionSpec example is prohibited: ${sectionId}.`);
+      }
     }
   }
 
