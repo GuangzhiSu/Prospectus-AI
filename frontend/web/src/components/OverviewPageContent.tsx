@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, DownloadSimple, FileText, FlowArrow, ShieldCheck } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, CheckCircle, DownloadSimple, FileText, FlowArrow, Question, ShieldCheck } from "@phosphor-icons/react/dist/ssr";
 
 import { PublicNav } from "@/components/PublicNav";
 
@@ -29,6 +29,8 @@ const copy = {
       ["Review first", "Output is a working draft for professional judgment, not an approval decision."],
       ["Provider flexible", "Choose a supported model provider from one explicit settings surface."],
     ],
+    faqEyebrow: "How the workflow works", faqTitle: "Understand the system before you start.",
+    faqText: "See the techniques used across the workflow, the seven-step operating guide, and the boundaries of AI-generated working drafts.", faqCta: "Read the FAQ",
     closingTitle: "Move from source files to a reviewable draft.", closingText: "Start in the workspace or install the private desktop application.",
     footer: "Private AI tools for regulated document workflows.",
   },
@@ -54,6 +56,8 @@ const copy = {
       ["复核优先", "输出是供专业判断的工作稿，不模拟审批结论。"],
       ["模型可选", "通过明确的设置界面选择受支持的模型供应商。"],
     ],
+    faqEyebrow: "了解工作流程", faqTitle: "开始之前，先了解系统如何工作。",
+    faqText: "查看工作流采用的核心方法、七步使用指南，以及 AI 生成专业工作稿的适用边界。", faqCta: "阅读常见问题",
     closingTitle: "从源文件推进到可复核工作稿。", closingText: "立即进入工作台，或安装私有桌面应用。",
     footer: "面向受监管文档流程的私有化 AI 工具。",
   },
@@ -66,6 +70,7 @@ export function OverviewPageContent({ locale = "en" }: { locale?: Locale }) {
     drafting: locale === "zh" ? "/zh/drafting" : "/drafting",
     download: locale === "zh" ? "/zh/download" : "/download",
     workspace: locale === "zh" ? "/zh/workspace" : "/workspace",
+    faq: locale === "zh" ? "/zh/faq" : "/faq",
   };
 
   return (
@@ -155,6 +160,20 @@ export function OverviewPageContent({ locale = "en" }: { locale?: Locale }) {
                 <h3 className="mt-4 font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-[#647068]">{text}</p>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[#cfd7d0] bg-white">
+        <div className="mx-auto grid max-w-[1380px] gap-8 px-5 py-16 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:px-8">
+          <div>
+            <Question size={30} weight="duotone" className="text-[#176b5b]" />
+            <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-[#176b5b]">{t.faqEyebrow}</p>
+          </div>
+          <div>
+            <h2 className="text-3xl font-semibold tracking-[-0.035em] lg:text-4xl">{t.faqTitle}</h2>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#647068]">{t.faqText}</p>
+            <Link href={href.faq} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#176b5b] hover:text-[#105548]">{t.faqCta}<ArrowRight size={16} weight="bold" /></Link>
           </div>
         </div>
       </section>

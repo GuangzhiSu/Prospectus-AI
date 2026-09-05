@@ -35,6 +35,36 @@ type SettingsCopy = {
   pageDescriptionEligibility: string;
   inferenceDescriptionEligibility: string;
   localQwenNoRemoteApiEligibility: string;
+  currentConfiguration: string;
+  configuredProvider: string;
+  configuredModel: string;
+  credentialStatus: string;
+  credentialSaved: string;
+  credentialNotNeeded: string;
+  credentialMissing: string;
+  latestTest: string;
+  notTested: string;
+  stepOne: string;
+  stepOneTitle: string;
+  stepOneDescription: string;
+  cloudMode: string;
+  cloudModeDescription: string;
+  localMode: string;
+  localModeDescription: string;
+  stepTwo: string;
+  stepTwoTitle: string;
+  stepTwoCloudDescription: string;
+  stepTwoLocalDescription: string;
+  stepThree: string;
+  stepThreeTitle: string;
+  stepThreeCloudDescription: string;
+  stepThreeLocalDescription: string;
+  advancedConnection: string;
+  advancedMaintenance: string;
+  saveAndTest: string;
+  saveAndCheckLocal: string;
+  localCheckOk: string;
+  localCheckMissing: string;
   softwareUpdates: string;
   updatesDescription: string;
   checkingUpdates: string;
@@ -203,6 +233,36 @@ const SETTINGS_COPY = {
       "Pick one provider for eligibility AI stages (extraction, qualitative signals, feedback). Hard threshold comparison never uses an LLM.",
     localQwenNoRemoteApiEligibility:
       "Local Qwen has no remote API — save settings and run an eligibility diagnostic to verify the model loads.",
+    currentConfiguration: "Current configuration",
+    configuredProvider: "Provider",
+    configuredModel: "Model",
+    credentialStatus: "Credential",
+    credentialSaved: "Saved",
+    credentialNotNeeded: "Not required",
+    credentialMissing: "Not saved",
+    latestTest: "Latest test",
+    notTested: "Not tested in this session",
+    stepOne: "Step 1",
+    stepOneTitle: "Choose where the model runs",
+    stepOneDescription: "Use a cloud API for managed inference, or keep inference on this machine with Local Qwen.",
+    cloudMode: "Cloud API",
+    cloudModeDescription: "Use DeepSeek, OpenAI, Qwen API, or Anthropic.",
+    localMode: "Local model",
+    localModeDescription: "Run Qwen on this machine without a remote API key.",
+    stepTwo: "Step 2",
+    stepTwoTitle: "Configure the selected provider",
+    stepTwoCloudDescription: "Only the credential and model used by this provider are shown.",
+    stepTwoLocalDescription: "Choose the local model path or Hugging Face model ID.",
+    stepThree: "Step 3",
+    stepThreeTitle: "Save and verify",
+    stepThreeCloudDescription: "Save the settings, then immediately make a minimal connection test.",
+    stepThreeLocalDescription: "Save the settings, then check the local model and compute environment.",
+    advancedConnection: "Advanced connection options",
+    advancedMaintenance: "Advanced & maintenance",
+    saveAndTest: "Save and test connection",
+    saveAndCheckLocal: "Save and check local environment",
+    localCheckOk: "Local environment checked. Model weights are available.",
+    localCheckMissing: "Settings saved, but local model weights were not found. Open Advanced & maintenance to download or select them.",
     softwareUpdates: "Software updates",
     updatesDescription: "Check GitHub Releases for a newer Prospectus AI installer.",
     checkingUpdates: "Checking…",
@@ -289,6 +349,36 @@ const SETTINGS_COPY = {
       "为上市资格诊断的 AI 阶段（抽取、定性信号、反馈）选择提供商。硬性门槛比对从不使用 LLM。",
     localQwenNoRemoteApiEligibility:
       "本地 Qwen 没有远程 API；请保存设置后运行一次上市资格诊断以确认模型可加载。",
+    currentConfiguration: "当前配置",
+    configuredProvider: "服务商",
+    configuredModel: "模型",
+    credentialStatus: "密钥",
+    credentialSaved: "已保存",
+    credentialNotNeeded: "无需密钥",
+    credentialMissing: "尚未保存",
+    latestTest: "最近测试",
+    notTested: "本次会话尚未测试",
+    stepOne: "第 1 步",
+    stepOneTitle: "选择模型运行方式",
+    stepOneDescription: "使用云端 API 获得托管推理能力，或使用 Local Qwen 在本机完成推理。",
+    cloudMode: "云端 API",
+    cloudModeDescription: "使用 DeepSeek、OpenAI、Qwen API 或 Anthropic。",
+    localMode: "本地模型",
+    localModeDescription: "在本机运行 Qwen，不需要远程 API Key。",
+    stepTwo: "第 2 步",
+    stepTwoTitle: "配置当前服务商",
+    stepTwoCloudDescription: "这里只显示当前服务商需要的密钥与模型。",
+    stepTwoLocalDescription: "选择本地模型路径或 Hugging Face 模型 ID。",
+    stepThree: "第 3 步",
+    stepThreeTitle: "保存并验证",
+    stepThreeCloudDescription: "保存设置后，立即执行一次最小连接测试。",
+    stepThreeLocalDescription: "保存设置后，检查本地模型与计算环境。",
+    advancedConnection: "高级连接选项",
+    advancedMaintenance: "高级与维护",
+    saveAndTest: "保存并测试连接",
+    saveAndCheckLocal: "保存并检查本地环境",
+    localCheckOk: "本地环境检查完成，已找到模型权重。",
+    localCheckMissing: "设置已保存，但未找到本地模型权重。请在“高级与维护”中下载或选择模型。",
     softwareUpdates: "软件更新",
     updatesDescription: "检查 GitHub Releases 中是否有更新的 Prospectus AI 安装包。",
     checkingUpdates: "正在检查…",
@@ -390,9 +480,6 @@ export function SettingsPageContent({
     ? t.pageDescriptionEligibility
     : t.pageDescription;
   const backLabel = isEligibility ? t.backToEligibility : t.backToWorkspace;
-  const inferenceDescription = isEligibility
-    ? t.inferenceDescriptionEligibility
-    : t.inferenceDescription;
   const localQwenHint = isEligibility
     ? t.localQwenNoRemoteApiEligibility
     : t.localQwenNoRemoteApi;
@@ -413,6 +500,28 @@ export function SettingsPageContent({
 
   const activeMeta = PROVIDER_UI[form.llmProvider];
   const settingsFileHint = settings?.settingsFile || fallbackSettingsFileHint;
+  const configuredProvider = settings?.llmProvider || form.llmProvider;
+  const configuredMeta = PROVIDER_UI[configuredProvider];
+  const configuredModel =
+    configuredProvider === "openai"
+      ? settings?.openaiModel || PROVIDER_UI.openai.defaultModel
+      : configuredProvider === "deepseek"
+        ? settings?.deepseekModel || PROVIDER_UI.deepseek.defaultModel
+        : configuredProvider === "qwen_api"
+          ? settings?.dashscopeModel || PROVIDER_UI.qwen_api.defaultModel
+          : configuredProvider === "anthropic"
+            ? settings?.anthropicModel || PROVIDER_UI.anthropic.defaultModel
+            : settings?.qwenModel || PROVIDER_UI.qwen_local.defaultModel;
+  const activeCredentialSaved =
+    configuredProvider === "openai"
+      ? settings?.openaiApiKeySet
+      : configuredProvider === "deepseek"
+        ? settings?.deepseekApiKeySet
+        : configuredProvider === "qwen_api"
+          ? settings?.dashscopeApiKeySet
+          : configuredProvider === "anthropic"
+            ? settings?.anthropicApiKeySet
+            : null;
 
   const refresh = useCallback(async () => {
     setError(null);
@@ -435,11 +544,11 @@ export function SettingsPageContent({
   }, [t.loadFailed, settingsApi]);
 
   useEffect(() => {
-    void refresh();
+    const timer = window.setTimeout(() => void refresh(), 0);
+    return () => window.clearTimeout(timer);
   }, [refresh]);
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
+  async function saveSettings(): Promise<SettingsResp | null> {
     setSaving(true);
     setError(null);
     setSaveOk(false);
@@ -482,79 +591,19 @@ export function SettingsPageContent({
       setSettings(data);
       setForm((f) => settingsToForm(data, f));
       setSaveOk(true);
+      return data as SettingsResp;
     } catch (e) {
       setError(e instanceof Error ? e.message : t.saveFailed);
       setSaveOk(false);
+      return null;
     } finally {
       setSaving(false);
     }
   }
 
-  function activeProviderKeyField(): keyof FormState | null {
-    switch (form.llmProvider) {
-      case "openai":
-        return "openaiApiKey";
-      case "deepseek":
-        return "deepseekApiKey";
-      case "qwen_api":
-        return "dashscopeApiKey";
-      case "anthropic":
-        return "anthropicApiKey";
-      default:
-        return null;
-    }
-  }
-
-  function isTestConfigDirty(): boolean {
-    if (!settings) return true;
-    if (form.llmProvider !== settings.llmProvider) return true;
-    if (form.llmProvider === "qwen_local") return false;
-
-    const keyField = activeProviderKeyField();
-    if (keyField && String(form[keyField] || "").trim()) return true;
-
-    switch (form.llmProvider) {
-      case "openai":
-        return (
-          form.openaiBaseUrl !== (settings.openaiBaseUrl || "") ||
-          form.openaiModel !== (settings.openaiModel || PROVIDER_UI.openai.defaultModel)
-        );
-      case "deepseek":
-        return (
-          form.deepseekBaseUrl !== (settings.deepseekBaseUrl || "") ||
-          form.deepseekModel !== (settings.deepseekModel || PROVIDER_UI.deepseek.defaultModel)
-        );
-      case "qwen_api":
-        return (
-          form.dashscopeBaseUrl !== (settings.dashscopeBaseUrl || "") ||
-          form.dashscopeModel !== (settings.dashscopeModel || PROVIDER_UI.qwen_api.defaultModel)
-        );
-      case "anthropic":
-        return (
-          form.anthropicModel !== (settings.anthropicModel || PROVIDER_UI.anthropic.defaultModel)
-        );
-      default:
-        return false;
-    }
-  }
-
-  async function handleTestConnection() {
+  async function testSavedConnection() {
     setTestResult(null);
     setError(null);
-    if (form.llmProvider === "qwen_local") {
-      setTestResult({
-        ok: false,
-        text: localQwenHint,
-      });
-      return;
-    }
-    if (isTestConfigDirty()) {
-      setTestResult({
-        ok: false,
-        text: t.saveBeforeTest,
-      });
-      return;
-    }
     setTesting(true);
     try {
       const res = await fetch(testApi, { method: "POST" });
@@ -568,6 +617,36 @@ export function SettingsPageContent({
       setTestResult({ ok: false, text: e instanceof Error ? e.message : t.testFailed });
     } finally {
       setTesting(false);
+    }
+  }
+
+  async function handlePrimaryAction(e: React.FormEvent) {
+    e.preventDefault();
+    const provider = form.llmProvider;
+    const saved = await saveSettings();
+    if (!saved) return;
+
+    if (provider !== "qwen_local") {
+      await testSavedConnection();
+      return;
+    }
+
+    try {
+      const [nextGpu, nextModel] = await Promise.all([
+        fetch("/api/system/gpu").then((r) => r.json() as Promise<GpuResp>),
+        fetch("/api/models/status").then((r) => r.json() as Promise<ModelStatus>),
+      ]);
+      setGpu(nextGpu);
+      setModelStatus(nextModel);
+      setTestResult({
+        ok: Boolean(nextModel.installed),
+        text: nextModel.installed ? t.localCheckOk : t.localCheckMissing,
+      });
+    } catch (e) {
+      setTestResult({
+        ok: false,
+        text: e instanceof Error ? e.message : localQwenHint,
+      });
     }
   }
 
@@ -658,17 +737,6 @@ export function SettingsPageContent({
             <option value={CUSTOM_MODEL}>Custom…</option>
           </select>
         </label>
-        {selectVal === CUSTOM_MODEL && (
-          <label className="flex flex-col gap-1 text-sm">
-            <span>{t.customModelId}</span>
-            <input
-              value={model}
-              onChange={(e) => onModel(e.target.value)}
-              className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2 font-mono text-xs"
-              placeholder={t.customModelPlaceholder}
-            />
-          </label>
-        )}
       </>
     );
   }
@@ -695,24 +763,29 @@ export function SettingsPageContent({
             ? settings?.dashscopeApiKeySet
             : settings?.anthropicApiKeySet;
 
+    const model =
+      p === "openai"
+        ? form.openaiModel
+        : p === "deepseek"
+          ? form.deepseekModel
+          : p === "qwen_api"
+            ? form.dashscopeModel
+            : form.anthropicModel;
+    const setModel = (value: string) => {
+      if (p === "openai") setForm((f) => ({ ...f, openaiModel: value }));
+      else if (p === "deepseek") setForm((f) => ({ ...f, deepseekModel: value }));
+      else if (p === "qwen_api") setForm((f) => ({ ...f, dashscopeModel: value }));
+      else setForm((f) => ({ ...f, anthropicModel: value }));
+    };
+    const isCustomModel = modelSelectValue(
+      model,
+      activeMeta.modelPresets,
+      activeMeta.modelPresetGroups
+    ) === CUSTOM_MODEL;
+
     return (
-      <div className="space-y-4 rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+      <div className="space-y-4">
         <h3 className="text-sm font-medium">{activeMeta.label} — {t.apiConnection}</h3>
-        {activeMeta.billingUrl && (
-          <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 text-sm md:flex-row md:items-center md:justify-between">
-            <p className="text-[var(--muted)]">
-              {t.billingText}
-            </p>
-            <a
-              href={activeMeta.billingUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--background)]"
-            >
-              {t.billingLabels[p] || activeMeta.billingLabel || t.openBilling}
-            </a>
-          </div>
-        )}
         <label className="flex flex-col gap-1 text-sm">
           <span>
             {t.apiKey}
@@ -731,72 +804,33 @@ export function SettingsPageContent({
         </label>
 
         {p === "openai" && (
-          <>
-            <label className="flex flex-col gap-1 text-sm">
-              <span>{t.baseUrlOptional}</span>
-              <input
-                value={form.openaiBaseUrl}
-                onChange={(e) => setForm((f) => ({ ...f, openaiBaseUrl: e.target.value }))}
-                className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
-                placeholder={activeMeta.baseUrlPlaceholder}
-              />
-            </label>
-            {renderModelField(
-              t.model,
-              form.openaiModel,
-              activeMeta.modelPresets,
-              (v) => setForm((f) => ({ ...f, openaiModel: v })),
-              activeMeta.modelPresetGroups
-            )}
-          </>
+          renderModelField(
+            t.model,
+            form.openaiModel,
+            activeMeta.modelPresets,
+            (v) => setForm((f) => ({ ...f, openaiModel: v })),
+            activeMeta.modelPresetGroups
+          )
         )}
 
         {p === "deepseek" && (
-          <>
-            <label className="flex flex-col gap-1 text-sm">
-              <span>{t.baseUrlOptional}</span>
-              <input
-                value={form.deepseekBaseUrl}
-                onChange={(e) => setForm((f) => ({ ...f, deepseekBaseUrl: e.target.value }))}
-                className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2 font-mono text-xs"
-                placeholder={activeMeta.baseUrlPlaceholder}
-              />
-              <span className="text-xs text-[var(--muted)]">
-                {t.deepseekBaseHelp}
-              </span>
-            </label>
-            {renderModelField(
-              t.model,
-              form.deepseekModel,
-              activeMeta.modelPresets,
-              (v) => setForm((f) => ({ ...f, deepseekModel: v })),
-              activeMeta.modelPresetGroups
-            )}
-          </>
+          renderModelField(
+            t.model,
+            form.deepseekModel,
+            activeMeta.modelPresets,
+            (v) => setForm((f) => ({ ...f, deepseekModel: v })),
+            activeMeta.modelPresetGroups
+          )
         )}
 
         {p === "qwen_api" && (
-          <>
-            <label className="flex flex-col gap-1 text-sm">
-              <span>{t.dashscopeBaseUrl}</span>
-              <input
-                value={form.dashscopeBaseUrl}
-                onChange={(e) => setForm((f) => ({ ...f, dashscopeBaseUrl: e.target.value }))}
-                className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2 font-mono text-xs"
-                placeholder={activeMeta.baseUrlPlaceholder}
-              />
-              <span className="text-xs text-[var(--muted)]">
-                {t.dashscopeBaseHelp}
-              </span>
-            </label>
-            {renderModelField(
-              t.dashscopeModelLabel,
-              form.dashscopeModel,
-              activeMeta.modelPresets,
-              (v) => setForm((f) => ({ ...f, dashscopeModel: v })),
-              activeMeta.modelPresetGroups
-            )}
-          </>
+          renderModelField(
+            t.dashscopeModelLabel,
+            form.dashscopeModel,
+            activeMeta.modelPresets,
+            (v) => setForm((f) => ({ ...f, dashscopeModel: v })),
+            activeMeta.modelPresetGroups
+          )
         )}
 
         {p === "anthropic" &&
@@ -808,24 +842,29 @@ export function SettingsPageContent({
             activeMeta.modelPresetGroups
           )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={testing || saving}
-            onClick={() => void handleTestConnection()}
-            className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)] disabled:opacity-50"
-          >
-            {testing ? t.testing : t.testConnection}
-          </button>
-          <span className="text-xs text-[var(--muted)]">
-            {t.testSavedSettingsHint}
-          </span>
-        </div>
-        {testResult && (
-          <p className={`text-sm ${testResult.ok ? "text-green-600" : "text-amber-600"}`}>
-            {testResult.text}
-          </p>
-        )}
+        <details className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3">
+          <summary className="cursor-pointer text-sm font-medium">{t.advancedConnection}</summary>
+          <div className="mt-4 space-y-4">
+            {isCustomModel && (
+              <label className="flex flex-col gap-1 text-sm">
+                <span>{t.customModelId}</span>
+                <input value={model} onChange={(e) => setModel(e.target.value)} className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-2 font-mono text-xs" placeholder={t.customModelPlaceholder} />
+              </label>
+            )}
+            {p === "openai" && (
+              <label className="flex flex-col gap-1 text-sm"><span>{t.baseUrlOptional}</span><input value={form.openaiBaseUrl} onChange={(e) => setForm((f) => ({ ...f, openaiBaseUrl: e.target.value }))} className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-2 font-mono text-xs" placeholder={activeMeta.baseUrlPlaceholder} /></label>
+            )}
+            {p === "deepseek" && (
+              <label className="flex flex-col gap-1 text-sm"><span>{t.baseUrlOptional}</span><input value={form.deepseekBaseUrl} onChange={(e) => setForm((f) => ({ ...f, deepseekBaseUrl: e.target.value }))} className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-2 font-mono text-xs" placeholder={activeMeta.baseUrlPlaceholder} /><span className="text-xs text-[var(--muted)]">{t.deepseekBaseHelp}</span></label>
+            )}
+            {p === "qwen_api" && (
+              <label className="flex flex-col gap-1 text-sm"><span>{t.dashscopeBaseUrl}</span><input value={form.dashscopeBaseUrl} onChange={(e) => setForm((f) => ({ ...f, dashscopeBaseUrl: e.target.value }))} className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-2 font-mono text-xs" placeholder={activeMeta.baseUrlPlaceholder} /><span className="text-xs text-[var(--muted)]">{t.dashscopeBaseHelp}</span></label>
+            )}
+            {activeMeta.billingUrl && (
+              <div className="flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-sm md:flex-row md:items-center md:justify-between"><p className="text-[var(--muted)]">{t.billingText}</p><a href={activeMeta.billingUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]">{t.billingLabels[p] || activeMeta.billingLabel || t.openBilling}</a></div>
+            )}
+          </div>
+        </details>
       </div>
     );
   }
@@ -866,240 +905,83 @@ export function SettingsPageContent({
           </div>
         )}
 
-        {!isEligibility && (
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-                {t.softwareUpdates}
-              </h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                {t.updatesDescription}
-              </p>
-            </div>
-            <button
-              type="button"
-              disabled={checkingUpdate}
-              onClick={() => void handleCheckUpdates()}
-              className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--background)] disabled:opacity-50"
-            >
-              {checkingUpdate ? t.checkingUpdates : t.checkUpdates}
-            </button>
-          </div>
-          {updateStatus && (
-            <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4 text-sm">
-              {updateStatus.ok ? (
-                <>
-                  <p className="font-medium">
-                    {updateStatus.hasUpdate
-                      ? t.newVersionAvailable(updateStatus.latestVersion)
-                      : t.upToDate(updateStatus.currentVersion)}
-                  </p>
-                  {updateStatus.hasUpdate && (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {updateStatus.installerUrl && (
-                        <a
-                          href={updateStatus.installerUrl}
-                          className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white"
-                        >
-                          {t.downloadInstaller}
-                        </a>
-                      )}
-                      {updateStatus.releaseUrl && (
-                        <a
-                          href={updateStatus.releaseUrl}
-                          className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]"
-                        >
-                          {t.openReleaseNotes}
-                        </a>
-                      )}
-                      {updateStatus.downloadPageUrl && (
-                        <a
-                          href={updateStatus.downloadPageUrl}
-                          className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)]"
-                        >
-                          {t.openDownloadPage}
-                        </a>
-                      )}
-                    </div>
-                  )}
-                  {updateStatus.hasUpdate && !updateStatus.installerUrl && (
-                    <p className="mt-2 text-amber-600">
-                      {t.latestReleaseNoInstaller}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="text-amber-600">{updateStatus.error || t.updateCheckFailed}</p>
-              )}
-            </div>
-          )}
-        </section>
-        )}
-
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-            {t.environment}
-          </h2>
-          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
-            <h3 className="text-sm font-medium">{t.gpuHeading}</h3>
-            {gpu?.ok && gpu.cuda_available ? (
-              <ul className="mt-2 list-disc pl-5 text-sm text-[var(--muted)]">
-                <li>
-                  {t.cudaAvailable(gpu.device_count, gpu.python)}
-                </li>
-                {(gpu.device_names || []).map((n, i) => (
-                  <li key={i}>
-                    [{i}] {n}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                {gpu?.error ||
-                  t.cudaNotAvailable}{" "}
-                ({gpu?.python || "python"})
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={() => void refresh()}
-              className="mt-3 text-xs text-[var(--accent)] hover:underline"
-            >
-              {t.refreshProbe}
-            </button>
-          </div>
+        <section className="sticky top-3 z-20 mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)]/95 p-4 shadow-lg backdrop-blur">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{t.currentConfiguration}</h2>
+          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <div><dt className="text-xs text-[var(--muted)]">{t.configuredProvider}</dt><dd className="mt-1 font-medium">{configuredMeta.label}</dd></div>
+            <div><dt className="text-xs text-[var(--muted)]">{t.configuredModel}</dt><dd className="mt-1 break-all font-mono text-xs">{configuredModel}</dd></div>
+            <div><dt className="text-xs text-[var(--muted)]">{t.credentialStatus}</dt><dd className={`mt-1 font-medium ${activeCredentialSaved === false ? "text-amber-600" : "text-green-600"}`}>{activeCredentialSaved === null ? t.credentialNotNeeded : activeCredentialSaved ? t.credentialSaved : t.credentialMissing}</dd></div>
+            <div><dt className="text-xs text-[var(--muted)]">{t.latestTest}</dt><dd className={`mt-1 text-xs ${testResult ? (testResult.ok ? "text-green-600" : "text-amber-600") : "text-[var(--muted)]"}`}>{testResult?.text || t.notTested}</dd></div>
+          </dl>
         </section>
 
-        <section className="mb-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-            {t.localWeights}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {t.localWeightsDescription}
-          </p>
-          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-4">
-            <p className="text-sm text-[var(--muted)]">
-              {t.defaultCache}{" "}
-              <code className="break-all text-xs text-[var(--foreground)]">{modelStatus?.path}</code>
-              {modelStatus?.installed ? (
-                <span className="ml-2 text-green-600">{t.installed}</span>
-              ) : (
-                <span className="ml-2 text-amber-600">{t.notFound}</span>
-              )}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={downloading}
-                onClick={() => void handleDownload()}
-                className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-              >
-                {downloading ? t.downloading : t.downloadQwen}
+        <form onSubmit={handlePrimaryAction} className="space-y-5">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--accent)]">{t.stepOne}</p>
+            <h2 className="mt-2 text-lg font-semibold">{t.stepOneTitle}</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">{t.stepOneDescription}</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <button type="button" onClick={() => setForm((f) => ({ ...f, llmProvider: settings?.llmProvider && settings.llmProvider !== "qwen_local" ? settings.llmProvider : "deepseek" }))} className={`rounded-xl border p-4 text-left transition-colors ${form.llmProvider !== "qwen_local" ? "border-[var(--accent)] bg-[var(--background)] ring-1 ring-[var(--accent)]" : "border-[var(--border)] hover:bg-[var(--background)]"}`}>
+                <span className="font-semibold">{t.cloudMode}</span><span className="mt-1 block text-xs leading-5 text-[var(--muted)]">{t.cloudModeDescription}</span>
               </button>
-              {modelStatus?.installed && (
-                <button
-                  type="button"
-                  onClick={useDownloadedPath}
-                  className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                >
-                  {t.useDownloadedPath}
-                </button>
+              <button type="button" onClick={() => setForm((f) => ({ ...f, llmProvider: "qwen_local" }))} className={`rounded-xl border p-4 text-left transition-colors ${form.llmProvider === "qwen_local" ? "border-[var(--accent)] bg-[var(--background)] ring-1 ring-[var(--accent)]" : "border-[var(--border)] hover:bg-[var(--background)]"}`}>
+                <span className="font-semibold">{t.localMode}</span><span className="mt-1 block text-xs leading-5 text-[var(--muted)]">{t.localModeDescription}</span>
+              </button>
+            </div>
+            {form.llmProvider !== "qwen_local" && (
+              <label className="mt-5 flex flex-col gap-1.5 text-sm"><span className="font-medium">{t.provider}</span><select value={form.llmProvider} onChange={(e) => setForm((f) => ({ ...f, llmProvider: e.target.value as LlmProviderId }))} className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5">{PROVIDER_LIST.filter((meta) => meta.id !== "qwen_local").map((meta) => <option key={meta.id} value={meta.id}>{meta.label}</option>)}</select><span className="text-xs leading-5 text-[var(--muted)]">{activeMeta.description}</span></label>
+            )}
+          </section>
+
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--accent)]">{t.stepTwo}</p>
+            <h2 className="mt-2 text-lg font-semibold">{t.stepTwoTitle}</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">{form.llmProvider === "qwen_local" ? t.stepTwoLocalDescription : t.stepTwoCloudDescription}</p>
+            <div className="mt-5">
+              {renderCloudPanel()}
+              {form.llmProvider === "qwen_local" && (
+                <label className="flex flex-col gap-1 text-sm"><span>{t.qwenModelLabel}</span><input value={form.qwenModel} onChange={(e) => setForm((f) => ({ ...f, qwenModel: e.target.value }))} className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-2 font-mono text-xs" /></label>
               )}
             </div>
-            {downloadLog && (
-              <pre className="mt-3 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-black/30 p-2 text-xs">
-                {downloadLog}
-              </pre>
-            )}
-          </div>
-        </section>
+          </section>
 
-        <form
-          onSubmit={handleSave}
-          className="space-y-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-        >
-          <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">
-              {t.inferenceBackend}
-            </h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              {inferenceDescription}
-            </p>
-          </div>
-
-          <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium">{t.provider}</span>
-            <select
-              value={form.llmProvider}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  llmProvider: e.target.value as LlmProviderId,
-                }))
-              }
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5"
-            >
-              {PROVIDER_LIST.map((meta) => (
-                <option key={meta.id} value={meta.id}>
-                  {meta.label}
-                </option>
-              ))}
-            </select>
-            <p className="text-[var(--muted)]">{activeMeta.description}</p>
-          </label>
-
-          {renderCloudPanel()}
-
-          {form.llmProvider === "qwen_local" && (
-            <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
-              <label className="flex flex-col gap-1 text-sm">
-                <span>{t.qwenModelLabel}</span>
-                <input
-                  value={form.qwenModel}
-                  onChange={(e) => setForm((f) => ({ ...f, qwenModel: e.target.value }))}
-                  className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2 font-mono text-xs"
-                />
-              </label>
-            </div>
-          )}
-
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
-            <h3 className="text-sm font-medium">{t.deviceTitle}</h3>
-            <label className="mt-3 flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={form.useCpu}
-                onChange={(e) => setForm((f) => ({ ...f, useCpu: e.target.checked }))}
-              />
-              {t.forceCpu}
-            </label>
-            {!form.useCpu && (
-              <label className="mt-3 flex flex-col gap-1 text-sm">
-                <span>{t.cudaDeviceIndex}</span>
-                <input
-                  value={form.cudaDevice}
-                  onChange={(e) => setForm((f) => ({ ...f, cudaDevice: e.target.value }))}
-                  className="w-24 rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2"
-                />
-              </label>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {saving ? t.saving : t.saveSettings}
-          </button>
-          {saveOk && !error ? (
-            <p className="text-sm text-green-600">{t.saveOk}</p>
-          ) : null}
-          {error ? (
-            <p className="text-sm text-red-500">{error}</p>
-          ) : null}
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--accent)]">{t.stepThree}</p>
+            <h2 className="mt-2 text-lg font-semibold">{t.stepThreeTitle}</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">{form.llmProvider === "qwen_local" ? t.stepThreeLocalDescription : t.stepThreeCloudDescription}</p>
+            <button type="submit" disabled={saving || testing} className="mt-5 w-full rounded-lg bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 sm:w-auto">
+              {saving ? t.saving : testing ? t.testing : form.llmProvider === "qwen_local" ? t.saveAndCheckLocal : t.saveAndTest}
+            </button>
+            {saveOk && !testResult && !error ? <p className="mt-3 text-sm text-green-600">{t.saveOk}</p> : null}
+            {testResult ? <p className={`mt-3 text-sm ${testResult.ok ? "text-green-600" : "text-amber-600"}`}>{testResult.text}</p> : null}
+          </section>
         </form>
+
+        <details className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+          <summary className="cursor-pointer text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">{t.advancedMaintenance}</summary>
+          <div className="mt-5 space-y-5">
+            {form.llmProvider === "qwen_local" && (
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4"><h3 className="text-sm font-medium">{t.deviceTitle}</h3><label className="mt-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={form.useCpu} onChange={(e) => setForm((f) => ({ ...f, useCpu: e.target.checked }))} />{t.forceCpu}</label>{!form.useCpu && <label className="mt-3 flex flex-col gap-1 text-sm"><span>{t.cudaDeviceIndex}</span><input value={form.cudaDevice} onChange={(e) => setForm((f) => ({ ...f, cudaDevice: e.target.value }))} className="w-24 rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-2" /></label>}</div>
+            )}
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+              <h3 className="text-sm font-medium">{t.gpuHeading}</h3>
+              {gpu?.ok && gpu.cuda_available ? <ul className="mt-2 list-disc pl-5 text-sm text-[var(--muted)]"><li>{t.cudaAvailable(gpu.device_count, gpu.python)}</li>{(gpu.device_names || []).map((n, i) => <li key={i}>[{i}] {n}</li>)}</ul> : <p className="mt-2 text-sm text-[var(--muted)]">{gpu?.error || t.cudaNotAvailable} ({gpu?.python || "python"})</p>}
+              <button type="button" onClick={() => void refresh()} className="mt-3 text-xs text-[var(--accent)] hover:underline">{t.refreshProbe}</button>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+              <h3 className="text-sm font-medium">{t.localWeights}</h3><p className="mt-1 text-sm text-[var(--muted)]">{t.localWeightsDescription}</p>
+              <p className="mt-3 text-sm text-[var(--muted)]">{t.defaultCache} <code className="break-all text-xs text-[var(--foreground)]">{modelStatus?.path}</code>{modelStatus?.installed ? <span className="ml-2 text-green-600">{t.installed}</span> : <span className="ml-2 text-amber-600">{t.notFound}</span>}</p>
+              <div className="mt-3 flex flex-wrap gap-2"><button type="button" disabled={downloading} onClick={() => void handleDownload()} className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white disabled:opacity-50">{downloading ? t.downloading : t.downloadQwen}</button>{modelStatus?.installed && <button type="button" onClick={useDownloadedPath} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm">{t.useDownloadedPath}</button>}</div>
+              {downloadLog && <pre className="mt-3 max-h-40 overflow-auto whitespace-pre-wrap rounded bg-black/30 p-2 text-xs">{downloadLog}</pre>}
+            </div>
+            {!isEligibility && (
+              <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-4">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><h3 className="text-sm font-medium">{t.softwareUpdates}</h3><p className="mt-1 text-sm text-[var(--muted)]">{t.updatesDescription}</p></div><button type="button" disabled={checkingUpdate} onClick={() => void handleCheckUpdates()} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium hover:bg-[var(--surface)] disabled:opacity-50">{checkingUpdate ? t.checkingUpdates : t.checkUpdates}</button></div>
+                {updateStatus && <div className="mt-4 text-sm">{updateStatus.ok ? <><p className="font-medium">{updateStatus.hasUpdate ? t.newVersionAvailable(updateStatus.latestVersion) : t.upToDate(updateStatus.currentVersion)}</p>{updateStatus.hasUpdate && <div className="mt-3 flex flex-wrap gap-2">{updateStatus.installerUrl && <a href={updateStatus.installerUrl} className="rounded-lg bg-[var(--accent)] px-3 py-2 text-white">{t.downloadInstaller}</a>}{updateStatus.releaseUrl && <a href={updateStatus.releaseUrl} className="rounded-lg border border-[var(--border)] px-3 py-2">{t.openReleaseNotes}</a>}{updateStatus.downloadPageUrl && <a href={updateStatus.downloadPageUrl} className="rounded-lg border border-[var(--border)] px-3 py-2">{t.openDownloadPage}</a>}</div>}{updateStatus.hasUpdate && !updateStatus.installerUrl && <p className="mt-2 text-amber-600">{t.latestReleaseNoInstaller}</p>}</> : <p className="text-amber-600">{updateStatus.error || t.updateCheckFailed}</p>}</div>}
+              </div>
+            )}
+          </div>
+        </details>
       </div>
     </div>
   );
