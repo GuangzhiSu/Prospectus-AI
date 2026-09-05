@@ -38,6 +38,8 @@ from prompts.composer import (
 )
 from prompts.paths import resolve_requirements_path
 from prospectus_graph.graph import build_section_graph
+from prospectus_graph.execution_contract import contract_for_section
+from prospectus_graph.evaluation import clean_annotated_draft
 from prospectus_graph.timetable_template import render_timetable_template
 from prospectus_graph.retrievers import (
     HybridRetriever,
@@ -108,7 +110,9 @@ def _should_run_llm_review(
     """Risk-based reviewer policy; the post-revision pass is deterministic only."""
     if revision_count > 0:
         return False
-    mode = os.environ.get("AGENT2_REVIEW_MODE", "risk_based").strip().lower()
+    # Deterministic verification is the default contract.  The legacy model
+    # reviewer is opt-in and never contributes to deterministic scoring.
+    mode = os.environ.get("AGENT2_REVIEW_MODE", "none").strip().lower()
     if mode == "all":
         return True
     if mode in {"none", "off", "0", "false"}:
@@ -572,15 +576,17 @@ class AssemblerNode:
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         section_name = state["section_name"]
-        text = strip_model_reasoning(
-            state.get("verified_text") or state.get("draft_text", "")
+        annotated_text = strip_model_reasoning(
+            state.get("annotated_text")
+            or state.get("verified_text")
+            or state.get("draft_text", "")
         )
-        from prospectus_graph.output_bundle import strip_verification_notes
-
-        text = strip_verification_notes(text)
+        annotated_text = _normalize_section_markdown(annotated_text, section_name)
+        text = state.get("clean_text") or clean_annotated_draft(annotated_text)
         text = _normalize_section_markdown(text, section_name)
         safe_name = section_name.replace(" ", "_").replace("&", "and")
         out_file = self.output_dir / f"section_{section_id}_{safe_name}.md"
+        annotated_file = self.output_dir / f"section_{section_id}_{safe_name}.annotated.md"
 
         manifest_path = Path(state.get("rag_dir", "")) / "manifest.json"
         mp = manifest_path if manifest_path.is_file() else None
@@ -604,9 +610,17 @@ class AssemblerNode:
         with open(out_file, "w", encoding="utf-8") as f:
             f.write(f"# Section {section_id}: {section_name}\n\n")
             f.write(text)
+        with open(annotated_file, "w", encoding="utf-8") as f:
+            f.write(f"# Section {section_id}: {section_name}\n\n")
+            f.write(annotated_text)
         print(f"Saved: {out_file}")
 
-        result = {"output_file": str(out_file)}
+        result = {
+            "output_file": str(out_file),
+            "annotated_output_file": str(annotated_file),
+            "annotated_text": annotated_text,
+            "clean_text": text,
+        }
         if self.combine_immediately:
             _append_to_all_sections(
                 self.output_dir,
@@ -674,6 +688,8 @@ def _load_existing_sections(out_path: Path) -> dict[str, str]:
     """Load section_id -> body from section_*.md files."""
     existing: dict[str, str] = {}
     for path in out_path.glob("section_*.md"):
+        if path.name.endswith(".annotated.md"):
+            continue
         name = path.stem
         for sid, sname in SECTIONS:
             safe = sname.replace(" ", "_").replace("&", "and")
@@ -957,6 +973,8 @@ def _rebuild_all_sections(out_path: Path) -> None:
     combined_path = out_path / "all_sections.md"
     existing: dict[str, str] = {}
     for path in out_path.glob("section_*.md"):
+        if path.name.endswith(".annotated.md"):
+            continue
         name = path.stem
         for sid, sname in SECTIONS:
             safe = sname.replace(" ", "_").replace("&", "and")
@@ -1119,10 +1137,12 @@ def _run_section_graph(
     model_name: str,
     combine_immediately: bool,
     only_sections_up_to: str | None,
+    assemble: bool = True,
+    allow_llm_planner: bool = True,
     model: Any = None,
     tokenizer: Any = None,
 ) -> SectionDraftState:
-    use_planner = _planner_enabled(
+    use_planner = allow_llm_planner and _planner_enabled(
         section_state["section_id"], section_state.get("rag_dir", "")
     )
     graph = build_section_graph(
@@ -1142,10 +1162,14 @@ def _run_section_graph(
             model=model,
             tokenizer=tokenizer,
         ),
-        assembler_node=AssemblerNode(
-            output_dir=output_dir,
-            combine_immediately=combine_immediately,
-            only_sections_up_to=only_sections_up_to,
+        assembler_node=(
+            AssemblerNode(
+                output_dir=output_dir,
+                combine_immediately=combine_immediately,
+                only_sections_up_to=only_sections_up_to,
+            )
+            if assemble
+            else _InMemoryAssemblerNode()
         ),
         planner_node=SectionPlannerAgent(
             model_name=model_name,
@@ -1154,6 +1178,172 @@ def _run_section_graph(
         ) if use_planner else None,
     )
     return graph.invoke(section_state)
+
+
+class _InMemoryAssemblerNode:
+    """Terminate a unit graph without persisting a partial section."""
+
+    def __call__(self, state: SectionDraftState) -> dict:
+        return {}
+
+
+def _text_with_unit_heading(text: str, title: str) -> str:
+    import re
+
+    body = (text or "").strip()
+    if not body:
+        body = "[●]"
+    first = body.splitlines()[0].strip() if body else ""
+    heading = re.sub(r"^#{1,6}\s*", "", first).strip().casefold()
+    normalized_title = title.strip().casefold()
+    if first.startswith("#") and (
+        heading == normalized_title
+        or normalized_title in heading
+        or heading in normalized_title
+    ):
+        return body
+    return f"## {title}\n\n{body}"
+
+
+def _unit_contract_requirements(
+    *,
+    base_requirements: str,
+    unit: Any,
+    contract: Any,
+) -> str:
+    field_by_id = {field.field_id: field for field in contract.fields}
+    required_fields = [
+        field_by_id[field_id]
+        for field_id in unit.required_field_ids
+        if field_id in field_by_id
+    ]
+    field_lines = [
+        f"- {field.field_id}: {field.label}"
+        for field in required_fields
+    ] or ["- No section-specific required field; use only routed evidence."]
+    table_lines = [f"- {item}" for item in unit.table_requirements] or ["- None."]
+    return (
+        f"{base_requirements.rstrip()}\n\n"
+        "SECTION EXECUTION UNIT (deterministic contract)\n"
+        f"Unit: {unit.title}\n"
+        f"Order: {unit.order} of {len(contract.units)}\n"
+        f"Instruction: {unit.instruction}\n"
+        f"Target length: up to {unit.target_characters} characters, but never pad missing evidence with generic prose.\n\n"
+        "Required evidence fields routed to this unit:\n"
+        + "\n".join(field_lines)
+        + "\n\nTable requirements:\n"
+        + "\n".join(table_lines)
+        + "\n\nDraft this unit only. Preserve every supplied amount, percentage, date, unit, "
+        "period and material table row exactly. Do not infer WVR, Chapter 18C, "
+        "pre-commercial status, compliance status, transaction mechanics, names, "
+        "dates or figures from market practice. Use [●] where required evidence is "
+        "absent. Keep evidence citations and verification markers in the annotated output."
+    )
+
+
+def _run_contract_section(
+    *,
+    state: SectionDraftState,
+    requirements_map: dict[str, dict],
+    retriever: SectionAwareRAGRetriever | HybridRetriever,
+    output_dir: str | Path,
+    model_name: str,
+    combine_immediately: bool,
+    only_sections_up_to: str | None,
+    model: Any = None,
+    tokenizer: Any = None,
+) -> SectionDraftState:
+    """Run one section using the same deterministic unit contract as the web UI."""
+
+    contract = contract_for_section(requirements_map, state["section_id"])
+    if contract is None or not contract.is_long_section or len(contract.units) <= 1:
+        return _run_section_graph(
+            section_state=state,
+            retriever=retriever,
+            output_dir=output_dir,
+            model_name=model_name,
+            combine_immediately=combine_immediately,
+            only_sections_up_to=only_sections_up_to,
+            model=model,
+            tokenizer=tokenizer,
+        )
+
+    section_id = state["section_id"]
+    section_name = state["section_name"]
+    _emit_phase_start(section_id, "contract_plan")
+    _emit_phase_end(
+        section_id,
+        "contract_plan",
+        summary=f"{len(contract.units)} deterministic units; contract {contract.source_hash[:12]}",
+    )
+
+    annotated_parts: list[str] = []
+    clean_parts: list[str] = []
+    issues: list[dict[str, Any]] = []
+    for unit in contract.units:
+        unit_state = dict(state)
+        unit_context_default = max(int(state.get("max_context_chars", 0)), 90000)
+        try:
+            unit_state["max_context_chars"] = int(
+                os.environ.get("AGENT2_UNIT_MAX_CONTEXT_CHARS", unit_context_default)
+            )
+        except ValueError:
+            unit_state["max_context_chars"] = unit_context_default
+        unit_state["section_name"] = f"{section_name} — {unit.title}"
+        unit_state["requirements"] = _unit_contract_requirements(
+            base_requirements=state["requirements"],
+            unit=unit,
+            contract=contract,
+        )
+        unit_state["kg_typical_structure"] = []
+        unit_state["planner_outline"] = unit.instruction
+        unit_state["planner_fact_mapping"] = {
+            unit.title: list(unit.required_field_ids)
+        }
+        unit_state["revision_count"] = 0
+        result = _run_section_graph(
+            section_state=unit_state,
+            retriever=retriever,
+            output_dir=output_dir,
+            model_name=model_name,
+            combine_immediately=False,
+            only_sections_up_to=None,
+            assemble=False,
+            allow_llm_planner=False,
+            model=model,
+            tokenizer=tokenizer,
+        )
+        raw = result.get("verified_text") or result.get("draft_text", "")
+        annotated_parts.append(_text_with_unit_heading(raw, unit.title))
+        clean_parts.append(
+            _text_with_unit_heading(clean_annotated_draft(raw), unit.title)
+        )
+        issues.extend(result.get("verification_issues") or [])
+
+    annotated = "\n\n".join(annotated_parts).strip() + "\n"
+    clean = "\n\n".join(clean_parts).strip() + "\n"
+    final_state = dict(state)
+    final_state.update(
+        {
+            "annotated_text": annotated,
+            "clean_text": clean,
+            "verified_text": annotated,
+            "draft_text": clean,
+            "verification_issues": issues,
+            "verifier_passed": not any(
+                issue.get("severity") in {"blocker", "high"} for issue in issues
+            ),
+            "contract_version": contract.to_dict()["version"],
+            "contract_source_hash": contract.source_hash,
+        }
+    )
+    persisted = AssemblerNode(
+        output_dir=output_dir,
+        combine_immediately=combine_immediately,
+        only_sections_up_to=only_sections_up_to,
+    )(final_state)
+    final_state.update(persisted)
+    return final_state
 
 
 def _resolve_issuer_metadata_path(explicit: Path | None) -> Path | None:
@@ -1279,8 +1469,9 @@ def run_agent2_single(
     else:
         print(f"LLM_PROVIDER={_llm_provider()}; using cloud API (no local Qwen load).")
 
-    result = _run_section_graph(
-        section_state=state,
+    result = _run_contract_section(
+        state=state,
+        requirements_map=requirements_map,
         retriever=retriever,
         output_dir=out_path,
         model_name=model_name,
@@ -1289,7 +1480,7 @@ def run_agent2_single(
         model=model,
         tokenizer=tokenizer,
     )
-    out_text = result.get("verified_text") or result.get("draft_text", "")
+    out_text = result.get("clean_text") or result.get("verified_text") or result.get("draft_text", "")
     if finalize_bundle:
         _rebuild_all_sections(out_path)
         _finalize_output_bundle(out_path, meta_path)
@@ -1370,8 +1561,9 @@ def run_agent2(
                     max_revision_loops=max_revision_loops,
                     issuer_metadata_path=meta_path,
                 )
-                result = _run_section_graph(
-                    section_state=state,
+                result = _run_contract_section(
+                    state=state,
+                    requirements_map=requirements_map,
                     retriever=retriever,
                     output_dir=out_path,
                     model_name=model_name,
@@ -1380,7 +1572,7 @@ def run_agent2(
                     model=model,
                     tokenizer=tokenizer,
                 )
-                results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+                results[section_id] = result.get("clean_text") or result.get("verified_text") or result.get("draft_text", "")
         else:
             state = _build_section_state(
                 section_id=section_id,
@@ -1392,8 +1584,9 @@ def run_agent2(
                 max_revision_loops=max_revision_loops,
                 issuer_metadata_path=meta_path,
             )
-            result = _run_section_graph(
-                section_state=state,
+            result = _run_contract_section(
+                state=state,
+                requirements_map=requirements_map,
                 retriever=retriever,
                 output_dir=out_path,
                 model_name=model_name,
@@ -1402,7 +1595,7 @@ def run_agent2(
                 model=model,
                 tokenizer=tokenizer,
             )
-            results[section_id] = result.get("verified_text") or result.get("draft_text", "")
+            results[section_id] = result.get("clean_text") or result.get("verified_text") or result.get("draft_text", "")
         # Rebuild all_sections.md after each section so UI can show incremental progress
         _rebuild_all_sections(out_path)
         _emit_section_done(section_id)

@@ -482,8 +482,8 @@ class HybridRetriever:
         rag_dir: str | Path,
         *,
         section_mapping: dict[str, list[str]] | None = None,
-        text_limit_chars: int = 8000,
-        fact_limit: int = 80,
+        text_limit_chars: int = 70000,
+        fact_limit: int = 300,
         use_semantic: bool = True,
     ):
         self.rag_dir = Path(rag_dir)
@@ -834,7 +834,10 @@ class HybridRetriever:
         preferred_ids = set(self.section_mapping.get(section_id, []))
 
         text_chunks = self._get_text_chunks()
-        text_budget = min(self.text_limit_chars, max(4000, max_context_chars // 2))
+        text_budget = min(
+            self.text_limit_chars,
+            max(4000, int(max_context_chars * 0.75)),
+        )
         text_evidence_raw = self._select_text_schema_aware(
             text_chunks,
             section_id=section_id,

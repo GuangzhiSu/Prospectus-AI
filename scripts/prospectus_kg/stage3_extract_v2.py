@@ -120,23 +120,22 @@ _FEWSHOT_EXAMPLES: list[dict[str, Any]] = [
     {
         "section_id": "Cover",
         "section_text_preview": (
-            "SenseTime Group Inc. (a company controlled through weighted voting rights "
-            "and incorporated in the Cayman Islands with limited liability). Stock code: 20. "
-            "Sole Sponsor: China International Capital Corporation Hong Kong Securities Limited."
+            "Example Issuer Limited (a company incorporated in Example Jurisdiction "
+            "with limited liability). Stock code: 0000. Sole Sponsor: Example Sponsor Limited."
         ),
         "output": {
             "values": {
                 "Issuer Name": {
-                    "value": "SenseTime Group Inc.",
-                    "span_preview": "SenseTime Group Inc. (a company controlled through weighted voting rights)",
+                    "value": "Example Issuer Limited",
+                    "span_preview": "Example Issuer Limited (a company incorporated in Example Jurisdiction)",
                 },
                 "Corporate Structure": {
-                    "value": "Incorporated in the Cayman Islands with limited liability; controlled through weighted voting rights.",
-                    "span_preview": "a company controlled through weighted voting rights and incorporated in the Cayman Islands with limited liability",
+                    "value": "Incorporated in Example Jurisdiction with limited liability.",
+                    "span_preview": "a company incorporated in Example Jurisdiction with limited liability",
                 },
                 "Joint Sponsors": {
-                    "value": "China International Capital Corporation Hong Kong Securities Limited",
-                    "span_preview": "Sole Sponsor: China International Capital Corporation Hong Kong Securities Limited",
+                    "value": "Example Sponsor Limited",
+                    "span_preview": "Sole Sponsor: Example Sponsor Limited",
                 },
             },
             "null_reasons": {"Offering Type": "only 'Global Offering' stock code visible; no split between HK / International tranche in this excerpt"},

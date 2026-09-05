@@ -7,6 +7,18 @@ export type DeveloperSectionSummary = {
   preparedDataCharacters: number;
   rcaReady: boolean;
   promptId?: string;
+  contractCoverage?: ContractCoverage;
+  contractVersion?: string;
+  contractSourceHash?: string;
+};
+
+export type ContractCoverage = {
+  required: number;
+  applicable: number;
+  populated: number;
+  percent: number;
+  evidenceAtoms?: number;
+  sectionUnits?: number;
 };
 
 export type DeveloperCompanySummary = {
@@ -24,6 +36,22 @@ export type DeveloperDatasetIndex = {
   companyCount: number;
   promptCount: number;
   groundTruthAudit?: Record<string, number>;
+  executionContractAudit?: Record<string, string | number>;
+  benchmarkSplit?: {
+    method: string;
+    trainingCompanyCount: number;
+    holdoutCompanyCount: number;
+    holdoutCompanyIds: string[];
+  };
+  sectionProfiles?: Record<
+    string,
+    {
+      source: string;
+      sampleCount: number;
+      lengthCharacters: { p25: number; median: number; p75: number };
+      commonOutline: string[];
+    }
+  >;
   companies: DeveloperCompanySummary[];
 };
 
@@ -61,6 +89,39 @@ export type DeveloperPrompt = {
   name: string;
   requirements: string;
   prompt: string;
+  executionContract?: SectionExecutionContract;
+};
+
+export type EvidenceFieldContract = {
+  fieldId: string;
+  label: string;
+  aliases: string[];
+  required: boolean;
+  description?: string;
+};
+
+export type SectionUnitPlan = {
+  unitId: string;
+  order: number;
+  title: string;
+  instruction: string;
+  requiredFieldIds: string[];
+  tableRequirements: string[];
+  targetCharacters: number;
+  evidenceAtomIds?: string[];
+  evidenceAtomCount?: number;
+};
+
+export type SectionExecutionContract = {
+  version: string;
+  promptId: string;
+  sectionId: string;
+  sectionName: string;
+  generationMode: string;
+  isLongSection: boolean;
+  fields: EvidenceFieldContract[];
+  units: SectionUnitPlan[];
+  sourceHash: string;
 };
 
 export type DeveloperPromptOverride = {
@@ -92,6 +153,11 @@ export type DeveloperToolsHealth = {
     auditPassed?: number;
     auditFailed?: number;
     sampleReadable?: boolean;
+    contractVersion?: string;
+    contractCount?: number;
+    shortSectionCoveragePercent?: number;
+    longSectionCoveragePercent?: number;
+    structureProfileCount?: number;
     error?: string;
   };
   promptSync: {
@@ -129,7 +195,68 @@ export type ModelConfig = {
   baseUrl?: string;
 };
 
-export type RcaAttribution = "data_incomplete" | "prompt_incomplete" | "model_limitation";
+export type RcaAttribution =
+  | "data_incomplete"
+  | "prompt_incomplete"
+  | "prompt_or_workflow"
+  | "model_limitation"
+  | "none";
+
+export type DeterministicEvaluation = {
+  overallScore: number;
+  inputFieldCoverage: number;
+  requiredFactRecall: number;
+  numericFidelity: { precision: number; recall: number };
+  groundedClaimPrecision: number;
+  structureCoverage: number;
+  outlineOrderSimilarity: number;
+  referenceOutlineSimilarity: number;
+  lengthProfile: number;
+  placeholderIntegrity: number;
+  crossSectionConsistency: number;
+  hardFailures: string[];
+  missingFields: string[];
+  missingFacts: string[];
+  unsupportedNumbers: string[];
+  unsupportedDates: string[];
+  unsupportedEntities: string[];
+  rootCause: RcaAttribution;
+};
+
+export type RcaRunManifest = {
+  contractVersion: string;
+  contractSourceHash: string;
+  promptSha: string;
+  datasetGeneratedAt?: string;
+  dataAuditVersion?: string;
+  structureProfileSource?: string;
+  model: string;
+  provider: ModelProviderId;
+};
+
+export type RcaPlanResponse = {
+  companyId: string;
+  companyName: string;
+  sectionId: string;
+  sectionName: string;
+  contract: SectionExecutionContract;
+  units: SectionUnitPlan[];
+  inputCoverage: ContractCoverage;
+  promptSha: string;
+  structureProfile?: NonNullable<DeveloperDatasetIndex["sectionProfiles"]>[string];
+};
+
+export type RcaUnitResult = {
+  unitId: string;
+  annotatedDraft: string;
+  cleanDraft: string;
+  deterministicEvaluation: DeterministicEvaluation;
+  revisionApplied: boolean;
+  verificationIssues: string[];
+  model: string;
+  provider: ModelProviderId;
+  generatedAt: string;
+};
 
 export type RcaDiagnosis = {
   primaryAttribution: RcaAttribution;
@@ -150,6 +277,12 @@ export type RcaDiagnosis = {
 
 export type RcaCaseResult = {
   generatedOutput: string;
+  cleanDraft?: string;
+  annotatedDraft?: string;
+  deterministicEvaluation?: DeterministicEvaluation;
+  runManifest?: RcaRunManifest;
+  legacyModelJudge?: RcaDiagnosis;
+  legacyModelJudgeError?: string;
   diagnosis: RcaDiagnosis;
   model: string;
   provider: ModelProviderId;

@@ -68,5 +68,10 @@ class SectionDraftState(TypedDict, total=False):
     verification_issues: list[VerificationIssue]
     verifier_passed: bool
     verified_text: str
+    annotated_text: str
+    clean_text: str
+    contract_version: str
+    contract_source_hash: str
     output_file: str
+    annotated_output_file: str
     combined_output_file: str

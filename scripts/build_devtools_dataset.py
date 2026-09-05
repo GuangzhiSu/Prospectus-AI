@@ -10,9 +10,11 @@ prepared section inputs used by the generation pipeline.
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 import re
 import sys
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -38,6 +40,7 @@ PROMPT_REQUIREMENTS = ROOT / "ai-module" / "prompts" / "sections" / "requirement
 WRITER_TEMPLATE = ROOT / "ai-module" / "prompts" / "agents" / "writer.txt"
 EXCHANGE_RULES = ROOT / "ai-module" / "prompts" / "core" / "exchange_drafting.md"
 AI_TAGS = ROOT / "ai-module" / "prompts" / "core" / "ai_tags.md"
+EXECUTION_CONTRACTS = ROOT / "ai-module" / "prompts" / "sections" / "execution_contracts.json"
 OUT_DIR = ROOT / "frontend" / "web" / "devtools-data"
 AUDIT_REPORT = ROOT / "prospectus_kg_output" / "ground_truth_audit.json"
 
@@ -243,6 +246,41 @@ def file_entry(path: Path, category: str, root: Path = ROOT, **extra: Any) -> di
     }
 
 
+def developer_prepared_data(prepared: dict[str, Any]) -> dict[str, Any]:
+    """Remove duplicate arrays while preserving every runtime EvidenceAtom.
+
+    The private enrichment record intentionally exposes compatibility aliases.
+    Shipping those aliases would serialize each atom two or three times in the
+    Vercel payload. Developer Tools consumes ``value`` and the top-level arrays,
+    so the compact form is lossless for planning, generation and evaluation.
+    """
+
+    compact = dict(prepared)
+    atoms = []
+    for atom in prepared.get("evidence_atoms") or []:
+        item = dict(atom)
+        if item.get("text") == item.get("value"):
+            item.pop("text", None)
+        atoms.append(item)
+    compact["evidence_atoms"] = atoms
+    materials = prepared.get("extracted_source_materials")
+    if isinstance(materials, dict):
+        compact["extracted_source_materials"] = {
+            key: value
+            for key, value in materials.items()
+            if key
+            not in {
+                "key_numeric_facts",
+                "key_narrative_points",
+                "evidence_atoms",
+                "section_units",
+                "term_definitions",
+                "source_excerpt_blocks",
+            }
+        }
+    return compact
+
+
 def section_payload(document_id: str, toc: dict[str, Any]) -> list[dict[str, Any]]:
     prepared_dir = INPUT_DIR / document_id
     grouped: dict[str, dict[str, Any]] = {}
@@ -302,7 +340,44 @@ def section_payload(document_id: str, toc: dict[str, Any]) -> list[dict[str, Any
                 "before building the Developer Tools dataset."
             )
         item["referenceText"] = reference_text
+        prepared = developer_prepared_data(prepared)
         item["preparedData"] = prepared
+        contract_values = prepared.get("contract_values") if isinstance(prepared, dict) else {}
+        if not isinstance(contract_values, dict):
+            contract_values = {}
+        applicable_values = [
+            value
+            for value in contract_values.values()
+            if not (
+                isinstance(value, dict)
+                and (
+                    value.get("applicable") is False
+                    or value.get("evidence_status") == "not_applicable"
+                )
+            )
+        ]
+        populated_values = [
+            value
+            for value in applicable_values
+            if (
+                value.get("value") if isinstance(value, dict) else value
+            ) not in (None, "", [], {})
+        ]
+        item["contractCoverage"] = {
+            "required": len(contract_values),
+            "applicable": len(applicable_values),
+            "populated": len(populated_values),
+            "percent": round(
+                100 * len(populated_values) / max(len(applicable_values), 1), 1
+            ),
+            "evidenceAtoms": len(prepared.get("evidence_atoms") or [])
+            if isinstance(prepared, dict)
+            else 0,
+            "sectionUnits": len(prepared.get("section_units") or [])
+            if isinstance(prepared, dict)
+            else 0,
+        }
+        item["executionContract"] = prepared.get("execution_contract") or {}
         item["preparedDataCharacters"] = len(
             json.dumps(prepared, ensure_ascii=False, indent=2)
         )
@@ -373,8 +448,41 @@ def safe_prompt(text: str) -> str:
     return re.sub(r"\n{4,}", "\n\n\n", text).strip()
 
 
+def _percentile(values: list[int], fraction: float) -> int:
+    ordered = sorted(values)
+    if not ordered:
+        return 0
+    return ordered[round((len(ordered) - 1) * fraction)]
+
+
+def _section_profiles(
+    lengths: dict[str, list[int]],
+    outlines: dict[str, Counter[tuple[str, ...]]],
+) -> dict[str, dict[str, Any]]:
+    """Build aggregate structure targets from training companies only."""
+
+    profiles: dict[str, dict[str, Any]] = {}
+    for section_id, values in sorted(lengths.items()):
+        common_outline: tuple[str, ...] = ()
+        if outlines.get(section_id):
+            common_outline = outlines[section_id].most_common(1)[0][0]
+        profiles[section_id] = {
+            "source": "training_split_aggregate_v1",
+            "sampleCount": len(values),
+            "lengthCharacters": {
+                "p25": _percentile(values, 0.25),
+                "median": _percentile(values, 0.50),
+                "p75": _percentile(values, 0.75),
+            },
+            "commonOutline": list(common_outline),
+        }
+    return profiles
+
+
 def build_prompts() -> list[dict[str, Any]]:
     requirements = load_json(PROMPT_REQUIREMENTS, {})
+    contracts_document = load_json(EXECUTION_CONTRACTS, {})
+    contracts = contracts_document.get("contracts") or {}
     template = WRITER_TEMPLATE.read_text(encoding="utf-8")
     template = template.replace("{{exchange_drafting}}", EXCHANGE_RULES.read_text(encoding="utf-8").strip())
     template = template.replace("{{ai_tags}}", AI_TAGS.read_text(encoding="utf-8").strip())
@@ -393,6 +501,7 @@ def build_prompts() -> list[dict[str, Any]]:
                 "name": item.get("name") or section_id.replace("_", " "),
                 "requirements": item.get("requirements") or "",
                 "prompt": safe_prompt(current),
+                "executionContract": contracts.get(prompt_id),
             }
         )
     return prompts
@@ -431,6 +540,12 @@ def require_valid_ground_truth() -> dict[str, Any]:
 
 def main() -> None:
     audit_summary = require_valid_ground_truth()
+    contracts_document = load_json(EXECUTION_CONTRACTS, {})
+    if contracts_document.get("contractCount") != 31:
+        raise RuntimeError(
+            "Execution contracts are missing or stale. Run "
+            "scripts/prospectus_kg/sync_section_contracts.py."
+        )
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for old in OUT_DIR.glob("*.json.gz"):
         old.unlink()
@@ -441,14 +556,60 @@ def main() -> None:
     layout_sections_checked = 0
     fragmented_runs_before = 0
     fragmented_runs_after = 0
+    applicable_contract_fields = 0
+    populated_contract_fields = 0
+    long_applicable_fields = 0
+    long_populated_fields = 0
+    short_applicable_fields = 0
+    short_populated_fields = 0
+    rca_ready_sections = 0
 
-    for toc_path in sorted(TOC_DIR.glob("*.json")):
-        if toc_path.name.startswith("_"):
-            continue
+    toc_paths = [
+        path for path in sorted(TOC_DIR.glob("*.json")) if not path.name.startswith("_")
+    ]
+    ranked_ids = sorted(
+        (path.stem for path in toc_paths),
+        key=lambda value: hashlib.sha256(value.encode("utf-8")).hexdigest(),
+    )
+    holdout_ids = set(ranked_ids[:25])
+    profile_lengths: dict[str, list[int]] = defaultdict(list)
+    profile_outlines: dict[str, Counter[tuple[str, ...]]] = defaultdict(Counter)
+
+    for toc_path in toc_paths:
         document_id = toc_path.stem
         toc = load_json(toc_path, {})
         record = load_json(RECORD_DIR / f"{document_id}.json", {})
         sections = section_payload(document_id, toc)
+        for section in sections:
+            if not section["rcaReady"]:
+                continue
+            rca_ready_sections += 1
+            coverage = section.get("contractCoverage") or {}
+            applicable = int(coverage.get("applicable") or 0)
+            populated = int(coverage.get("populated") or 0)
+            applicable_contract_fields += applicable
+            populated_contract_fields += populated
+            contract_meta = section.get("executionContract") or {}
+            prompt_id = contract_meta.get("prompt_id")
+            contract = (contracts_document.get("contracts") or {}).get(prompt_id, {})
+            if contract.get("isLongSection"):
+                long_applicable_fields += applicable
+                long_populated_fields += populated
+            else:
+                short_applicable_fields += applicable
+                short_populated_fields += populated
+            if document_id not in holdout_ids:
+                profile_lengths[section["id"]].append(section["referenceCharacters"])
+                materials = section.get("preparedData", {}).get(
+                    "extracted_source_materials", {}
+                )
+                outline = tuple(
+                    str(item).strip()
+                    for item in materials.get("subsection_outline", [])
+                    if str(item).strip()
+                )
+                if outline:
+                    profile_outlines[section["id"]][outline] += 1
         layout_sections_checked += len(sections)
         fragmented_runs_before += sum(
             section["fragmentedLineRunsBefore"] for section in sections
@@ -485,6 +646,9 @@ def main() -> None:
                         "preparedDataCharacters": section["preparedDataCharacters"],
                         "rcaReady": section["rcaReady"],
                         "promptId": prompt_by_section.get(section["id"]),
+                        "contractCoverage": section["contractCoverage"],
+                        "contractVersion": section["executionContract"].get("version"),
+                        "contractSourceHash": section["executionContract"].get("source_hash"),
                     }
                     for section in sections
                 ],
@@ -502,6 +666,30 @@ def main() -> None:
             "fragmentedLineRunsBefore": fragmented_runs_before,
             "fragmentedLineRunsAfter": fragmented_runs_after,
         },
+        "executionContractAudit": {
+            "version": contracts_document.get("version"),
+            "sourceHash": contracts_document.get("sourceHash"),
+            "contractCount": contracts_document.get("contractCount"),
+            "rcaReadySections": rca_ready_sections,
+            "applicableFields": applicable_contract_fields,
+            "populatedFields": populated_contract_fields,
+            "fieldCoveragePercent": round(
+                100 * populated_contract_fields / max(applicable_contract_fields, 1), 1
+            ),
+            "shortSectionCoveragePercent": round(
+                100 * short_populated_fields / max(short_applicable_fields, 1), 1
+            ),
+            "longSectionCoveragePercent": round(
+                100 * long_populated_fields / max(long_applicable_fields, 1), 1
+            ),
+        },
+        "benchmarkSplit": {
+            "method": "stable_sha256_company_holdout_v1",
+            "trainingCompanyCount": len(companies) - len(holdout_ids),
+            "holdoutCompanyCount": len(holdout_ids),
+            "holdoutCompanyIds": sorted(holdout_ids),
+        },
+        "sectionProfiles": _section_profiles(profile_lengths, profile_outlines),
         "companies": companies,
     }
     (OUT_DIR / "index.json").write_text(
@@ -517,6 +705,10 @@ def main() -> None:
             ensure_ascii=False,
             separators=(",", ":"),
         ),
+        encoding="utf-8",
+    )
+    (OUT_DIR / "execution-contracts.json").write_text(
+        json.dumps(contracts_document, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
     print(

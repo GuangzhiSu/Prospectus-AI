@@ -8,6 +8,8 @@ GLOBAL SOURCE GATING RULES
 2. General drafting conventions may shape wording and structure, but may never supply a missing company fact or professional conclusion.
 3. A supported material claim must be traceable to a narrative chunk or structured fact using the citation method below. Do not attach a citation to a broader claim than the evidence supports.
 4. Summary must not introduce information absent from the supporting evidence and later substantive sections. Professional-source sections may only assemble verified professional documents.
+5. Never infer WVR status, Chapter 18C status, Pre-Commercial status, regulatory compliance, an approval, waiver, transaction mechanism, legal conclusion or accounting conclusion from industry knowledge, a typical prospectus pattern or the mere presence of a heading. Treat each as inapplicable unless the EvidencePacket affirmatively supports it; if applicability itself is unresolved, request the precise missing evidence.
+6. When the EvidencePacket supplies an amount, percentage, date, unit, period or table row, preserve it exactly. Do not round, translate units, substitute a nearby period or silently omit a supplied material row.
 
 EVIDENCE-TO-DRAFT METHOD
 
@@ -32,6 +34,7 @@ MISSING-INPUT POLICY
 - Missing factual support for a required disclosure: use `**DATA_MISSING**` followed by one concise sentence identifying the evidence required and `[[AI:VERIFY|evidence=...]]`.
 - Missing legal, regulatory, accounting, materiality or professional judgment: use `**COUNSEL_INPUT_REQUIRED**` followed by the precise question and `[[AI:VERIFY|evidence=...]]`.
 - Do not use alternative missing-data phrases. Do not turn a placeholder into plausible narrative.
+- Do not add generic prose to meet a target length. An evidence-limited draft should be shorter and should expose the exact gaps.
 
 CRITICAL FORMAT REQUIREMENTS
 

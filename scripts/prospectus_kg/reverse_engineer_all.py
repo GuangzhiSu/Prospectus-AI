@@ -9,7 +9,7 @@ For each historical prospectus, produces:
         manifest.json        (aggregate of both)
 
 Usage:
-    python scripts/prospectus_kg/reverse_engineer_all.py --only 00020_global_offering_2
+    python scripts/prospectus_kg/reverse_engineer_all.py --only <document_id>
     python scripts/prospectus_kg/reverse_engineer_all.py --limit 10
     python scripts/prospectus_kg/reverse_engineer_all.py --docs '0002*'
 """

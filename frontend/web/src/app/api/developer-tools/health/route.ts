@@ -35,6 +35,7 @@ export async function GET() {
       ? await loadDeveloperCompany(index.companies[0].id)
       : null;
     const audit = index.groundTruthAudit || {};
+    const contractAudit = index.executionContractAudit || {};
     const sectionCount = index.companies.reduce(
       (total, company) => total + company.sectionCount,
       0
@@ -43,6 +44,10 @@ export async function GET() {
       ready:
         index.companyCount === index.companies.length &&
         Number(audit.failed || 0) === 0 &&
+        Number(contractAudit.contractCount || 0) === 31 &&
+        Number(contractAudit.shortSectionCoveragePercent || 0) >= 95 &&
+        Number(contractAudit.longSectionCoveragePercent || 0) >= 90 &&
+        Object.keys(index.sectionProfiles || {}).length === 31 &&
         Boolean(sample?.sections.length),
       companyCount: index.companyCount,
       sectionCount,
@@ -50,6 +55,11 @@ export async function GET() {
       auditPassed: Number(audit.passed || 0),
       auditFailed: Number(audit.failed || 0),
       sampleReadable: Boolean(sample?.sections.length),
+      contractVersion: String(contractAudit.version || ""),
+      contractCount: Number(contractAudit.contractCount || 0),
+      shortSectionCoveragePercent: Number(contractAudit.shortSectionCoveragePercent || 0),
+      longSectionCoveragePercent: Number(contractAudit.longSectionCoveragePercent || 0),
+      structureProfileCount: Object.keys(index.sectionProfiles || {}).length,
     };
   } catch (error) {
     dataset = {

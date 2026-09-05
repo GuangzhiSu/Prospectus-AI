@@ -235,4 +235,13 @@ def test_enrich_input_records_recovers_a_missing_section_record(tmp_path):
     )
     assert recovered["extraction_status"] == "deterministic_source_materials_only"
     assert recovered["extracted_source_materials"]["char_count"] > 0
-    assert recovered["extracted_source_materials"]["source_excerpt_blocks"]
+    assert recovered["extracted_source_materials"]["source_excerpt_blocks"] == []
+    assert recovered["evidence_atoms"]
+    assert all("source_file" in atom and "char_start" in atom for atom in recovered["evidence_atoms"])
+    atom_values = [atom["value"] for atom in recovered["evidence_atoms"]]
+    assert "Demo Holdings Limited" in atom_values
+    assert "Stock Code: 1234" in atom_values
+    assert not any(
+        "Demo Holdings Limited GLOBAL OFFERING Stock Code" in value
+        for value in atom_values
+    )

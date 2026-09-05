@@ -279,7 +279,7 @@ def node_at(root, path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="inp", default="sensetime.json")
+    ap.add_argument("--in", dest="inp", default="issuer_data.json")
     ap.add_argument("--out", dest="out", default=None, help="default: in place")
     ap.add_argument("--audit", default="compute_audit.json")
     args = ap.parse_args()
