@@ -62,6 +62,20 @@ export async function POST(request: Request) {
     }
 
     const { company, section } = await loadDeveloperSection(body.companyId, body.sectionId);
+    if (
+      !section.preparedData ||
+      typeof section.preparedData !== "object" ||
+      Array.isArray(section.preparedData) ||
+      Object.keys(section.preparedData).length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "该章节没有可用的准备数据，已阻止模型调用以避免浪费 API 额度。请重新构建并审计 Developer Tools 数据包。",
+        },
+        { status: 422 }
+      );
+    }
     const preparedRaw = JSON.stringify(section.preparedData, null, 2);
     const preparedForModel = sampledText(preparedRaw, 70_000);
 

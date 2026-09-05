@@ -4,6 +4,8 @@ export type DeveloperSectionSummary = {
   pageStart?: number;
   pageEnd?: number;
   referenceCharacters: number;
+  preparedDataCharacters: number;
+  rcaReady: boolean;
   promptId?: string;
 };
 

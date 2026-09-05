@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { gunzipSync } from "node:zlib";
 
 const DEFAULT_COMPANY_COUNT = 125;
 const DEFAULT_PROMPT_COUNT = 31;
@@ -69,16 +70,68 @@ export async function verifyDeveloperData(
     ids.add(company.id);
     sectionCount += Number(company.sectionCount || 0);
     const payloadPath = path.join(dataRoot, `${company.id}.json.gz`);
-    let stat;
+    let payloadBuffer;
     try {
-      stat = await fs.stat(payloadPath);
+      payloadBuffer = await fs.readFile(payloadPath);
     } catch (error) {
       throw new Error(`Developer dataset payload is missing: ${company.id}.json.gz`, {
         cause: error,
       });
     }
-    if (!stat.isFile() || stat.size === 0) {
+    if (payloadBuffer.length === 0) {
       throw new Error(`Developer dataset payload is empty: ${company.id}.json.gz`);
+    }
+    let payload;
+    try {
+      payload = JSON.parse(gunzipSync(payloadBuffer).toString("utf8"));
+    } catch (error) {
+      throw new Error(`Developer dataset payload is corrupt: ${company.id}.json.gz`, {
+        cause: error,
+      });
+    }
+    if (payload.id !== company.id || !Array.isArray(payload.sections)) {
+      throw new Error(`Developer dataset payload identity is invalid: ${company.id}.json.gz`);
+    }
+    if (payload.sections.length !== company.sectionCount) {
+      throw new Error(
+        `Developer dataset section count mismatch for ${company.id}: ` +
+          `index=${company.sectionCount}, payload=${payload.sections.length}.`
+      );
+    }
+    const summaries = new Map(
+      (Array.isArray(company.sections) ? company.sections : []).map((section) => [
+        section.id,
+        section,
+      ])
+    );
+    for (const section of payload.sections) {
+      const prepared = section?.preparedData;
+      const summary = summaries.get(section.id);
+      if (!summary || typeof summary.rcaReady !== "boolean") {
+        throw new Error(
+          `Developer dataset RCA readiness audit is missing: ${company.id}/${section.id}.`
+        );
+      }
+      if (summary.rcaReady && (
+        !prepared ||
+        typeof prepared !== "object" ||
+        Array.isArray(prepared) ||
+        Object.keys(prepared).length === 0
+      )) {
+        throw new Error(
+          `Developer dataset prepared RCA data is missing: ${company.id}/${section?.id || "unknown"}.`
+        );
+      }
+      if (
+        !Number.isInteger(summary.preparedDataCharacters) ||
+        summary.preparedDataCharacters !== section.preparedDataCharacters ||
+        (summary.rcaReady && summary.preparedDataCharacters <= 2) ||
+        summary.rcaReady !== section.rcaReady
+      ) {
+        throw new Error(
+          `Developer dataset prepared-data audit is invalid: ${company.id}/${section.id}.`
+        );
+      }
     }
   }
 

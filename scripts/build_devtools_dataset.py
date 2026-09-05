@@ -276,7 +276,6 @@ def section_payload(document_id: str, toc: dict[str, Any]) -> list[dict[str, Any
     sections: list[dict[str, Any]] = []
     for section_id in order:
         item = grouped[section_id]
-        prepared = load_json(prepared_dir / f"{section_id}.json", {})
         raw_reference_text = "".join(item.pop("referenceParts"))
         reference_text = reflow_reference_text(raw_reference_text, section_id)
         if non_whitespace_text(reference_text) != non_whitespace_text(
@@ -293,9 +292,22 @@ def section_payload(document_id: str, toc: dict[str, Any]) -> list[dict[str, Any
                 f"Reference-text layout audit failed for {document_id}/{section_id}: "
                 f"{fragments_after} fragmented line run(s) remain"
             )
+        prepared_path = prepared_dir / f"{section_id}.json"
+        prepared = load_json(prepared_path, {})
+        has_reference = bool(non_whitespace_text(reference_text))
+        if has_reference and (not isinstance(prepared, dict) or not prepared):
+            raise RuntimeError(
+                f"Prepared RCA data is missing or empty for {document_id}/{section_id}. "
+                "Run scripts/prospectus_kg/enrich_input_records_from_sections.py "
+                "before building the Developer Tools dataset."
+            )
         item["referenceText"] = reference_text
         item["preparedData"] = prepared
+        item["preparedDataCharacters"] = len(
+            json.dumps(prepared, ensure_ascii=False, indent=2)
+        )
         item["referenceCharacters"] = len(item["referenceText"])
+        item["rcaReady"] = has_reference and bool(prepared)
         item["rawReferenceCharacters"] = len(raw_reference_text)
         item["fragmentedLineRunsBefore"] = fragments_before
         item["fragmentedLineRunsAfter"] = fragments_after
@@ -470,6 +482,8 @@ def main() -> None:
                         "pageStart": section["pageStart"],
                         "pageEnd": section["pageEnd"],
                         "referenceCharacters": section["referenceCharacters"],
+                        "preparedDataCharacters": section["preparedDataCharacters"],
+                        "rcaReady": section["rcaReady"],
                         "promptId": prompt_by_section.get(section["id"]),
                     }
                     for section in sections
