@@ -6,6 +6,7 @@ import os from "os";
 import { type ChildProcessWithoutNullStreams } from "child_process";
 import { getAgentScriptPath, getProspectusRoot, workspacePaths } from "@/lib/prospectus-root";
 import { readSettings, buildAgentProcessEnv } from "@/lib/app-settings";
+import { loadRuntimePromptRequirements } from "@/lib/developer-prompt-sync";
 import {
   formatPythonProcessError,
   resolvePythonCommand,
@@ -43,6 +44,17 @@ const SECTION_ORDER = [
   "Underwriting",
   "GlobalOfferingStructure",
 ];
+
+async function cleanupTemporaryFiles(paths: Array<string | null>): Promise<void> {
+  for (const temporaryPath of paths) {
+    if (!temporaryPath) continue;
+    try {
+      await fs.unlink(temporaryPath);
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 const AGENT2_PREFIX = "@@AGENT2@@";
 
@@ -181,14 +193,35 @@ export async function POST(req: Request) {
     const isSingleSection =
       section && section !== "all" && SECTION_ORDER.includes(section);
 
+    let runtimePromptDocument: string | null;
+    try {
+      runtimePromptDocument = await loadRuntimePromptRequirements();
+    } catch (error) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Prompt Management is configured for GitHub, but the latest runtime Prompt could not be loaded. " +
+            (error instanceof Error ? error.message : "GitHub sync unavailable."),
+        },
+        { status: 503 }
+      );
+    }
+
     let modFilePath: string | null = null;
+    let promptFilePath: string | null = null;
     if (isSingleSection && modificationInstructions) {
       modFilePath = path.join(os.tmpdir(), `agent2_mod_${Date.now()}.txt`);
       await fs.writeFile(modFilePath, modificationInstructions, "utf8");
     }
+    if (runtimePromptDocument) {
+      promptFilePath = path.join(os.tmpdir(), `agent2_requirements_${Date.now()}.json`);
+      await fs.writeFile(promptFilePath, runtimePromptDocument, "utf8");
+    }
 
     const pythonResolution = await resolvePythonCommand(root);
     if (!pythonResolution.ok) {
+      await cleanupTemporaryFiles([modFilePath, promptFilePath]);
       return NextResponse.json(
         { ok: false, error: pythonResolution.error },
         { status: 500 }
@@ -199,6 +232,7 @@ export async function POST(req: Request) {
       ...buildAgentProcessEnv(process.env, settings),
       PYTHONUNBUFFERED: "1",
       AGENT2_STREAM: "1",
+      ...(promptFilePath ? { AI_PROMPTS_REQUIREMENTS: promptFilePath } : {}),
     };
     const model =
       env.AGENT2_MODEL ||
@@ -226,20 +260,20 @@ export async function POST(req: Request) {
     ];
     if (modFilePath) args.push("--modification-file", modFilePath);
 
-    const proc = spawnPython(pythonResolution.python, args, {
-      cwd: root,
-      env,
-    }) as ChildProcessWithoutNullStreams;
+    let proc: ChildProcessWithoutNullStreams;
+    try {
+      proc = spawnPython(pythonResolution.python, args, {
+        cwd: root,
+        env,
+      }) as ChildProcessWithoutNullStreams;
+    } catch (error) {
+      await cleanupTemporaryFiles([modFilePath, promptFilePath]);
+      throw error;
+    }
 
-    return agent2SseResponse(proc, async () => {
-      if (modFilePath) {
-        try {
-          await fs.unlink(modFilePath);
-        } catch {
-          /* ignore */
-        }
-      }
-    });
+    return agent2SseResponse(proc, () =>
+      cleanupTemporaryFiles([modFilePath, promptFilePath])
+    );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Server error";
     return NextResponse.json({ error: msg }, { status: 500 });

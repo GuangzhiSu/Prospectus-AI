@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/verify-devtools-data.mjs",
     "build": "next build",
     "start": "next start",
     "start:standalone": "node .next/standalone/frontend/web/server.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:devtools-data": "node --test scripts/verify-devtools-data.test.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

@@ -44,9 +44,20 @@ function syncConfig() {
   };
 }
 
+class GitHubPromptSyncError extends Error {
+  constructor(
+    message: string,
+    readonly httpStatus: number
+  ) {
+    super(message);
+    this.name = "GitHubPromptSyncError";
+  }
+}
+
 function status(
   source: DeveloperPromptSyncStatus["source"],
-  error?: string
+  error?: string,
+  verifiedAt?: string
 ): DeveloperPromptSyncStatus {
   const config = syncConfig();
   return {
@@ -56,6 +67,7 @@ function status(
     path: config.filePath,
     source,
     ...(error ? { error } : {}),
+    ...(verifiedAt ? { verifiedAt } : {}),
   };
 }
 
@@ -109,15 +121,16 @@ function githubHeaders(): HeadersInit {
   };
 }
 
-async function githubError(response: Response): Promise<Error> {
+async function githubError(response: Response): Promise<GitHubPromptSyncError> {
   let detail = "";
   try {
     detail = ((await response.json()) as { message?: string }).message || "";
   } catch {
     // Preserve the HTTP status when GitHub does not return JSON.
   }
-  return new Error(
-    `GitHub prompt sync failed (${response.status})${detail ? `: ${detail}` : "."}`
+  return new GitHubPromptSyncError(
+    `GitHub prompt sync failed (${response.status})${detail ? `: ${detail}` : "."}`,
+    response.status
   );
 }
 
@@ -173,6 +186,16 @@ function assertWritableConfig(): void {
   }
 }
 
+export function promptSyncConfigured(): boolean {
+  return Boolean(syncConfig().token);
+}
+
+export async function loadRuntimePromptRequirements(): Promise<string | null> {
+  if (!promptSyncConfigured()) return null;
+  const current = await readGitHubDocument();
+  return `${JSON.stringify(current.document, null, 2)}\n`;
+}
+
 function validateRequirements(requirements: string): void {
   if (!requirements.trim()) throw new Error("Section requirements cannot be empty.");
   if (requirements.length > 100_000) {
@@ -209,6 +232,10 @@ async function writeGitHubDocument(
   };
 }
 
+function isConflict(error: unknown): boolean {
+  return error instanceof GitHubPromptSyncError && error.httpStatus === 409;
+}
+
 export async function savePromptOverride(
   id: string,
   requirements: string,
@@ -216,54 +243,89 @@ export async function savePromptOverride(
 ): Promise<{ override: DeveloperPromptOverride; sync: DeveloperPromptSyncStatus }> {
   assertWritableConfig();
   validateRequirements(requirements);
-  const current = await readGitHubDocument();
-  const entry = current.document[id];
-  if (!entry) {
-    throw new Error(`Unknown prompt id: ${id}`);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const current = await readGitHubDocument();
+    const entry = current.document[id];
+    if (!entry) throw new Error(`Unknown prompt id: ${id}`);
+    const updatedAt = new Date().toISOString();
+    const document: RequirementsStore = {
+      ...current.document,
+      [id]: {
+        ...entry,
+        developer_compiled_override: requirements,
+        developer_updated_at: updatedAt,
+        developer_source: source,
+      },
+    };
+    try {
+      const commit = await writeGitHubDocument(
+        document,
+        current.sha,
+        `chore(prompts): update ${id} requirements from Developer Tools`
+      );
+      const verified = await readGitHubDocument();
+      const saved = verified.overrides[id];
+      if (
+        !saved ||
+        saved.requirements !== requirements ||
+        saved.source !== source ||
+        saved.updatedAt !== updatedAt
+      ) {
+        throw new Error("GitHub write completed, but read-after-write verification did not match.");
+      }
+      const verifiedAt = new Date().toISOString();
+      return {
+        override: {
+          ...saved,
+          commitSha: commit.commitSha,
+          commitUrl: commit.commitUrl,
+        },
+        sync: status("github", undefined, verifiedAt),
+      };
+    } catch (error) {
+      if (attempt === 0 && isConflict(error)) continue;
+      throw error;
+    }
   }
-  const updatedAt = new Date().toISOString();
-  const document: RequirementsStore = {
-    ...current.document,
-    [id]: {
-      ...entry,
-      developer_compiled_override: requirements,
-      developer_updated_at: updatedAt,
-      developer_source: source,
-    },
-  };
-  const commit = await writeGitHubDocument(
-    document,
-    current.sha,
-    `chore(prompts): update ${id} requirements from Developer Tools`
-  );
-  return {
-    override: { requirements, source, updatedAt, ...commit },
-    sync: status("github"),
-  };
+  throw new Error("GitHub prompt sync conflict could not be resolved.");
 }
 
 export async function removePromptOverride(
   id: string
 ): Promise<{ removed: boolean; sync: DeveloperPromptSyncStatus }> {
   assertWritableConfig();
-  const current = await readGitHubDocument();
-  const entry = current.document[id];
-  if (!entry) {
-    throw new Error(`Unknown prompt id: ${id}`);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const current = await readGitHubDocument();
+    const entry = current.document[id];
+    if (!entry) throw new Error(`Unknown prompt id: ${id}`);
+    if (typeof entry.developer_compiled_override !== "string") {
+      return {
+        removed: false,
+        sync: status("github", undefined, new Date().toISOString()),
+      };
+    }
+    const restored: RequirementsEntry = { ...entry };
+    delete restored.developer_compiled_override;
+    delete restored.developer_updated_at;
+    delete restored.developer_source;
+    try {
+      await writeGitHubDocument(
+        { ...current.document, [id]: restored },
+        current.sha,
+        `chore(prompts): reset ${id} requirements from Developer Tools`
+      );
+      const verified = await readGitHubDocument();
+      if (verified.overrides[id]) {
+        throw new Error("GitHub reset completed, but read-after-write verification still found an override.");
+      }
+      return {
+        removed: true,
+        sync: status("github", undefined, new Date().toISOString()),
+      };
+    } catch (error) {
+      if (attempt === 0 && isConflict(error)) continue;
+      throw error;
+    }
   }
-  if (typeof entry.developer_compiled_override !== "string") {
-    return { removed: false, sync: status("github") };
-  }
-  const restored: RequirementsEntry = {
-    ...entry,
-  };
-  delete restored.developer_compiled_override;
-  delete restored.developer_updated_at;
-  delete restored.developer_source;
-  await writeGitHubDocument(
-    { ...current.document, [id]: restored },
-    current.sha,
-    `chore(prompts): reset ${id} requirements from Developer Tools`
-  );
-  return { removed: true, sync: status("github") };
+  throw new Error("GitHub prompt reset conflict could not be resolved.");
 }

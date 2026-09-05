@@ -76,6 +76,34 @@ export type DeveloperPromptSyncStatus = {
   path: string;
   source: "github" | "local";
   error?: string;
+  verifiedAt?: string;
+};
+
+export type DeveloperToolsHealth = {
+  ok: boolean;
+  checkedAt: string;
+  dataset: {
+    ready: boolean;
+    companyCount?: number;
+    sectionCount?: number;
+    promptCount?: number;
+    auditPassed?: number;
+    auditFailed?: number;
+    sampleReadable?: boolean;
+    error?: string;
+  };
+  promptSync: {
+    ready: boolean;
+    configured: boolean;
+    source: "github" | "local";
+    repository: string;
+    branch: string;
+    path: string;
+    error?: string;
+  };
+  rca: {
+    configuredProviders: ModelProviderId[];
+  };
 };
 
 export type DeveloperPromptsResponse = {

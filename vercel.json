@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
   "installCommand": "npm install --prefix frontend/web && python3 -m pip install --disable-pip-version-check --target .python_packages -r eligibility/eligibility/requirements-vercel.txt",
   "buildCommand": "npm run build --prefix frontend/web"
 }

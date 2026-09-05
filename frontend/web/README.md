@@ -21,7 +21,9 @@ conda run -n prospectus python scripts/build_devtools_dataset.py
 
 `frontend/web/devtools-data/` contains full prospectus text and is intentionally
 excluded from the public GitHub repository. It is included in direct Vercel
-deployments.
+deployments. Production builds validate the complete 125-company bundle before
+they can replace the live deployment; a Git-triggered build without this private
+directory fails closed. Use a direct deployment from the prepared workspace.
 
 Prompt Management reads the current compiled runtime SectionSpec and Writer
 template directly from the canonical prompt files, then shows the fully assembled
@@ -31,3 +33,11 @@ section-specific `developer_compiled_override` in
 runtime. Configure the variables in
 [`.env.example`](.env.example); the token must be a fine-grained repository token
 with Contents read/write access and is never returned to the browser.
+Successful saves and resets are re-read from GitHub before the UI reports that
+they are synchronized. Agent2 also materializes the latest GitHub requirements
+into a temporary runtime file, so an approved web edit does not wait for another
+application deployment.
+
+The authenticated `/api/developer-tools/health` endpoint checks the dataset,
+GitHub Prompt read path, and availability of server-side RCA provider keys
+without returning secret values.
