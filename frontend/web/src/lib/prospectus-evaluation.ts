@@ -63,8 +63,20 @@ function dateTokens(value: unknown): Set<string> {
 }
 
 function entityTokens(value: unknown): Set<string> {
+  // Some prospectus headings look syntactically like legal entities.  In
+  // particular, "Share Capital" matches the broad company-name expression
+  // because Capital is also a legitimate entity suffix.  These generic
+  // disclosure terms must not become issuer-name contradictions.
+  const genericDisclosureTerms = new Set([
+    "sharecapital",
+    "workingcapital",
+    "registeredcapital",
+    "humancapital",
+  ]);
   return new Set(
-    [...String(value || "").matchAll(ENTITY)].map((match) => normalizeIdentifier(match[0]))
+    [...String(value || "").matchAll(ENTITY)]
+      .map((match) => normalizeIdentifier(match[0]))
+      .filter((token) => !genericDisclosureTerms.has(token))
   );
 }
 
@@ -357,7 +369,10 @@ function generatedContentsTitles(cleanDraft: string): string[] {
     if (!match) continue;
     const title = match[1].trim();
     const page = match[2].trim();
-    if (!title || /^(?:section|title|contents)$/i.test(title) || /^:?-{3,}:?$/.test(title)) continue;
+    // "Contents" is a real navigation row.  Only generic column labels are
+    // headers; dropping Contents here permanently capped a complete table at
+    // 31/32 (96.9%).
+    if (!title || /^(?:section|title)$/i.test(title) || /^:?-{3,}:?$/.test(title)) continue;
     if (!/^(?:\d{1,5}|[ivxlcdm]{1,12}|[a-z]{1,8}-\d{1,5}|\[●[^\]]*\]|data_missing)$/i.test(page)) continue;
     titles.push(title);
   }
