@@ -323,3 +323,178 @@ export type PromptSuggestion = {
   basedOnCaseCount: number;
   suggestionRound: 1;
 };
+
+export type DiagnosticCause = "criteria" | "extraction" | "diagnostic" | "ready";
+
+export type DiagnosticMarket = {
+  key: string;
+  label: string;
+  labelZh: string;
+  rulesets: string[];
+};
+
+export type DiagnosticCheck = {
+  id: string;
+  metric: string;
+  operator: string;
+  inputPath?: string | null;
+  profileField?: string | null;
+  thresholdValue?: unknown;
+  thresholdUnit?: string | null;
+  thresholdVerified?: boolean;
+  needsHumanVerify?: boolean;
+  requiresLlm?: boolean;
+  ruleRef?: string;
+  guidanceNote?: string;
+  verifiedAgainst?: string;
+  verifiedOn?: string;
+  dateNote?: string;
+};
+
+export type DiagnosticWorkbookRow = {
+  rowId: string;
+  market: string;
+  board: string;
+  standard: string;
+  limb: string;
+  metricField: string;
+  op: string;
+  value: string;
+  unit: string;
+  citation: string;
+  url: string;
+  effectiveFrom: string;
+  verified: string;
+  reviewStatus: string;
+  notes: string;
+};
+
+export type DiagnosticGate = {
+  id: string;
+  title: string;
+  ruleRef: string;
+  ruleset: string;
+  rulesetName: string;
+  sourceFile: string;
+  layer: "hard" | "soft" | string;
+  marketKeys: string[];
+  evaluated: boolean;
+  requiresLlm: boolean;
+  needsHumanVerify: boolean;
+  humanSignoff: boolean;
+  stubReason: string;
+  effectiveFrom?: string | null;
+  sourceRef?: string;
+  inRegressionBaseline?: boolean;
+  version?: string;
+  condition?: string;
+  severity?: string;
+  guidanceRef?: string;
+  substantiveConcern?: string;
+  remediationPath?: string;
+  disclosedInSection?: string[];
+  checks: DiagnosticCheck[];
+  staticCause: DiagnosticCause;
+  staticReason: string;
+  workbookRows?: DiagnosticWorkbookRow[];
+  status?: string;
+  note?: string;
+  runtimeCause?: DiagnosticCause;
+  runtimeReason?: string;
+  missingInputs?: Array<{ checkId: string; path: string; reason: string }>;
+  checkResults?: Array<{
+    id: string;
+    metric: string;
+    status: string;
+    required?: string;
+    actual?: unknown;
+    path?: string;
+    note?: string;
+  }>;
+};
+
+export type DiagnosticRuleset = {
+  id: string;
+  name: string;
+  sourceFile: string;
+  layer: string;
+  version: string;
+  sourceRef: string;
+  inRegressionBaseline: boolean;
+  gateCount: number;
+  notEvaluatedCount: number;
+  marketKeys: string[];
+};
+
+export type DiagnosticField = {
+  key: string;
+  inputPath?: string | null;
+  profileField?: string | null;
+  kind: "issuer" | "profile" | string;
+  gates: string[];
+  metrics: string[];
+};
+
+export type DiagnosticSourceDoc = {
+  id: string;
+  title: string;
+  note: string;
+  path: string;
+  exists: boolean;
+  kind: "markdown" | "csv" | "xlsx" | string;
+  characters: number;
+  content: string;
+  sheets?: Array<{ name: string; rows: number }>;
+};
+
+export type DiagnosticCatalog = {
+  markets: DiagnosticMarket[];
+  rulesets: DiagnosticRuleset[];
+  gates: DiagnosticGate[];
+  fields: DiagnosticField[];
+  sourceDocs: DiagnosticSourceDoc[];
+  workbook: {
+    path: string;
+    exists: boolean;
+    xlsxExpected: string;
+    xlsxPresent: boolean;
+    rowCount?: number;
+  };
+  workbookRows: DiagnosticWorkbookRow[];
+  summary: {
+    gateCount: number;
+    rulesetCount: number;
+    readyCount: number;
+    criteriaCount: number;
+    diagnosticCount: number;
+    workbookRowCount: number;
+    xlsxPresent: boolean;
+  };
+  legend: Record<DiagnosticCause, string>;
+};
+
+export type DiagnosticGatePatch = {
+  sourceFile: string;
+  gateId: string;
+  evaluated?: boolean;
+  stubReason?: string;
+  title?: string;
+  ruleRef?: string;
+  checks?: Array<{
+    id: string;
+    thresholdValue?: unknown;
+    thresholdUnit?: string;
+  }>;
+};
+
+export type DiagnosticTrace = {
+  issuerId: string;
+  marketKey?: string | null;
+  rulesetNames: string[];
+  summary: Record<string, number>;
+  presentFieldCount: number;
+  missingFieldCount: number;
+  missingFields: string[];
+  presentFields: string[];
+  gates: DiagnosticGate[];
+};

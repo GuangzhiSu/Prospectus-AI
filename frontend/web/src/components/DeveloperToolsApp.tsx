@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { DeveloperDiagnosticWorkspace } from "@/components/DeveloperDiagnosticWorkspace";
 import type {
   DeveloperCompanyOverview,
   DeveloperDatasetIndex,
@@ -23,7 +24,7 @@ import type {
   RcaUnitResult,
 } from "@/lib/developer-tools-types";
 
-type TabId = "prompts" | "dataset" | "rca";
+type TabId = "prompts" | "dataset" | "rca" | "diagnostic";
 type CaseStatus = "queued" | "running" | "completed" | "error";
 
 type ExperimentCase = {
@@ -1490,6 +1491,7 @@ export function DeveloperToolsApp() {
             ["prompts", "Prompt Management", "31 个 section prompt"],
             ["dataset", "Dataset Management", "125 家公司真实语料"],
             ["rca", "RCA Experiments", "生成 · 对照 · 归因 · Diff"],
+            ["diagnostic", "IPO Diagnostic", "规则 · 文档 · 抽取对照"],
           ] as const).map(([id, label, detail]) => (
             <button key={id} onClick={() => setTab(id)} className={`border-b-2 px-4 py-3 text-left transition ${tab === id ? "border-[#267267] bg-white/70 text-[#17201b]" : "border-transparent text-[#617067] hover:bg-white/50"}`}><span className="block whitespace-nowrap text-xs font-semibold sm:text-sm">{label}</span><span className="hidden whitespace-nowrap text-[9px] text-[#7b877f] md:block">{detail}</span></button>
           ))}
@@ -1515,13 +1517,14 @@ export function DeveloperToolsApp() {
             />
           </section>
         ) : null}
-        {loading ? <EmptyPanel>正在加载 Prompt 与 125 家公司数据索引…</EmptyPanel> : null}
-        {!loading && tab === "prompts" && promptError ? <EmptyPanel>{promptError}</EmptyPanel> : null}
-        {!loading && tab === "prompts" && !promptError ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
-        {!loading && tab === "dataset" && datasetError ? <EmptyPanel>{datasetError}</EmptyPanel> : null}
-        {!loading && tab === "dataset" && !datasetError && index ? <DatasetManagement index={index} getCompany={getCompany} getSection={getSection} /> : null}
-        {!loading && tab === "rca" && (datasetError || promptError) ? <EmptyPanel>{datasetError || promptError}</EmptyPanel> : null}
-        {!loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getSection={getSection} /> : null}
+        {tab === "diagnostic" ? <DeveloperDiagnosticWorkspace /> : null}
+        {tab !== "diagnostic" && loading ? <EmptyPanel>正在加载 Prompt 与 125 家公司数据索引…</EmptyPanel> : null}
+        {tab !== "diagnostic" && !loading && tab === "prompts" && promptError ? <EmptyPanel>{promptError}</EmptyPanel> : null}
+        {tab !== "diagnostic" && !loading && tab === "prompts" && !promptError ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
+        {tab !== "diagnostic" && !loading && tab === "dataset" && datasetError ? <EmptyPanel>{datasetError}</EmptyPanel> : null}
+        {tab !== "diagnostic" && !loading && tab === "dataset" && !datasetError && index ? <DatasetManagement index={index} getCompany={getCompany} getSection={getSection} /> : null}
+        {tab !== "diagnostic" && !loading && tab === "rca" && (datasetError || promptError) ? <EmptyPanel>{datasetError || promptError}</EmptyPanel> : null}
+        {tab !== "diagnostic" && !loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getSection={getSection} /> : null}
       </div>
     </main>
   );
