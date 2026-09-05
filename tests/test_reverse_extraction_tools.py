@@ -199,3 +199,40 @@ def test_enrich_input_records_adds_dense_source_materials(tmp_path):
     assert materials["counts"]["numeric_facts"] >= 1
     assert materials["key_numeric_facts"][0]["page_start"] == 10
     assert "RMB1.0 billion" in materials["key_numeric_facts"][0]["text"]
+
+
+def test_enrich_input_records_recovers_a_missing_section_record(tmp_path):
+    input_records_dir = tmp_path / "input_records"
+    sections_dir = tmp_path / "sections"
+    sections_dir.mkdir()
+    (sections_dir / "demo.json").write_text(
+        json.dumps(
+            {
+                "document_id": "demo",
+                "sections": [
+                    {
+                        "canonical_section": "Cover",
+                        "source_file": "demo.pdf",
+                        "page_start": 1,
+                        "page_end": 2,
+                        "text": (
+                            "Demo Holdings Limited\nGLOBAL OFFERING\nStock Code: 1234\n"
+                            "The Offer Price is HK$10.00 per Share and the Company is "
+                            "incorporated in the Cayman Islands with limited liability."
+                        ),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = enrich_all(input_records_dir=input_records_dir, sections_dir=sections_dir)
+
+    assert report["counts"]["files_created"] == 1
+    recovered = json.loads(
+        (input_records_dir / "demo" / "Cover.json").read_text(encoding="utf-8")
+    )
+    assert recovered["extraction_status"] == "deterministic_source_materials_only"
+    assert recovered["extracted_source_materials"]["char_count"] > 0
+    assert recovered["extracted_source_materials"]["source_excerpt_blocks"]

@@ -615,7 +615,7 @@ function RcaWorkspace({
   const selectedCompany = index.companies.find((item) => item.id === companyId);
 
   useEffect(() => {
-    const sections = selectedCompany?.sections || [];
+    const sections = (selectedCompany?.sections || []).filter((item) => item.rcaReady);
     if (!sections.some((item) => item.id === sectionId)) {
       setSectionId(sections[0]?.id || "");
     }
@@ -635,6 +635,7 @@ function RcaWorkspace({
     return companies.flatMap((company) =>
       company.sections.flatMap((section) => {
         if (scope === "section" && section.id !== sectionId) return [];
+        if (!section.rcaReady) return [];
         const prompt = promptBySection.get(section.id);
         if (!prompt) return [];
         return [
@@ -910,7 +911,7 @@ function RcaWorkspace({
           <label className={scope !== "section" ? "opacity-45" : ""}>
             <span className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#69766e]">Section</span>
             <select disabled={scope !== "section"} value={sectionId} onChange={(event) => setSectionId(event.target.value)} className="mt-1 h-10 w-full border border-[#cad4cc] bg-white px-3 text-sm disabled:bg-[#eef1ec]">
-              {(selectedCompany?.sections || []).map((item) => (
+              {(selectedCompany?.sections || []).filter((item) => item.rcaReady).map((item) => (
                 <option key={item.id} value={item.id}>
                   {promptBySection.get(item.id)?.name || item.title}
                 </option>

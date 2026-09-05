@@ -374,27 +374,42 @@ def enrich_all(
     only_section: str | None = None,
     dry_run: bool = False,
 ) -> dict[str, Any]:
-    doc_dirs = sorted(p for p in input_records_dir.iterdir() if p.is_dir())
+    toc_paths = sorted(
+        path for path in sections_dir.glob("*.json") if not path.name.startswith("_")
+    )
     if only_doc:
-        doc_dirs = [input_records_dir / only_doc]
+        toc_paths = [sections_dir / f"{only_doc}.json"]
 
     totals = Counter()
     sample_low_density: list[dict[str, Any]] = []
-    for doc_dir in doc_dirs:
-        if not doc_dir.exists():
+    for toc_path in toc_paths:
+        if not toc_path.exists():
             continue
-        doc_id = doc_dir.name
+        doc_id = toc_path.stem
+        doc_dir = input_records_dir / doc_id
         toc = _toc_index(sections_dir, doc_id)
-        for path in sorted(doc_dir.glob("*.json")):
-            section_id = path.stem
+        for section_id, section in sorted(toc.items()):
             if only_section and section_id != only_section:
                 continue
+            path = doc_dir / f"{section_id}.json"
+            record_exists = path.exists()
             record = _load_json(path)
-            section = toc.get(section_id)
             totals["files_seen"] += 1
             if not section or not section.get("text"):
                 totals["missing_section_text"] += 1
                 continue
+            if not record_exists:
+                record = {
+                    "document_id": doc_id,
+                    "section_id": section_id,
+                    "values": {},
+                    "extraction_status": "deterministic_source_materials_only",
+                    "coverage_notes": (
+                        "No model-extracted schema record was available. Traceable source "
+                        "materials were deterministically recovered from the segmented filing."
+                    ),
+                }
+                totals["files_created"] += 1
             materials = _build_materials(section)
             values = record.get("values") if isinstance(record.get("values"), dict) else {}
             filled = sum(1 for v in values.values() if v not in (None, "", [], {}))
@@ -418,6 +433,7 @@ def enrich_all(
                 totals["excerpt_blocks"] += materials["counts"]["excerpt_blocks"]
                 totals["term_definitions"] += materials["counts"]["term_definitions"]
                 if not dry_run:
+                    doc_dir.mkdir(parents=True, exist_ok=True)
                     path.write_text(json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             else:
                 totals["unchanged"] += 1
