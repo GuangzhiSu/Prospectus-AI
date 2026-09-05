@@ -83,6 +83,22 @@ export type DeveloperCompany = {
   sections: DeveloperSection[];
 };
 
+export type DeveloperCompanyOverview = Omit<DeveloperCompany, "sections"> & {
+  sections: DeveloperSectionSummary[];
+};
+
+export type DeveloperSectionPage = {
+  section: DeveloperSection;
+  evidenceAtoms: Array<Record<string, unknown>>;
+  evidenceAtomPage: {
+    offset: number;
+    limit: number;
+    total: number;
+    hasPrevious: boolean;
+    hasNext: boolean;
+  };
+};
+
 export type DeveloperPrompt = {
   id: string;
   sectionId: string;

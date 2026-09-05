@@ -5,6 +5,7 @@ import { promisify } from "node:util";
 
 import type {
   DeveloperCompany,
+  DeveloperCompanyOverview,
   DeveloperDatasetIndex,
   DeveloperPrompt,
   DeveloperSection,
@@ -187,6 +188,32 @@ export async function loadDeveloperCompany(companyId: string): Promise<Developer
   const packed = await loadDeveloperCompanyArchive(companyId);
   const raw = await unzip(packed);
   return JSON.parse(raw.toString("utf8")) as DeveloperCompany;
+}
+
+export async function loadDeveloperCompanyOverview(
+  companyId: string
+): Promise<DeveloperCompanyOverview> {
+  const company = await loadDeveloperCompany(companyId);
+  return {
+    id: company.id,
+    name: company.name,
+    sourceFile: company.sourceFile,
+    totalPages: company.totalPages,
+    files: company.files,
+    sections: company.sections.map((section) => ({
+      id: section.id,
+      title: section.title,
+      pageStart: section.pageStart,
+      pageEnd: section.pageEnd,
+      referenceCharacters: section.referenceCharacters,
+      preparedDataCharacters: section.preparedDataCharacters,
+      rcaReady: section.rcaReady,
+      promptId: section.promptId,
+      contractCoverage: section.contractCoverage,
+      contractVersion: section.contractVersion,
+      contractSourceHash: section.contractSourceHash,
+    })),
+  };
 }
 
 export async function loadDeveloperCompanyArchive(companyId: string): Promise<Buffer> {

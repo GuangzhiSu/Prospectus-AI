@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type {
-  DeveloperCompany,
+  DeveloperCompanyOverview,
   DeveloperDatasetIndex,
   DeveloperPrompt,
   DeveloperPromptMutationResponse,
@@ -13,6 +13,7 @@ import type {
   DeveloperPromptSyncStatus,
   DeveloperPromptsResponse,
   DeveloperSection,
+  DeveloperSectionPage,
   DeveloperToolsHealth,
   ModelConfig,
   ModelProviderId,
@@ -328,17 +329,23 @@ function PromptManagement({
 function DatasetManagement({
   index,
   getCompany,
+  getSection,
 }: {
   index: DeveloperDatasetIndex;
-  getCompany: (id: string) => Promise<DeveloperCompany>;
+  getCompany: (id: string) => Promise<DeveloperCompanyOverview>;
+  getSection: (companyId: string, sectionId: string, atomOffset?: number) => Promise<DeveloperSectionPage>;
 }) {
   const [query, setQuery] = useState("");
   const [companyId, setCompanyId] = useState(index.companies[0]?.id || "");
-  const [company, setCompany] = useState<DeveloperCompany | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [company, setCompany] = useState<DeveloperCompanyOverview | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [view, setView] = useState<"sections" | "files">("sections");
   const [sectionId, setSectionId] = useState("");
+  const [sectionPage, setSectionPage] = useState<DeveloperSectionPage | null>(null);
+  const [sectionLoading, setSectionLoading] = useState(false);
+  const [sectionError, setSectionError] = useState("");
+  const [atomOffset, setAtomOffset] = useState(0);
 
   useEffect(() => {
     if (!companyId) return;
@@ -346,10 +353,13 @@ function DatasetManagement({
     getCompany(companyId)
       .then((next) => {
         if (!active) return;
+        const nextSectionId = next.sections[0]?.id || "";
         setCompany(next);
-        setSectionId((current) =>
-          current && next.sections.some((item) => item.id === current) ? current : next.sections[0]?.id || ""
-        );
+        setSectionPage(null);
+        setSectionError("");
+        setSectionLoading(Boolean(nextSectionId));
+        setAtomOffset(0);
+        setSectionId(nextSectionId);
       })
       .catch((reason) => active && setError(reason instanceof Error ? reason.message : "加载失败。"))
       .finally(() => active && setLoading(false));
@@ -358,13 +368,30 @@ function DatasetManagement({
     };
   }, [companyId, getCompany]);
 
+  useEffect(() => {
+    if (!company || company.id !== companyId || !sectionId) return;
+    let active = true;
+    getSection(companyId, sectionId, atomOffset)
+      .then((next) => active && setSectionPage(next))
+      .catch((reason) => active && setSectionError(reason instanceof Error ? reason.message : "Section 加载失败。"))
+      .finally(() => active && setSectionLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [atomOffset, company, companyId, getSection, sectionId]);
+
   const companies = index.companies.filter((item) =>
     `${item.name} ${item.id}`.toLowerCase().includes(query.toLowerCase())
   );
-  const section = company?.sections.find((item) => item.id === sectionId);
-
   function chooseCompany(id: string) {
+    if (id === companyId) return;
     setCompanyId(id);
+    setCompany(null);
+    setSectionId("");
+    setSectionPage(null);
+    setSectionError("");
+    setSectionLoading(false);
+    setAtomOffset(0);
     setLoading(true);
     setError("");
   }
@@ -468,7 +495,13 @@ function DatasetManagement({
                     {company.sections.map((item) => (
                       <button
                         key={item.id}
-                        onClick={() => setSectionId(item.id)}
+                        onClick={() => {
+                          setSectionId(item.id);
+                          setAtomOffset(0);
+                          setSectionPage(null);
+                          setSectionError("");
+                          setSectionLoading(true);
+                        }}
                         className={`mb-1 w-full px-3 py-2.5 text-left ${sectionId === item.id ? "bg-[#17201b] text-white" : "hover:bg-[#eef3ec]"}`}
                       >
                         <span className="block truncate text-xs font-semibold">{item.title}</span>
@@ -479,7 +512,20 @@ function DatasetManagement({
                     ))}
                   </div>
                 </div>
-                {section ? <SectionComparison section={section} /> : <EmptyPanel>请选择 section。</EmptyPanel>}
+                {sectionLoading ? <EmptyPanel>正在加载 section 与原子证据…</EmptyPanel> : null}
+                {sectionError ? <EmptyPanel>{sectionError}</EmptyPanel> : null}
+                {!sectionLoading && !sectionError && sectionPage ? (
+                  <SectionComparison
+                    page={sectionPage}
+                    onAtomOffsetChange={(offset) => {
+                      setSectionPage(null);
+                      setSectionError("");
+                      setSectionLoading(true);
+                      setAtomOffset(offset);
+                    }}
+                  />
+                ) : null}
+                {!sectionLoading && !sectionError && !sectionPage ? <EmptyPanel>请选择 section。</EmptyPanel> : null}
               </div>
             )}
           </>
@@ -489,7 +535,16 @@ function DatasetManagement({
   );
 }
 
-function SectionComparison({ section }: { section: DeveloperSection }) {
+function SectionComparison({
+  page,
+  onAtomOffsetChange,
+}: {
+  page: DeveloperSectionPage;
+  onAtomOffsetChange: (offset: number) => void;
+}) {
+  const { section, evidenceAtoms, evidenceAtomPage } = page;
+  const atomStart = evidenceAtomPage.total ? evidenceAtomPage.offset + 1 : 0;
+  const atomEnd = Math.min(evidenceAtomPage.total, evidenceAtomPage.offset + evidenceAtoms.length);
   return (
     <div className="min-w-0 p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -505,6 +560,33 @@ function SectionComparison({ section }: { section: DeveloperSection }) {
         <TextPanel title="真实招股说明书内容" meta={`${formatNumber(section.referenceCharacters)} chars`} text={section.referenceText || "该 section 没有可用文本。"} />
         <TextPanel title="为该 section 准备的数据" meta="Structured JSON" text={JSON.stringify(section.preparedData, null, 2)} code />
       </div>
+      <section className="mt-4 min-w-0 border border-[#d5ddd4] bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d5ddd4] bg-[#f4f7f2] px-4 py-3">
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-[0.12em] text-[#526057]">Evidence atoms</h4>
+            <p className="mt-1 font-mono text-[10px] text-[#7a877f]">{atomStart}–{atomEnd} / {formatNumber(evidenceAtomPage.total)}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              disabled={!evidenceAtomPage.hasPrevious}
+              onClick={() => onAtomOffsetChange(Math.max(0, evidenceAtomPage.offset - evidenceAtomPage.limit))}
+              className="h-8 border border-[#cbd4cc] px-3 text-xs font-semibold disabled:opacity-35"
+            >
+              上一页
+            </button>
+            <button
+              disabled={!evidenceAtomPage.hasNext}
+              onClick={() => onAtomOffsetChange(evidenceAtomPage.offset + evidenceAtomPage.limit)}
+              className="h-8 border border-[#cbd4cc] px-3 text-xs font-semibold disabled:opacity-35"
+            >
+              下一页
+            </button>
+          </div>
+        </div>
+        <pre className="max-h-[52vh] overflow-auto whitespace-pre-wrap break-words p-4 font-mono text-[11px] leading-6 text-[#303d35]">
+          {JSON.stringify(evidenceAtoms, null, 2)}
+        </pre>
+      </section>
     </div>
   );
 }
@@ -564,13 +646,13 @@ function RcaWorkspace({
   prompts,
   overrides,
   onAdoptPrompt,
-  getCompany,
+  getSection,
 }: {
   index: DeveloperDatasetIndex;
   prompts: DeveloperPrompt[];
   overrides: Record<string, StoredPrompt>;
   onAdoptPrompt: (id: string, requirements: string, source?: StoredPrompt["source"]) => Promise<boolean>;
-  getCompany: (id: string) => Promise<DeveloperCompany>;
+  getSection: (companyId: string, sectionId: string, atomOffset?: number) => Promise<DeveloperSectionPage>;
 }) {
   const [scope, setScope] = useState<"section" | "company" | "all">("section");
   const [companyId, setCompanyId] = useState(index.companies[0]?.id || "");
@@ -1053,7 +1135,7 @@ function RcaWorkspace({
                   {filteredCases.slice(0, visibleCases).map((item) => {
                     const open = expandedCaseId === item.id;
                     return (
-                      <CaseRow key={item.id} item={item} open={open} onToggle={() => setExpandedCaseId(open ? "" : item.id)} getCompany={getCompany} />
+                      <CaseRow key={item.id} item={item} open={open} onToggle={() => setExpandedCaseId(open ? "" : item.id)} getSection={getSection} />
                     );
                   })}
                 </tbody>
@@ -1107,7 +1189,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   return <div><p className="text-xl font-semibold">{formatNumber(value)}</p><p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-[#aebdb5]">{label}</p></div>;
 }
 
-function CaseRow({ item, open, onToggle, getCompany }: { item: ExperimentCase; open: boolean; onToggle: () => void; getCompany: (id: string) => Promise<DeveloperCompany> }) {
+function CaseRow({ item, open, onToggle, getSection }: { item: ExperimentCase; open: boolean; onToggle: () => void; getSection: (companyId: string, sectionId: string, atomOffset?: number) => Promise<DeveloperSectionPage> }) {
   const diagnosis = item.result?.diagnosis;
   const evaluation = item.result?.deterministicEvaluation;
   const labels = { data_incomplete: "数据不全", prompt_incomplete: "Prompt 不全", prompt_or_workflow: "Prompt / Workflow", model_limitation: "模型能力限制", none: "通过" };
@@ -1121,24 +1203,22 @@ function CaseRow({ item, open, onToggle, getCompany }: { item: ExperimentCase; o
         <td className="px-4 py-3 font-mono text-[10px] text-[#59675e]">{evaluation ? `O ${evaluation.overallScore} · R ${evaluation.requiredFactRecall} · N ${evaluation.numericFidelity.precision}/${evaluation.numericFidelity.recall} · S ${evaluation.structureCoverage}` : "—"}</td>
         <td className="px-4 py-3 text-right"><button disabled={!item.result} onClick={onToggle} aria-label="展开 RCA 详情" className="inline-flex h-8 w-8 items-center justify-center border border-[#ccd5cd] disabled:opacity-30"><Chevron open={open} /></button></td>
       </tr>
-      {open && item.result ? <tr className="border-b border-[#d5ddd4]"><td colSpan={6} className="bg-[#f5f8f3] p-4"><CaseDetails item={item} getCompany={getCompany} /></td></tr> : null}
+      {open && item.result ? <tr className="border-b border-[#d5ddd4]"><td colSpan={6} className="bg-[#f5f8f3] p-4"><CaseDetails item={item} getSection={getSection} /></td></tr> : null}
     </>
   );
 }
 
-function CaseDetails({ item, getCompany }: { item: ExperimentCase; getCompany: (id: string) => Promise<DeveloperCompany> }) {
+function CaseDetails({ item, getSection }: { item: ExperimentCase; getSection: (companyId: string, sectionId: string, atomOffset?: number) => Promise<DeveloperSectionPage> }) {
   const [section, setSection] = useState<DeveloperSection | null>(null);
   const [error, setError] = useState("");
   const [draftView, setDraftView] = useState<"clean" | "annotated">("clean");
   useEffect(() => {
     let active = true;
-    getCompany(item.companyId)
-      .then((company) => {
-        if (active) setSection(company.sections.find((candidate) => candidate.id === item.sectionId) || null);
-      })
+    getSection(item.companyId, item.sectionId)
+      .then((page) => active && setSection(page.section))
       .catch((reason) => active && setError(reason instanceof Error ? reason.message : "数据加载失败。"));
     return () => { active = false; };
-  }, [getCompany, item.companyId, item.sectionId]);
+  }, [getSection, item.companyId, item.sectionId]);
   const diagnosis = item.result!.diagnosis;
   const evaluation = item.result!.deterministicEvaluation;
   const manifest = item.result!.runManifest;
@@ -1252,7 +1332,8 @@ export function DeveloperToolsApp() {
   const [loading, setLoading] = useState(true);
   const [promptError, setPromptError] = useState("");
   const [datasetError, setDatasetError] = useState("");
-  const companyCache = useRef(new Map<string, DeveloperCompany>());
+  const companyCache = useRef(new Map<string, DeveloperCompanyOverview>());
+  const sectionCache = useRef(new Map<string, DeveloperSectionPage>());
 
   useEffect(() => {
     let localOverrides: Record<string, StoredPrompt> = {};
@@ -1302,9 +1383,20 @@ export function DeveloperToolsApp() {
   const getCompany = useCallback(async (id: string) => {
     const cached = companyCache.current.get(id);
     if (cached) return cached;
-    const company = await apiJson<DeveloperCompany>(`/api/developer-tools/dataset/${encodeURIComponent(id)}`);
+    const company = await apiJson<DeveloperCompanyOverview>(`/api/developer-tools/dataset/${encodeURIComponent(id)}`);
     companyCache.current.set(id, company);
     return company;
+  }, []);
+
+  const getSection = useCallback(async (companyId: string, sectionId: string, atomOffset = 0) => {
+    const key = `${companyId}:${sectionId}:${atomOffset}`;
+    const cached = sectionCache.current.get(key);
+    if (cached) return cached;
+    const page = await apiJson<DeveloperSectionPage>(
+      `/api/developer-tools/dataset/${encodeURIComponent(companyId)}/${encodeURIComponent(sectionId)}?atomOffset=${atomOffset}`
+    );
+    sectionCache.current.set(key, page);
+    return page;
   }, []);
 
   async function savePrompt(
@@ -1427,9 +1519,9 @@ export function DeveloperToolsApp() {
         {!loading && tab === "prompts" && promptError ? <EmptyPanel>{promptError}</EmptyPanel> : null}
         {!loading && tab === "prompts" && !promptError ? <PromptManagement prompts={prompts} overrides={overrides} sync={promptSync} mutation={promptMutation} onSave={savePrompt} onReset={resetPrompt} /> : null}
         {!loading && tab === "dataset" && datasetError ? <EmptyPanel>{datasetError}</EmptyPanel> : null}
-        {!loading && tab === "dataset" && !datasetError && index ? <DatasetManagement index={index} getCompany={getCompany} /> : null}
+        {!loading && tab === "dataset" && !datasetError && index ? <DatasetManagement index={index} getCompany={getCompany} getSection={getSection} /> : null}
         {!loading && tab === "rca" && (datasetError || promptError) ? <EmptyPanel>{datasetError || promptError}</EmptyPanel> : null}
-        {!loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getCompany={getCompany} /> : null}
+        {!loading && tab === "rca" && !datasetError && !promptError && index ? <RcaWorkspace index={index} prompts={prompts} overrides={overrides} onAdoptPrompt={savePrompt} getSection={getSection} /> : null}
       </div>
     </main>
   );
