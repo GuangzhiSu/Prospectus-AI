@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { hasDeveloperSession } from "@/lib/developer-auth";
-import { loadDeveloperCompanyArchive } from "@/lib/developer-data";
+import { loadDeveloperCompanyOverview } from "@/lib/developer-data";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,17 +15,10 @@ export async function GET(
   }
   try {
     const { companyId } = await context.params;
-    const packed = await loadDeveloperCompanyArchive(companyId);
-    // Evidence-rich company payloads can exceed Vercel's function response
-    // limit after inflation. Preserve the on-disk gzip representation; fetch
-    // transparently decodes it before the UI calls response.json().
-    return new Response(new Uint8Array(packed), {
+    const company = await loadDeveloperCompanyOverview(companyId);
+    return NextResponse.json(company, {
       headers: {
         "Cache-Control": "private, no-store",
-        "Content-Encoding": "gzip",
-        "Content-Length": String(packed.length),
-        "Content-Type": "application/json; charset=utf-8",
-        "Vary": "Accept-Encoding",
         "X-Content-Type-Options": "nosniff",
       },
     });
