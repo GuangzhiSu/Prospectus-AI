@@ -74,7 +74,13 @@ export async function POST(request: Request) {
         { status: 422 }
       );
     }
-    const maxTokens = Math.max(1200, Math.min(8000, Math.ceil(unit.targetCharacters / 3)));
+    // Contents combines a two-page notice with a long navigation table.  Its
+    // annotated form can be materially longer than the clean filing text, so
+    // the ordinary character-to-token estimate used for narrative units can
+    // truncate the final table rows and leave a partial citation tag.
+    const maxTokens = section.id === "Contents"
+      ? Math.max(6000, Math.min(8000, Math.ceil(unit.targetCharacters / 2)))
+      : Math.max(1200, Math.min(8000, Math.ceil(unit.targetCharacters / 3)));
     const generated = await callDeveloperModel(
       body.model,
       [
@@ -87,7 +93,10 @@ export async function POST(request: Request) {
             `Required disclosure: ${unit.instruction}\n` +
             `Target length: up to ${unit.targetCharacters} characters, scaled down when evidence is incomplete.\n` +
             "Do not infer WVR, Chapter 18C, Pre-Commercial status, compliance status, approvals, transaction mechanics or professional conclusions from industry knowledge. " +
-            "Do not reproduce a complete reference prospectus. Output one ## heading followed by the unit draft. Preserve evidence tags in this annotated draft.",
+            "Do not reproduce a complete reference prospectus. Output one ## heading followed by the unit draft. Preserve evidence tags in this annotated draft. " +
+            (section.id === "Contents"
+              ? "For Contents, render every structured ordered_contents_entries row exactly once in order, keep its printed page label in the same row, reproduce supplied front-matter notices before the table, and use at most one source citation for the entire table."
+              : ""),
         },
         {
           role: "user",

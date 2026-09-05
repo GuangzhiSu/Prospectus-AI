@@ -21,6 +21,9 @@ def test_all_section_specs_compile_to_versioned_fields_and_units():
     assert all(contract["units"] for contract in document["contracts"].values())
     assert len(document["contracts"]["Business"]["units"]) > 1
     assert len(document["contracts"]["Cover"]["units"]) == 1
+    assert [
+        field["label"] for field in document["contracts"]["Contents"]["fields"]
+    ] == ["ordered_contents_entries", "front_matter_notices_if_present"]
     assert not any(
         "example" in field
         for requirement in requirements.values()
@@ -121,6 +124,13 @@ def test_clean_and_annotated_outputs_are_separate_and_faithful():
     assert result.numeric_precision == 100
     assert result.numeric_recall == 100
     assert not result.hard_failures
+
+
+def test_clean_output_removes_a_truncated_trailing_ai_tag():
+    clean = clean_annotated_draft(
+        "## Contents\n\n| Summary | 1 | [[AI:CITE|source=user_document; doc=demo.pdf;"
+    )
+    assert clean == "## Contents\n\n| Summary | 1 |"
 
 
 def test_unsupported_number_is_a_non_compensable_hard_failure():

@@ -150,6 +150,13 @@ FIELD_ANCHORS: tuple[tuple[re.Pattern[str], tuple[str, ...]], ...] = (
     (re.compile(r"contractual arrangement|vie", re.I), ("contractual arrangement", "vie", "exclusive agreement")),
 )
 PAGE_MARKER_RE = re.compile(r"\s+[—–-]\s*(\d{1,5})\s*[—–-]\s+")
+CONTENTS_DOT_LEADER_RE = re.compile(r"(?:\.\s*){4,}")
+CONTENTS_PAGE_LABEL_RE = re.compile(
+    r"^(?:\d{1,5}|[ivxlcdm]{1,12}|[A-Z]{1,8}-\d{1,5})$", re.I
+)
+CONTENTS_PAGE_FOOTER_RE = re.compile(
+    r"^[—–-]+\s*(?:\d{1,5}|[ivxlcdm]{1,12})\s*[—–-]+$", re.I
+)
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -223,6 +230,241 @@ def _sentence_split(text: str) -> list[str]:
         if part:
             out.append(part)
     return out
+
+
+def _contents_title_fragment(value: str) -> str:
+    """Return the title-bearing portion of a printed Contents row."""
+
+    cleaned = CONTENTS_DOT_LEADER_RE.sub(" ", value or "")
+    # Common PDF text-extraction mojibake for an en/em dash and a possessive
+    # apostrophe.  This is layout normalization, not issuer-specific content.
+    cleaned = cleaned.replace("�C", "—")
+    cleaned = re.sub(r"(?<=\w)�{1,2}(?=\s|$)", "’", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" .\t")
+    if not cleaned or cleaned.casefold() == "page":
+        return ""
+    return cleaned
+
+
+def _parse_contents_entries(text: str) -> list[dict[str, Any]]:
+    """Parse printed Contents rows without treating page numbers as prose facts.
+
+    HKEX prospectuses normally place a dotted title row followed by a printed
+    page label on the next PDF text line.  Titles may wrap across two or three
+    lines and page labels may be Arabic, Roman or appendix-prefixed.  Parsing
+    that layout directly prevents generic substring matching such as the main
+    ``Summary`` field resolving to ``Appendix III — Summary ...``.
+    """
+
+    lines: list[tuple[str, int, int]] = []
+    cursor = 0
+    for raw in (text or "").splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        start = text.find(stripped, cursor)
+        if start < 0:
+            start = text.find(stripped)
+        if start < 0:
+            start = cursor
+        end = start + len(stripped)
+        cursor = max(cursor, end)
+        lines.append((re.sub(r"\s+", " ", stripped), start, end))
+
+    entries: list[dict[str, Any]] = []
+    pending: list[tuple[str, int, int]] = []
+    for line, start, end in lines:
+        if CONTENTS_PAGE_FOOTER_RE.fullmatch(line):
+            pending = []
+            continue
+        if line.casefold() == "page":
+            continue
+        if CONTENTS_PAGE_LABEL_RE.fullmatch(line):
+            dotted_indexes = [
+                index
+                for index, (candidate, _, _) in enumerate(pending)
+                if CONTENTS_DOT_LEADER_RE.search(candidate)
+            ]
+            if not dotted_indexes:
+                pending = []
+                continue
+            dotted_index = dotted_indexes[-1]
+            title_start = dotted_index
+            # A title can wrap immediately before the dot-leader line.  Stop
+            # at completed prose so a legal notice cannot become a title.
+            while title_start > 0 and dotted_index - title_start < 3:
+                previous = pending[title_start - 1][0]
+                if previous.casefold() in {"page", "table of contents"}:
+                    break
+                if re.search(r"[.!?]\s*$", previous) and not previous.isupper():
+                    break
+                if len(previous) > 190:
+                    break
+                title_start -= 1
+            title_parts = [
+                _contents_title_fragment(candidate)
+                for candidate, _, _ in pending[title_start : dotted_index + 1]
+            ]
+            title_parts = [part for part in title_parts if part]
+            # A repeated page header can precede a wrapped title after a page
+            # break.  It is metadata unless it is itself the dotted row.
+            if len(title_parts) > 1 and title_parts[0].casefold() in {
+                "contents",
+                "table of contents",
+            }:
+                title_parts = title_parts[1:]
+                title_start += 1
+            title = re.sub(r"\s+", " ", " ".join(title_parts)).strip()
+            title = re.sub(
+                r"^Appendices\s+(?=Appendix\s+[IVXLCDM]+\b)",
+                "",
+                title,
+                flags=re.I,
+            )
+            if title and title.casefold() not in {"page", "table of contents"}:
+                entries.append(
+                    {
+                        "order": len(entries) + 1,
+                        "title": title,
+                        "page_label": line,
+                        "char_start": pending[title_start][1],
+                        "char_end": end,
+                    }
+                )
+            pending = []
+            continue
+        pending.append((line, start, end))
+    return entries
+
+
+def _contents_notice_sentences(text: str, first_entry_start: int | None) -> list[str]:
+    if first_entry_start is None or first_entry_start <= 0:
+        return []
+    preamble_lines = []
+    for raw in text[:first_entry_start].splitlines():
+        line = re.sub(r"\s+", " ", raw).strip()
+        if not line or line.casefold() in {"contents", "table of contents", "page"}:
+            continue
+        if CONTENTS_PAGE_FOOTER_RE.fullmatch(line) or CONTENTS_DOT_LEADER_RE.search(line):
+            continue
+        preamble_lines.append(line)
+    preamble = " ".join(preamble_lines).strip()
+    if not preamble:
+        return []
+    return [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+(?=[A-Z])", preamble)
+        if len(sentence.strip()) >= 25
+    ]
+
+
+def _build_contents_materials(
+    section: dict[str, Any], contract: dict[str, Any], document_id: str
+) -> dict[str, Any]:
+    text = str(section.get("text") or "")
+    entries = _parse_contents_entries(text)
+    notice_sentences = _contents_notice_sentences(
+        text, entries[0]["char_start"] if entries else None
+    )
+    source_file = section.get("source_file")
+    page_start = section.get("page_start")
+    page_end = section.get("page_end")
+    unit = (contract.get("units") or [{}])[0]
+    unit_id = str(unit.get("unitId") or "Contents:01")
+    atoms: list[dict[str, Any]] = []
+
+    for index, sentence in enumerate(notice_sentences):
+        start = text.find(sentence[: min(80, len(sentence))])
+        atom_id = _atom_id(document_id, "Contents", index, "notice", sentence)
+        atoms.append(
+            {
+                "id": atom_id,
+                "kind": "notice",
+                "field_id": "Contents.front_matter_notices_if_present",
+                "value": sentence,
+                "text": sentence,
+                "unit": None,
+                "period": None,
+                "unit_id": unit_id,
+                "source_file": source_file,
+                "page_start": page_start,
+                "page_end": page_start,
+                "section_sentence_index": index,
+                "char_start": max(start, 0),
+                "char_end": max(start, 0) + len(sentence),
+                "priority": "required",
+                "evidence_status": "section_traceable",
+            }
+        )
+
+    for index, entry in enumerate(entries):
+        value = f"{entry['title']} | {entry['page_label']}"
+        physical_page = page_start
+        if isinstance(page_start, int) and isinstance(page_end, int) and page_end > page_start:
+            physical_page = min(
+                page_end,
+                page_start
+                + int((entry["char_start"] / max(len(text), 1)) * (page_end - page_start + 1)),
+            )
+        atom_id = _atom_id(document_id, "Contents", index, "contents_entry", value)
+        atoms.append(
+            {
+                "id": atom_id,
+                "kind": "contents_entry",
+                "field_id": "Contents.ordered_contents_entries",
+                "value": value,
+                "title": entry["title"],
+                "page_label": entry["page_label"],
+                "order": entry["order"],
+                "unit": "printed_page",
+                "period": None,
+                "unit_id": unit_id,
+                "source_file": source_file,
+                "page_start": physical_page,
+                "page_end": physical_page,
+                "section_sentence_index": len(notice_sentences) + index,
+                "char_start": entry["char_start"],
+                "char_end": entry["char_end"],
+                "priority": "required",
+                "evidence_status": "section_traceable",
+            }
+        )
+
+    evidence_unit = {
+        **unit,
+        "unitId": unit_id,
+        "evidenceAtomIds": [atom["id"] for atom in atoms],
+        "evidenceAtomCount": len(atoms),
+    }
+    return {
+        "schema_version": "section-source-materials/2.1",
+        "contract_version": contract.get("version"),
+        "contract_source_hash": contract.get("sourceHash"),
+        "extraction_method": "deterministic_contents_rows_v1",
+        "section_id": "Contents",
+        "source_file": source_file,
+        "page_start": page_start,
+        "page_end": page_end,
+        "char_count": len(text),
+        "word_count": len(WORD_RE.findall(text)),
+        "subsection_outline": [entry["title"] for entry in entries],
+        "key_numeric_facts": [],
+        "key_narrative_points": atoms,
+        "evidence_atoms": atoms,
+        "source_excerpt_blocks": [],
+        "section_units": [evidence_unit],
+        "contents_entries": entries,
+        "counts": {
+            "sentences_seen": len(notice_sentences) + len(entries),
+            "outline_items": len(entries),
+            "numeric_facts": 0,
+            "narrative_points": len(atoms),
+            "evidence_atoms": len(atoms),
+            "section_units": 1,
+            "excerpt_blocks": 0,
+            "term_definitions": 0,
+        },
+    }
 
 
 def _dedupe_keep_order(items: list[str], limit: int) -> list[str]:
@@ -687,6 +929,54 @@ def _contract_values(
     section_id = str(contract.get("sectionId") or "")
     term_definitions = term_definitions or []
 
+    if section_id == "Contents":
+        entries = [atom for atom in atoms if atom.get("kind") == "contents_entry"]
+        notices = [atom for atom in atoms if atom.get("kind") == "notice"]
+        result: dict[str, Any] = {}
+        for field in contract.get("fields") or []:
+            field_id = str(field.get("fieldId") or field.get("label") or "unknown")
+            key = normalize_identifier(str(field.get("label") or ""))
+            selected = entries if key == "orderedcontentsentries" else notices
+            if selected:
+                value: Any
+                if key == "orderedcontentsentries":
+                    value = [
+                        {
+                            "title": atom.get("title"),
+                            "page_label": atom.get("page_label"),
+                        }
+                        for atom in selected
+                    ]
+                else:
+                    value = [str(atom.get("value") or "") for atom in selected]
+                result[field_id] = {
+                    "value": value,
+                    "source_file": selected[0].get("source_file"),
+                    "page_start": min(atom.get("page_start") or 0 for atom in selected) or None,
+                    "page_end": max(atom.get("page_end") or 0 for atom in selected) or None,
+                    "char_start": min(atom.get("char_start") or 0 for atom in selected),
+                    "char_end": max(atom.get("char_end") or 0 for atom in selected),
+                    "evidence_atom_ids": [str(atom["id"]) for atom in selected],
+                    "extraction_method": "deterministic_contents_rows_v1",
+                    "evidence_status": "section_traceable",
+                }
+            else:
+                result[field_id] = {
+                    "value": None,
+                    "applicable": False if key == "frontmatternoticesifpresent" else None,
+                    "missing_reason": (
+                        "No front-matter notice precedes the printed contents rows."
+                        if key == "frontmatternoticesifpresent"
+                        else "No printed contents rows with page labels were parsed."
+                    ),
+                    "evidence_status": (
+                        "not_applicable"
+                        if key == "frontmatternoticesifpresent"
+                        else "missing"
+                    ),
+                }
+        return result
+
     def is_conditional(field_label: str) -> bool:
         lowered = field_label.lower()
         if section_id == "Back_Cover":
@@ -832,6 +1122,8 @@ def _build_materials(
         "page_start": section.get("page_start"),
         "page_end": section.get("page_end"),
     }
+    if section_id == "Contents":
+        return _build_contents_materials(section, contract, document_id)
     sentences = _sentence_split(text)
     outline = _extract_outline(text)
     evidence_units, evidence_atoms = _build_evidence_units(

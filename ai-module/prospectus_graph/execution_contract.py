@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable
 
 
-CONTRACT_VERSION = "section-execution-contract/1.1"
+CONTRACT_VERSION = "section-execution-contract/1.2"
 
 # These sections cannot approach filed-prospectus completeness in a single
 # writer call.  They are always planned and drafted as independent units.
