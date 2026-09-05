@@ -397,7 +397,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setDesktopShell(isDesktopShell());
+    const timer = window.setTimeout(() => setDesktopShell(isDesktopShell()), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const fetchFiles = useCallback(async () => {
@@ -439,11 +440,14 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     } catch {
       // keep current draft
     }
-  }, []);
+  }, [t.emptyDraft]);
 
   useEffect(() => {
-    fetchFiles();
-    fetchResults();
+    const timer = window.setTimeout(() => {
+      void fetchFiles();
+      void fetchResults();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [fetchFiles, fetchResults]);
 
   const fetchAgent2Status = useCallback(async () => {
@@ -459,16 +463,22 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
     } catch {
       setAgent2Status({ ok: false, hint: t.setupVerifyFailed });
     }
-  }, []);
+  }, [t.setupVerifyFailed]);
 
   useEffect(() => {
     const m = results?.manifest ?? results?.classification;
-    if (m && !generating) fetchAgent2Status();
+    if (m && !generating) {
+      const timer = window.setTimeout(() => void fetchAgent2Status(), 0);
+      return () => window.clearTimeout(timer);
+    }
   }, [results, generating, fetchAgent2Status]);
 
   useEffect(() => {
     const m = results?.manifest ?? results?.classification;
-    if (m && !generating) fetchDraft();
+    if (m && !generating) {
+      const timer = window.setTimeout(() => void fetchDraft(), 0);
+      return () => window.clearTimeout(timer);
+    }
   }, [results, generating, fetchDraft]);
 
   const parsedSections = useMemo(() => parseDraftSections(draftMd), [draftMd]);

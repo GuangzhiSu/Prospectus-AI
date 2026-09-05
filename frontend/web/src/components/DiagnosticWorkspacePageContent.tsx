@@ -15,16 +15,6 @@ import { PublicNav } from "@/components/PublicNav";
 
 type Locale = "en" | "zh";
 type InputMode = "documents" | "structured";
-type Status =
-  | "PASS"
-  | "SHORTFALL"
-  | "MISSING_INPUT"
-  | "INDETERMINATE"
-  | "NOT_EVALUATED"
-  | "TRIGGERED"
-  | "PASS_SIGNAL"
-  | "DEFERRED_REVIEW";
-
 type Market = {
   key: string;
   label: string;

@@ -13,7 +13,7 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 300; // Vercel Hobby cap; local desktop runs are not constrained by this value.
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const root = getProspectusRoot();
     const paths = workspacePaths(root);
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     try {
       await fs.access(dataDir);
       await fs.access(agent1Path);
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         { error: `${path.relative(root, dataDir) || dataDir}/ or agent1.py not found` },
         { status: 500 }

@@ -6,23 +6,23 @@ import { GithubLogo, List, Translate, X } from "@phosphor-icons/react";
 import { useState } from "react";
 
 type PublicNavProps = {
-  active: "home" | "overview" | "download" | "eligibility" | "drafting" | "developer";
+  active: "home" | "overview" | "download" | "eligibility" | "drafting" | "faq" | "developer";
   locale?: "en" | "zh";
 };
 
 const labels = {
   en: {
     home: "Overview", eligibility: "IPO Diagnostic", drafting: "Drafting",
-    download: "Download", workspace: "Draft Workspace", developer: "Developer Tools", github: "GitHub",
+    download: "Download", faq: "FAQ", workspace: "Draft Workspace", developer: "Developer Tools", github: "GitHub",
     language: "中文", languageHref: "/zh", eligibilityHref: "/diagnostic",
-    draftingHref: "/drafting", downloadHref: "/download", workspaceHref: "/workspace", developerHref: "/developer-tools",
+    draftingHref: "/drafting", downloadHref: "/download", faqHref: "/faq", workspaceHref: "/workspace", developerHref: "/developer-tools",
     menu: "Open navigation",
   },
   zh: {
     home: "产品概览", eligibility: "上市诊断", drafting: "招股书生成",
-    download: "下载", workspace: "起草工作区", developer: "开发者工具", github: "GitHub",
+    download: "下载", faq: "常见问题", workspace: "起草工作区", developer: "开发者工具", github: "GitHub",
     language: "English", languageHref: "/", eligibilityHref: "/zh/diagnostic",
-    draftingHref: "/zh/drafting", downloadHref: "/zh/download", workspaceHref: "/zh/workspace", developerHref: "/developer-tools",
+    draftingHref: "/zh/drafting", downloadHref: "/zh/download", faqHref: "/zh/faq", workspaceHref: "/zh/workspace", developerHref: "/developer-tools",
     menu: "打开导航",
   },
 };
@@ -31,11 +31,13 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
   const [open, setOpen] = useState(false);
   const t = labels[locale];
   const homeHref = locale === "zh" ? "/zh" : "/";
+  const languageHref = active === "faq" ? (locale === "zh" ? "/faq" : "/zh/faq") : t.languageHref;
   const items = [
     { label: t.home, href: homeHref, selected: active === "home" || active === "overview" },
     { label: t.eligibility, href: t.eligibilityHref, selected: active === "eligibility" },
     { label: t.drafting, href: t.draftingHref, selected: active === "drafting" },
     { label: t.download, href: t.downloadHref, selected: active === "download" },
+    { label: t.faq, href: t.faqHref, selected: active === "faq" },
     { label: t.developer, href: t.developerHref, selected: active === "developer" },
   ];
   const itemClass = (selected: boolean) =>
@@ -61,7 +63,7 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
           <a href="https://github.com/GuangzhiSu/Prospectus-AI" className={itemClass(false)} target="_blank" rel="noreferrer">
             <span className="flex items-center gap-1.5"><GithubLogo size={17} weight="bold" />{t.github}</span>
           </a>
-          <Link href={t.languageHref} className={itemClass(false)}>
+          <Link href={languageHref} className={itemClass(false)}>
             <span className="flex items-center gap-1.5"><Translate size={17} weight="bold" />{t.language}</span>
           </Link>
           <Link href={t.workspaceHref} className="ml-2 rounded-md bg-[#176b5b] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#105548]">
@@ -83,7 +85,7 @@ export function PublicNav({ active, locale = "en" }: PublicNavProps) {
             <Link href={t.workspaceHref} onClick={() => setOpen(false)} className="mt-2 rounded-md bg-[#176b5b] px-4 py-3 text-center text-sm font-semibold text-white">{t.workspace}</Link>
             <div className="mt-2 grid grid-cols-2 gap-2">
               <a href="https://github.com/GuangzhiSu/Prospectus-AI" target="_blank" rel="noreferrer" className={itemClass(false)}>{t.github}</a>
-              <Link href={t.languageHref} className={itemClass(false)}>{t.language}</Link>
+              <Link href={languageHref} className={itemClass(false)}>{t.language}</Link>
             </div>
           </div>
         </div>

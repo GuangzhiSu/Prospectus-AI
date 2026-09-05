@@ -55,7 +55,6 @@ export default function Agent1Page() {
     manifest?: Manifest;
     classification?: Classification;
   } | null>(null);
-  const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +68,7 @@ export default function Agent1Page() {
       if (!res.ok) throw new Error(await res.text());
       const data = (await res.json()) as { items: DataFile[] };
       setFiles(Array.isArray(data.items) ? data.items : []);
-    } catch (e) {
+    } catch {
       setFiles([]);
     }
   }, []);
@@ -107,14 +106,18 @@ export default function Agent1Page() {
   }, []);
 
   useEffect(() => {
-    fetchFiles();
-    fetchResults();
+    const timer = window.setTimeout(() => {
+      void fetchFiles();
+      void fetchResults();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [fetchFiles, fetchResults]);
 
   useEffect(() => {
     const m = results?.manifest ?? results?.classification;
     if (m && !draftMd && !generating) {
-      fetchDraft();
+      const timer = window.setTimeout(() => void fetchDraft(), 0);
+      return () => window.clearTimeout(timer);
     }
   }, [results, draftMd, generating, fetchDraft]);
 
