@@ -29,6 +29,35 @@ def test_all_section_specs_compile_to_versioned_fields_and_units():
     )
 
 
+def test_legacy_aliases_require_semantic_overlap():
+    requirements = json.loads(REQUIREMENTS.read_text(encoding="utf-8"))
+    contracts = compile_execution_contracts(requirements)["contracts"]
+    cover = contracts["Cover"]
+    aliases = {field["fieldId"]: field["aliases"] for field in cover["fields"]}
+
+    assert aliases["Cover.stock_code"] == ["Stock code"]
+    assert "stock_code" not in aliases[
+        "Cover.total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar"
+    ]
+    assert "stock_code" not in aliases[
+        "Cover.brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact"
+    ]
+    assert "key_underwriters" not in aliases["Cover.offering_type_global_offering"]
+    assert "key_underwriters" in aliases[
+        "Cover.names_of_joint_sponsors_overall_coordinators_joint_global_coordinators_joint_bookrunners_joint_l"
+    ]
+
+    for contract in contracts.values():
+        owners: dict[str, str] = {}
+        for field in contract["fields"]:
+            for alias in field["aliases"]:
+                assert alias not in owners, (
+                    f"{contract['sectionId']} alias {alias!r} is shared by "
+                    f"{owners.get(alias)!r} and {field['fieldId']!r}"
+                )
+                owners[alias] = field["fieldId"]
+
+
 def _contract() -> dict:
     return {
         "fields": [

@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable
 
 
-CONTRACT_VERSION = "section-execution-contract/1.0"
+CONTRACT_VERSION = "section-execution-contract/1.1"
 
 # These sections cannot approach filed-prospectus completeness in a single
 # writer call.  They are always planned and drafted as independent units.
@@ -117,18 +117,73 @@ def _kg_field_metadata(requirement: dict[str, Any]) -> list[dict[str, Any]]:
     return fields
 
 
+def _semantic_discriminators(value: str) -> dict[str, str]:
+    tokens = _tokens(value.replace("_", " "))
+    normalized = {"name" if token == "names" else token for token in tokens}
+    result: dict[str, str] = {}
+    for token in ("name", "address", "nationality", "role", "shareholding"):
+        if token in normalized:
+            result["identity"] = token
+            break
+    if {"hong", "kong"} <= normalized:
+        result["market"] = "hong_kong"
+    elif "international" in normalized:
+        result["market"] = "international"
+    if normalized & {"start", "begin", "opening", "commencement"}:
+        result["boundary"] = "start"
+    elif normalized & {"end", "ending", "closing"}:
+        result["boundary"] = "end"
+    if normalized & {"projected", "projection", "forecast", "forecasted"}:
+        result["horizon"] = "projected"
+    elif normalized & {"current", "historical", "actual"}:
+        result["horizon"] = "actual"
+    return result
+
+
+def _has_alias_conflict(label: str, candidate: str) -> bool:
+    left = _semantic_discriminators(label)
+    right = _semantic_discriminators(candidate)
+    if left.get("identity") and right.get("identity"):
+        if left["identity"] != right["identity"]:
+            return True
+    for dimension in ("market", "boundary", "horizon"):
+        if left.get(dimension) != right.get(dimension) and (
+            left.get(dimension) or right.get(dimension)
+        ):
+            return True
+    return False
+
+
 def _field_aliases(label: str, kg_fields: list[dict[str, Any]]) -> list[str]:
     aliases = [label, slugify(label)]
     label_tokens = _tokens(label)
     scored: list[tuple[float, str]] = []
     for field in kg_fields:
         candidate = field["label"]
-        candidate_tokens = _tokens(candidate + " " + field.get("description", ""))
+        if normalize_identifier(candidate) in {
+            normalize_identifier(label),
+            normalize_identifier(slugify(label)),
+        }:
+            scored.append((2.0, candidate))
+            continue
+        candidate_context = candidate.replace("_", " ") + " " + field.get(
+            "description", ""
+        )
+        if _has_alias_conflict(label, candidate_context):
+            continue
+        # Descriptions help bridge maintained lawyer-facing labels to legacy
+        # snake_case input keys, but a single shared token is not semantic
+        # evidence.  The former Jaccard-on-any-overlap rule mapped `stock_code`
+        # into unrelated fields containing “Hong Kong” or “Stock Exchange”.
+        # Require at least two shared concepts and coverage of half the legacy
+        # field vocabulary before accepting the alias.
+        candidate_tokens = _tokens(candidate_context)
         overlap = len(label_tokens & candidate_tokens)
-        union = len(label_tokens | candidate_tokens) or 1
-        if overlap:
-            scored.append((overlap / union, candidate))
-    for _, candidate in sorted(scored, reverse=True)[:3]:
+        candidate_coverage = overlap / max(len(candidate_tokens), 1)
+        label_coverage = overlap / max(len(label_tokens), 1)
+        if overlap >= 2 and candidate_coverage >= 0.5 and label_coverage >= 0.2:
+            scored.append((candidate_coverage + label_coverage, candidate))
+    for _, candidate in sorted(scored, reverse=True):
         aliases.append(candidate)
     seen: set[str] = set()
     result: list[str] = []

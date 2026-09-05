@@ -152,6 +152,25 @@ export async function verifyDeveloperData(
             `Developer dataset execution-contract coverage is invalid: ${company.id}/${section.id}.`
           );
         }
+        const contractValues = prepared?.contract_values;
+        if (contractValues && typeof contractValues === "object" && !Array.isArray(contractValues)) {
+          const legacyOwners = new Map();
+          for (const [fieldId, value] of Object.entries(contractValues)) {
+            const sourceKey =
+              value && typeof value === "object" && !Array.isArray(value)
+                ? value.contract_source_key
+                : undefined;
+            if (typeof sourceKey !== "string" || !sourceKey) continue;
+            const owner = legacyOwners.get(sourceKey);
+            if (owner && owner !== fieldId) {
+              throw new Error(
+                `Developer dataset reuses legacy source ${sourceKey} across ` +
+                  `${company.id}/${section.id}: ${owner}, ${fieldId}.`
+              );
+            }
+            legacyOwners.set(sourceKey, fieldId);
+          }
+        }
       }
     }
   }

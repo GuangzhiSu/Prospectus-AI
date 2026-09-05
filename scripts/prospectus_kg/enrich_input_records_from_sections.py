@@ -143,7 +143,7 @@ FIELD_ANCHORS: tuple[tuple[re.Pattern[str], tuple[str, ...]], ...] = (
     (re.compile(r"audit committee", re.I), ("audit committee",)),
     (re.compile(r"remuneration committee", re.I), ("remuneration committee",)),
     (re.compile(r"nomination committee", re.I), ("nomination committee",)),
-    (re.compile(r"compliance adviser", re.I), ("compliance adviser",)),
+    (re.compile(r"compliance advis[eo]r", re.I), ("compliance adviser", "compliance advisor")),
     (re.compile(r"registrar", re.I), ("share registrar", "registrar")),
     (re.compile(r"banker|principal banks", re.I), ("principal bank", "banker")),
     (re.compile(r"share incentive", re.I), ("share incentive", "grantee", "option", "award")),
@@ -184,34 +184,35 @@ def _sentence_split(text: str) -> list[str]:
         r"Joint Global Coordinators?|Joint Bookrunners?|Joint Lead Managers?|"
         r"Registered Office|Head Office|Principal Place of Business|Company Website|"
         r"Audit Committee|Remuneration Committee|Nomination Committee|"
-        r"Compliance Adviser|Share Registrar|Principal Bank|"
+        r"Compliance Advis[eo]r|(?:Hong Kong |Principal )?Share Registrar|Principal Bank|"
         r"Revenue|Gross Profit|Profit for the (?:year|period)|Total Assets|"
         r"Total Liabilities|Net Cash(?: Flows?)?"
     )
     parts: list[str] = []
     for line in raw_lines:
         for sentence in re.split(
-            r"(?<=[.!?])\s+(?=(?:[A-Z0-9\"“'‘]|\())|\s*[;•]\s*", line
+            r"(?<!Mr\.)(?<!Ms\.)(?<!Dr\.)(?<!Prof\.)(?<=[.!?])"
+            r"\s+(?=(?:[A-Z0-9\"“'‘]|\())|\s*[;•]\s*",
+            line,
         ):
-            parts.extend(
-                item
-                for item in re.split(rf"(?=\b(?:{field_label})\s*:?)", sentence, flags=re.I)
-                if item.strip()
-            )
+            if len(sentence) < 80:
+                parts.append(sentence)
+            else:
+                parts.extend(
+                    item
+                    for item in re.split(
+                        rf"(?=\b(?:{field_label})\s*:?)", sentence, flags=re.I
+                    )
+                    if item.strip()
+                )
     out: list[str] = []
     for part in parts:
         part = part.strip()
-        if len(part) < 35 and not NUMERIC_RE.search(part):
-            short_heading = bool(
-                re.fullmatch(r"[A-Z][A-Z &/\-]{2,40}", part)
-            )
-            if not short_heading and not re.search(
-                r"limited|ltd\.?|inc\.?|company|sponsor|coordinator|bookrunner|"
-                r"lead manager|global offering|www\.|https?://|stock code",
-                part,
-                re.I,
-            ):
-                continue
+        # A short source line can be an issuer name, a professional party, an
+        # address row, a committee member or a table label.  Discarding lines
+        # merely because they are short silently removes exactly the atomic
+        # facts the contract is intended to preserve.  Relevance filtering for
+        # long narrative sections happens later, after unit assignment.
         while len(part) > 900:
             cut = part.rfind(" ", 500, 900)
             if cut < 0:
@@ -598,9 +599,12 @@ def _existing_value_for_field(
 
 def _anchors_for_field(field: dict[str, Any]) -> tuple[str, ...]:
     label = str(field.get("label") or "")
+    matched: list[str] = []
     for pattern, anchors in FIELD_ANCHORS:
         if pattern.search(label):
-            return anchors
+            matched.extend(anchors)
+    if matched:
+        return tuple(dict.fromkeys(matched))
     aliases = [label, *(field.get("aliases") or [])]
     tokens: list[str] = []
     for alias in aliases:
@@ -647,7 +651,7 @@ def _atoms_for_field(
     ranked.sort(key=lambda item: (-item[0], -item[1]))
     label_lower = label.lower()
     compound = bool(
-        re.search(r"names? of|number of .*(?:number of|and)|,|/|\band\b", label_lower)
+        re.search(r"names? of|number of .*(?:number of|and)|[,;/]|\band\b", label_lower)
     )
     if not compound:
         return [ranked[0][2]]
