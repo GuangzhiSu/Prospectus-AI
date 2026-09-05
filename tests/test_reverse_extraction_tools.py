@@ -311,3 +311,65 @@ def test_enrich_preserves_short_professional_and_committee_rows(tmp_path):
         "Hong Kong Share Registrar",
         "Principal Banks",
     ]
+
+
+def test_contents_rows_are_structured_without_keyword_cross_matches(tmp_path):
+    input_records_dir = tmp_path / "input_records"
+    sections_dir = tmp_path / "sections"
+    sections_dir.mkdir()
+    (sections_dir / "demo.json").write_text(
+        json.dumps(
+            {
+                "document_id": "demo",
+                "sections": [
+                    {
+                        "canonical_section": "Contents",
+                        "source_file": "demo.pdf",
+                        "page_start": 8,
+                        "page_end": 9,
+                        "text": (
+                            "TABLE OF CONTENTS\n"
+                            "You should rely only on the information contained in this prospectus.\n"
+                            "Page\n"
+                            "Summary . . . . . . . . . . . . . . . . . . .\n1\n"
+                            "Financial Information . . . . . . . . . . . .\n411\n"
+                            "Appendix II — Unaudited Pro Forma Financial Information\n"
+                            ". . . . . . . . . . . . . . . . . . . . . . .\nII-1\n"
+                            "Appendix III — Summary of the Constitution of the Company\n"
+                            ". . . . . . . . . . . . . . . . . . . . . . .\nIII-1\n"
+                        ),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    enrich_all(input_records_dir=input_records_dir, sections_dir=sections_dir)
+    recovered = json.loads(
+        (input_records_dir / "demo" / "Contents.json").read_text(encoding="utf-8")
+    )
+    entries = recovered["contract_values"]["Contents.ordered_contents_entries"]["value"]
+    assert entries == [
+        {"title": "Summary", "page_label": "1"},
+        {"title": "Financial Information", "page_label": "411"},
+        {
+            "title": "Appendix II — Unaudited Pro Forma Financial Information",
+            "page_label": "II-1",
+        },
+        {
+            "title": "Appendix III — Summary of the Constitution of the Company",
+            "page_label": "III-1",
+        },
+    ]
+    notices = recovered["contract_values"][
+        "Contents.front_matter_notices_if_present"
+    ]["value"]
+    assert notices == [
+        "You should rely only on the information contained in this prospectus."
+    ]
+    assert recovered["extracted_source_materials"]["counts"]["evidence_atoms"] == 5
+    assert all(
+        atom["kind"] in {"contents_entry", "notice"}
+        for atom in recovered["evidence_atoms"]
+    )

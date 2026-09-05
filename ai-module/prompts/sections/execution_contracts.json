@@ -1,10 +1,10 @@
 {
-  "version": "section-execution-contract/1.1",
-  "sourceHash": "ed834c8e40b24d0a395e78599b69761161cc2e99206eea81c52640d6e50c395e",
+  "version": "section-execution-contract/1.2",
+  "sourceHash": "3e6ef67bb093684e971b5c42adf9a1881fb331ec9db286af1d5e1d65971eddd9",
   "contractCount": 31,
   "contracts": {
     "ExpectedTimetable": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ExpectedTimetable",
       "sectionId": "Expected_Timetable",
       "sectionName": "Expected Timetable",
@@ -117,7 +117,7 @@
       "sourceHash": "6d434bdc43afef4282ff9392d277ce978650f8443e5c4cd27ed7d5e78696a288"
     },
     "Contents": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Contents",
       "sectionId": "Contents",
       "sectionName": "Contents",
@@ -125,76 +125,22 @@
       "isLongSection": false,
       "fields": [
         {
-          "fieldId": "Contents.expected_timetable",
-          "label": "expected_timetable",
+          "fieldId": "Contents.ordered_contents_entries",
+          "label": "ordered_contents_entries",
           "aliases": [
-            "expected_timetable"
+            "ordered_contents_entries"
           ],
           "required": true,
-          "description": "Key dates and milestones for the offering process."
+          "description": ""
         },
         {
-          "fieldId": "Contents.summary",
-          "label": "summary",
+          "fieldId": "Contents.front_matter_notices_if_present",
+          "label": "front_matter_notices_if_present",
           "aliases": [
-            "summary"
+            "front_matter_notices_if_present"
           ],
           "required": true,
-          "description": "Brief overview of the company, its business, and the offering."
-        },
-        {
-          "fieldId": "Contents.financial_information",
-          "label": "financial_information",
-          "aliases": [
-            "financial_information"
-          ],
-          "required": true,
-          "description": "Audited and unaudited financial statements and other financial data."
-        },
-        {
-          "fieldId": "Contents.future_plans_and_use_of_proceeds",
-          "label": "future_plans_and_use_of_proceeds",
-          "aliases": [
-            "future_plans_and_use_of_proceeds"
-          ],
-          "required": true,
-          "description": "Detailed plans for the use of proceeds from the offering."
-        },
-        {
-          "fieldId": "Contents.cornerstone_investors",
-          "label": "cornerstone_investors",
-          "aliases": [
-            "cornerstone_investors"
-          ],
-          "required": true,
-          "description": "Details of cornerstone investors and their commitments."
-        },
-        {
-          "fieldId": "Contents.underwriting",
-          "label": "underwriting",
-          "aliases": [
-            "underwriting"
-          ],
-          "required": true,
-          "description": "Information on underwriting arrangements and the role of underwriters."
-        },
-        {
-          "fieldId": "Contents.structure_of_the_global_offering",
-          "label": "structure_of_the_global_offering",
-          "aliases": [
-            "structure_of_the_global_offering"
-          ],
-          "required": true,
-          "description": "Description of the structure of the global offering, including the roles of various parties."
-        },
-        {
-          "fieldId": "Contents.how_to_apply_for_hong_kong_offer_shares",
-          "label": "how_to_apply_for_hong_kong_offer_shares",
-          "aliases": [
-            "how_to_apply_for_hong_kong_offer_shares"
-          ],
-          "required": true,
-          "description": "Instructions on how to apply for the Hong Kong offer shares."
+          "description": ""
         }
       ],
       "units": [
@@ -204,23 +150,17 @@
           "title": "Contents",
           "instruction": "Mandatory order template: Expected Timetable; Contents; Summary; Definitions; Glossary of Technical Terms; Forward-looking Statements; Risk Factors; Waivers and Exemptions; Information about this Prospectus and the Global Offering; Directors and Parties Involved in the Global Offering; Corporate Information; Industry Overview; Regulatory Overview; History, Reorganization and Corporate Structure; Business; Contractual Arrangements (if applicable); Connected Transactions; Directors and Senior Management; Relationship with Controlling Shareholders; Substantial Shareholders; Cornerstone Investors (if applicable); Share Capital; Financial Information; Future Plans and Use of Proceeds; Underwriting; Structure of the Global Offering; How to Apply for Hong Kong Offer Shares; Appendix I — Accountants' Report; Appendix II — Unaudited Pro Forma Financial Information; Appendix III — Summary of Constitution and Cayman Islands Company Law and Taxation; Appendix IV — Statutory and General Information; Appendix V — Documents Delivered to Registrar and Available for Inspection / Display",
           "requiredFieldIds": [
-            "Contents.expected_timetable",
-            "Contents.summary",
-            "Contents.financial_information",
-            "Contents.future_plans_and_use_of_proceeds",
-            "Contents.cornerstone_investors",
-            "Contents.underwriting",
-            "Contents.structure_of_the_global_offering",
-            "Contents.how_to_apply_for_hong_kong_offer_shares"
+            "Contents.ordered_contents_entries",
+            "Contents.front_matter_notices_if_present"
           ],
           "tableRequirements": [],
           "targetCharacters": 4500
         }
       ],
-      "sourceHash": "7f1b00eea457f54d848105606fbb2fc97e95005c9faabcabd06a7d225b305277"
+      "sourceHash": "6010a7ba0a548c96dc341244c0ed739bc76f24f16c75718e74b93165db3d92ff"
     },
     "Summary": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Summary",
       "sectionId": "Summary",
       "sectionName": "Summary",
@@ -433,7 +373,7 @@
       "sourceHash": "6f7efb1239254b178ecfd647dedf6901f27f07ee6860421078a0b471f72ac966"
     },
     "Definitions": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Definitions",
       "sectionId": "Definitions",
       "sectionName": "Definitions",
@@ -516,7 +456,7 @@
       "sourceHash": "ba1c9b2ed2d0f594dd3cb8aa2f00816e99d0946f47f14dd70e448a3beac09b35"
     },
     "Glossary": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Glossary",
       "sectionId": "Glossary_of_Technical_Terms",
       "sectionName": "Glossary of Technical Terms",
@@ -579,7 +519,7 @@
       "sourceHash": "54b630695fb4485649ba5fc5edafacfe5e58366978dc42bfeb317aa7ea30bd7a"
     },
     "ForwardLooking": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ForwardLooking",
       "sectionId": "Forward_Looking_Statements",
       "sectionName": "Forward-Looking Statements",
@@ -632,7 +572,7 @@
       "sourceHash": "de7b8474f22afa8bfd730514f6f89d00d087be5907dd35367b46edd1020cc9f2"
     },
     "RiskFactors": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "RiskFactors",
       "sectionId": "Risk_Factors",
       "sectionName": "Risk Factors",
@@ -818,7 +758,7 @@
       "sourceHash": "746f342a15aa0ba9506eab6977ce694fe26a3bbdbb0f0bfe3f09df262d68eb45"
     },
     "Waivers": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Waivers",
       "sectionId": "Waivers_and_Exemptions",
       "sectionName": "Waivers from Strict Compliance with Listing Rules (Waivers and Exemptions)",
@@ -863,7 +803,7 @@
       "sourceHash": "af68a23157dd5f5c1d1f2e59376491057adf6a5373b71c7165d8420ee718ff90"
     },
     "InfoProspectus": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "InfoProspectus",
       "sectionId": "Prospectus_and_Global_Offering_Information",
       "sectionName": "Information about this Prospectus and the Global Offering",
@@ -946,7 +886,7 @@
       "sourceHash": "4ab94a5df7b444c3ea4be0e9073a85c9880dd4e80956d8a31b2b7a64c6f62d72"
     },
     "DirectorsParties": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "DirectorsParties",
       "sectionId": "Parties_Involved_in_the_Global_Offering",
       "sectionName": "Directors and Parties Involved in the Global Offering",
@@ -1109,7 +1049,7 @@
       "sourceHash": "5edad1388b5ce2df46b06213d50c7da7600ae5023eeedd49579ebcdc8ddd0343"
     },
     "CorporateInfo": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "CorporateInfo",
       "sectionId": "Corporate_Information",
       "sectionName": "Corporate Information",
@@ -1186,7 +1126,7 @@
       "sourceHash": "cc32e4047b3804eca73171b5eaebf94f79f0c9c480e08eceacb8e8dbb4337458"
     },
     "Regulation": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Regulation",
       "sectionId": "Regulatory_Overview",
       "sectionName": "Regulation (Regulatory Overview)",
@@ -1298,7 +1238,7 @@
       "sourceHash": "b51c247179800a73497b0a3995e9357a1a06ebf5c6d0ffc181b1117bc735c818"
     },
     "IndustryOverview": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "IndustryOverview",
       "sectionId": "Industry_Overview",
       "sectionName": "Industry Overview",
@@ -1477,7 +1417,7 @@
       "sourceHash": "e8a35c3b1f2251e4b20e347118d8384f0b9c5e6368350270c3f7e0672a62eb5e"
     },
     "HistoryReorg": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "HistoryReorg",
       "sectionId": "History_Reorganization_Corporate_Structure",
       "sectionName": "History, Reorganization, and Corporate Structure",
@@ -1631,7 +1571,7 @@
       "sourceHash": "2896fbfbabbd326e498aedd4b4a824d024a46dbbf6331ce2a2442fb16561d1e0"
     },
     "Business": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Business",
       "sectionId": "Business",
       "sectionName": "Business",
@@ -1827,7 +1767,7 @@
       "sourceHash": "8873e13ad38044797d73070a1d64c9c1dbcfdc84902aa213a0fc5c43c0440875"
     },
     "ContractualArrangements": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ContractualArrangements",
       "sectionId": "Contractual_Arrangements_VIE",
       "sectionName": "Contractual Arrangements (Variable Interest Entities)",
@@ -1915,7 +1855,7 @@
       "sourceHash": "647a6abd264af9440249febd28181ba32416f5a242754adb272bfff72792d3a6"
     },
     "ControllingShareholders": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ControllingShareholders",
       "sectionId": "Relationship_with_Controlling_Shareholders",
       "sectionName": "Relationship with Our Controlling Shareholders",
@@ -1988,7 +1928,7 @@
       "sourceHash": "05e613af145129effb4d4cd0d3702efcbc0327f112fe7929ac10fc9d492aa5bd"
     },
     "ConnectedTransactions": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ConnectedTransactions",
       "sectionId": "Connected_Transactions",
       "sectionName": "Connected Transactions",
@@ -2108,7 +2048,7 @@
       "sourceHash": "9740a96b5e9d17e2e35478d9b03eb0a61f715ac354a9e95fdce791aa939cba36"
     },
     "DirectorsSeniorMgmt": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "DirectorsSeniorMgmt",
       "sectionId": "Directors_and_Senior_Management",
       "sectionName": "Directors and Senior Management",
@@ -2296,7 +2236,7 @@
       "sourceHash": "0bfc79cac40215f16e1e00e09e5567f13249ae849f88dfde8e9c0a8825a5ba8d"
     },
     "SubstantialShareholders": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "SubstantialShareholders",
       "sectionId": "Substantial_Shareholders",
       "sectionName": "Substantial Shareholders",
@@ -2372,7 +2312,7 @@
       "sourceHash": "6546d1ca698615b3b47d4306e15314ee7dc88d62df39da27a1931ff2693f9ac2"
     },
     "ShareCapital": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ShareCapital",
       "sectionId": "Share_Capital",
       "sectionName": "Share Capital",
@@ -2447,7 +2387,7 @@
       "sourceHash": "421ce324168cd981b5f13d5d4bc532c278d7ee86566bf70cea27f27c9ff08f6d"
     },
     "FinancialInfo": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "FinancialInfo",
       "sectionId": "Financial_Information",
       "sectionName": "Financial Information",
@@ -2687,7 +2627,7 @@
       "sourceHash": "7847648a7d0ff3824a1a2362ff8b436e73370c491ab85cfcde1f30e53f54f8d4"
     },
     "UseOfProceeds": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "UseOfProceeds",
       "sectionId": "Future_Plans_and_Use_of_Proceeds",
       "sectionName": "Future Plans and Use of Proceeds",
@@ -2772,7 +2712,7 @@
       "sourceHash": "7881bd39c52b70d55d59862c2f1c5b3aeadfd3a7e528974570ed4969e07f62fe"
     },
     "Underwriting": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Underwriting",
       "sectionId": "Underwriting",
       "sectionName": "Underwriting",
@@ -2901,7 +2841,7 @@
       "sourceHash": "2e178d4f520c6d9f94bb6c5e323e4199e5b4b3383bbbf681b3724a726a5c4b27"
     },
     "GlobalOfferingStructure": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "GlobalOfferingStructure",
       "sectionId": "Structure_of_the_Global_Offering",
       "sectionName": "Structure of the Global Offering",
@@ -3060,7 +3000,7 @@
       "sourceHash": "0c789a54ca12bb322bc7f8bb2e79286ad00f66667a6e83aab004706977d98b6f"
     },
     "Appendices": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Appendices",
       "sectionId": "Appendices",
       "sectionName": "Appendices",
@@ -3172,7 +3112,7 @@
       "sourceHash": "7e96a7bf7b9db0d5a817fe3af93f19e3ae0e1aab89b69615a3c598f5fcfdad3b"
     },
     "BackCover": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "BackCover",
       "sectionId": "Back_Cover",
       "sectionName": "Back Cover",
@@ -3247,7 +3187,7 @@
       "sourceHash": "deeb10de4913ec3c57b0c88c4b666e35dc31afb51ffabdf21580cec0d8804a69"
     },
     "CornerstoneInvestors": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "CornerstoneInvestors",
       "sectionId": "Cornerstone_Investors",
       "sectionName": "Cornerstone Investors",
@@ -3322,7 +3262,7 @@
       "sourceHash": "7311164436cac7bce48d92e915d64af14881a9e31c7b05ed077de00dbdfbb289"
     },
     "Cover": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "Cover",
       "sectionId": "Cover",
       "sectionName": "Cover",
@@ -3474,7 +3414,7 @@
       "sourceHash": "48ec81b6b2fd6f014f9b8155c81f04e01d9b25bf088ad01493f0e0aef4d2bf47"
     },
     "HowToApply": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "HowToApply",
       "sectionId": "How_to_Apply_for_Hong_Kong_Offer_Shares",
       "sectionName": "How to Apply for Hong Kong Offer Shares",
@@ -3629,7 +3569,7 @@
       "sourceHash": "b726daa860c8e3dce9b74a4e7b1ca9f5f8b2b4bb1d35f88746a7cb819279ef4b"
     },
     "ImportantNotice": {
-      "version": "section-execution-contract/1.1",
+      "version": "section-execution-contract/1.2",
       "promptId": "ImportantNotice",
       "sectionId": "Important_Notice",
       "sectionName": "Important Notice",

@@ -1,8 +1,8 @@
 {
   "source": "ai-module/prompts/sections/requirements.json",
   "description": "Generated per-section input schema. The maintained SectionSpec is the only source of required fields.",
-  "contract_version": "section-execution-contract/1.1",
-  "contract_source_hash": "ed834c8e40b24d0a395e78599b69761161cc2e99206eea81c52640d6e50c395e",
+  "contract_version": "section-execution-contract/1.2",
+  "contract_source_hash": "3e6ef67bb093684e971b5c42adf9a1881fb331ec9db286af1d5e1d65971eddd9",
   "categories": [
     {
       "category_id": "section_Appendices",
@@ -283,82 +283,22 @@
       "function": "Generated from ai-module/prompts/sections/requirements.json; do not edit this schema by hand.",
       "fields": [
         {
-          "field_id": "Contents.expected_timetable",
-          "field_name": "expected_timetable",
+          "field_id": "Contents.ordered_contents_entries",
+          "field_name": "ordered_contents_entries",
           "type": "string_or_structured_value",
-          "description": "Key dates and milestones for the offering process.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
-            "expected_timetable"
+            "ordered_contents_entries"
           ],
           "required": true
         },
         {
-          "field_id": "Contents.summary",
-          "field_name": "summary",
+          "field_id": "Contents.front_matter_notices_if_present",
+          "field_name": "front_matter_notices_if_present",
           "type": "string_or_structured_value",
-          "description": "Brief overview of the company, its business, and the offering.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
-            "summary"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.financial_information",
-          "field_name": "financial_information",
-          "type": "string_or_structured_value",
-          "description": "Audited and unaudited financial statements and other financial data.",
-          "aliases": [
-            "financial_information"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.future_plans_and_use_of_proceeds",
-          "field_name": "future_plans_and_use_of_proceeds",
-          "type": "string_or_structured_value",
-          "description": "Detailed plans for the use of proceeds from the offering.",
-          "aliases": [
-            "future_plans_and_use_of_proceeds"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.cornerstone_investors",
-          "field_name": "cornerstone_investors",
-          "type": "string_or_structured_value",
-          "description": "Details of cornerstone investors and their commitments.",
-          "aliases": [
-            "cornerstone_investors"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.underwriting",
-          "field_name": "underwriting",
-          "type": "string_or_structured_value",
-          "description": "Information on underwriting arrangements and the role of underwriters.",
-          "aliases": [
-            "underwriting"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.structure_of_the_global_offering",
-          "field_name": "structure_of_the_global_offering",
-          "type": "string_or_structured_value",
-          "description": "Description of the structure of the global offering, including the roles of various parties.",
-          "aliases": [
-            "structure_of_the_global_offering"
-          ],
-          "required": true
-        },
-        {
-          "field_id": "Contents.how_to_apply_for_hong_kong_offer_shares",
-          "field_name": "how_to_apply_for_hong_kong_offer_shares",
-          "type": "string_or_structured_value",
-          "description": "Instructions on how to apply for the Hong Kong offer shares.",
-          "aliases": [
-            "how_to_apply_for_hong_kong_offer_shares"
+            "front_matter_notices_if_present"
           ],
           "required": true
         }

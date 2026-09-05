@@ -14,6 +14,7 @@ from .execution_contract import normalize_identifier
 
 
 AI_TAG_RE = re.compile(r"\[\[AI:[^\]]+\]\]", re.IGNORECASE)
+TRAILING_AI_TAG_RE = re.compile(r"\s*\[\[AI:[^\]]*\Z", re.IGNORECASE)
 VERIFICATION_BLOCK_RE = re.compile(
     r"(?:\n### Verification Notes\b.*|\n*---\s*\n*AI verification notes.*)\Z",
     re.IGNORECASE | re.DOTALL,
@@ -47,6 +48,7 @@ def clean_annotated_draft(text: str) -> str:
 
     cleaned = VERIFICATION_BLOCK_RE.sub("", text or "")
     cleaned = AI_TAG_RE.sub("", cleaned)
+    cleaned = TRAILING_AI_TAG_RE.sub("", cleaned)
     cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     return cleaned.strip()
