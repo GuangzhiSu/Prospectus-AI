@@ -4,11 +4,11 @@
 #   powershell -ExecutionPolicy Bypass -File packaging/windows/build-installer.ps1
 #
 # This script stages dist\ProspectusAI when needed, then compiles:
-#   dist\ProspectusAI-Setup-0.1.2.exe
+#   dist\ProspectusAI-Setup-0.1.4.exe
 
 param(
     [string]$InstallRoot = "dist\ProspectusAI",
-    [string]$Version = "0.1.2",
+    [string]$Version = "0.1.4",
     [string]$InnoCompiler = "",
     [switch]$SkipStage
 )

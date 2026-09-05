@@ -16,7 +16,7 @@ const mono = JetBrains_Mono({
 });
 
 const serif = Source_Serif_4({
-  variable: "--font-serif",
+  variable: "--font-source-serif",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
 });

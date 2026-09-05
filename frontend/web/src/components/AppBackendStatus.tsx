@@ -66,7 +66,7 @@ export function AppBackendStatus() {
 
   const meta = PROVIDER_UI[settings.llmProvider];
   const detail = modelForProvider(settings);
-  const title = isZh ? `${meta.label} — ${detail}。点击修改。` : `${meta.label} — ${detail}. Click to change.`;
+  const title = isZh ? `${meta.label}：${detail}。点击修改。` : `${meta.label}: ${detail}. Click to change.`;
 
   return (
     <Link

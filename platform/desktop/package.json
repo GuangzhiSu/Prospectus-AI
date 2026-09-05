@@ -1,6 +1,6 @@
 {
   "name": "prospectus-desktop",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "private": true,
   "description": "Electron desktop shell for Prospectus AI",
   "main": "main.cjs",

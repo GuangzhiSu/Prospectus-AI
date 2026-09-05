@@ -3,6 +3,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { CaretDown, Check, DownloadSimple, FileArrowUp, GearSix, WarningCircle } from "@phosphor-icons/react";
 import { SectionMarkdown } from "@/components/SectionMarkdown";
 import { AppBackendStatus } from "@/components/AppBackendStatus";
 import { isDesktopShell } from "@/lib/desktop-app";
@@ -88,14 +89,14 @@ const WORKSPACE_COPY = {
     remaining: (n: number) => `Remaining (${n})`,
     nextMissing: (name?: string) => (name ? `Next missing: ${name}` : "Next missing"),
     title: "Prospectus AI",
-    subtitle: "From your files to prospectus sections — draft, refine, export",
+    subtitle: "From your files to prospectus sections: draft, refine, export",
     productSite: "Product site",
     downloadApp: "Download app",
     settings: "Model & inference settings",
     zhWorkspace: "中文工作区",
     startOver: "Start over",
     startOverTitle: "Clear processed data and draft, start from upload",
-    exporting: "Exporting… (may take 10–30s)",
+    exporting: "Exporting… (may take 10 to 30 seconds)",
     exportWord: "Export to Word",
     buildingWord: "Building your Word document…",
     filesTitle: "Your files",
@@ -126,8 +127,8 @@ const WORKSPACE_COPY = {
     draftSubtitle: "25 sections in prospectus order · click to expand",
     clearAll: "Clear all",
     generating: "Generating",
-    missing: "Missing — not generated",
-    thinDraft: "Thin draft — regenerate recommended",
+    missing: "Missing, not generated",
+    thinDraft: "Thin draft, regenerate recommended",
     pending: "Pending",
     modify: "Modify",
     modificationPlaceholder: "Modification instructions…",
@@ -181,7 +182,7 @@ const WORKSPACE_COPY = {
     zhWorkspace: "English workspace",
     startOver: "重新开始",
     startOverTitle: "清除已处理数据和草稿，从上传重新开始",
-    exporting: "正在导出…（可能需要 10–30 秒）",
+    exporting: "正在导出…（可能需要 10 至 30 秒）",
     exportWord: "导出 Word",
     buildingWord: "正在生成 Word 文档…",
     filesTitle: "你的文件",
@@ -211,8 +212,8 @@ const WORKSPACE_COPY = {
     draftSubtitle: "按招股书顺序排列的 25 个章节 · 点击展开",
     clearAll: "清空草稿",
     generating: "生成中",
-    missing: "缺失 — 尚未生成",
-    thinDraft: "草稿较薄 — 建议重新生成",
+    missing: "缺失，尚未生成",
+    thinDraft: "草稿较薄，建议重新生成",
     pending: "待生成",
     modify: "修改",
     modificationPlaceholder: "请输入修改要求…",
@@ -343,6 +344,22 @@ function formatBytes(bytes: number) {
 function sectionOrderIndex(sectionId: string | undefined) {
   if (!sectionId) return -1;
   return (SECTION_ORDER as readonly string[]).indexOf(sectionId);
+}
+
+function describeWorkspaceError(error: string, locale: WorkspaceLocale) {
+  const quota = /free quota exhausted|AllocationQuota\.FreeTierOnly/i.test(error);
+  const auth = /permissiondenied|invalid api key|unauthorized|\b401\b|\b403\b/i.test(error);
+  const encoding = /UnicodeEncodeError|codec can't encode/i.test(error);
+  if (locale === "zh") {
+    if (quota) return { title: "模型免费额度已用完", detail: "已经生成并保存的章节不会丢失。请充值或更换可用模型后，从缺失章节继续。" };
+    if (auth) return { title: "模型服务拒绝了请求", detail: "请在模型设置中检查 API Key、账户权限和所选模型。" };
+    if (encoding) return { title: "终端字符编码不兼容", detail: "应用无法输出模型返回的特殊字符。请更新应用后重试。" };
+    return { title: "本次操作未完成", detail: "已完成的内容会保留。你可以检查下方技术详情后重试。" };
+  }
+  if (quota) return { title: "The model quota is exhausted", detail: "Completed sections are preserved. Add funds or choose an available model, then continue from the next missing section." };
+  if (auth) return { title: "The model provider rejected the request", detail: "Check the API key, account permission, and selected model in settings." };
+  if (encoding) return { title: "The terminal could not encode a model character", detail: "Update the application and try again." };
+  return { title: "The operation did not finish", detail: "Completed work is preserved. Review the technical details below, then try again." };
 }
 
 export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLocale }) {
@@ -551,6 +568,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
       await runSectionApi(sectionId, modification);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.generationFailed);
+      await fetchDraft();
     } finally {
       setGenerating(false);
       setGeneratingSectionIndex(-1);
@@ -597,6 +615,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
       await fetchDraft();
     } catch (e) {
       setError(e instanceof Error ? e.message : t.generationFailed);
+      await fetchDraft();
     } finally {
       setSectionStream(null);
       setGenerating(false);
@@ -718,15 +737,16 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
   const nextMissingLabel = nextMissingSectionId
     ? t.nextMissing(SECTION_NAMES[nextMissingSectionId])
     : t.nextMissing();
+  const friendlyError = error ? describeWorkspaceError(error, locale) : null;
 
   return (
-    <div className="min-h-screen bg-[#eef3f8] text-[var(--foreground)]">
+    <div className="min-h-screen bg-[#f1f4f1] text-[var(--foreground)]">
       {/* Header + Pipeline stepper */}
-      <header className="sticky top-0 z-10 border-b border-[#d8e0ea] bg-white/95 shadow-sm backdrop-blur">
-        <div className="mx-auto max-w-[1900px] px-5 py-4">
-          <div className="flex items-center justify-between mb-4">
+      <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[#fbfcfa]/95 backdrop-blur-xl">
+        <div className="mx-auto max-w-[1680px] px-4 py-3 lg:px-6">
+          <div className="mb-3 flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
             <div>
-              <h1 className="text-lg font-bold text-[var(--foreground)]">
+              <h1 className="text-lg font-bold tracking-[-0.02em] text-[var(--foreground)]">
                 {t.title}
               </h1>
               <p className="text-sm text-[var(--muted)] mt-0.5">
@@ -764,12 +784,12 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 </a>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {(manifest || hasDraft) && (
                 <button
                   onClick={handleStartOver}
                   disabled={generating || running}
-                  className="rounded-md border border-[#d5dde8] bg-white px-3 py-2 text-sm text-[var(--muted)] hover:bg-[#f6f8fb] hover:text-[var(--foreground)] disabled:opacity-50"
+                  className="rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm font-semibold text-[var(--muted)] hover:bg-[#edf1ed] hover:text-[var(--foreground)] disabled:opacity-50"
                   title={t.startOverTitle}
                 >
                   {t.startOver}
@@ -780,7 +800,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 <button
                   onClick={handleExportDocx}
                   disabled={exporting}
-                  className="flex items-center gap-2 rounded-md bg-[#172033] px-4 py-2 text-sm font-medium text-white hover:bg-[#253149] disabled:opacity-50 transition-colors"
+                  className="flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
                 >
                   {exporting ? (
                     <>
@@ -789,9 +809,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
+                      <DownloadSimple size={17} weight="bold" />
                       {t.exportWord}
                     </>
                   )}
@@ -811,15 +829,15 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                 <React.Fragment key={s.id}>
                   <div
                     className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${
-                      active ? "bg-[#e7f3fb] text-[#0369a1] font-medium" : ""
+                      active ? "bg-[var(--accent-soft)] text-[var(--accent)] font-semibold" : ""
                     } ${done && !active ? "text-[var(--success)]" : ""}`}
                   >
                     <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                       done ? "bg-[var(--success)] text-white" :
-                      active ? "bg-[#0369a1] text-white" :
-                      "bg-[#dbe3ee] text-[var(--muted)]"
+                      active ? "bg-[var(--accent)] text-white" :
+                      "bg-[#e1e6e2] text-[var(--muted)]"
                     }`}>
-                      {done ? "✓" : s.id}
+                      {done ? <Check size={14} weight="bold" /> : s.id}
                     </span>
                     <span className="hidden sm:inline">{s.label}</span>
                   </div>
@@ -833,17 +851,27 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
         </div>
       </header>
 
-      {error && (
-        <div className="mx-auto max-w-[1900px] px-5 pt-3">
-          <div className="rounded-lg border border-[var(--error)]/30 bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
-            {error}
+      {error && friendlyError && (
+        <div className="mx-auto max-w-[1680px] px-4 pt-4 lg:px-6">
+          <div className="rounded-[var(--radius-lg)] border border-[var(--error)]/25 bg-[var(--error-bg)] px-4 py-4 text-sm text-[#5d2723]">
+            <div className="flex items-start gap-3">
+              <WarningCircle size={21} weight="fill" className="mt-0.5 shrink-0 text-[var(--error)]" />
+              <div className="min-w-0 flex-1">
+                <p className="font-bold">{friendlyError.title}</p>
+                <p className="mt-1 leading-6 text-[#77413c]">{friendlyError.detail}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-4">
+                  <a href={href.settings} className="inline-flex items-center gap-1.5 font-semibold text-[var(--error)] hover:underline"><GearSix size={16} weight="bold" />{t.settings}</a>
+                  <details className="text-xs text-[#77413c]"><summary className="cursor-pointer font-semibold">{locale === "zh" ? "技术详情" : "Technical details"}</summary><pre className="mt-3 max-h-52 overflow-auto whitespace-pre-wrap rounded-md bg-white/70 p-3 font-mono text-[11px] leading-5">{error}</pre></details>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="mx-auto flex h-[calc(100vh-140px)] max-w-[1900px] gap-4 px-5 py-4">
+      <div className="mx-auto grid max-w-[1680px] gap-4 px-4 py-4 lg:h-[calc(100dvh-132px)] lg:grid-cols-[330px_minmax(0,1fr)] lg:px-6">
         {/* Left: Excel files */}
-        <aside className="w-[360px] shrink-0 space-y-4 overflow-auto rounded-lg border border-[#d8e0ea] bg-white p-4 shadow-sm">
+        <aside className="space-y-4 overflow-auto rounded-[var(--radius-lg)] border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-soft)]">
           <h2 className="text-sm font-semibold text-[var(--foreground)]">{t.filesTitle}</h2>
           <p className="text-xs text-[var(--muted)] mt-1">{t.filesSubtitle}</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -861,9 +889,9 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="rounded-md border border-[#d5dde8] bg-white px-3 py-2 text-sm font-medium hover:bg-[#f6f8fb] disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-hover)] disabled:opacity-50"
             >
-              {uploading ? t.uploading : t.uploadButton}
+              <FileArrowUp size={17} weight="bold" />{uploading ? t.uploading : t.uploadButton}
             </button>
             <button
               onClick={fetchFiles}
@@ -907,7 +935,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             <button
               onClick={handleRunAgent1}
               disabled={running || files.length === 0}
-              className="w-full rounded-md bg-[#172033] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#253149] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {running ? t.working : t.prepareButton}
             </button>
@@ -1009,8 +1037,8 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
         </aside>
 
         {/* Right: Draft */}
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#d8e0ea] bg-white shadow-sm">
-          <div className="shrink-0 border-b border-[#d8e0ea] px-5 py-4">
+        <main className="flex min-h-[680px] min-w-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-white shadow-[var(--shadow-soft)] lg:min-h-0">
+          <div className="shrink-0 border-b border-[var(--border)] px-5 py-4">
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-base font-semibold text-[var(--foreground)]">{t.draftTitle}</h2>
@@ -1030,7 +1058,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
             </div>
           </div>
           {manifest && (
-            <div className="shrink-0 border-b border-[#d8e0ea] bg-[#f8fafc] px-5 py-4">
+            <div className="shrink-0 border-b border-[var(--border)] bg-[#f7f9f7] px-5 py-4">
               {generating ? (
                 <div className="space-y-2">
                   <p className="text-sm text-[var(--accent)] font-medium">
@@ -1075,7 +1103,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     <button
                       onClick={handleGenerateAllSequential}
                       disabled={generating}
-                      className="rounded-md bg-[#0369a1] px-4 py-2 text-sm font-medium text-white hover:bg-[#075985] disabled:opacity-50"
+                      className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--accent-hover)] disabled:opacity-50"
                     >
                       {generateAllLabel}
                     </button>
@@ -1083,7 +1111,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                       <button
                         onClick={handleGenerateNext}
                         disabled={generating}
-                        className="rounded-md border-2 border-[#0369a1] px-4 py-2 text-sm font-medium text-[#0369a1] hover:bg-[#e7f3fb]"
+                        className="rounded-md border border-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent)] hover:bg-[var(--accent-soft)]"
                       >
                         {nextMissingLabel}
                       </button>
@@ -1150,7 +1178,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                     key={sectionId}
                     className={`rounded-lg border transition-colors ${
                       isInProgress
-                        ? "border-[#38bdf8] bg-[#eff8ff]"
+                        ? "border-[var(--accent)] bg-[var(--accent-soft)]"
                         : isGenerated
                           ? "border-[var(--success)]/30 bg-[var(--success-bg)]/40"
                           : "border-dashed border-[#d5dde8] bg-[#f8fafc]"
@@ -1197,9 +1225,7 @@ export function WorkspacePageContent({ locale = "en" }: { locale?: WorkspaceLoca
                             {t.modify}
                           </button>
                           <span className="text-[var(--muted)] self-center">
-                            <svg className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
+                            <CaretDown size={16} weight="bold" className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                           </span>
                         </div>
                       )}
