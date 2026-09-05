@@ -1,8 +1,8 @@
 {
   "source": "ai-module/prompts/sections/requirements.json",
   "description": "Generated per-section input schema. The maintained SectionSpec is the only source of required fields.",
-  "contract_version": "section-execution-contract/1.0",
-  "contract_source_hash": "2d3a6d9ab262a6c48275326cc201c80c7bd3cb7d41202a97738272b4492d312b",
+  "contract_version": "section-execution-contract/1.1",
+  "contract_source_hash": "ed834c8e40b24d0a395e78599b69761161cc2e99206eea81c52640d6e50c395e",
   "categories": [
     {
       "category_id": "section_Appendices",
@@ -138,8 +138,7 @@
           "type": "string_or_structured_value",
           "description": "The issuer's mission statement.",
           "aliases": [
-            "mission_statement",
-            "vision_statement"
+            "mission_statement"
           ],
           "required": true
         },
@@ -147,10 +146,9 @@
           "field_id": "Business.vision_statement",
           "field_name": "vision_statement",
           "type": "string_or_structured_value",
-          "description": "The issuer's mission statement.",
+          "description": "The issuer's vision statement.",
           "aliases": [
-            "vision_statement",
-            "mission_statement"
+            "vision_statement"
           ],
           "required": true
         },
@@ -248,11 +246,9 @@
           "field_id": "Connected_Transactions.transaction_details",
           "field_name": "transaction_details",
           "type": "string_or_structured_value",
-          "description": "Names and details of the connected persons involved in the transactions.",
+          "description": "Specific details of the transactions, including parties involved, nature of the transactions, and amounts or terms.",
           "aliases": [
-            "transaction_details",
-            "connected_persons",
-            "waivers_and_exemptions"
+            "transaction_details"
           ],
           "required": true
         },
@@ -312,8 +308,7 @@
           "type": "string_or_structured_value",
           "description": "Audited and unaudited financial statements and other financial data.",
           "aliases": [
-            "financial_information",
-            "underwriting"
+            "financial_information"
           ],
           "required": true
         },
@@ -351,11 +346,9 @@
           "field_id": "Contents.structure_of_the_global_offering",
           "field_name": "structure_of_the_global_offering",
           "type": "string_or_structured_value",
-          "description": "Brief overview of the company, its business, and the offering.",
+          "description": "Description of the structure of the global offering, including the roles of various parties.",
           "aliases": [
-            "structure_of_the_global_offering",
-            "future_plans_and_use_of_proceeds",
-            "summary"
+            "structure_of_the_global_offering"
           ],
           "required": true
         },
@@ -383,13 +376,10 @@
           "field_id": "Contractual_Arrangements_VIE.restricted_business_category_license_holder_vie_wfoe_name_each_vie_prc_operating_entity_register",
           "field_name": "Restricted business category; license holder; VIE WFOE name; each VIE / PRC Operating Entity; registered shareholders and percentages; revenue/assets contribution; agreement dates; service fee formula; option exercise price; pledge registration status; arbitration forum; PRC Legal Adviser opinion; regulator consultation; compliance monitoring measures",
           "type": "string_or_structured_value",
-          "description": "Name of the Variable Interest Entity (VIE) and the Wholly Foreign-Owned Enterprise (WFOE).",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Restricted business category; license holder; VIE WFOE name; each VIE / PRC Operating Entity; registered shareholders and percentages; revenue/assets contribution; agreement dates; service fee formula; option exercise price; pledge registration status; arbitration forum; PRC Legal Adviser opinion; regulator consultation; compliance monitoring measures",
-            "restricted_business_category_license_holder_vie_wfoe_name_each_vie_prc_operating_entity_register",
-            "Legal_advisory_opinion",
-            "VIE_WFOE_name",
-            "Relevant_businesses"
+            "restricted_business_category_license_holder_vie_wfoe_name_each_vie_prc_operating_entity_register"
           ],
           "required": true
         }
@@ -409,9 +399,7 @@
           "type": "string_or_structured_value",
           "description": "Names of the cornerstone investors.",
           "aliases": [
-            "cornerstone_investors_names",
-            "lock_up_period",
-            "cornerstone_investment_agreements"
+            "cornerstone_investors_names"
           ],
           "required": true
         },
@@ -419,11 +407,9 @@
           "field_id": "Cornerstone_Investors.cornerstone_investment_amounts",
           "field_name": "cornerstone_investment_amounts",
           "type": "string_or_structured_value",
-          "description": "Names of the cornerstone investors.",
+          "description": "Amounts of money to be invested by each cornerstone investor.",
           "aliases": [
-            "cornerstone_investment_amounts",
-            "cornerstone_investment_agreements",
-            "cornerstone_investors_names"
+            "cornerstone_investment_amounts"
           ],
           "required": true
         },
@@ -431,11 +417,9 @@
           "field_id": "Cornerstone_Investors.cornerstone_investment_agreements",
           "field_name": "cornerstone_investment_agreements",
           "type": "string_or_structured_value",
-          "description": "Names of the cornerstone investors.",
+          "description": "Details of the cornerstone investment agreements, including the subscription terms.",
           "aliases": [
-            "cornerstone_investment_agreements",
-            "cornerstone_investment_amounts",
-            "cornerstone_investors_names"
+            "cornerstone_investment_agreements"
           ],
           "required": true
         },
@@ -473,13 +457,11 @@
           "field_id": "Corporate_Information.registered_office_headquarters_head_office_principal_place_of_business_principal_place_of_busine",
           "field_name": "Registered office; headquarters / head office / principal place of business; principal place of business in Hong Kong",
           "type": "string_or_structured_value",
-          "description": "Address of the issuer's registered office.",
+          "description": "Address of the issuer's principal place of business in Hong Kong.",
           "aliases": [
             "Registered office; headquarters / head office / principal place of business; principal place of business in Hong Kong",
             "registered_office_headquarters_head_office_principal_place_of_business_principal_place_of_busine",
-            "principal_place_of_business_hk",
-            "registered_office_address",
-            "head_office_address"
+            "principal_place_of_business_hk"
           ],
           "required": true
         },
@@ -487,11 +469,9 @@
           "field_id": "Corporate_Information.company_website_with_disclaimer_that_website_information_does_not_form_part_of_the_prospectus",
           "field_name": "Company website (with disclaimer that website information does not form part of the Prospectus)",
           "type": "string_or_structured_value",
-          "description": "URL of the issuer's official website.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
-            "Company website (with disclaimer that website information does not form part of the Prospectus)",
-            "company_website",
-            "joint_company_secretaries"
+            "Company website (with disclaimer that website information does not form part of the Prospectus)"
           ],
           "required": true
         },
@@ -499,12 +479,10 @@
           "field_id": "Corporate_Information.company_secretary_joint_company_secretaries_authorized_representatives",
           "field_name": "Company secretary / joint company secretaries; authorized representatives",
           "type": "string_or_structured_value",
-          "description": "URL of the issuer's official website.",
+          "description": "Names and contact details of the joint company secretaries.",
           "aliases": [
             "Company secretary / joint company secretaries; authorized representatives",
-            "joint_company_secretaries",
-            "authorized_representatives",
-            "company_website"
+            "joint_company_secretaries"
           ],
           "required": true
         },
@@ -512,13 +490,10 @@
           "field_id": "Corporate_Information.audit_committee_remuneration_committee_nomination_committee_corporate_governance_committee_if_wv",
           "field_name": "Audit Committee; Remuneration Committee; Nomination Committee; Corporate Governance Committee if WVR",
           "type": "string_or_structured_value",
-          "description": "Names and roles of members of the audit committee.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Audit Committee; Remuneration Committee; Nomination Committee; Corporate Governance Committee if WVR",
-            "audit_committee_remuneration_committee_nomination_committee_corporate_governance_committee_if_wv",
-            "nomination_committee_members",
-            "audit_committee_members",
-            "remuneration_and_evaluation_committee_members"
+            "audit_committee_remuneration_committee_nomination_committee_corporate_governance_committee_if_wv"
           ],
           "required": true
         },
@@ -526,12 +501,9 @@
           "field_id": "Corporate_Information.compliance_adviser_principal_share_registrar_hong_kong_share_registrar_principal_banks_bankers",
           "field_name": "Compliance adviser; principal share registrar; Hong Kong share registrar; principal banks / bankers",
           "type": "string_or_structured_value",
-          "description": "Address of the issuer's principal place of business in Hong Kong.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
-            "Compliance adviser; principal share registrar; Hong Kong share registrar; principal banks / bankers",
-            "principal_place_of_business_hk",
-            "principal_banks",
-            "share_registrars"
+            "Compliance adviser; principal share registrar; Hong Kong share registrar; principal banks / bankers"
           ],
           "required": true
         }
@@ -591,10 +563,9 @@
           "field_id": "Cover.offering_type_global_offering",
           "field_name": "Offering type: Global Offering",
           "type": "string_or_structured_value",
-          "description": "Names of the joint sponsors, global coordinators, bookrunners, and lead managers.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
-            "Offering type: Global Offering",
-            "key_underwriters"
+            "Offering type: Global Offering"
           ],
           "required": true
         },
@@ -602,11 +573,10 @@
           "field_id": "Cover.total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar",
           "field_name": "Total number of Offer Shares; number of Hong Kong Offer Shares; number of International Offer Shares",
           "type": "string_or_structured_value",
-          "description": "The stock code assigned by the Hong Kong Stock Exchange.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Total number of Offer Shares; number of Hong Kong Offer Shares; number of International Offer Shares",
-            "total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar",
-            "stock_code"
+            "total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar"
           ],
           "required": true
         },
@@ -635,11 +605,10 @@
           "field_id": "Cover.brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact",
           "field_name": "Brokerage and levy rates (brokerage, SFC transaction levy, Stock Exchange trading fee, AFRC transaction levy)",
           "type": "string_or_structured_value",
-          "description": "The stock code assigned by the Hong Kong Stock Exchange.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Brokerage and levy rates (brokerage, SFC transaction levy, Stock Exchange trading fee, AFRC transaction levy)",
-            "brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact",
-            "stock_code"
+            "brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact"
           ],
           "required": true
         },
@@ -691,9 +660,7 @@
           "type": "string_or_structured_value",
           "description": "The term to be defined.",
           "aliases": [
-            "Term",
-            "Definition",
-            "Cross-Reference"
+            "Term"
           ],
           "required": true
         },
@@ -763,9 +730,7 @@
           "type": "string_or_structured_value",
           "description": "The full name of the director.",
           "aliases": [
-            "director_name",
-            "director_age",
-            "director_roles"
+            "director_name"
           ],
           "required": true
         },
@@ -773,11 +738,9 @@
           "field_id": "Directors_and_Senior_Management.director_age",
           "field_name": "director_age",
           "type": "string_or_structured_value",
-          "description": "The full name of the director.",
+          "description": "The age of the director.",
           "aliases": [
-            "director_age",
-            "director_roles",
-            "director_name"
+            "director_age"
           ],
           "required": true
         },
@@ -785,11 +748,9 @@
           "field_id": "Directors_and_Senior_Management.director_position",
           "field_name": "director_position",
           "type": "string_or_structured_value",
-          "description": "The age of the director.",
+          "description": "The position held by the director in the company.",
           "aliases": [
-            "director_position",
-            "director_age",
-            "director_roles"
+            "director_position"
           ],
           "required": true
         },
@@ -797,11 +758,9 @@
           "field_id": "Directors_and_Senior_Management.director_join_date",
           "field_name": "director_join_date",
           "type": "string_or_structured_value",
-          "description": "The age of the director.",
+          "description": "The date the director joined the company.",
           "aliases": [
-            "director_join_date",
-            "director_appointment_date",
-            "director_age"
+            "director_join_date"
           ],
           "required": true
         },
@@ -809,11 +768,9 @@
           "field_id": "Directors_and_Senior_Management.director_appointment_date",
           "field_name": "director_appointment_date",
           "type": "string_or_structured_value",
-          "description": "The age of the director.",
+          "description": "The date the director was appointed as a director.",
           "aliases": [
-            "director_appointment_date",
-            "director_join_date",
-            "director_age"
+            "director_appointment_date"
           ],
           "required": true
         },
@@ -821,11 +778,9 @@
           "field_id": "Directors_and_Senior_Management.director_roles",
           "field_name": "director_roles",
           "type": "string_or_structured_value",
-          "description": "The full name of the director.",
+          "description": "The roles and responsibilities of the director.",
           "aliases": [
-            "director_roles",
-            "director_age",
-            "director_name"
+            "director_roles"
           ],
           "required": true
         },
@@ -833,11 +788,9 @@
           "field_id": "Directors_and_Senior_Management.director_relationships",
           "field_name": "director_relationships",
           "type": "string_or_structured_value",
-          "description": "The age of the director.",
+          "description": "Any relationships between the director and other directors or senior management.",
           "aliases": [
-            "director_relationships",
-            "director_age",
-            "director_roles"
+            "director_relationships"
           ],
           "required": true
         },
@@ -867,9 +820,7 @@
           "type": "string_or_structured_value",
           "description": "The date when the Hong Kong Public Offering starts.",
           "aliases": [
-            "commencement_date",
-            "results_of_allocations",
-            "price_determination_date"
+            "commencement_date"
           ],
           "required": true
         },
@@ -879,9 +830,7 @@
           "type": "string_or_structured_value",
           "description": "The last time electronic applications can be submitted.",
           "aliases": [
-            "deadline_for_electronic_applications",
-            "deadline_for_payment_and_instructions",
-            "closing_of_application_lists"
+            "deadline_for_electronic_applications"
           ],
           "required": true
         },
@@ -891,8 +840,7 @@
           "type": "string_or_structured_value",
           "description": "The time when application lists are made available.",
           "aliases": [
-            "opening_of_application_lists",
-            "closing_of_application_lists"
+            "opening_of_application_lists"
           ],
           "required": true
         },
@@ -900,10 +848,9 @@
           "field_id": "Expected_Timetable.deadline_for_payment_and_instructions",
           "field_name": "deadline_for_payment_and_instructions",
           "type": "string_or_structured_value",
-          "description": "The last time electronic applications can be submitted.",
+          "description": "The last time payments for applications and instructions to HKSCC must be completed.",
           "aliases": [
-            "deadline_for_payment_and_instructions",
-            "deadline_for_electronic_applications"
+            "deadline_for_payment_and_instructions"
           ],
           "required": true
         },
@@ -911,10 +858,9 @@
           "field_id": "Expected_Timetable.closing_of_application_lists",
           "field_name": "closing_of_application_lists",
           "type": "string_or_structured_value",
-          "description": "The time when application lists are made available.",
+          "description": "The exact time when applications lists are closed.",
           "aliases": [
-            "closing_of_application_lists",
-            "opening_of_application_lists"
+            "closing_of_application_lists"
           ],
           "required": true
         },
@@ -924,9 +870,7 @@
           "type": "string_or_structured_value",
           "description": "The date when the offer price is determined.",
           "aliases": [
-            "price_determination_date",
-            "announcement_of_offer_price",
-            "results_of_allocations"
+            "price_determination_date"
           ],
           "required": true
         },
@@ -934,10 +878,9 @@
           "field_id": "Expected_Timetable.announcement_of_offer_price",
           "field_name": "announcement_of_offer_price",
           "type": "string_or_structured_value",
-          "description": "The date when the offer price is determined.",
+          "description": "The date and method of announcing the offer price.",
           "aliases": [
-            "announcement_of_offer_price",
-            "price_determination_date"
+            "announcement_of_offer_price"
           ],
           "required": true
         },
@@ -977,8 +920,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the issuing entity.",
           "aliases": [
-            "issuer_name",
-            "risk_factors"
+            "issuer_name"
           ],
           "required": true
         },
@@ -988,8 +930,7 @@
           "type": "string_or_structured_value",
           "description": "List of financial years covered in the prospectus.",
           "aliases": [
-            "financial_years",
-            "key_ratios"
+            "financial_years"
           ],
           "required": true
         },
@@ -999,8 +940,7 @@
           "type": "string_or_structured_value",
           "description": "Annual revenue figures.",
           "aliases": [
-            "revenue",
-            "segment_data"
+            "revenue"
           ],
           "required": true
         },
@@ -1090,9 +1030,7 @@
           "type": "string_or_structured_value",
           "description": "List of all forward-looking statements in the prospectus.",
           "aliases": [
-            "forward-looking_statements",
-            "disclaimer",
-            "risks_and_uncertainties"
+            "forward-looking_statements"
           ],
           "required": true
         },
@@ -1142,9 +1080,7 @@
           "type": "string_or_structured_value",
           "description": "The total net proceeds from the offering, calculated after deducting underwriting commissions and other expenses.",
           "aliases": [
-            "Net_Proceeds",
-            "Percentage_Allocation",
-            "Amount_Allocation"
+            "Net_Proceeds"
           ],
           "required": true
         },
@@ -1154,8 +1090,7 @@
           "type": "string_or_structured_value",
           "description": "The percentage of net proceeds allocated to each use of proceeds.",
           "aliases": [
-            "Percentage_Allocation",
-            "Amount_Allocation"
+            "Percentage_Allocation"
           ],
           "required": true
         },
@@ -1163,11 +1098,9 @@
           "field_id": "Future_Plans_and_Use_of_Proceeds.amount_allocation",
           "field_name": "Amount_Allocation",
           "type": "string_or_structured_value",
-          "description": "The percentage of net proceeds allocated to each use of proceeds.",
+          "description": "The specific amount of net proceeds allocated to each use of proceeds.",
           "aliases": [
-            "Amount_Allocation",
-            "Percentage_Allocation",
-            "Pro_Rata_Adjustment_Policy"
+            "Amount_Allocation"
           ],
           "required": true
         },
@@ -1207,9 +1140,7 @@
           "type": "string_or_structured_value",
           "description": "The technical term to be defined.",
           "aliases": [
-            "term",
-            "definition",
-            "context"
+            "term"
           ],
           "required": true
         },
@@ -1259,8 +1190,7 @@
           "type": "string_or_structured_value",
           "description": "The date the company was incorporated.",
           "aliases": [
-            "Company_Incorporation_Date",
-            "Key_Milestones"
+            "Company_Incorporation_Date"
           ],
           "required": true
         },
@@ -1280,8 +1210,7 @@
           "type": "string_or_structured_value",
           "description": "Description of the current corporate structure, including ownership and subsidiaries.",
           "aliases": [
-            "Corporate_Structure",
-            "Reorganizations"
+            "Corporate_Structure"
           ],
           "required": true
         },
@@ -1321,9 +1250,7 @@
           "type": "string_or_structured_value",
           "description": "List of application channels available for investors.",
           "aliases": [
-            "application_channels",
-            "application_period_start_date",
-            "application_period_end_date"
+            "application_channels"
           ],
           "required": true
         },
@@ -1331,11 +1258,9 @@
           "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.application_period_start_date",
           "field_name": "application_period_start_date",
           "type": "string_or_structured_value",
-          "description": "List of application channels available for investors.",
+          "description": "Start date of the application period.",
           "aliases": [
-            "application_period_start_date",
-            "application_period_end_date",
-            "application_channels"
+            "application_period_start_date"
           ],
           "required": true
         },
@@ -1343,11 +1268,9 @@
           "field_id": "How_to_Apply_for_Hong_Kong_Offer_Shares.application_period_end_date",
           "field_name": "application_period_end_date",
           "type": "string_or_structured_value",
-          "description": "List of application channels available for investors.",
+          "description": "End date of the application period.",
           "aliases": [
-            "application_period_end_date",
-            "application_period_start_date",
-            "application_channels"
+            "application_period_end_date"
           ],
           "required": true
         },
@@ -1407,8 +1330,7 @@
           "type": "string_or_structured_value",
           "description": "Number of Hong Kong offer shares available for sale.",
           "aliases": [
-            "number_of_hk_offershares",
-            "minimum_application_amount"
+            "number_of_hk_offershares"
           ],
           "required": true
         },
@@ -1416,11 +1338,9 @@
           "field_id": "Important_Notice.maximum_offer_price",
           "field_name": "maximum_offer_price",
           "type": "string_or_structured_value",
-          "description": "Stock code assigned to the offer shares.",
+          "description": "Maximum offer price per share, including fees and levies.",
           "aliases": [
-            "maximum_offer_price",
-            "price_determination_date",
-            "stock_code"
+            "maximum_offer_price"
           ],
           "required": true
         },
@@ -1438,10 +1358,9 @@
           "field_id": "Important_Notice.price_determination_date",
           "field_name": "price_determination_date",
           "type": "string_or_structured_value",
-          "description": "Maximum offer price per share, including fees and levies.",
+          "description": "Date when the offer price is expected to be determined.",
           "aliases": [
-            "price_determination_date",
-            "maximum_offer_price"
+            "price_determination_date"
           ],
           "required": true
         }
@@ -1461,9 +1380,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the industry in which the issuer operates.",
           "aliases": [
-            "industry_name",
-            "challenges",
-            "market_size"
+            "industry_name"
           ],
           "required": true
         },
@@ -1473,9 +1390,7 @@
           "type": "string_or_structured_value",
           "description": "Current market size of the industry.",
           "aliases": [
-            "market_size",
-            "projected_market_size",
-            "major_competitors"
+            "market_size"
           ],
           "required": true
         },
@@ -1485,8 +1400,7 @@
           "type": "string_or_structured_value",
           "description": "Annual growth rate of the industry.",
           "aliases": [
-            "growth_rate",
-            "key_drivers"
+            "growth_rate"
           ],
           "required": true
         },
@@ -1494,11 +1408,9 @@
           "field_id": "Industry_Overview.projected_market_size",
           "field_name": "projected_market_size",
           "type": "string_or_structured_value",
-          "description": "Current market size of the industry.",
+          "description": "Projected market size of the industry in the next 5 years.",
           "aliases": [
-            "projected_market_size",
-            "market_size",
-            "major_competitors"
+            "projected_market_size"
           ],
           "required": true
         },
@@ -1568,9 +1480,7 @@
           "type": "string_or_structured_value",
           "description": "Full name of the director.",
           "aliases": [
-            "director_name",
-            "director_nationality",
-            "reporting_accountant_name"
+            "director_name"
           ],
           "required": true
         },
@@ -1578,11 +1488,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.director_address",
           "field_name": "director_address",
           "type": "string_or_structured_value",
-          "description": "Full name of the director.",
+          "description": "Physical address of the director.",
           "aliases": [
-            "director_address",
-            "director_nationality",
-            "director_name"
+            "director_address"
           ],
           "required": true
         },
@@ -1590,11 +1498,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.director_nationality",
           "field_name": "director_nationality",
           "type": "string_or_structured_value",
-          "description": "Full name of the director.",
+          "description": "Nationality of the director.",
           "aliases": [
-            "director_nationality",
-            "director_name",
-            "director_address"
+            "director_nationality"
           ],
           "required": true
         },
@@ -1602,11 +1508,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.director_role",
           "field_name": "director_role",
           "type": "string_or_structured_value",
-          "description": "Full name of the director.",
+          "description": "Role of the director within the company.",
           "aliases": [
-            "director_role",
-            "director_nationality",
-            "director_name"
+            "director_role"
           ],
           "required": true
         },
@@ -1616,9 +1520,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the joint sponsor.",
           "aliases": [
-            "joint_sponsor_name",
-            "joint_sponsor_address",
-            "reporting_accountant_name"
+            "joint_sponsor_name"
           ],
           "required": true
         },
@@ -1626,11 +1528,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.joint_sponsor_address",
           "field_name": "joint_sponsor_address",
           "type": "string_or_structured_value",
-          "description": "Physical address of the director.",
+          "description": "Physical address of the joint sponsor.",
           "aliases": [
-            "joint_sponsor_address",
-            "joint_sponsor_name",
-            "director_address"
+            "joint_sponsor_address"
           ],
           "required": true
         },
@@ -1640,9 +1540,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the legal advisor.",
           "aliases": [
-            "legal_advisor_name",
-            "legal_advisor_address",
-            "reporting_accountant_name"
+            "legal_advisor_name"
           ],
           "required": true
         },
@@ -1650,11 +1548,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.legal_advisor_address",
           "field_name": "legal_advisor_address",
           "type": "string_or_structured_value",
-          "description": "Physical address of the director.",
+          "description": "Physical address of the legal advisor.",
           "aliases": [
-            "legal_advisor_address",
-            "legal_advisor_name",
-            "director_address"
+            "legal_advisor_address"
           ],
           "required": true
         },
@@ -1664,9 +1560,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the reporting accountant.",
           "aliases": [
-            "reporting_accountant_name",
-            "reporting_accountant_address",
-            "receiving_bank_name"
+            "reporting_accountant_name"
           ],
           "required": true
         },
@@ -1674,11 +1568,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.reporting_accountant_address",
           "field_name": "reporting_accountant_address",
           "type": "string_or_structured_value",
-          "description": "Physical address of the director.",
+          "description": "Physical address of the reporting accountant.",
           "aliases": [
-            "reporting_accountant_address",
-            "reporting_accountant_name",
-            "director_address"
+            "reporting_accountant_address"
           ],
           "required": true
         },
@@ -1686,11 +1578,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.industry_consultant_name",
           "field_name": "industry_consultant_name",
           "type": "string_or_structured_value",
-          "description": "Name of the reporting accountant.",
+          "description": "Name of the industry consultant.",
           "aliases": [
-            "industry_consultant_name",
-            "industry_consultant_address",
-            "reporting_accountant_name"
+            "industry_consultant_name"
           ],
           "required": true
         },
@@ -1698,11 +1588,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.industry_consultant_address",
           "field_name": "industry_consultant_address",
           "type": "string_or_structured_value",
-          "description": "Physical address of the director.",
+          "description": "Physical address of the industry consultant.",
           "aliases": [
-            "industry_consultant_address",
-            "industry_consultant_name",
-            "director_address"
+            "industry_consultant_address"
           ],
           "required": true
         },
@@ -1710,11 +1598,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.receiving_bank_name",
           "field_name": "receiving_bank_name",
           "type": "string_or_structured_value",
-          "description": "Name of the reporting accountant.",
+          "description": "Name of the receiving bank.",
           "aliases": [
-            "receiving_bank_name",
-            "receiving_bank_address",
-            "reporting_accountant_name"
+            "receiving_bank_name"
           ],
           "required": true
         },
@@ -1722,11 +1608,9 @@
           "field_id": "Parties_Involved_in_the_Global_Offering.receiving_bank_address",
           "field_name": "receiving_bank_address",
           "type": "string_or_structured_value",
-          "description": "Physical address of the director.",
+          "description": "Physical address of the receiving bank.",
           "aliases": [
-            "receiving_bank_address",
-            "receiving_bank_name",
-            "director_address"
+            "receiving_bank_address"
           ],
           "required": true
         }
@@ -1756,8 +1640,7 @@
           "type": "string_or_structured_value",
           "description": "Number of Hong Kong offer shares to be issued.",
           "aliases": [
-            "number_of_hong_kong_offer_shares",
-            "number_of_international_offer_shares"
+            "number_of_hong_kong_offer_shares"
           ],
           "required": true
         },
@@ -1765,10 +1648,9 @@
           "field_id": "Prospectus_and_Global_Offering_Information.number_of_international_offer_shares",
           "field_name": "number_of_international_offer_shares",
           "type": "string_or_structured_value",
-          "description": "Number of Hong Kong offer shares to be issued.",
+          "description": "Number of international offer shares to be issued.",
           "aliases": [
-            "number_of_international_offer_shares",
-            "number_of_hong_kong_offer_shares"
+            "number_of_international_offer_shares"
           ],
           "required": true
         },
@@ -1856,10 +1738,9 @@
           "field_id": "Regulatory_Overview.cross_border_transaction_regulations",
           "field_name": "cross_border_transaction_regulations",
           "type": "string_or_structured_value",
-          "description": "Laws and regulations related to product liability and consumer protection.",
+          "description": "Regulations governing cross-border transactions and foreign exchange controls.",
           "aliases": [
-            "cross_border_transaction_regulations",
-            "product_liability_laws"
+            "cross_border_transaction_regulations"
           ],
           "required": true
         }
@@ -1879,8 +1760,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the controlling shareholder.",
           "aliases": [
-            "controlling_shareholder_name",
-            "controlling_shareholder_shareholding"
+            "controlling_shareholder_name"
           ],
           "required": true
         },
@@ -1888,10 +1768,9 @@
           "field_id": "Relationship_with_Controlling_Shareholders.controlling_shareholder_shareholding",
           "field_name": "controlling_shareholder_shareholding",
           "type": "string_or_structured_value",
-          "description": "Name of the controlling shareholder.",
+          "description": "Percentage of shareholding by the controlling shareholder.",
           "aliases": [
-            "controlling_shareholder_shareholding",
-            "controlling_shareholder_name"
+            "controlling_shareholder_shareholding"
           ],
           "required": true
         },
@@ -1901,8 +1780,7 @@
           "type": "string_or_structured_value",
           "description": "Details of the voting rights associated with different classes of shares.",
           "aliases": [
-            "voting_rights_details",
-            "concert_party_agreements"
+            "voting_rights_details"
           ],
           "required": true
         },
@@ -1942,9 +1820,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the issuing company.",
           "aliases": [
-            "issuer_name",
-            "regulatory_risks",
-            "operational_risks"
+            "issuer_name"
           ],
           "required": true
         },
@@ -1964,9 +1840,7 @@
           "type": "string_or_structured_value",
           "description": "List of industry-specific risks faced by the issuer.",
           "aliases": [
-            "industry_risks",
-            "regulatory_risks",
-            "operational_risks"
+            "industry_risks"
           ],
           "required": true
         },
@@ -1976,9 +1850,7 @@
           "type": "string_or_structured_value",
           "description": "List of operational risks faced by the issuer.",
           "aliases": [
-            "operational_risks",
-            "regulatory_risks",
-            "market_risks"
+            "operational_risks"
           ],
           "required": true
         },
@@ -1986,11 +1858,9 @@
           "field_id": "Risk_Factors.financial_risks",
           "field_name": "financial_risks",
           "type": "string_or_structured_value",
-          "description": "List of operational risks faced by the issuer.",
+          "description": "List of financial risks faced by the issuer.",
           "aliases": [
-            "financial_risks",
-            "regulatory_risks",
-            "operational_risks"
+            "financial_risks"
           ],
           "required": true
         },
@@ -1998,11 +1868,9 @@
           "field_id": "Risk_Factors.regulatory_risks",
           "field_name": "regulatory_risks",
           "type": "string_or_structured_value",
-          "description": "List of operational risks faced by the issuer.",
+          "description": "List of regulatory risks faced by the issuer.",
           "aliases": [
-            "regulatory_risks",
-            "operational_risks",
-            "market_risks"
+            "regulatory_risks"
           ],
           "required": true
         },
@@ -2010,11 +1878,9 @@
           "field_id": "Risk_Factors.market_risks",
           "field_name": "market_risks",
           "type": "string_or_structured_value",
-          "description": "List of operational risks faced by the issuer.",
+          "description": "List of market risks faced by the issuer.",
           "aliases": [
-            "market_risks",
-            "regulatory_risks",
-            "operational_risks"
+            "market_risks"
           ],
           "required": true
         },
@@ -2022,11 +1888,9 @@
           "field_id": "Risk_Factors.other_material_risks",
           "field_name": "other_material_risks",
           "type": "string_or_structured_value",
-          "description": "List of operational risks faced by the issuer.",
+          "description": "Any other significant risks that are material to the issuer's business.",
           "aliases": [
-            "other_material_risks",
-            "regulatory_risks",
-            "operational_risks"
+            "other_material_risks"
           ],
           "required": true
         }
@@ -2046,9 +1910,7 @@
           "type": "string_or_structured_value",
           "description": "Total number of shares the company is authorized to issue.",
           "aliases": [
-            "authorized_share_capital",
-            "issued_share_capital",
-            "share_capital_after_offering"
+            "authorized_share_capital"
           ],
           "required": true
         },
@@ -2056,11 +1918,9 @@
           "field_id": "Share_Capital.issued_share_capital",
           "field_name": "issued_share_capital",
           "type": "string_or_structured_value",
-          "description": "Total number of shares the company is authorized to issue.",
+          "description": "Number of shares that have been issued and the nominal value of these shares.",
           "aliases": [
-            "issued_share_capital",
-            "share_capital_after_offering",
-            "authorized_share_capital"
+            "issued_share_capital"
           ],
           "required": true
         },
@@ -2068,11 +1928,9 @@
           "field_id": "Share_Capital.share_capital_after_offering",
           "field_name": "share_capital_after_offering",
           "type": "string_or_structured_value",
-          "description": "Total number of shares the company is authorized to issue.",
+          "description": "Breakdown of the share capital after the offering, including any new shares issued and the conversion of existing shares.",
           "aliases": [
-            "share_capital_after_offering",
-            "authorized_share_capital",
-            "issued_share_capital"
+            "share_capital_after_offering"
           ],
           "required": true
         },
@@ -2090,10 +1948,9 @@
           "field_id": "Share_Capital.repurchase_mandate_details",
           "field_name": "repurchase_mandate_details",
           "type": "string_or_structured_value",
-          "description": "Details of the voting rights structure, if applicable, including the ranking of shares and any special voting rights.",
+          "description": "Details of any mandates given to the directors to repurchase shares, including the conditions and limitations of these mandates.",
           "aliases": [
-            "repurchase_mandate_details",
-            "voting_rights_structure"
+            "repurchase_mandate_details"
           ],
           "required": true
         }
@@ -2123,8 +1980,7 @@
           "type": "string_or_structured_value",
           "description": "Number of Hong Kong public offering shares.",
           "aliases": [
-            "number_of_hong_kong_shares",
-            "number_of_international_shares"
+            "number_of_hong_kong_shares"
           ],
           "required": true
         },
@@ -2132,10 +1988,9 @@
           "field_id": "Structure_of_the_Global_Offering.number_of_international_shares",
           "field_name": "number_of_international_shares",
           "type": "string_or_structured_value",
-          "description": "Number of Hong Kong public offering shares.",
+          "description": "Number of international offering shares.",
           "aliases": [
-            "number_of_international_shares",
-            "number_of_hong_kong_shares"
+            "number_of_international_shares"
           ],
           "required": true
         },
@@ -2145,8 +2000,7 @@
           "type": "string_or_structured_value",
           "description": "Date by which the offer price must be agreed upon.",
           "aliases": [
-            "price_determination_date",
-            "share_dealing_start_date"
+            "price_determination_date"
           ],
           "required": true
         },
@@ -2164,10 +2018,9 @@
           "field_id": "Structure_of_the_Global_Offering.share_dealing_start_date",
           "field_name": "share_dealing_start_date",
           "type": "string_or_structured_value",
-          "description": "Date by which the offer price must be agreed upon.",
+          "description": "Date when share dealings are expected to commence.",
           "aliases": [
-            "share_dealing_start_date",
-            "price_determination_date"
+            "share_dealing_start_date"
           ],
           "required": true
         }
@@ -2187,9 +2040,7 @@
           "type": "string_or_structured_value",
           "description": "The name of the substantial shareholder.",
           "aliases": [
-            "name_of_substantial_shareholder",
-            "number_and_class_of_shares_held",
-            "approximate_percentage_of_shareholding_of_each_class_of_shares"
+            "name_of_substantial_shareholder"
           ],
           "required": true
         },
@@ -2207,11 +2058,9 @@
           "field_id": "Substantial_Shareholders.number_and_class_of_shares_held",
           "field_name": "number_and_class_of_shares_held",
           "type": "string_or_structured_value",
-          "description": "The nature of the interest held by the shareholder, e.g., beneficial interest, interest in a controlled corporation.",
+          "description": "The number and class of shares held by the substantial shareholder.",
           "aliases": [
-            "number_and_class_of_shares_held",
-            "approximate_percentage_of_shareholding_of_each_class_of_shares",
-            "capacity_nature_of_interest"
+            "number_and_class_of_shares_held"
           ],
           "required": true
         },
@@ -2219,11 +2068,9 @@
           "field_id": "Substantial_Shareholders.approximate_percentage_of_shareholding_of_each_class_of_shares",
           "field_name": "approximate_percentage_of_shareholding_of_each_class_of_shares",
           "type": "string_or_structured_value",
-          "description": "The number and class of shares held by the substantial shareholder.",
+          "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder.",
           "aliases": [
-            "approximate_percentage_of_shareholding_of_each_class_of_shares",
-            "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
-            "number_and_class_of_shares_held"
+            "approximate_percentage_of_shareholding_of_each_class_of_shares"
           ],
           "required": true
         },
@@ -2231,10 +2078,9 @@
           "field_id": "Substantial_Shareholders.approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
           "field_name": "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
           "type": "string_or_structured_value",
-          "description": "The approximate percentage of the shareholding of each class of shares held by the substantial shareholder.",
+          "description": "The approximate percentage of the shareholding in the issued and outstanding share capital of the company.",
           "aliases": [
-            "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital",
-            "approximate_percentage_of_shareholding_of_each_class_of_shares"
+            "approximate_percentage_of_shareholding_in_the_issued_and_outstanding_share_capital"
           ],
           "required": true
         }
@@ -2254,9 +2100,7 @@
           "type": "string_or_structured_value",
           "description": "Name of the company issuing the shares.",
           "aliases": [
-            "Issuer Name",
-            "Market Position",
-            "Business Overview"
+            "Issuer Name"
           ],
           "required": true
         },
@@ -2346,8 +2190,7 @@
           "type": "string_or_structured_value",
           "description": "Price at which the shares will be offered to the public.",
           "aliases": [
-            "Offer Price",
-            "Number of Offer Shares"
+            "Offer Price"
           ],
           "required": true
         },
@@ -2355,10 +2198,9 @@
           "field_id": "Underwriting.number_of_offer_shares",
           "field_name": "Number of Offer Shares",
           "type": "string_or_structured_value",
-          "description": "Price at which the shares will be offered to the public.",
+          "description": "Total number of offer shares for the Hong Kong Public Offering and International Offering.",
           "aliases": [
-            "Number of Offer Shares",
-            "Offer Price"
+            "Number of Offer Shares"
           ],
           "required": true
         },
@@ -2386,13 +2228,10 @@
           "field_id": "Waivers_and_Exemptions.joint_company_secretaries_waiver_names_which_secretary_satisfies_rule_3_28_which_requires_waiver",
           "field_name": "Joint company secretaries waiver: names; which secretary satisfies Rule 3.28; which requires waiver; qualifications; training hours; waiver term; compliance adviser; Hong Kong legal adviser support; revocation conditions",
           "type": "string_or_structured_value",
-          "description": "The specific rule or ordinance being waived or exempted.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Joint company secretaries waiver: names; which secretary satisfies Rule 3.28; which requires waiver; qualifications; training hours; waiver term; compliance adviser; Hong Kong legal adviser support; revocation conditions",
-            "joint_company_secretaries_waiver_names_which_secretary_satisfies_rule_3_28_which_requires_waiver",
-            "waiver_rule",
-            "waiver_reason",
-            "waiver_expiration_date"
+            "joint_company_secretaries_waiver_names_which_secretary_satisfies_rule_3_28_which_requires_waiver"
           ],
           "required": true
         },
@@ -2400,13 +2239,10 @@
           "field_id": "Waivers_and_Exemptions.share_incentive_disclosure_waiver_scheme_name_grantee_count_shares_options_awards_connected_pers",
           "field_name": "Share incentive disclosure waiver: scheme name; grantee count; shares/options/awards; connected-person grantees; disclosure threshold; dilution; EPS impact; SFC exemption status; documents available for inspection",
           "type": "string_or_structured_value",
-          "description": "The reason for seeking the waiver or exemption.",
+          "description": "Required by the maintained SectionSpec.",
           "aliases": [
             "Share incentive disclosure waiver: scheme name; grantee count; shares/options/awards; connected-person grantees; disclosure threshold; dilution; EPS impact; SFC exemption status; documents available for inspection",
-            "share_incentive_disclosure_waiver_scheme_name_grantee_count_shares_options_awards_connected_pers",
-            "waiver_reason",
-            "waiver_expiration_date",
-            "waiver_grantor"
+            "share_incentive_disclosure_waiver_scheme_name_grantee_count_shares_options_awards_connected_pers"
           ],
           "required": true
         }
