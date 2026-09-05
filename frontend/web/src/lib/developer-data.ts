@@ -184,12 +184,16 @@ export async function loadDeveloperPromptRequirements(): Promise<Record<string, 
 }
 
 export async function loadDeveloperCompany(companyId: string): Promise<DeveloperCompany> {
+  const packed = await loadDeveloperCompanyArchive(companyId);
+  const raw = await unzip(packed);
+  return JSON.parse(raw.toString("utf8")) as DeveloperCompany;
+}
+
+export async function loadDeveloperCompanyArchive(companyId: string): Promise<Buffer> {
   if (!/^[a-zA-Z0-9_-]+$/.test(companyId)) {
     throw new Error("Invalid company id.");
   }
-  const packed = await readFromCandidates(`${companyId}.json.gz`);
-  const raw = await unzip(packed);
-  return JSON.parse(raw.toString("utf8")) as DeveloperCompany;
+  return readFromCandidates(`${companyId}.json.gz`);
 }
 
 export async function loadDeveloperSection(
