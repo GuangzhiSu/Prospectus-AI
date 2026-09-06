@@ -95,7 +95,7 @@ export async function POST(request: Request) {
             "Do not infer WVR, Chapter 18C, Pre-Commercial status, compliance status, approvals, transaction mechanics or professional conclusions from industry knowledge. " +
             "Do not reproduce a complete reference prospectus. Output one ## heading followed by the unit draft. Preserve evidence tags in this annotated draft. " +
             (section.id === "Contents"
-              ? "For Contents, render every structured ordered_contents_entries row exactly once in order, keep its printed page label in the same row, reproduce supplied front-matter notices before the table, and use at most one source citation for the entire table."
+              ? "For Contents, render every structured ordered_contents_entries row exactly once in order, keep its printed page label in the same row, reproduce supplied front-matter notices before the table, and use at most one source citation for the entire table. Use GitHub-Flavored Markdown pipe-table syntax only; never output HTML table tags."
               : ""),
         },
         {
