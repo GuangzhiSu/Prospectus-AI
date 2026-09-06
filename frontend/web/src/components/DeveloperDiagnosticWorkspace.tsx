@@ -110,7 +110,22 @@ export function DeveloperDiagnosticWorkspace() {
   }
 
   useEffect(() => {
-    void reload();
+    let active = true;
+    apiJson<DiagnosticCatalog>("/api/developer-tools/diagnostic")
+      .then((nextCatalog) => {
+        if (active) setCatalog(nextCatalog);
+      })
+      .catch((reason) => {
+        if (active) {
+          setError(reason instanceof Error ? reason.message : "IPO Diagnostic 数据不可用。");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (loading && !catalog) {
@@ -219,12 +234,6 @@ function CriteriaView({
     visible[0] ||
     catalog.gates[0];
 
-  useEffect(() => {
-    if (!selected) return;
-    const key = `${selected.ruleset}:${selected.id}`;
-    if (key !== selectedKey) setSelectedKey(key);
-  }, [selected, selectedKey]);
-
   return (
     <div className="grid min-h-[calc(100vh-320px)] grid-cols-1 lg:grid-cols-[300px_1fr]">
       <aside className="border-b border-[#d5ddd4] bg-[#f5f8f3] lg:border-b-0 lg:border-r">
@@ -281,7 +290,16 @@ function CriteriaView({
           ))}
         </div>
       </aside>
-      {selected ? <GateEditor gate={selected} catalog={catalog} onSaved={onSaved} /> : <EmptyPanel>请选择一条门槛。</EmptyPanel>}
+      {selected ? (
+        <GateEditor
+          key={`${selected.ruleset}:${selected.id}`}
+          gate={selected}
+          catalog={catalog}
+          onSaved={onSaved}
+        />
+      ) : (
+        <EmptyPanel>请选择一条门槛。</EmptyPanel>
+      )}
     </div>
   );
 }
@@ -303,16 +321,6 @@ function GateEditor({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    setEvaluated(gate.evaluated);
-    setStubReason(gate.stubReason || "");
-    setTitle(gate.title);
-    setRuleRef(gate.ruleRef);
-    setChecks(gate.checks);
-    setMessage("");
-    setError("");
-  }, [gate]);
 
   async function save() {
     setSaving(true);
