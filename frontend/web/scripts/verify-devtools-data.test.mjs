@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { gzipSync } from "node:zlib";
+import { gunzipSync, gzipSync } from "node:zlib";
 
 import { verifyDeveloperData } from "./verify-devtools-data.mjs";
 
@@ -140,5 +140,25 @@ test("rejects concrete SectionSpec example values", async (t) => {
   await assert.rejects(
     verifyDeveloperData(root, { expectedCompanyCount: 2, expectedPromptCount: 1, expectedSectionCount: 7 }),
     /Concrete SectionSpec example is prohibited/
+  );
+});
+
+test("rejects one legacy source value mapped into multiple contract fields", async (t) => {
+  const root = await fixture();
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const payloadPath = path.join(root, "00001_demo.json.gz");
+  const payload = JSON.parse(gunzipSync(await fs.readFile(payloadPath)).toString("utf8"));
+  payload.sections[0].preparedData.contract_values = {
+    "A.stock_code": { value: "1234", contract_source_key: "stock_code" },
+    "A.offer_shares": { value: "1234", contract_source_key: "stock_code" },
+  };
+  await fs.writeFile(payloadPath, gzipSync(JSON.stringify(payload)));
+  await assert.rejects(
+    verifyDeveloperData(root, {
+      expectedCompanyCount: 2,
+      expectedPromptCount: 1,
+      expectedSectionCount: 7,
+    }),
+    /reuses legacy source stock_code/
   );
 });

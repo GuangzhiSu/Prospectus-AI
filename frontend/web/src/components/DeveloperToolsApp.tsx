@@ -1201,7 +1201,7 @@ function CaseRow({ item, open, onToggle, getSection }: { item: ExperimentCase; o
         <td className="px-4 py-3"><p className="font-semibold">{item.sectionName}</p><p className="mt-1 font-mono text-[9px] text-[#7b877f]">{item.sectionId}</p></td>
         <td className="px-4 py-3"><StatusPill status={item.status} />{item.status === "running" && item.unitProgress ? <p className="mt-1 max-w-xs truncate text-[10px] text-[#507069]" title={item.unitProgress.current}>unit {item.unitProgress.completed + 1}/{item.unitProgress.total} · {item.unitProgress.current}</p> : null}{item.error ? <p className="mt-1 max-w-xs truncate text-[10px] text-[#a64934]" title={item.error}>{item.error}</p> : null}</td>
         <td className="px-4 py-3">{diagnosis ? <><span className="font-semibold">{labels[diagnosis.primaryAttribution]}</span><span className="ml-2 font-mono text-[10px] text-[#7b877f]">{diagnosis.confidence}%</span></> : "—"}</td>
-        <td className="px-4 py-3 font-mono text-[10px] text-[#59675e]">{evaluation ? `O ${evaluation.overallScore} · R ${evaluation.requiredFactRecall} · N ${evaluation.numericFidelity.precision}/${evaluation.numericFidelity.recall} · S ${evaluation.structureCoverage}` : "—"}</td>
+        <td className="px-4 py-3 font-mono text-[10px] text-[#59675e]">{evaluation ? `O ${evaluation.overallScore} · R ${evaluation.requiredFactRecall}% · N ${evaluation.numericFidelity.precision}%/${evaluation.numericFidelity.recall}% · S ${evaluation.structureCoverage}%` : "—"}</td>
         <td className="px-4 py-3 text-right"><button disabled={!item.result} onClick={onToggle} aria-label="展开 RCA 详情" className="inline-flex h-8 w-8 items-center justify-center border border-[#ccd5cd] disabled:opacity-30"><Chevron open={open} /></button></td>
       </tr>
       {open && item.result ? <tr className="border-b border-[#d5ddd4]"><td colSpan={6} className="bg-[#f5f8f3] p-4"><CaseDetails item={item} getSection={getSection} /></td></tr> : null}
@@ -1243,7 +1243,7 @@ function CaseDetails({ item, getSection }: { item: ExperimentCase; getSection: (
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
             <ScoreTile label="Input fields" value={evaluation.inputFieldCoverage} />
             <ScoreTile label="Required facts" value={evaluation.requiredFactRecall} />
-            <ScoreTile label="Numeric P / R" value={`${evaluation.numericFidelity.precision} / ${evaluation.numericFidelity.recall}`} />
+            <ScoreTile label="Numeric P / R" value={`${evaluation.numericFidelity.precision}% / ${evaluation.numericFidelity.recall}%`} />
             <ScoreTile label="Grounded claims" value={evaluation.groundedClaimPrecision} />
             <ScoreTile label="Structure" value={evaluation.structureCoverage} />
             <ScoreTile label="Outline order" value={evaluation.outlineOrderSimilarity} />
@@ -1291,7 +1291,7 @@ function CaseDetails({ item, getSection }: { item: ExperimentCase; getSection: (
 }
 
 function ScoreTile({ label, value }: { label: string; value: number | string }) {
-  return <div className="bg-[#f5f8f3] px-3 py-2"><p className="font-mono text-sm font-semibold text-[#26332c]">{value}</p><p className="mt-1 text-[9px] uppercase tracking-[0.11em] text-[#718077]">{label}</p></div>;
+  return <div className="bg-[#f5f8f3] px-3 py-2"><p className="font-mono text-sm font-semibold text-[#26332c]">{typeof value === "number" ? `${value}%` : value}</p><p className="mt-1 text-[9px] uppercase tracking-[0.11em] text-[#718077]">{label}</p></div>;
 }
 
 function ListPanel({ title, items }: { title: string; items: string[] }) {

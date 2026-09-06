@@ -245,3 +245,131 @@ def test_enrich_input_records_recovers_a_missing_section_record(tmp_path):
         "Demo Holdings Limited GLOBAL OFFERING Stock Code" in value
         for value in atom_values
     )
+    contract_values = recovered["contract_values"]
+    assert contract_values["Cover.stock_code"]["value"] == "Stock Code: 1234"
+    assert contract_values[
+        "Cover.total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar"
+    ]["value"] is None
+    assert contract_values[
+        "Cover.brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact"
+    ]["value"] is None
+
+
+def test_enrich_preserves_short_professional_and_committee_rows(tmp_path):
+    input_records_dir = tmp_path / "input_records"
+    sections_dir = tmp_path / "sections"
+    sections_dir.mkdir()
+    (sections_dir / "demo.json").write_text(
+        json.dumps(
+            {
+                "document_id": "demo",
+                "sections": [
+                    {
+                        "canonical_section": "Corporate_Information",
+                        "source_file": "demo.pdf",
+                        "page_start": 20,
+                        "page_end": 21,
+                        "text": (
+                            "CORPORATE INFORMATION\n"
+                            "Audit Committee\nMs. Alpha\n"
+                            "Remuneration Committee\nMr. Beta\n"
+                            "Nomination Committee\nMs. Gamma\n"
+                            "Compliance Adviser\nAdviser Limited\n"
+                            "Hong Kong Share Registrar\nRegistrar Limited\n"
+                            "Principal Banks\nExample Bank\n"
+                        ),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    enrich_all(input_records_dir=input_records_dir, sections_dir=sections_dir)
+    recovered = json.loads(
+        (input_records_dir / "demo" / "Corporate_Information.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    atom_values = [atom["value"] for atom in recovered["evidence_atoms"]]
+    for expected in ("Ms. Alpha", "Mr. Beta", "Ms. Gamma", "Example Bank"):
+        assert expected in atom_values
+    values = recovered["contract_values"]
+    committees = values[
+        "Corporate_Information.audit_committee_remuneration_committee_nomination_committee_corporate_governance_committee_if_wv"
+    ]["value"]
+    assert committees == [
+        "Audit Committee",
+        "Remuneration Committee",
+        "Nomination Committee",
+    ]
+    professionals = values[
+        "Corporate_Information.compliance_adviser_principal_share_registrar_hong_kong_share_registrar_principal_banks_bankers"
+    ]["value"]
+    assert professionals == [
+        "Compliance Adviser",
+        "Hong Kong Share Registrar",
+        "Principal Banks",
+    ]
+
+
+def test_contents_rows_are_structured_without_keyword_cross_matches(tmp_path):
+    input_records_dir = tmp_path / "input_records"
+    sections_dir = tmp_path / "sections"
+    sections_dir.mkdir()
+    (sections_dir / "demo.json").write_text(
+        json.dumps(
+            {
+                "document_id": "demo",
+                "sections": [
+                    {
+                        "canonical_section": "Contents",
+                        "source_file": "demo.pdf",
+                        "page_start": 8,
+                        "page_end": 9,
+                        "text": (
+                            "TABLE OF CONTENTS\n"
+                            "You should rely only on the information contained in this prospectus.\n"
+                            "Page\n"
+                            "Summary . . . . . . . . . . . . . . . . . . .\n1\n"
+                            "Financial Information . . . . . . . . . . . .\n411\n"
+                            "Appendix II — Unaudited Pro Forma Financial Information\n"
+                            ". . . . . . . . . . . . . . . . . . . . . . .\nII-1\n"
+                            "Appendix III — Summary of the Constitution of the Company\n"
+                            ". . . . . . . . . . . . . . . . . . . . . . .\nIII-1\n"
+                        ),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    enrich_all(input_records_dir=input_records_dir, sections_dir=sections_dir)
+    recovered = json.loads(
+        (input_records_dir / "demo" / "Contents.json").read_text(encoding="utf-8")
+    )
+    entries = recovered["contract_values"]["Contents.ordered_contents_entries"]["value"]
+    assert entries == [
+        {"title": "Summary", "page_label": "1"},
+        {"title": "Financial Information", "page_label": "411"},
+        {
+            "title": "Appendix II — Unaudited Pro Forma Financial Information",
+            "page_label": "II-1",
+        },
+        {
+            "title": "Appendix III — Summary of the Constitution of the Company",
+            "page_label": "III-1",
+        },
+    ]
+    notices = recovered["contract_values"][
+        "Contents.front_matter_notices_if_present"
+    ]["value"]
+    assert notices == [
+        "You should rely only on the information contained in this prospectus."
+    ]
+    assert recovered["extracted_source_materials"]["counts"]["evidence_atoms"] == 5
+    assert all(
+        atom["kind"] in {"contents_entry", "notice"}
+        for atom in recovered["evidence_atoms"]
+    )

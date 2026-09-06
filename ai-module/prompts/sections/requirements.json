@@ -294,6 +294,10 @@
     ],
     "section_group": "FrontMatter",
     "generation_mode": "controlled_template_fill",
+    "required_input_fields": [
+      "ordered_contents_entries",
+      "front_matter_notices_if_present"
+    ],
     "requires_verified_source": false,
     "fallback_if_missing_data": "Insert bracketed placeholder [●] and flag the item as a missing input for human review (do not hallucinate).",
     "section_function": "Navigation table for the whole prospectus, reflecting the final section order including appendices and conditional special sections.",
@@ -301,13 +305,16 @@
       "Mandatory order template: Expected Timetable; Contents; Summary; Definitions; Glossary of Technical Terms; Forward-looking Statements; Risk Factors; Waivers and Exemptions; Information about this Prospectus and the Global Offering; Directors and Parties Involved in the Global Offering; Corporate Information; Industry Overview; Regulatory Overview; History, Reorganization and Corporate Structure; Business; Contractual Arrangements (if applicable); Connected Transactions; Directors and Senior Management; Relationship with Controlling Shareholders; Substantial Shareholders; Cornerstone Investors (if applicable); Share Capital; Financial Information; Future Plans and Use of Proceeds; Underwriting; Structure of the Global Offering; How to Apply for Hong Kong Offer Shares; Appendix I — Accountants' Report; Appendix II — Unaudited Pro Forma Financial Information; Appendix III — Summary of Constitution and Cayman Islands Company Law and Taxation; Appendix IV — Statutory and General Information; Appendix V — Documents Delivered to Registrar and Available for Inspection / Display"
     ],
     "drafting_sequence": [
-      "Use exact final section titles.",
-      "Include page references or placeholders."
+      "Render the ordered_contents_entries as one two-column title and printed-page table without summarizing what any section contains.",
+      "Preserve every exact final section title and its printed page label, including roman-numeral appendix labels.",
+      "Place front_matter_notices_if_present before the navigation table and reproduce only the supplied notice text."
     ],
     "negative_rules": [
       "Do not omit appendices.",
       "Do not omit special sections triggered by WVR, Chapter 18C, VIE, Contractual Arrangements, Cornerstone Investors or Connected Transactions.",
-      "Do not fabricate page numbers — mark DATA_MISSING per line if pagination unknown."
+      "Do not fabricate page numbers — mark DATA_MISSING per line if pagination unknown.",
+      "Do not turn a directory entry into a description of that chapter, and do not match a main section title to a longer appendix title merely because one keyword overlaps.",
+      "Do not emit a separate evidence citation on every table row; one table-level source citation is sufficient in the annotated draft."
     ],
     "validation_checklist": [
       "Every listed title matches the final section titles exactly."

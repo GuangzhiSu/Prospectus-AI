@@ -14,9 +14,15 @@ from .execution_contract import normalize_identifier
 
 
 AI_TAG_RE = re.compile(r"\[\[AI:[^\]]+\]\]", re.IGNORECASE)
+TRAILING_AI_TAG_RE = re.compile(r"\s*\[\[AI:[^\]]*\Z", re.IGNORECASE)
 VERIFICATION_BLOCK_RE = re.compile(
     r"(?:\n### Verification Notes\b.*|\n*---\s*\n*AI verification notes.*)\Z",
     re.IGNORECASE | re.DOTALL,
+)
+HTML_TABLE_RE = re.compile(r"<table\b[^>]*>.*?</table>", re.IGNORECASE | re.DOTALL)
+HTML_ROW_RE = re.compile(r"<tr\b[^>]*>(.*?)</tr>", re.IGNORECASE | re.DOTALL)
+HTML_CELL_RE = re.compile(
+    r"<(th|td)\b[^>]*>(.*?)</\1>", re.IGNORECASE | re.DOTALL
 )
 PLACEHOLDER_RE = re.compile(
     r"(?:\[●[^\]]*\]|DATA_MISSING|Information not provided)", re.IGNORECASE
@@ -42,11 +48,56 @@ HEADING_RE = re.compile(r"^#{1,6}\s+(.+?)\s*$", re.MULTILINE)
 REFERENCE_HEADING_RE = re.compile(r"^[A-Z][A-Z0-9 &(),/\-'’]{2,100}$", re.MULTILINE)
 
 
+def _html_cell_text(value: str) -> str:
+    replacements = {
+        "&nbsp;": " ",
+        "&amp;": "&",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&quot;": '"',
+        "&#39;": "'",
+        "&#x27;": "'",
+    }
+    cleaned = re.sub(r"<br\s*/?\s*>", " ", value, flags=re.IGNORECASE)
+    cleaned = re.sub(r"<[^>]+>", " ", cleaned)
+    for source, replacement in replacements.items():
+        cleaned = re.sub(re.escape(source), replacement, cleaned, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", cleaned).strip().replace("|", r"\|")
+
+
+def _normalize_simple_html_tables(text: str) -> str:
+    def replace_table(match: re.Match[str]) -> str:
+        rows: list[tuple[list[str], bool]] = []
+        for row_match in HTML_ROW_RE.finditer(match.group(0)):
+            cells = [
+                _html_cell_text(cell.group(2))
+                for cell in HTML_CELL_RE.finditer(row_match.group(1))
+            ]
+            if len(cells) >= 2 and any(cells):
+                rows.append((cells, bool(re.search(r"<th\b", row_match.group(1), re.I))))
+        if not rows:
+            return match.group(0)
+        width = max(len(cells) for cells, _ in rows)
+
+        def row_line(cells: list[str]) -> str:
+            padded = cells + [""] * (width - len(cells))
+            return "| " + " | ".join(padded) + " |"
+
+        lines = [row_line(cells) for cells, _ in rows]
+        if rows[0][1]:
+            lines.insert(1, row_line(["---"] * width))
+        return "\n".join(lines)
+
+    return HTML_TABLE_RE.sub(replace_table, text or "")
+
+
 def clean_annotated_draft(text: str) -> str:
     """Return a filed-style view while preserving professional [●] blanks."""
 
-    cleaned = VERIFICATION_BLOCK_RE.sub("", text or "")
+    cleaned = _normalize_simple_html_tables(text or "")
+    cleaned = VERIFICATION_BLOCK_RE.sub("", cleaned)
     cleaned = AI_TAG_RE.sub("", cleaned)
+    cleaned = TRAILING_AI_TAG_RE.sub("", cleaned)
     cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)
     cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
     return cleaned.strip()

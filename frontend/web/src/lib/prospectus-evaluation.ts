@@ -10,6 +10,7 @@ import type {
 } from "@/lib/developer-tools-types";
 
 const AI_TAG = /\[\[AI:[^\]]+\]\]/gi;
+const TRAILING_AI_TAG = /\s*\[\[AI:[^\]]*$/i;
 const VERIFICATION_BLOCK = /(?:\n### Verification Notes\b[\s\S]*|\n*---\s*\n*AI verification notes[\s\S]*)$/i;
 const PLACEHOLDER = /(?:\[●[^\]]*\]|DATA_MISSING|Information not provided)/gi;
 const NUMBER = /(?<![A-Za-z])(?:HK\$|RMB|US\$|USD|HKD)?\s*(?:\(?-?\d[\d,]*(?:\.\d+)?\)?%?|20\d{2})(?![A-Za-z])/gi;
@@ -20,10 +21,48 @@ const REFERENCE_HEADING = /^[A-Z][A-Z0-9 &(),/\-'’]{2,100}$/gm;
 
 type PreparedRecord = Record<string, unknown>;
 
+function htmlCellText(value: string): string {
+  return value
+    .replace(/<br\s*\/?\s*>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#(?:39|x27);/gi, "'")
+    .replace(/\|/g, "\\|")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeSimpleHtmlTables(text: string): string {
+  return text.replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => {
+    const parsedRows = [...table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)]
+      .map((row) => ({
+        cells: [...row[1].matchAll(/<(th|td)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map(
+          (cell) => htmlCellText(cell[2])
+        ),
+        header: /<th\b/i.test(row[1]),
+      }))
+      .filter((row) => row.cells.length >= 2 && row.cells.some(Boolean));
+    if (!parsedRows.length) return table;
+    const width = Math.max(...parsedRows.map((row) => row.cells.length));
+    const rowLine = (cells: string[]) =>
+      `| ${[...cells, ...Array(Math.max(0, width - cells.length)).fill("")].join(" | ")} |`;
+    const lines = parsedRows.map((row) => rowLine(row.cells));
+    if (parsedRows[0].header) {
+      lines.splice(1, 0, rowLine(Array(width).fill("---")));
+    }
+    return lines.join("\n");
+  });
+}
+
 export function cleanAnnotatedDraft(text: string): string {
-  return text
+  return normalizeSimpleHtmlTables(text)
     .replace(VERIFICATION_BLOCK, "")
     .replace(AI_TAG, "")
+    .replace(TRAILING_AI_TAG, "")
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
@@ -61,8 +100,20 @@ function dateTokens(value: unknown): Set<string> {
 }
 
 function entityTokens(value: unknown): Set<string> {
+  // Some prospectus headings look syntactically like legal entities.  In
+  // particular, "Share Capital" matches the broad company-name expression
+  // because Capital is also a legitimate entity suffix.  These generic
+  // disclosure terms must not become issuer-name contradictions.
+  const genericDisclosureTerms = new Set([
+    "sharecapital",
+    "workingcapital",
+    "registeredcapital",
+    "humancapital",
+  ]);
   return new Set(
-    [...String(value || "").matchAll(ENTITY)].map((match) => normalizeIdentifier(match[0]))
+    [...String(value || "").matchAll(ENTITY)]
+      .map((match) => normalizeIdentifier(match[0]))
+      .filter((token) => !genericDisclosureTerms.has(token))
   );
 }
 
@@ -324,8 +375,45 @@ function lcsLength(left: string[], right: string[]): number {
 
 function percent(numerator: number, denominator: number, fallback = 100): number {
   return denominator > 0
-    ? Math.round(Math.max(0, Math.min(100, (1000 * numerator) / denominator))) / 10
+    ? Math.round(10 * Math.max(0, Math.min(100, (100 * numerator) / denominator))) / 10
     : fallback;
+}
+
+function expectedContentsTitles(
+  contract: SectionExecutionContract,
+  valueMap: Map<string, unknown>
+): string[] {
+  const field = contract.fields.find(
+    (candidate) => normalizeIdentifier(candidate.label) === "orderedcontentsentries"
+  );
+  if (!field) return [];
+  const value = fieldValue(fieldEntry(valueMap, field));
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => {
+      if (entry && typeof entry === "object" && !Array.isArray(entry)) {
+        return String((entry as PreparedRecord).title || "").trim();
+      }
+      return String(entry || "").split("|")[0].trim();
+    })
+    .filter(Boolean);
+}
+
+function generatedContentsTitles(cleanDraft: string): string[] {
+  const titles: string[] = [];
+  for (const line of cleanDraft.split(/\r?\n/)) {
+    const match = line.match(/^\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*$/);
+    if (!match) continue;
+    const title = match[1].trim();
+    const page = match[2].trim();
+    // "Contents" is a real navigation row.  Only generic column labels are
+    // headers; dropping Contents here permanently capped a complete table at
+    // 31/32 (96.9%).
+    if (!title || /^(?:section|title)$/i.test(title) || /^:?-{3,}:?$/.test(title)) continue;
+    if (!/^(?:\d{1,5}|[ivxlcdm]{1,12}|[a-z]{1,8}-\d{1,5}|\[●[^\]]*\]|data_missing)$/i.test(page)) continue;
+    titles.push(title);
+  }
+  return titles;
 }
 
 function containsFact(normalizedDraft: string, fact: string): boolean {
@@ -419,12 +507,30 @@ export function evaluateDraft({
       draftHeadings.some((heading) => tokenOverlap(title, heading) >= 0.5) ||
       normalizedDraft.includes(normalizeText(title))
   );
-  const structureCoverage = percent(matchedUnits.length, unitTitles.length);
-  const outlineOrderSimilarity = percent(lcsLength(unitTitles, draftHeadings), unitTitles.length);
+  let structureCoverage = percent(matchedUnits.length, unitTitles.length);
+  let outlineOrderSimilarity = percent(lcsLength(unitTitles, draftHeadings), unitTitles.length);
   const referenceHeadings = headings(referenceText, true);
-  const referenceOutlineSimilarity = referenceHeadings.length
+  let referenceOutlineSimilarity = referenceHeadings.length
     ? percent(lcsLength(referenceHeadings, draftHeadings), referenceHeadings.length)
     : structureCoverage;
+  if (normalizeIdentifier(contract.sectionId) === "contents") {
+    const expectedTitles = expectedContentsTitles(contract, valueMap);
+    const generatedTitles = generatedContentsTitles(cleanDraft);
+    if (expectedTitles.length) {
+      const matchedTitles = expectedTitles.filter((title) =>
+        generatedTitles.some((candidate) => tokenOverlap(title, candidate) >= 0.8)
+      );
+      structureCoverage = percent(matchedTitles.length, expectedTitles.length);
+      outlineOrderSimilarity = percent(
+        lcsLength(expectedTitles, generatedTitles),
+        expectedTitles.length
+      );
+      // For a Contents contract, the structured title/page rows are the
+      // authoritative reference outline.  Comparing only Markdown headings
+      // would incorrectly score a correct navigation table as one heading.
+      referenceOutlineSimilarity = outlineOrderSimilarity;
+    }
+  }
   const lengthScore = lengthProfile(cleanDraft, referenceText);
 
   const placeholderCount = [...cleanDraft.matchAll(PLACEHOLDER)].length;

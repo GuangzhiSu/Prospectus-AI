@@ -21,12 +21,44 @@ def test_all_section_specs_compile_to_versioned_fields_and_units():
     assert all(contract["units"] for contract in document["contracts"].values())
     assert len(document["contracts"]["Business"]["units"]) > 1
     assert len(document["contracts"]["Cover"]["units"]) == 1
+    assert [
+        field["label"] for field in document["contracts"]["Contents"]["fields"]
+    ] == ["ordered_contents_entries", "front_matter_notices_if_present"]
     assert not any(
         "example" in field
         for requirement in requirements.values()
         for field in requirement.get("kg_required_input_fields", [])
         if isinstance(field, dict)
     )
+
+
+def test_legacy_aliases_require_semantic_overlap():
+    requirements = json.loads(REQUIREMENTS.read_text(encoding="utf-8"))
+    contracts = compile_execution_contracts(requirements)["contracts"]
+    cover = contracts["Cover"]
+    aliases = {field["fieldId"]: field["aliases"] for field in cover["fields"]}
+
+    assert aliases["Cover.stock_code"] == ["Stock code"]
+    assert "stock_code" not in aliases[
+        "Cover.total_number_of_offer_shares_number_of_hong_kong_offer_shares_number_of_international_offer_shar"
+    ]
+    assert "stock_code" not in aliases[
+        "Cover.brokerage_and_levy_rates_brokerage_sfc_transaction_levy_stock_exchange_trading_fee_afrc_transact"
+    ]
+    assert "key_underwriters" not in aliases["Cover.offering_type_global_offering"]
+    assert "key_underwriters" in aliases[
+        "Cover.names_of_joint_sponsors_overall_coordinators_joint_global_coordinators_joint_bookrunners_joint_l"
+    ]
+
+    for contract in contracts.values():
+        owners: dict[str, str] = {}
+        for field in contract["fields"]:
+            for alias in field["aliases"]:
+                assert alias not in owners, (
+                    f"{contract['sectionId']} alias {alias!r} is shared by "
+                    f"{owners.get(alias)!r} and {field['fieldId']!r}"
+                )
+                owners[alias] = field["fieldId"]
 
 
 def _contract() -> dict:
@@ -92,6 +124,28 @@ def test_clean_and_annotated_outputs_are_separate_and_faithful():
     assert result.numeric_precision == 100
     assert result.numeric_recall == 100
     assert not result.hard_failures
+
+
+def test_clean_output_removes_a_truncated_trailing_ai_tag():
+    clean = clean_annotated_draft(
+        "## Contents\n\n| Summary | 1 | [[AI:CITE|source=user_document; doc=demo.pdf;"
+    )
+    assert clean == "## Contents\n\n| Summary | 1 |"
+
+
+def test_clean_output_normalizes_simple_html_table_to_markdown():
+    annotated = """## Contents
+
+<table><thead><tr><th>Section</th><th>Page</th></tr></thead>
+<tbody><tr><td>Contents</td><td>iv</td></tr>
+<tr><td>Appendix I — Accountant's Report</td><td>I-1</td></tr></tbody></table>
+"""
+    clean = clean_annotated_draft(annotated)
+    assert "<table>" not in clean
+    assert "| Section | Page |" in clean
+    assert "| --- | --- |" in clean
+    assert "| Contents | iv |" in clean
+    assert "| Appendix I — Accountant's Report | I-1 |" in clean
 
 
 def test_unsupported_number_is_a_non_compensable_hard_failure():
