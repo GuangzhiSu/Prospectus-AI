@@ -5,7 +5,10 @@ import path from "node:path";
 import test from "node:test";
 import { gunzipSync, gzipSync } from "node:zlib";
 
-import { verifyDeveloperData } from "./verify-devtools-data.mjs";
+import {
+  verifyDeveloperData,
+  verifyDiagnosticCatalogSnapshot,
+} from "./verify-devtools-data.mjs";
 
 async function fixture() {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "prospectus-devtools-data-"));
@@ -160,5 +163,50 @@ test("rejects one legacy source value mapped into multiple contract fields", asy
       expectedSectionCount: 7,
     }),
     /reuses legacy source stock_code/
+  );
+});
+
+test("accepts a complete IPO Diagnostic snapshot", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "prospectus-diagnostic-snapshot-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const snapshotPath = path.join(root, "catalog.json");
+  await fs.writeFile(
+    snapshotPath,
+    JSON.stringify({
+      markets: [{}],
+      rulesets: [{}],
+      gates: [{}],
+      fields: [{}],
+      sourceDocs: [{}],
+      workbookRows: [{}],
+      summary: { gateCount: 1, workbookRowCount: 1 },
+    })
+  );
+  assert.deepEqual(await verifyDiagnosticCatalogSnapshot(snapshotPath), {
+    gateCount: 1,
+    fieldCount: 1,
+    workbookRowCount: 1,
+  });
+});
+
+test("rejects a stale IPO Diagnostic snapshot summary", async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "prospectus-diagnostic-snapshot-"));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const snapshotPath = path.join(root, "catalog.json");
+  await fs.writeFile(
+    snapshotPath,
+    JSON.stringify({
+      markets: [{}],
+      rulesets: [{}],
+      gates: [{}],
+      fields: [{}],
+      sourceDocs: [{}],
+      workbookRows: [{}],
+      summary: { gateCount: 2, workbookRowCount: 1 },
+    })
+  );
+  await assert.rejects(
+    verifyDiagnosticCatalogSnapshot(snapshotPath),
+    /gate count does not match/
   );
 });

@@ -4,6 +4,7 @@ import path from "node:path";
 
 import * as XLSX from "xlsx";
 
+import staticCatalog from "@/generated/ipo-diagnostic-catalog.json";
 import type {
   DiagnosticCatalog,
   DiagnosticGate,
@@ -24,6 +25,22 @@ const FIXTURES: Record<string, string> = {
   synthetic_ashare: "eligibility/eligibility/tests/fixtures/synthetic_ashare.json",
   synthetic_sgx: "eligibility/eligibility/tests/fixtures/synthetic_sgx.json",
 };
+
+function usesStaticRuntime(): boolean {
+  return process.env.VERCEL === "1" || process.env.DIAGNOSTIC_FORCE_STATIC === "1";
+}
+
+function staticDiagnosticCatalog(): DiagnosticCatalog {
+  const catalog = JSON.parse(JSON.stringify(staticCatalog)) as DiagnosticCatalog;
+  catalog.runtime = {
+    mode: "snapshot",
+    readOnly: true,
+    traceAvailable: false,
+    message:
+      "生产环境正在使用随代码发布的规则快照。规则、源文档和字段映射可正常浏览；YAML 写入和完整硬引擎归因只在本地 Python 运行时开放。",
+  };
+  return catalog;
+}
 
 function pythonEnv(root: string): NodeJS.ProcessEnv {
   const eligibilityRoot = getEligibilityPackageRoot(root);
@@ -131,13 +148,32 @@ async function enrichWorkbook(catalog: DiagnosticCatalog): Promise<DiagnosticCat
 }
 
 export async function loadDiagnosticCatalog(): Promise<DiagnosticCatalog> {
-  const { stdout } = await runDevtools(["catalog"]);
-  return enrichWorkbook(parseJson<DiagnosticCatalog>(stdout));
+  if (usesStaticRuntime()) {
+    return enrichWorkbook(staticDiagnosticCatalog());
+  }
+  try {
+    const { stdout } = await runDevtools(["catalog"]);
+    const catalog = parseJson<DiagnosticCatalog>(stdout);
+    catalog.runtime = {
+      mode: "live",
+      readOnly: false,
+      traceAvailable: true,
+      message: "当前使用本地 Python 硬引擎；规则修改和完整归因实验均可用。",
+    };
+    return enrichWorkbook(catalog);
+  } catch {
+    return enrichWorkbook(staticDiagnosticCatalog());
+  }
 }
 
 export async function patchDiagnosticGate(
   patch: DiagnosticGatePatch
 ): Promise<{ gate: DiagnosticGate; path: string; sourceFile: string }> {
+  if (usesStaticRuntime()) {
+    throw new Error(
+      "Vercel 生产环境为只读规则快照，不能持久化修改 YAML。请在本地 Developer Tools 中修改并通过 Git 提交。"
+    );
+  }
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "ipo-diag-"));
   const updatesPath = path.join(tempDir, "updates.json");
   try {
@@ -170,6 +206,11 @@ export async function traceDiagnostic(input: {
   rulesetNames?: string[];
   fixture?: string;
 }): Promise<DiagnosticTrace> {
+  if (usesStaticRuntime()) {
+    throw new Error(
+      "Vercel 生产环境没有 Python 硬引擎。规则标准与字段映射仍可浏览；完整归因实验请在本地 Developer Tools 中运行。"
+    );
+  }
   const root = getProspectusRoot();
   let issuer = input.issuer;
   if (!issuer && input.fixture) {
