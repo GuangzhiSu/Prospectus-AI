@@ -21,8 +21,45 @@ const REFERENCE_HEADING = /^[A-Z][A-Z0-9 &(),/\-'’]{2,100}$/gm;
 
 type PreparedRecord = Record<string, unknown>;
 
+function htmlCellText(value: string): string {
+  return value
+    .replace(/<br\s*\/?\s*>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#(?:39|x27);/gi, "'")
+    .replace(/\|/g, "\\|")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeSimpleHtmlTables(text: string): string {
+  return text.replace(/<table\b[^>]*>[\s\S]*?<\/table>/gi, (table) => {
+    const parsedRows = [...table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)]
+      .map((row) => ({
+        cells: [...row[1].matchAll(/<(th|td)\b[^>]*>([\s\S]*?)<\/\1>/gi)].map(
+          (cell) => htmlCellText(cell[2])
+        ),
+        header: /<th\b/i.test(row[1]),
+      }))
+      .filter((row) => row.cells.length >= 2 && row.cells.some(Boolean));
+    if (!parsedRows.length) return table;
+    const width = Math.max(...parsedRows.map((row) => row.cells.length));
+    const rowLine = (cells: string[]) =>
+      `| ${[...cells, ...Array(Math.max(0, width - cells.length)).fill("")].join(" | ")} |`;
+    const lines = parsedRows.map((row) => rowLine(row.cells));
+    if (parsedRows[0].header) {
+      lines.splice(1, 0, rowLine(Array(width).fill("---")));
+    }
+    return lines.join("\n");
+  });
+}
+
 export function cleanAnnotatedDraft(text: string): string {
-  return text
+  return normalizeSimpleHtmlTables(text)
     .replace(VERIFICATION_BLOCK, "")
     .replace(AI_TAG, "")
     .replace(TRAILING_AI_TAG, "")

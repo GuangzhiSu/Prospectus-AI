@@ -133,6 +133,21 @@ def test_clean_output_removes_a_truncated_trailing_ai_tag():
     assert clean == "## Contents\n\n| Summary | 1 |"
 
 
+def test_clean_output_normalizes_simple_html_table_to_markdown():
+    annotated = """## Contents
+
+<table><thead><tr><th>Section</th><th>Page</th></tr></thead>
+<tbody><tr><td>Contents</td><td>iv</td></tr>
+<tr><td>Appendix I — Accountant's Report</td><td>I-1</td></tr></tbody></table>
+"""
+    clean = clean_annotated_draft(annotated)
+    assert "<table>" not in clean
+    assert "| Section | Page |" in clean
+    assert "| --- | --- |" in clean
+    assert "| Contents | iv |" in clean
+    assert "| Appendix I — Accountant's Report | I-1 |" in clean
+
+
 def test_unsupported_number_is_a_non_compensable_hard_failure():
     annotated = (
         "## Cover\n\nImaginary Holdings Limited (stock code: 2658) set the "
