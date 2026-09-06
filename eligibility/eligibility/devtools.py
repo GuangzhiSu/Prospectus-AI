@@ -806,7 +806,12 @@ def _read_json_arg(raw: str | None) -> Any:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="eligibility.devtools")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("catalog", help="Dump the IPO Diagnostic catalog as JSON")
+    catalog = sub.add_parser("catalog", help="Dump the IPO Diagnostic catalog as JSON")
+    catalog.add_argument(
+        "--output",
+        default=None,
+        help="Write a formatted catalog snapshot to this path instead of stdout.",
+    )
     trace = sub.add_parser("trace", help="Attribute NOT_EVALUATED against issuer JSON")
     trace.add_argument("--issuer", required=True, help="Issuer JSON path or literal")
     trace.add_argument("--profile", default=None)
@@ -819,7 +824,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "catalog":
-        print(json.dumps(build_catalog(), ensure_ascii=False))
+        payload = build_catalog()
+        if args.output:
+            output = Path(args.output)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            print(f"Wrote IPO Diagnostic catalog snapshot: {output}")
+        else:
+            print(json.dumps(payload, ensure_ascii=False))
         return 0
     if args.command == "trace":
         issuer = _read_json_arg(args.issuer)

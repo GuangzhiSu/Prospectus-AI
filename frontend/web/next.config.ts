@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
       "../../ai-module/prompts/agents/writer.txt",
       "../../ai-module/prompts/core/*.md",
       "../../ai-module/prompts/sections/requirements.json",
+      "./src/generated/ipo-diagnostic-catalog.json",
     ],
     "/api/eligibility/run": [
       "../../.python_packages/**/*",

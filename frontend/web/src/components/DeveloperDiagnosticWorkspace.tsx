@@ -155,6 +155,15 @@ export function DeveloperDiagnosticWorkspace() {
         </div>
       </div>
 
+      {catalog.runtime?.mode === "snapshot" ? (
+        <div className="flex flex-col gap-2 border-b border-[#e1cf98] bg-[#fff8e5] px-5 py-3 text-xs leading-5 text-[#69551b] md:flex-row md:items-center md:justify-between">
+          <p>{catalog.runtime.message}</p>
+          <span className="shrink-0 border border-[#d8bd69] px-2 py-1 font-mono text-[10px] font-semibold">
+            PRODUCTION · READ ONLY
+          </span>
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap gap-1 border-b border-[#d5ddd4] bg-[#f5f8f3] px-4 py-2">
         {(
           [
@@ -321,6 +330,7 @@ function GateEditor({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const readOnly = catalog.runtime?.readOnly ?? false;
 
   async function save() {
     setSaving(true);
@@ -369,11 +379,11 @@ function GateEditor({
           </p>
         </div>
         <button
-          disabled={saving}
+          disabled={saving || readOnly}
           onClick={() => void save()}
           className="h-9 bg-[#17201b] px-4 text-xs font-semibold text-white disabled:opacity-40"
         >
-          {saving ? "写入 YAML…" : "保存到本地 YAML"}
+          {readOnly ? "生产环境只读" : saving ? "写入 YAML…" : "保存到本地 YAML"}
         </button>
       </div>
 
@@ -395,7 +405,7 @@ function GateEditor({
               type="checkbox"
               checked={evaluated}
               onChange={(event) => setEvaluated(event.target.checked)}
-              disabled={gate.requiresLlm || gate.layer === "soft"}
+              disabled={readOnly || gate.requiresLlm || gate.layer === "soft"}
             />
           </label>
 
@@ -404,6 +414,7 @@ function GateEditor({
             <input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
+              disabled={readOnly}
               className="mt-2 h-10 w-full border border-[#d4dcd4] bg-[#fbfcfa] px-3 text-sm outline-none focus:border-[#267267]"
             />
           </label>
@@ -412,6 +423,7 @@ function GateEditor({
             <input
               value={ruleRef}
               onChange={(event) => setRuleRef(event.target.value)}
+              disabled={readOnly}
               className="mt-2 h-10 w-full border border-[#d4dcd4] bg-[#fbfcfa] px-3 text-sm outline-none focus:border-[#267267]"
             />
           </label>
@@ -420,6 +432,7 @@ function GateEditor({
             <textarea
               value={stubReason}
               onChange={(event) => setStubReason(event.target.value)}
+              disabled={readOnly}
               className="mt-2 min-h-24 w-full border border-[#d4dcd4] bg-[#fbfcfa] p-3 text-sm outline-none focus:border-[#267267]"
               placeholder="例如：工作簿仍是 pending_text_check；本阶段没有该板块夹具。"
             />
@@ -451,6 +464,7 @@ function GateEditor({
                         <td className="px-2 py-2">
                           <input
                             value={check.thresholdValue === undefined || check.thresholdValue === null ? "" : String(check.thresholdValue)}
+                            disabled={readOnly}
                             onChange={(event) => {
                               const next = [...checks];
                               const raw = event.target.value;
@@ -466,6 +480,7 @@ function GateEditor({
                         <td className="px-2 py-2">
                           <input
                             value={check.thresholdUnit || ""}
+                            disabled={readOnly}
                             onChange={(event) => {
                               const next = [...checks];
                               next[index] = { ...check, thresholdUnit: event.target.value };
@@ -735,6 +750,17 @@ function LabView({ catalog }: { catalog: DiagnosticCatalog }) {
   const [error, setError] = useState("");
   const [trace, setTrace] = useState<DiagnosticTrace | null>(null);
   const [causeFilter, setCauseFilter] = useState<DiagnosticCause | "all">("all");
+
+  if (catalog.runtime?.traceAvailable === false) {
+    return (
+      <div className="p-5">
+        <EmptyPanel>
+          线上版本用于浏览 IPO 检测标准、源文档与 JSON 字段映射。完整归因实验需要 Python
+          硬引擎，请在本地 Developer Tools 中运行；线上不会用简化逻辑代替真实引擎，也不会给出可能误导的达标判断。
+        </EmptyPanel>
+      </div>
+    );
+  }
 
   async function run(nextFixture?: string) {
     setRunning(true);

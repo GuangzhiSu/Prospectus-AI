@@ -9,6 +9,38 @@ const DEFAULT_SECTION_COUNT = 3653;
 const MIN_SHORT_FIELD_COVERAGE = 95;
 const MIN_LONG_FIELD_COVERAGE = 90;
 
+export async function verifyDiagnosticCatalogSnapshot(snapshotPath) {
+  let raw;
+  try {
+    raw = await fs.readFile(snapshotPath, "utf8");
+  } catch (error) {
+    throw new Error(`IPO Diagnostic snapshot is missing: ${snapshotPath}`, { cause: error });
+  }
+
+  let catalog;
+  try {
+    catalog = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`IPO Diagnostic snapshot is invalid JSON: ${snapshotPath}`, { cause: error });
+  }
+  for (const key of ["markets", "rulesets", "gates", "fields", "sourceDocs", "workbookRows"]) {
+    if (!Array.isArray(catalog[key]) || catalog[key].length === 0) {
+      throw new Error(`IPO Diagnostic snapshot must contain a non-empty ${key} array.`);
+    }
+  }
+  if (catalog.summary?.gateCount !== catalog.gates.length) {
+    throw new Error("IPO Diagnostic snapshot gate count does not match its summary.");
+  }
+  if (catalog.summary?.workbookRowCount !== catalog.workbookRows.length) {
+    throw new Error("IPO Diagnostic snapshot workbook row count does not match its summary.");
+  }
+  return {
+    gateCount: catalog.gates.length,
+    fieldCount: catalog.fields.length,
+    workbookRowCount: catalog.workbookRows.length,
+  };
+}
+
 export async function verifyDeveloperData(
   dataRoot,
   {
@@ -254,7 +286,16 @@ export async function verifyDeveloperData(
 
 async function main() {
   const dataRoot = path.resolve(process.cwd(), "devtools-data");
+  const diagnosticSnapshotPath = path.resolve(
+    process.cwd(),
+    "src/generated/ipo-diagnostic-catalog.json"
+  );
   const required = process.env.VERCEL_ENV === "production" || process.env.REQUIRE_DEVTOOLS_DATA === "1";
+  const diagnostic = await verifyDiagnosticCatalogSnapshot(diagnosticSnapshotPath);
+  process.stdout.write(
+    `IPO Diagnostic snapshot verified: ${diagnostic.gateCount} gates, ` +
+      `${diagnostic.fieldCount} fields, ${diagnostic.workbookRowCount} workbook rows.\n`
+  );
   try {
     const result = await verifyDeveloperData(dataRoot);
     process.stdout.write(

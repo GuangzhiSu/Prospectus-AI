@@ -448,6 +448,12 @@ export type DiagnosticSourceDoc = {
 };
 
 export type DiagnosticCatalog = {
+  runtime?: {
+    mode: "live" | "snapshot";
+    readOnly: boolean;
+    traceAvailable: boolean;
+    message: string;
+  };
   markets: DiagnosticMarket[];
   rulesets: DiagnosticRuleset[];
   gates: DiagnosticGate[];
